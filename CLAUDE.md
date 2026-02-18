@@ -36,9 +36,50 @@ cd backend && bunx vitest run src/services/debt-solver.test.ts
 bun run lint
 bun run typecheck
 
+# Tunnel & webhook (for bot testing)
+bun run tunnel:start         # ngrok tunnel on :5173 (Vite, proxies API+webhook to :8787)
+bun run tunnel:stop          # stop ngrok
+bun run webhook:set          # set bot webhook to current tunnel URL
+bun run webhook:status       # check webhook config
+bun run webhook:clear        # remove webhook (back to long polling)
+
 # Deploy (CI does this, but manual if needed)
 bun run deploy               # deploy worker to Cloudflare
 ```
+
+## Local Development Setup
+
+Full local setup: backend + frontend + bot webhook via ngrok tunnel.
+
+### Prerequisites
+- Bun, ngrok, jq installed
+- `.env` file with `TELEGRAM_BOT_TOKEN`, `VITE_TELEGRAM_BOT_USERNAME`
+- `.dev.vars` file with secrets for wrangler (TELEGRAM_BOT_TOKEN, DEV_AUTH_BYPASS_ENABLED, TONAPI_KEY, USDT_MASTER_ADDRESS, PAGES_URL)
+
+### Steps
+
+```bash
+bun install
+bun run db:generate            # if schema changed
+bun run db:migrate:local       # apply migrations to local D1
+
+# Terminal 1: backend
+bun run dev:backend            # wrangler dev on :8787
+
+# Terminal 2: frontend
+bun run dev:frontend           # vite dev on :5173
+
+# Terminal 3: tunnel + webhook
+bun run tunnel:start           # ngrok → :5173 (Vite proxies /api, /webhook to :8787)
+bun run webhook:set            # point bot webhook to tunnel
+```
+
+### Key details
+- **Tunnel points to Vite (5173), not wrangler (8787).** Vite proxies `/api/*` and `/webhook` to the backend. This way one tunnel serves both the Mini App frontend and the bot webhook.
+- **`.dev.vars` PAGES_URL** must match the current ngrok URL (changes every restart on free tier). Update it and restart wrangler when tunnel URL changes.
+- **`DEV_AUTH_BYPASS_ENABLED=true`** in `.dev.vars` skips TG initData validation, auto-creates a mock "DEV Developer" user.
+- **Frontend build** (`bun run build:frontend`) is NOT required for local dev — Vite serves hot-reloaded source. Only needed if testing wrangler pages serving.
+- **Stopping:** `bun run stop` kills wrangler+vite. `bun run tunnel:stop` kills ngrok.
 
 ## Architecture
 

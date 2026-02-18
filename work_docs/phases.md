@@ -4,9 +4,11 @@ Phased roadmap from testnet prototype to full product. Each phase has a clear go
 
 ---
 
-## Phase 1: Testnet Prototype (V1)
+## Phase 1: Testnet Prototype (V1) — IN PROGRESS (~30%)
 
 **Goal:** Prove the full cycle works end-to-end on TON testnet with a real group dynamic — expense tracking, notifications, debt calculation, and on-chain settlement — all with fake money.
+
+**Current status (2026-02-18):** Infrastructure layer complete — auth, sessions, DB schema, bot webhook, debt solver algorithm, local dev setup with ngrok tunnel. All API business logic (groups, expenses, balances, settlements) and the entire frontend (pages, routing, components) are not yet implemented. See `work_docs/phase_1/README.md` for detailed task status.
 
 **Deliverables:**
 
