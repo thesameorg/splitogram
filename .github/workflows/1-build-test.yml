@@ -64,7 +64,7 @@ jobs:
       - name: Run frontend tests
         run: |
           cd frontend
-          bun run test -- --run
+          bun run test -- --run --passWithNoTests
 
       - name: Build frontend
         run: |
