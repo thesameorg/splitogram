@@ -15,7 +15,7 @@ interface ImportMeta {
 interface TelegramWebApp {
   ready(): void;
   backgroundColor: string;
-  colorScheme: "light" | "dark";
+  colorScheme: 'light' | 'dark';
   themeParams: {
     text_color?: string;
     bg_color?: string;

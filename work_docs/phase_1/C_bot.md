@@ -65,17 +65,19 @@ Two types of deep links in Telegram Mini Apps:
    - Used for: opening specific group, expense, settlement flow
 
 **Parameter scheme:**
+
 - `join_{invite_code}` — join a group (bot deep link, `/start` handler)
 - `group_{group_id}` — open a specific group (mini app deep link)
 - `expense_{expense_id}` — open a specific expense (mini app deep link)
 - `settle_{settlement_id}` — open settlement flow (mini app deep link)
 
 **Frontend handling:**
+
 ```typescript
-const startParam = WebApp.initDataUnsafe.start_param
-if (startParam?.startsWith('group_')) navigate(`/groups/${id}`)
-if (startParam?.startsWith('expense_')) navigate(`/groups/.../expenses/${id}`)
-if (startParam?.startsWith('settle_')) navigate(`/settle/${id}`)
+const startParam = WebApp.initDataUnsafe.start_param;
+if (startParam?.startsWith('group_')) navigate(`/groups/${id}`);
+if (startParam?.startsWith('expense_')) navigate(`/groups/.../expenses/${id}`);
+if (startParam?.startsWith('settle_')) navigate(`/settle/${id}`);
 ```
 
 **Output:** Tapping a bot notification opens the mini app at the right screen.

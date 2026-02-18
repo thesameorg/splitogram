@@ -13,6 +13,7 @@ Core backend logic. Unblocks bot, settlement, and frontend work.
 Auth is mostly copy-paste from template. Our additions: wallet address storage, upsert on auth.
 
 **From template (copy-paste):**
+
 - `telegram-auth.ts` — HMAC-SHA256 initData validation
 - `session-manager.ts` — KV session management (UUID, TTL 3600s)
 - `auth-middleware.ts` — `Authorization: Bearer` / `X-Session-ID` extraction + validation
@@ -20,6 +21,7 @@ Auth is mostly copy-paste from template. Our additions: wallet address storage, 
 - `mock-user.ts` — dev bypass with `DEV_AUTH_BYPASS_ENABLED`
 
 **Our schema:**
+
 ```sql
 users (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -130,10 +132,12 @@ settlements (
 ```
 
 **Balance calculation:**
+
 1. For each user in group: `net = SUM(expenses they paid for others) - SUM(their share in others' expenses) + SUM(settlements received) - SUM(settlements paid)`
 2. One SQL query computes net balance per user per group
 
 **Debt simplification** (`services/debt-solver.ts`, ~30 lines):
+
 1. Compute net balance per person in group
 2. Separate into creditors (positive balance) and debtors (negative balance)
 3. Greedy match: pair largest creditor with largest debtor, transfer `min(credit, |debt|)`, repeat

@@ -93,6 +93,7 @@ Telegram Mini App UI. Depends on backend APIs (B) and TON Connect (D1).
 - Two paths:
 
 **Path 1 — Pay with TON wallet (primary):**
+
 1. If wallet not connected → show TON Connect modal (auto-triggered)
 2. Wallet connected → show "Confirm Payment" with amount + recipient
 3. Tap confirm → `POST /api/v1/groups/:id/settlements` to create settlement on demand, then `GET /api/v1/settlements/:id/tx` to get transaction params
@@ -103,6 +104,7 @@ Telegram Mini App UI. Depends on backend APIs (B) and TON Connect (D1).
 8. Failure → clear error message, "Try again" button
 
 **Path 2 — Mark as settled externally (secondary):**
+
 - Only visible to the creditor (person who is owed)
 - Small text link: "Settled outside the app?"
 - Tap → confirmation dialog → `POST /api/v1/settlements/:id/mark-external`

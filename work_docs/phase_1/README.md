@@ -12,28 +12,28 @@ Tasks are grouped by domain and roughly ordered by dependency. Tasks within the 
 
 ## Stack Summary
 
-| Layer | Tech |
-|-------|------|
-| Runtime | Bun |
-| Backend | Hono (CF Worker) + grammY + Drizzle + Zod |
-| Frontend | React 19 + Vite (CF Pages) + Tailwind + TON Connect |
-| Database | Cloudflare D1 (SQLite) |
-| Sessions | Cloudflare KV |
+| Layer      | Tech                                                                   |
+| ---------- | ---------------------------------------------------------------------- |
+| Runtime    | Bun                                                                    |
+| Backend    | Hono (CF Worker) + grammY + Drizzle + Zod                              |
+| Frontend   | React 19 + Vite (CF Pages) + Tailwind + TON Connect                    |
+| Database   | Cloudflare D1 (SQLite)                                                 |
+| Sessions   | Cloudflare KV                                                          |
 | Blockchain | TONAPI REST (backend) + `@ton/ton` + `@tonconnect/ui-react` (frontend) |
-| CI/CD | GitHub Actions → Cloudflare (from template) |
+| CI/CD      | GitHub Actions → Cloudflare (from template)                            |
 
 ## Task Groups
 
-| # | Group | Tasks | Status | Notes |
-|---|-------|-------|--------|-------|
-| 0 | [Tech Decisions](./00_tech_decisions.md) | Reference doc | Done | Stack, architecture, template reuse plan |
-| A | [Project Setup & Infrastructure](./A_infrastructure.md) | 4 tasks | **Done** (A1-A3), A4 pending | Scaffolded from template. Monorepo, backend, frontend, wrangler.toml. CI/CD pending. |
-| B | [Data Model & Core Logic](./B_data_model.md) | 5 tasks | Pending | Core backend — unblocks everything |
-| C | [Telegram Bot & Notifications](./C_bot.md) | 4 tasks | Pending | Engagement loop. Bot /start + join implemented. |
-| D | [TON Wallet & Settlement](./D_settlement.md) | 4 tasks | Pending | On-chain integration. New code (not in template). |
-| E | [Mini App Frontend](./E_frontend.md) | 6 tasks | Pending | User-facing UI. Shell/hooks from template. |
-| F | [Integration & Polish](./F_integration.md) | 4 tasks | Pending | Wire everything together |
-| - | [Deferred Decisions](./later.md) | Reference doc | - | Decisions from code-tightener review, deferred items |
+| #   | Group                                                   | Tasks         | Status                       | Notes                                                                                |
+| --- | ------------------------------------------------------- | ------------- | ---------------------------- | ------------------------------------------------------------------------------------ |
+| 0   | [Tech Decisions](./00_tech_decisions.md)                | Reference doc | Done                         | Stack, architecture, template reuse plan                                             |
+| A   | [Project Setup & Infrastructure](./A_infrastructure.md) | 4 tasks       | **Done** (A1-A3), A4 pending | Scaffolded from template. Monorepo, backend, frontend, wrangler.toml. CI/CD pending. |
+| B   | [Data Model & Core Logic](./B_data_model.md)            | 5 tasks       | Pending                      | Core backend — unblocks everything                                                   |
+| C   | [Telegram Bot & Notifications](./C_bot.md)              | 4 tasks       | Pending                      | Engagement loop. Bot /start + join implemented.                                      |
+| D   | [TON Wallet & Settlement](./D_settlement.md)            | 4 tasks       | Pending                      | On-chain integration. New code (not in template).                                    |
+| E   | [Mini App Frontend](./E_frontend.md)                    | 6 tasks       | Pending                      | User-facing UI. Shell/hooks from template.                                           |
+| F   | [Integration & Polish](./F_integration.md)              | 4 tasks       | Pending                      | Wire everything together                                                             |
+| -   | [Deferred Decisions](./later.md)                        | Reference doc | -                            | Decisions from code-tightener review, deferred items                                 |
 
 ## Dependency Graph
 

@@ -1,6 +1,6 @@
-import { config } from "../config";
+import { config } from '../config';
 
-const SESSION_KEY = "splitogram_session_id";
+const SESSION_KEY = 'splitogram_session_id';
 
 export function getSessionId(): string | null {
   return localStorage.getItem(SESSION_KEY);
@@ -21,23 +21,20 @@ export class ApiError extends Error {
     message: string,
   ) {
     super(message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
   }
 }
 
-export async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {},
-): Promise<T> {
+export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const sessionId = getSessionId();
 
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
 
   if (sessionId) {
-    headers["Authorization"] = `Bearer ${sessionId}`;
+    headers['Authorization'] = `Bearer ${sessionId}`;
   }
 
   const response = await fetch(`${config.apiBaseUrl}${endpoint}`, {
@@ -47,8 +44,8 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({
-      error: "unknown_error",
-      detail: "Unknown error",
+      error: 'unknown_error',
+      detail: 'Unknown error',
     }));
     throw new ApiError(response.status, body.error, body.detail);
   }

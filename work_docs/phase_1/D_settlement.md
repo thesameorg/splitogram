@@ -48,13 +48,15 @@ When user taps "Settle up" on a debt:
    ```typescript
    const tx = {
      validUntil: Math.floor(Date.now() / 1000) + 360,
-     messages: [{
-       address: jettonWalletContract,     // debtor's jetton wallet
-       amount: toNano("0.05").toString(), // gas fees
-       payload: body.toBoc().toString("base64")
-     }]
-   }
-   const result = await tonConnectUI.sendTransaction(tx)
+     messages: [
+       {
+         address: jettonWalletContract, // debtor's jetton wallet
+         amount: toNano('0.05').toString(), // gas fees
+         payload: body.toBoc().toString('base64'),
+       },
+     ],
+   };
+   const result = await tonConnectUI.sendTransaction(tx);
    ```
 5. **Frontend** receives result (BOC or tx hash), sends to backend: `POST /api/v1/settlements/:id/verify`
 6. **Backend** updates settlement status: `open → payment_pending`

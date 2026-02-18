@@ -60,14 +60,14 @@ TON Connect UI
 
 ### Stack
 
-| Layer | Tech |
-|-------|------|
-| Runtime | Bun |
-| Backend | Hono + grammY + Drizzle + Zod |
+| Layer    | Tech                                                                 |
+| -------- | -------------------------------------------------------------------- |
+| Runtime  | Bun                                                                  |
+| Backend  | Hono + grammY + Drizzle + Zod                                        |
 | Frontend | React 19 + Vite + Tailwind + `@tonconnect/ui-react` + `@twa-dev/sdk` |
-| Database | Cloudflare D1 (SQLite) via Drizzle |
-| Sessions | Cloudflare KV |
-| CI/CD | GitHub Actions → Cloudflare |
+| Database | Cloudflare D1 (SQLite) via Drizzle                                   |
+| Sessions | Cloudflare KV                                                        |
+| CI/CD    | GitHub Actions → Cloudflare                                          |
 
 ### Repo Structure
 

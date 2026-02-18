@@ -1,6 +1,6 @@
-import type { SessionData, Env } from "../env";
-import type { TelegramUser } from "../models/telegram-user";
-import { getDisplayName } from "../models/telegram-user";
+import type { SessionData, Env } from '../env';
+import type { TelegramUser } from '../models/telegram-user';
+import { getDisplayName } from '../models/telegram-user';
 
 export class SessionManager {
   private readonly kv: KVNamespace;

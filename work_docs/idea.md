@@ -56,6 +56,7 @@ The service controls transaction creation, not the user. This makes payment veri
 **Supported wallets:** Any TON Connect-compatible wallet — Tonkeeper, MyTonWallet, Telegram Wallet, etc. Telegram Wallet is treated as one of N wallet options, not a competitor.
 
 **Failure handling:**
+
 - Insufficient USDT balance → pre-flight check via TONAPI, block attempt with clear message
 - Tx rejected or times out → debt stays `open`, user sees "payment failed, try again"
 - Debt is never marked settled until on-chain confirmation lands
@@ -63,15 +64,15 @@ The service controls transaction creation, not the user. This makes payment veri
 
 ## Competitive landscape
 
-| Product | Tracking | Settlement | TON/Crypto | Telegram-native | Status |
-|---------|----------|------------|------------|-----------------|--------|
-| **Splitwise** | ✅ Excellent | ❌ External | ❌ | ❌ | Active, 100M+ users |
-| **SplitFast** | ✅ Good + AI receipts | ❌ Explicitly excluded | ❌ | ✅ TG Mini App | Active |
-| **Telegram Wallet** | ❌ None | ✅ P2P USDT | ✅ | ✅ Native | Active |
-| **TON-Splitter** | ⚠️ Basic | ✅ TON/Tonkeeper | ✅ | ✅ Bot | Dead (hackathon) |
-| **Split!** (DoraHacks) | ⚠️ Basic | ✅ TON/Tonkeeper | ✅ | ✅ Bot + WebApp | Dead (hackathon) |
-| **TeleSplit** (ETHGlobal) | ⚠️ Basic | ✅ USDC (EVM) | ⚠️ Not TON | ✅ | Dead (hackathon) |
-| **Our project** | ✅ | ✅ USDT on TON | ✅ | ✅ | Planned |
+| Product                   | Tracking              | Settlement             | TON/Crypto | Telegram-native | Status              |
+| ------------------------- | --------------------- | ---------------------- | ---------- | --------------- | ------------------- |
+| **Splitwise**             | ✅ Excellent          | ❌ External            | ❌         | ❌              | Active, 100M+ users |
+| **SplitFast**             | ✅ Good + AI receipts | ❌ Explicitly excluded | ❌         | ✅ TG Mini App  | Active              |
+| **Telegram Wallet**       | ❌ None               | ✅ P2P USDT            | ✅         | ✅ Native       | Active              |
+| **TON-Splitter**          | ⚠️ Basic              | ✅ TON/Tonkeeper       | ✅         | ✅ Bot          | Dead (hackathon)    |
+| **Split!** (DoraHacks)    | ⚠️ Basic              | ✅ TON/Tonkeeper       | ✅         | ✅ Bot + WebApp | Dead (hackathon)    |
+| **TeleSplit** (ETHGlobal) | ⚠️ Basic              | ✅ USDC (EVM)          | ⚠️ Not TON | ✅              | Dead (hackathon)    |
+| **Our project**           | ✅                    | ✅ USDT on TON         | ✅         | ✅              | Planned             |
 
 **Key insight:** SplitFast is the only active competitor in TG, and they've explicitly chosen not to do payments. Telegram Wallet does payments but has zero expense tracking — it's a wallet, not a Splitwise. We own the "tracking + settlement" intersection. Telegram Wallet is complementary — we use it as one of the supported wallet options via TON Connect.
 
@@ -80,11 +81,13 @@ The service controls transaction creation, not the user. This makes payment veri
 ## Revenue model
 
 ### Free tier
+
 - Unlimited groups, up to 10 members per group
 - Single currency per group
 - Basic expense splitting (equal, exact amounts)
 
 ### Premium (~$3-5/month, paid in Stars or USDT)
+
 - Multi-currency with auto-conversion
 - AI receipt scanning (photo → expense via GCloud Vision)
 - Percentage-based splits, custom ratios
@@ -93,10 +96,12 @@ The service controls transaction creation, not the user. This makes payment veri
 - Export to CSV/PDF
 
 ### Transaction fee (optional, later)
+
 - 0.1–0.3% on settlements at scale (much lower than any fiat rail)
 - Can be introduced once there's enough volume to matter
 
 ### Revenue potential
+
 - Splitwise has 100M+ users and makes money purely on premium subscriptions
 - Even capturing 0.1% of Telegram's 500M mini app users at $3/month = significant
 
@@ -104,20 +109,21 @@ The service controls transaction creation, not the user. This makes payment veri
 
 ## Risks & mitigations
 
-| Risk | Severity | Mitigation |
-|------|----------|------------|
-| Users don't have TON wallets / USDT | Medium | MoonPay onramp just launched; Telegram Wallet as easiest option; also support TON native alongside USDT |
-| SplitFast adds payments | Medium | Ship fast, build switching costs via history and group data. Most direct competitive threat. |
-| Telegram adds expense splitting to Wallet | Low | Wallet ≠ Splitwise. Different product category. Mitigate by shipping fast and building data lock-in (expense history, group data). |
-| Low crypto interest (Google Trends at lows) | Low | Target existing crypto users, not onboarding normies |
-| Compliance / AML at scale | Low for MVP | P2P transfers between known friends; no custodial role; revisit at scale |
-| Smart contract risk | None | No custom smart contracts — uses standard Jetton transfers |
+| Risk                                        | Severity    | Mitigation                                                                                                                         |
+| ------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Users don't have TON wallets / USDT         | Medium      | MoonPay onramp just launched; Telegram Wallet as easiest option; also support TON native alongside USDT                            |
+| SplitFast adds payments                     | Medium      | Ship fast, build switching costs via history and group data. Most direct competitive threat.                                       |
+| Telegram adds expense splitting to Wallet   | Low         | Wallet ≠ Splitwise. Different product category. Mitigate by shipping fast and building data lock-in (expense history, group data). |
+| Low crypto interest (Google Trends at lows) | Low         | Target existing crypto users, not onboarding normies                                                                               |
+| Compliance / AML at scale                   | Low for MVP | P2P transfers between known friends; no custodial role; revisit at scale                                                           |
+| Smart contract risk                         | None        | No custom smart contracts — uses standard Jetton transfers                                                                         |
 
 ---
 
 ## MVP scope (4–6 weeks)
 
 ### Must have (v1)
+
 - TG Web App auth
 - Create/join expense groups (linked to TG group chats)
 - Add expenses with simple equal splits
@@ -132,12 +138,14 @@ The service controls transaction creation, not the user. This makes payment veri
 - Inline buttons to open mini app from group chat
 
 ### Nice to have (v1.1)
+
 - AI receipt scanning
 - Multi-currency support (both fiat and crypto rates, updated by cron)
 - Unequal splits
 - Attach files/photos to spendings and settlements
 
 ### Later (v2+)
+
 - Partial payments
 - Recurring expenses (rent, subscriptions)
 - Integration with Kickstarter-on-TON (group fundraising → expense tracking)

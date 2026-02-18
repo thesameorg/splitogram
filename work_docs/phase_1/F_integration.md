@@ -24,6 +24,7 @@ Test the full cycle with 3+ testers on real devices:
 11. All debts settled → group balance shows $0
 
 **Deploy verification script** (playbook principle):
+
 - Hit `GET /health` → 200
 - Hit `POST /api/v1/auth` with test initData → valid session
 - Verify bot webhook is set (`scripts/webhook.sh`)
@@ -37,13 +38,13 @@ Test the full cycle with 3+ testers on real devices:
 
 Verify every deep link path works:
 
-| Link | Expected |
-|------|----------|
-| `t.me/splitogram_bot?start=` | Welcome message + "Open App" button |
-| `t.me/splitogram_bot?start=join_{code}` | Auto-join group + "Open Group" button |
-| `t.me/splitogram_bot?startapp=group_{id}` | Mini App opens at group detail |
-| `t.me/splitogram_bot?startapp=expense_{id}` | Mini App opens at expense detail |
-| `t.me/splitogram_bot?startapp=settle_{id}` | Mini App opens at settlement flow |
+| Link                                        | Expected                              |
+| ------------------------------------------- | ------------------------------------- |
+| `t.me/splitogram_bot?start=`                | Welcome message + "Open App" button   |
+| `t.me/splitogram_bot?start=join_{code}`     | Auto-join group + "Open Group" button |
+| `t.me/splitogram_bot?startapp=group_{id}`   | Mini App opens at group detail        |
+| `t.me/splitogram_bot?startapp=expense_{id}` | Mini App opens at expense detail      |
+| `t.me/splitogram_bot?startapp=settle_{id}`  | Mini App opens at settlement flow     |
 
 - Test on iOS Telegram + Android Telegram
 - Test with Tonkeeper (testnet) and Telegram Wallet
@@ -55,18 +56,18 @@ Verify every deep link path works:
 
 ## F3. Error States & Edge Cases
 
-| Scenario | Expected behavior |
-|----------|------------------|
-| Settle but wallet has no testnet USDT | Pre-flight check → clear error: "Insufficient USDT balance" |
-| Wallet disconnects mid-settlement | Detect disconnect → "Wallet disconnected, reconnect to continue" |
-| Two users settle same debt simultaneously | Deferred to post-Phase 1 (see later.md). Single test user for now. Will use KV-based distributed lock. |
-| Open invite link for group you're already in | "You're already in this group" → redirect to group |
-| Group has only 1 member | No debts, empty balance view, prompt to invite |
-| Expense amount very small (<$0.01 per person) | Minimum amount validation: reject if any share < $0.01 |
-| Backend is cold/slow | Frontend shows loading states, timeouts at 10s with retry button |
-| TONAPI is unreachable | Settlement stays in `payment_pending`, user sees "Refresh status" button to re-check. After 10 min, allow manual rollback to `open`. |
-| Invalid/expired invite code | "This invite link is no longer valid" |
-| User not yet started bot (no chat with bot) | Deferred to post-Phase 1 (see later.md). Developer is both test users. Bot notification fails silently — user can still use the app via direct link. |
+| Scenario                                      | Expected behavior                                                                                                                                    |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Settle but wallet has no testnet USDT         | Pre-flight check → clear error: "Insufficient USDT balance"                                                                                          |
+| Wallet disconnects mid-settlement             | Detect disconnect → "Wallet disconnected, reconnect to continue"                                                                                     |
+| Two users settle same debt simultaneously     | Deferred to post-Phase 1 (see later.md). Single test user for now. Will use KV-based distributed lock.                                               |
+| Open invite link for group you're already in  | "You're already in this group" → redirect to group                                                                                                   |
+| Group has only 1 member                       | No debts, empty balance view, prompt to invite                                                                                                       |
+| Expense amount very small (<$0.01 per person) | Minimum amount validation: reject if any share < $0.01                                                                                               |
+| Backend is cold/slow                          | Frontend shows loading states, timeouts at 10s with retry button                                                                                     |
+| TONAPI is unreachable                         | Settlement stays in `payment_pending`, user sees "Refresh status" button to re-check. After 10 min, allow manual rollback to `open`.                 |
+| Invalid/expired invite code                   | "This invite link is no longer valid"                                                                                                                |
+| User not yet started bot (no chat with bot)   | Deferred to post-Phase 1 (see later.md). Developer is both test users. Bot notification fails silently — user can still use the app via direct link. |
 
 **Output:** No unhandled error states. User always knows what's happening.
 

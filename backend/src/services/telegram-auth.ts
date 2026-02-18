@@ -1,6 +1,6 @@
-import type { TelegramUser } from "../models/telegram-user";
-import { validateTelegramUser } from "../models/telegram-user";
-import { AuthErrors } from "../models/error-response";
+import type { TelegramUser } from '../models/telegram-user';
+import { validateTelegramUser } from '../models/telegram-user';
+import { AuthErrors } from '../models/error-response';
 
 export class TelegramAuthService {
   private readonly botToken: string;
@@ -8,7 +8,7 @@ export class TelegramAuthService {
 
   constructor(botToken: string, maxAge: number = 3600) {
     if (!botToken) {
-      throw new Error("Bot token is required for Telegram authentication");
+      throw new Error('Bot token is required for Telegram authentication');
     }
     this.botToken = botToken;
     this.maxAge = maxAge;
@@ -19,11 +19,11 @@ export class TelegramAuthService {
     auth_date?: number;
   } {
     const params = new URLSearchParams(initData);
-    const userParam = params.get("user");
-    const authDate = params.get("auth_date");
+    const userParam = params.get('user');
+    const authDate = params.get('auth_date');
 
     if (!userParam) {
-      throw new Error("User data not found in initData");
+      throw new Error('User data not found in initData');
     }
 
     try {
@@ -32,53 +32,49 @@ export class TelegramAuthService {
         auth_date: authDate ? Number.parseInt(authDate, 10) : undefined,
       };
     } catch {
-      throw new Error("Invalid user data in initData");
+      throw new Error('Invalid user data in initData');
     }
   }
 
   private async validateSignature(initData: string): Promise<boolean> {
     try {
       const urlParams = new URLSearchParams(initData);
-      const hash = urlParams.get("hash");
+      const hash = urlParams.get('hash');
       if (!hash) return false;
 
-      urlParams.delete("hash");
-      const sortedParams = Array.from(urlParams.entries()).sort((a, b) =>
-        a[0].localeCompare(b[0]),
-      );
-      const dataToCheck = sortedParams
-        .map(([key, value]) => `${key}=${value}`)
-        .join("\n");
+      urlParams.delete('hash');
+      const sortedParams = Array.from(urlParams.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+      const dataToCheck = sortedParams.map(([key, value]) => `${key}=${value}`).join('\n');
 
       const webAppDataKey = await crypto.subtle.importKey(
-        "raw",
-        new TextEncoder().encode("WebAppData"),
-        { name: "HMAC", hash: "SHA-256" },
+        'raw',
+        new TextEncoder().encode('WebAppData'),
+        { name: 'HMAC', hash: 'SHA-256' },
         false,
-        ["sign"],
+        ['sign'],
       );
 
       const secretKeyData = await crypto.subtle.sign(
-        "HMAC",
+        'HMAC',
         webAppDataKey,
         new TextEncoder().encode(this.botToken),
       );
       const secretKey = await crypto.subtle.importKey(
-        "raw",
+        'raw',
         secretKeyData,
-        { name: "HMAC", hash: "SHA-256" },
+        { name: 'HMAC', hash: 'SHA-256' },
         false,
-        ["sign"],
+        ['sign'],
       );
       const signatureData = await crypto.subtle.sign(
-        "HMAC",
+        'HMAC',
         secretKey,
         new TextEncoder().encode(dataToCheck),
       );
 
       const calculatedHash = Array.from(new Uint8Array(signatureData))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
 
       return hash === calculatedHash;
     } catch {
@@ -92,7 +88,7 @@ export class TelegramAuthService {
     }
 
     if (!(await this.validateSignature(initData))) {
-      throw AuthErrors.invalidInitData("Invalid signature");
+      throw AuthErrors.invalidInitData('Invalid signature');
     }
 
     const parsedData = this.parseInitData(initData);
@@ -106,7 +102,7 @@ export class TelegramAuthService {
     }
 
     if (!parsedData.user) {
-      throw AuthErrors.invalidInitData("User data not found");
+      throw AuthErrors.invalidInitData('User data not found');
     }
 
     return validateTelegramUser(parsedData.user);
@@ -115,8 +111,8 @@ export class TelegramAuthService {
   extractInitData(authHeader?: string, initDataParam?: string): string | null {
     if (authHeader) {
       const trimmed = authHeader.trim();
-      if (trimmed.startsWith("Bearer ")) return trimmed.substring(7).trim();
-      if (trimmed.startsWith("tma ")) return trimmed.substring(4).trim();
+      if (trimmed.startsWith('Bearer ')) return trimmed.substring(7).trim();
+      if (trimmed.startsWith('tma ')) return trimmed.substring(4).trim();
       return trimmed;
     }
     return initDataParam?.trim() || null;

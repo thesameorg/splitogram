@@ -1,19 +1,17 @@
-import { Context } from "hono";
-import { TelegramAuthService } from "../services/telegram-auth";
-import { SessionManager } from "../services/session-manager";
-import { createDatabase } from "../db";
-import { users } from "../db/schema";
-import { eq } from "drizzle-orm";
-import { mockUser as devMockUser } from "../dev/mock-user";
-import type { Env } from "../env";
+import { Context } from 'hono';
+import { TelegramAuthService } from '../services/telegram-auth';
+import { SessionManager } from '../services/session-manager';
+import { createDatabase } from '../db';
+import { users } from '../db/schema';
+import { eq } from 'drizzle-orm';
+import { mockUser as devMockUser } from '../dev/mock-user';
+import type { Env } from '../env';
 
-export async function authHandler(
-  c: Context<{ Bindings: Env }>,
-): Promise<Response> {
+export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Response> {
   const sessionManager = new SessionManager(c.env.SESSIONS);
 
   // DEV-ONLY: Auth bypass for local development
-  if (c.env.DEV_AUTH_BYPASS_ENABLED === "true") {
+  if (c.env.DEV_AUTH_BYPASS_ENABLED === 'true') {
     const db = createDatabase(c.env.DB);
 
     // Upsert dev user into DB
@@ -27,7 +25,7 @@ export async function authHandler(
       await db.insert(users).values({
         telegramId: devMockUser.id,
         username: devMockUser.username ?? null,
-        displayName: `${devMockUser.first_name} ${devMockUser.last_name ?? ""}`.trim(),
+        displayName: `${devMockUser.first_name} ${devMockUser.last_name ?? ''}`.trim(),
       });
     }
 
@@ -43,7 +41,7 @@ export async function authHandler(
         username: devMockUser.username,
       },
       expiresAt: session.expiresAt,
-      source: "dev_bypass",
+      source: 'dev_bypass',
     });
   }
 
@@ -56,8 +54,8 @@ export async function authHandler(
   }
 
   const { sessionId, initData } = body;
-  const authHeader = c.req.header("Authorization");
-  const sessionIdHeader = c.req.header("X-Session-ID");
+  const authHeader = c.req.header('Authorization');
+  const sessionIdHeader = c.req.header('X-Session-ID');
 
   const finalSessionId = (sessionId ?? sessionIdHeader) as string | undefined;
   const initDataParam = initData as string | undefined;
@@ -77,24 +75,21 @@ export async function authHandler(
           displayName: session.displayName,
         },
         expiresAt: session.expiresAt,
-        source: "session",
+        source: 'session',
       });
     }
   }
 
   // Fall back to initData validation
-  const extractedInitData = telegramAuth.extractInitData(
-    authHeader,
-    initDataParam,
-  );
+  const extractedInitData = telegramAuth.extractInitData(authHeader, initDataParam);
 
   if (!extractedInitData) {
     return c.json(
       {
-        error: "auth_required",
+        error: 'auth_required',
         detail: finalSessionId
-          ? "Session expired, please re-authenticate"
-          : "Authentication required",
+          ? 'Session expired, please re-authenticate'
+          : 'Authentication required',
       },
       401,
     );
@@ -105,11 +100,7 @@ export async function authHandler(
 
     // Upsert user into DB
     const db = createDatabase(c.env.DB);
-    const existing = await db
-      .select()
-      .from(users)
-      .where(eq(users.telegramId, tgUser.id))
-      .limit(1);
+    const existing = await db.select().from(users).where(eq(users.telegramId, tgUser.id)).limit(1);
 
     const displayName = tgUser.last_name
       ? `${tgUser.first_name} ${tgUser.last_name}`.trim()
@@ -144,16 +135,13 @@ export async function authHandler(
         username: tgUser.username,
       },
       expiresAt: session.expiresAt,
-      source: "initdata",
+      source: 'initdata',
     });
   } catch (error) {
     return c.json(
       {
-        error: "invalid_init_data",
-        detail:
-          error instanceof Error
-            ? error.message
-            : "Invalid Telegram authentication",
+        error: 'invalid_init_data',
+        detail: error instanceof Error ? error.message : 'Invalid Telegram authentication',
       },
       401,
     );

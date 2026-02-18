@@ -1,6 +1,6 @@
-import type { Context } from "hono";
-import { createDatabase, type Database } from "../db";
-import type { Env } from "../env";
+import type { Context } from 'hono';
+import { createDatabase, type Database } from '../db';
+import type { Env } from '../env';
 
 export type DBContext = {
   Bindings: Env;
@@ -9,11 +9,8 @@ export type DBContext = {
   };
 };
 
-export const dbMiddleware = async (
-  c: Context<DBContext>,
-  next: () => Promise<void>,
-) => {
+export const dbMiddleware = async (c: Context<DBContext>, next: () => Promise<void>) => {
   const db = createDatabase(c.env.DB);
-  c.set("db", db);
+  c.set('db', db);
   await next();
 };
