@@ -73,7 +73,7 @@ Copy the Hono app skeleton from template, strip domain code, add our structure.
 
 **Output:** `GET /api/health` returns 200. `POST /api/v1/auth` validates TG initData and returns session. Auth middleware rejects unsigned requests. Dev bypass works.
 
-> **STATUS: DONE.** A1-A3 scaffolded from template. Monorepo with bun workspaces, backend typechecks with 6/6 tests passing, frontend builds. Wrangler.toml configured (D1 + KV, no R2). Debt solver implemented and tested. CI/CD workflows pending (A4).
+> **STATUS: DONE.** A1-A3 scaffolded from template. Monorepo with bun workspaces, backend typechecks with 6/6 tests passing, frontend builds. Wrangler.toml configured (D1 + KV, no R2). Debt solver implemented and tested. A4 CI/CD pipeline deployed and passing — push to main triggers full build/test/deploy/webhook pipeline.
 
 ---
 

@@ -27,7 +27,7 @@ Tasks are grouped by domain and roughly ordered by dependency. Tasks within the 
 | #   | Group                                                       | Tasks         | Status                            | Notes                                                                                |
 | --- | ----------------------------------------------------------- | ------------- | --------------------------------- | ------------------------------------------------------------------------------------ |
 | 0   | [Tech Decisions](./done/00_tech_decisions.md)               | Reference doc | **Done**                          | Stack, architecture, template reuse plan                                             |
-| A   | [Project Setup & Infrastructure](./done/A_infrastructure.md)| 4 tasks       | **Done** (A1-A3), A4 pending      | Scaffolded from template. Monorepo, backend, frontend, wrangler.toml. CI/CD pending. |
+| A   | [Project Setup & Infrastructure](./done/A_infrastructure.md)| 4 tasks       | **Done**                          | Scaffolded from template. Monorepo, backend, frontend, wrangler.toml, CI/CD.         |
 | B   | [Data Model & Core Logic](./done/B_data_model.md)           | 5 tasks       | **Done** (B1-B4). B5 deferred.    | All API routes implemented: groups, expenses, balances, settlements.                 |
 | C   | [Telegram Bot & Notifications](./C_bot.md)                  | 4 tasks       | **C1-C2 done, C3-C4 partial**     | Bot + join deep link + notification service done. Deep link routing & wiring pending. |
 | D   | [TON Wallet & Settlement](./D_settlement.md)                | 4 tasks       | **D1-D4 done** (basic)            | Settle flow, tx params, TONAPI verify, mark-external all implemented.                |
@@ -38,7 +38,7 @@ Tasks are grouped by domain and roughly ordered by dependency. Tasks within the 
 ## Dependency Graph
 
 ```
-A (Infrastructure) — heavy template reuse  ✅
+A (Infrastructure + CI/CD) — heavy template reuse  ✅
 ├── B (Data Model) — new schema, auth from template  ✅
 │   ├── C (Bot) — webhook pattern from template  ⚡ partial
 │   ├── D (Settlement) — new code, TONAPI + TON Connect  ✅
@@ -50,10 +50,9 @@ A (Infrastructure) — heavy template reuse  ✅
 
 1. **Wire notifications into API handlers** — the notification service exists but isn't called from expense/settlement/join handlers yet
 2. **Deep link routing in frontend** — read `startParam` on app mount, navigate to correct view
-3. **CI/CD pipeline (A4)** — GitHub Actions workflows not yet set up
-4. **B5 (1-on-1 direct expenses)** — deferred, use pair groups manually for now
-5. **E6 (dedicated wallet screen)** — wallet connection works in settle flow, no standalone screen yet
-6. **F1-F4** — end-to-end testing, error states, deploy verification
+3. **B5 (1-on-1 direct expenses)** — deferred, use pair groups manually for now
+4. **E6 (dedicated wallet screen)** — wallet connection works in settle flow, no standalone screen yet
+5. **F1-F4** — end-to-end testing, error states, deploy verification
 
 ## Definition of Done (Phase 1)
 
@@ -68,5 +67,5 @@ A (Infrastructure) — heavy template reuse  ✅
 - [x] On-chain verification marks debt as settled (basic TONAPI check)
 - [ ] Group gets settlement notification via bot (service exists, not wired)
 - [x] Non-wallet user can mark debt as "settled externally"
-- [ ] Full cycle works on testnet with 3+ people (needs deploy + multi-user test)
-- [ ] Deploy verification script passes on production URL (needs A4 CI/CD)
+- [ ] Full cycle works on testnet with 3+ people (deployed, needs multi-user test)
+- [x] CI/CD pipeline deploys to production and passes health checks

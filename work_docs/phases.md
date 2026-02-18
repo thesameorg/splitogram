@@ -8,7 +8,7 @@ Phased roadmap from testnet prototype to full product. Each phase has a clear go
 
 **Goal:** Prove the full cycle works end-to-end on TON testnet with a real group dynamic — expense tracking, notifications, debt calculation, and on-chain settlement — all with fake money.
 
-**Current status (2026-02-18):** Infrastructure layer complete — auth, sessions, DB schema, bot webhook, debt solver algorithm, local dev setup with ngrok tunnel. All API business logic (groups, expenses, balances, settlements) and the entire frontend (pages, routing, components) are not yet implemented. See `work_docs/phase_1/README.md` for detailed task status.
+**Current status (2026-02-18):** Infrastructure, data model, API routes, settlement flow, and frontend all implemented. CI/CD pipeline deploys to Cloudflare (Worker + Pages + bot webhook) on every push to main. Remaining: wire notification service into API handlers, deep link routing in frontend, end-to-end multi-user testing on testnet. See `work_docs/phase_1/README.md` for detailed task status.
 
 **Deliverables:**
 
