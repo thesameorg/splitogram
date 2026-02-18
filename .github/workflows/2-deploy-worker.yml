@@ -61,6 +61,7 @@ jobs:
         id: worker-url
         run: |
           WORKER_URL="${{ vars.WORKER_URL }}"
+          WORKER_URL="${WORKER_URL%/}"
           echo "Worker URL: $WORKER_URL"
           echo "url=$WORKER_URL" >> $GITHUB_OUTPUT
 

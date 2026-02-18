@@ -21,6 +21,7 @@ jobs:
         id: config
         run: |
           WORKER_URL="${{ vars.WORKER_URL }}"
+          WORKER_URL="${WORKER_URL%/}"
           if [ -z "$WORKER_URL" ]; then
             echo "❌ WORKER_URL GitHub variable is not set"
             exit 1
