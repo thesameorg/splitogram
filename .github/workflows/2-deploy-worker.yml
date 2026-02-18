@@ -1,0 +1,91 @@
+name: Deploy Cloudflare Worker
+
+on:
+  workflow_call:
+    outputs:
+      worker_url:
+        description: "URL of the deployed worker"
+        value: ${{ jobs.deploy-worker.outputs.worker_url }}
+
+jobs:
+  deploy-worker:
+    name: Deploy Worker
+    runs-on: ubuntu-latest
+    outputs:
+      worker_url: ${{ steps.worker-url.outputs.url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: |
+          bun install
+
+      - name: Run Database Migrations
+        run: |
+          # Extract D1 database name from wrangler.toml
+          DB_NAME=$(grep -A 3 '\[\[d1_databases\]\]' wrangler.toml | grep 'database_name' | cut -d'"' -f2)
+          if [ -z "$DB_NAME" ]; then
+            echo "❌ Failed to extract database_name from wrangler.toml"
+            exit 1
+          fi
+          echo "Running migrations for database: $DB_NAME"
+          # Run migrations from root because wrangler.toml is in root
+          bunx wrangler d1 migrations apply "$DB_NAME" --remote || exit 1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Set Cloudflare Secrets
+        run: |
+          echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | bunx wrangler secret put TELEGRAM_BOT_TOKEN || true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy to Cloudflare Workers
+        id: deploy
+        run: |
+          bunx wrangler deploy --var PAGES_URL="${{ vars.PAGES_URL }}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Get Worker URL
+        id: worker-url
+        run: |
+          WORKER_URL="${{ vars.WORKER_URL }}"
+          echo "Worker URL: $WORKER_URL"
+          echo "url=$WORKER_URL" >> $GITHUB_OUTPUT
+
+      - name: Test Worker Health
+        run: |
+          sleep 5
+          echo "Testing Worker at: ${{ steps.worker-url.outputs.url }}"
+
+          echo "Testing /api/health endpoint..."
+          health_response=$(curl -s -w "%{http_code}" "${{ steps.worker-url.outputs.url }}/api/health")
+          health_status=$(echo "$health_response" | tail -c 4)
+          health_body=$(echo "$health_response" | head -c -4)
+
+          echo "Health endpoint returned status: $health_status"
+          echo "Health endpoint response body: $health_body"
+
+          if [ "$health_status" != "200" ]; then
+            echo "❌ Health check failed with status $health_status"
+            exit 1
+          fi
+
+          if echo "$health_body" | grep -q '"status":"healthy"'; then
+            echo "✅ Worker health verified"
+          else
+            echo "⚠️ Health response unexpected: $health_body"
+          fi
+
+          echo "✅ Worker deployment verified"

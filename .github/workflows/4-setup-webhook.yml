@@ -1,0 +1,90 @@
+name: Setup Telegram Webhook
+
+on:
+  workflow_call:
+    inputs:
+      worker_url:
+        description: "Worker URL (optional - will be auto-detected if not provided)"
+        required: false
+        type: string
+
+jobs:
+  setup-webhook:
+    name: Configure Telegram Webhook
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure URLs
+        id: config
+        run: |
+          WORKER_URL="${{ vars.WORKER_URL }}"
+          if [ -z "$WORKER_URL" ]; then
+            echo "❌ WORKER_URL GitHub variable is not set"
+            exit 1
+          fi
+          echo "worker_url=$WORKER_URL" >> $GITHUB_OUTPUT
+
+      - name: Setup Telegram webhook
+        id: webhook
+        run: |
+          BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
+          WEBHOOK_URL="${{ steps.config.outputs.worker_url }}/webhook"
+
+          echo "Setting up webhook"
+          echo "Webhook URL: $WEBHOOK_URL"
+
+          RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/setWebhook" 
+            -H "Content-Type: application/json" 
+            -d "{
+              "url": "$WEBHOOK_URL",
+              "allowed_updates": ["message", "callback_query", "pre_checkout_query"],
+              "drop_pending_updates": true
+            }")
+
+          echo "Webhook setup response:"
+          echo "$RESPONSE" | jq .
+
+          if echo "$RESPONSE" | jq -e '.ok' > /dev/null; then
+            echo "Webhook configured successfully"
+            echo "webhook_url=$WEBHOOK_URL" >> $GITHUB_OUTPUT
+          else
+            echo "Failed to configure webhook"
+            echo "$RESPONSE" | jq -r '.description // "Unknown error"'
+            exit 1
+          fi
+
+      - name: Verify webhook setup
+        run: |
+          BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
+
+          echo "Verifying webhook configuration..."
+          sleep 5
+
+          WEBHOOK_INFO=$(curl -s "https://api.telegram.org/bot$BOT_TOKEN/getWebhookInfo")
+          echo "Updated webhook info:"
+          echo "$WEBHOOK_INFO" | jq .
+
+          # Verify the URL was set correctly
+          ACTUAL_URL=$(echo "$WEBHOOK_INFO" | jq -r '.result.url')
+          EXPECTED_URL="${{ steps.webhook.outputs.webhook_url }}"
+
+          if [ "$ACTUAL_URL" = "$EXPECTED_URL" ]; then
+            echo "Webhook URL verified: $ACTUAL_URL"
+          else
+            echo "Webhook URL mismatch!"
+            echo "Expected: $EXPECTED_URL"
+            echo "Actual: $ACTUAL_URL"
+            exit 1
+          fi
+
+          # Check for any pending updates or errors
+          PENDING_UPDATES=$(echo "$WEBHOOK_INFO" | jq -r '.result.pending_update_count // 0')
+          LAST_ERROR=$(echo "$WEBHOOK_INFO" | jq -r '.result.last_error_message // ""')
+
+          echo "Pending updates: $PENDING_UPDATES"
+          if [ "$LAST_ERROR" != "" ]; then
+            echo "Last error: $LAST_ERROR"
+          fi

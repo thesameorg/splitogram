@@ -1,0 +1,95 @@
+name: Deploy Cloudflare Pages
+
+on:
+  workflow_call:
+
+jobs:
+  deploy-pages:
+    name: Deploy Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Validate environment variables
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
+            echo "CLOUDFLARE_API_TOKEN is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
+            echo "CLOUDFLARE_ACCOUNT_ID is not set"
+            exit 1
+          fi
+          if [ -z "${{ vars.WORKER_URL }}" ]; then
+            echo "WORKER_URL is not set"
+            exit 1
+          fi
+          if [ -z "${{ vars.TELEGRAM_BOT_USERNAME }}" ]; then
+            echo "TELEGRAM_BOT_USERNAME is not set"
+            exit 1
+          fi
+          # PAGES_URL is optional - only needed for strict CORS validation in production
+          if [ -z "${{ vars.PAGES_URL }}" ]; then
+            echo "⚠️  PAGES_URL is not set - Worker will use wildcard CORS (*)"
+          fi
+
+      - name: Install dependencies
+        run: |
+          bun install
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          bun run build
+        env:
+          VITE_WORKER_URL: ${{ vars.WORKER_URL }}
+          VITE_TELEGRAM_BOT_USERNAME: ${{ vars.TELEGRAM_BOT_USERNAME }}
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy-pages
+        run: |
+          # Use the root package's wrangler because wrangler.toml is in root
+          cd frontend
+          bunx wrangler pages deploy dist --project-name="${{ vars.PAGES_PROJECT_NAME }}" --commit-dirty=true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Get Pages URL
+        id: pages-url
+        run: |
+          # Use static GitHub variable
+          PAGES_URL="${{ vars.PAGES_URL }}"
+          echo "Pages URL: $PAGES_URL"
+          echo "url=$PAGES_URL" >> $GITHUB_OUTPUT
+
+      - name: Test Pages Deployment
+        run: |
+          sleep 5
+          echo "Testing Pages at: ${{ steps.pages-url.outputs.url }}"
+
+          # Test if pages serve the index.html with detailed output
+          echo "Testing Pages root endpoint..."
+          pages_response=$(curl -s -w "%{http_code}" "${{ steps.pages-url.outputs.url }}/")
+          pages_status=$(echo "$pages_response" | tail -c 4)
+          pages_body=$(echo "$pages_response" | head -c -4)
+
+          echo "Pages endpoint returned status: $pages_status"
+          echo "Pages response body length: $(echo "$pages_body" | wc -c) characters"
+
+          if [ "$pages_status" != "200" ]; then
+            echo "⚠️  Pages check returned status $pages_status (may be normal for preview URLs)"
+            if [ "$pages_status" == "000" ]; then
+              echo "❌ DNS resolution or connection failed"
+              exit 1
+            fi
+          else
+            echo "✅ Pages deployment verified"
+          fi

@@ -8,6 +8,8 @@
     "frontend"
   ],
   "scripts": {
+    "install:backend": "cd backend && bun install",
+    "install:frontend": "cd frontend && bun install",
     "dev": "bun run dev:backend & bun run dev:frontend",
     "dev:backend": "cd backend && bun run dev",
     "dev:frontend": "cd frontend && bun run dev",
@@ -28,6 +30,7 @@
     "check": "bun run typecheck && bun run lint && bun run test",
     "db:generate": "cd backend && bunx drizzle-kit generate",
     "db:migrate:local": "bunx wrangler d1 migrations apply splitogram-db --local",
+    "db:migrate:remote": "bunx wrangler d1 migrations apply splitogram-db --remote",
     "deploy": "bunx wrangler deploy",
     "tunnel:start": "./scripts/tunnel.sh start",
     "tunnel:stop": "./scripts/tunnel.sh stop",

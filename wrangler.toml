@@ -10,13 +10,13 @@ head_sampling_rate = 0.1
 # KV Namespaces — create in CF dashboard and replace ID
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "757ac20a8bde4f5089a02d08f31f6be7"
 
 # D1 Database — create in CF dashboard and replace ID
 [[d1_databases]]
 binding = "DB"
 database_name = "splitogram-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "e422c466-4d70-422a-b451-a8dc0116cc89"
 migrations_dir = "backend/drizzle/migrations"
 
 # Non-secret environment variables

@@ -1,0 +1,61 @@
+name: Deploy Pipeline
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: "Build & Test"
+    uses: ./.github/workflows/1-build-test.yml
+    secrets: inherit
+
+  deploy-worker:
+    name: "Deploy Worker"
+    needs: build-and-test
+    uses: ./.github/workflows/2-deploy-worker.yml
+    secrets: inherit
+
+  deploy-pages:
+    name: "Deploy Pages"
+    needs: build-and-test
+    uses: ./.github/workflows/3-deploy-pages.yml
+    secrets: inherit
+
+  setup-webhook:
+    name: "Setup Webhook"
+    needs: [build-and-test, deploy-worker]
+    uses: ./.github/workflows/4-setup-webhook.yml
+    with:
+      worker_url: ${{ vars.WORKER_URL }}
+    secrets: inherit
+
+  pipeline-summary:
+    name: "Pipeline Summary"
+    runs-on: ubuntu-latest
+    needs: [build-and-test, deploy-worker, deploy-pages, setup-webhook]
+    if: always()
+    steps:
+      - name: Pipeline Status
+        run: |
+          echo "Trigger: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+
+          # Check if all required jobs succeeded
+          if [[ "${{ needs.build-and-test.result }}" == "success" && 
+                "${{ needs.deploy-worker.result }}" == "success" && 
+                "${{ needs.deploy-pages.result }}" == "success" && 
+                "${{ needs.setup-webhook.result }}" == "success" ]]; then
+            echo "Pipeline Status: SUCCESS ✅"
+            echo "All deployment steps completed successfully"
+          else
+            echo "Pipeline Status: FAILED ❌"
+            echo "Job Results:"
+            echo "  Build & Test: ${{ needs.build-and-test.result }}"
+            echo "  Deploy Worker: ${{ needs.deploy-worker.result }}"
+            echo "  Deploy Pages: ${{ needs.deploy-pages.result }}"
+            echo "  Setup Webhook: ${{ needs.setup-webhook.result }}"
+            exit 1
+          fi
