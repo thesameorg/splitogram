@@ -4,6 +4,10 @@ import { cors } from 'hono/cors';
 import { handleWebhook } from './webhook';
 import { healthHandler } from './api/health';
 import { authHandler } from './api/auth';
+import { groupsApp } from './api/groups';
+import { expensesApp } from './api/expenses';
+import { balancesApp } from './api/balances';
+import { settlementsApp } from './api/settlements';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
 import type { Env } from './env';
@@ -38,28 +42,23 @@ app.get('/api/health', healthHandler);
 app.post('/webhook', handleWebhook);
 app.post('/api/v1/auth', authHandler);
 
-// --- Protected endpoints (stubs — to be implemented per task group) ---
+// --- Protected endpoints ---
 // Groups
-// app.get("/api/v1/groups", authMiddleware, ...)
-// app.post("/api/v1/groups", authMiddleware, ...)
-// app.get("/api/v1/groups/:id", authMiddleware, ...)
-// app.get("/api/v1/groups/join/:inviteCode", ...)
-// app.post("/api/v1/groups/:id/join", authMiddleware, ...)
+app.use('/api/v1/groups/*', authMiddleware);
+app.route('/api/v1/groups', groupsApp);
 
-// Expenses
-// app.post("/api/v1/groups/:id/expenses", authMiddleware, ...)
-// app.get("/api/v1/groups/:id/expenses", authMiddleware, ...)
+// Expenses (nested under groups)
+app.use('/api/v1/groups/:id/expenses/*', authMiddleware);
+app.route('/api/v1/groups/:id/expenses', expensesApp);
 
-// Balances
-// app.get("/api/v1/groups/:id/balances", authMiddleware, ...)
+// Balances (nested under groups)
+app.use('/api/v1/groups/:id/balances/*', authMiddleware);
+app.route('/api/v1/groups/:id/balances', balancesApp);
 
-// Settlements
-// app.post("/api/v1/groups/:id/settlements", authMiddleware, ...)
-// app.get("/api/v1/settlements/:id/tx", authMiddleware, ...)
-// app.post("/api/v1/settlements/:id/verify", authMiddleware, ...)
-
-// User
-// app.put("/api/v1/users/me/wallet", authMiddleware, ...)
+// Settlements & Wallet (mixed routes)
+app.use('/api/v1/settlements/*', authMiddleware);
+app.use('/api/v1/users/*', authMiddleware);
+app.route('/api/v1', settlementsApp);
 
 // --- Root info ---
 app.get('/', (c) => {

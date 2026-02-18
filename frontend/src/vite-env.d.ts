@@ -37,6 +37,7 @@ interface TelegramWebApp {
   };
   MainButton: {
     text: string;
+    setText(text: string): void;
     show(): void;
     hide(): void;
     onClick(callback: () => void): void;
@@ -54,6 +55,7 @@ interface TelegramWebApp {
   };
   close(): void;
   expand(): void;
+  openTelegramLink(url: string): void;
 }
 
 declare global {
