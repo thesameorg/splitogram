@@ -25,7 +25,7 @@ Test the full cycle with 3+ testers on real devices:
 
 **Deploy verification script** (playbook principle):
 - Hit `GET /health` → 200
-- Hit `POST /v1/auth` with test initData → valid session
+- Hit `POST /api/v1/auth` with test initData → valid session
 - Verify bot webhook is set (`scripts/webhook.sh`)
 - Verify Pages serves frontend → 200
 
@@ -59,14 +59,14 @@ Verify every deep link path works:
 |----------|------------------|
 | Settle but wallet has no testnet USDT | Pre-flight check → clear error: "Insufficient USDT balance" |
 | Wallet disconnects mid-settlement | Detect disconnect → "Wallet disconnected, reconnect to continue" |
-| Two users settle same debt simultaneously | First one wins (DB status check before tx construction), second gets "Already settled" |
+| Two users settle same debt simultaneously | Deferred to post-Phase 1 (see later.md). Single test user for now. Will use KV-based distributed lock. |
 | Open invite link for group you're already in | "You're already in this group" → redirect to group |
 | Group has only 1 member | No debts, empty balance view, prompt to invite |
 | Expense amount very small (<$0.01 per person) | Minimum amount validation: reject if any share < $0.01 |
 | Backend is cold/slow | Frontend shows loading states, timeouts at 10s with retry button |
-| TONAPI is unreachable | Settlement stays in `payment_pending`, user sees "Verification in progress, check back soon" |
+| TONAPI is unreachable | Settlement stays in `payment_pending`, user sees "Refresh status" button to re-check. After 10 min, allow manual rollback to `open`. |
 | Invalid/expired invite code | "This invite link is no longer valid" |
-| User not yet started bot (no chat with bot) | Bot notification fails silently — user can still use the app via direct link |
+| User not yet started bot (no chat with bot) | Deferred to post-Phase 1 (see later.md). Developer is both test users. Bot notification fails silently — user can still use the app via direct link. |
 
 **Output:** No unhandled error states. User always knows what's happening.
 
@@ -83,8 +83,8 @@ Verify every deep link path works:
   4. Add expense: "Sushi dinner — $45 — split among 3"
   5. Switch to friend's phone → notification appeared → tap → see debt
   6. Tap "Settle Up" → connect Tonkeeper → approve $15 USDT transfer
-  7. On-chain confirmation in ~5s → debt cleared → group notified
-  8. Total demo time: ~2 minutes
+  7. On-chain confirmation typically 5-30s, up to a minute → debt cleared → group notified
+  8. Total demo time: ~2-3 minutes
   ```
 - Screen recording for async stakeholders
 - Document known limitations and what's coming in Phase 2

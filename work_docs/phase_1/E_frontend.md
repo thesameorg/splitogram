@@ -20,7 +20,7 @@ Telegram Mini App UI. Depends on backend APIs (B) and TON Connect (D1).
 - Add:
   - `TonConnectUIProvider` wrapping the app (with testnet config + manifest URL)
   - `@twa-dev/sdk` initialization — read `initData`, `startParam`, theme vars
-  - Auth on app load: send `initData` to `POST /v1/auth`, store session ID
+  - Auth on app load: send `initData` to `POST /api/v1/auth`, store session ID
   - Deep link routing: read `startParam`, navigate to correct view
 - Navigation: stack-based routing (not tabs — expense splitters are inherently drill-down)
   - `/` — Home (group list)
@@ -37,7 +37,7 @@ Telegram Mini App UI. Depends on backend APIs (B) and TON Connect (D1).
 
 ## E2. Home Screen
 
-- List of user's groups: `GET /v1/groups`
+- List of user's groups: `GET /api/v1/groups`
   - Group name
   - Net balance (you owe / you're owed) — color coded (red = owe, green = owed)
   - Last activity timestamp
@@ -56,7 +56,7 @@ Telegram Mini App UI. Depends on backend APIs (B) and TON Connect (D1).
 - Header: group name, member avatars, invite link share button
 - Tabs or sections:
   - **Expenses:** list (most recent first) — description, amount, who paid, date
-  - **Balances:** who owes whom (optimized debt graph from `GET /v1/groups/:id/balances`)
+  - **Balances:** who owes whom (optimized debt graph from `GET /api/v1/groups/:id/balances`)
 - For each debt involving the current user:
   - You owe someone → "Settle Up" button
   - Someone owes you → "Remind" button (Phase 3) or "Mark Settled" button
@@ -79,7 +79,7 @@ Telegram Mini App UI. Depends on backend APIs (B) and TON Connect (D1).
   - Amount > 0
   - At least 2 participants (payer + at least 1 other)
   - Description not empty
-- Submit → `POST /v1/groups/:id/expenses` → success → navigate back to group detail
+- Submit → `POST /api/v1/groups/:id/expenses` → success → navigate back to group detail
 - TG MainButton: "Add Expense" (use template's `use-telegram-main-button` hook)
 
 **Output:** User can add an expense and select who's involved.
@@ -95,17 +95,17 @@ Telegram Mini App UI. Depends on backend APIs (B) and TON Connect (D1).
 **Path 1 — Pay with TON wallet (primary):**
 1. If wallet not connected → show TON Connect modal (auto-triggered)
 2. Wallet connected → show "Confirm Payment" with amount + recipient
-3. Tap confirm → `GET /v1/settlements/:id/tx` to get transaction params
+3. Tap confirm → `POST /api/v1/groups/:id/settlements` to create settlement on demand, then `GET /api/v1/settlements/:id/tx` to get transaction params
 4. `tonConnectUI.sendTransaction(tx)` → user approves in wallet app
-5. Send BOC to `POST /v1/settlements/:id/verify`
-6. Loading state while backend verifies on-chain (poll `GET /v1/settlements/:id` every 3s)
+5. Send BOC to `POST /api/v1/settlements/:id/verify`
+6. Loading state while backend verifies on-chain (poll `GET /api/v1/settlements/:id` every 3s, "Refresh status" button)
 7. Success → checkmark animation, debt cleared, navigate back
 8. Failure → clear error message, "Try again" button
 
 **Path 2 — Mark as settled externally (secondary):**
 - Only visible to the creditor (person who is owed)
 - Small text link: "Settled outside the app?"
-- Tap → confirmation dialog → `POST /v1/settlements/:id/mark-external`
+- Tap → confirmation dialog → `POST /api/v1/settlements/:id/mark-external`
 - Debt cleared with "settled externally" badge
 
 **Output:** User settles a debt via wallet or marks it as externally settled.
@@ -119,7 +119,7 @@ Telegram Mini App UI. Depends on backend APIs (B) and TON Connect (D1).
   - `TonConnectButton` — shows connection status
   - Connected state: truncated address, wallet name/icon, "Disconnect" option
   - Disconnected state: "Connect Wallet" button → opens wallet selector modal
-- After connecting: `PUT /v1/users/me/wallet` to store address on backend
-- After disconnecting: `DELETE /v1/users/me/wallet` to clear
+- After connecting: `PUT /api/v1/users/me/wallet` to store address on backend
+- After disconnecting: `DELETE /api/v1/users/me/wallet` to clear
 
 **Output:** User connects and manages their TON wallet within the mini app.

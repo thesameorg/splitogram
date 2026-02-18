@@ -64,14 +64,16 @@ Copy the Hono app skeleton from template, strip domain code, add our structure.
   - `backend/src/dev/mock-user.ts` — dev auth bypass
   - `backend/src/types/env.ts` — Env bindings interface
 - Adapt:
-  - Add `/v1` prefix to all API routes (playbook principle: API versioning)
+  - Add `/api/v1` prefix to all API routes (playbook principle: API versioning)
   - Add Zod schema for Env validation at startup (playbook: fail at startup, not runtime)
   - Consistent error shape: `{error: "machine_code", detail: "human message"}`
   - Structured logging (upgrade template's `console.log`)
   - Add TONAPI base URL to env config
   - Stub route files: `groups.ts`, `expenses.ts`, `balances.ts`, `settlement.ts`
 
-**Output:** `GET /health` returns 200. `POST /v1/auth` validates TG initData and returns session. Auth middleware rejects unsigned requests. Dev bypass works.
+**Output:** `GET /api/health` returns 200. `POST /api/v1/auth` validates TG initData and returns session. Auth middleware rejects unsigned requests. Dev bypass works.
+
+> **STATUS: DONE.** A1-A3 scaffolded from template. Monorepo with bun workspaces, backend typechecks with 6/6 tests passing, frontend builds. Wrangler.toml configured (D1 + KV, no R2). Debt solver implemented and tested. CI/CD workflows pending (A4).
 
 ---
 

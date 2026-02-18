@@ -1,0 +1,29 @@
+{
+  "name": "splitogram-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "../node_modules/.bin/wrangler dev --local --port 8787",
+    "deploy": "../node_modules/.bin/wrangler deploy",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'lint ok'",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.7.4",
+    "drizzle-orm": "^0.44.6",
+    "grammy": "^1.29.0",
+    "hono": "^4.10.1",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251014.0",
+    "drizzle-kit": "^0.31.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "splitogram",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Telegram Mini App for splitting group expenses with on-chain USDT settlement",
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "dev": "bun run dev:backend & bun run dev:frontend",
+    "dev:backend": "cd backend && bun run dev",
+    "dev:frontend": "cd frontend && bun run dev",
+    "stop": "pkill -f 'wrangler dev.*8787' || true; pkill -f 'vite' || true; pkill -f 'workerd' || true; echo 'Dev servers stopped'",
+    "test": "bun run test:backend && bun run test:frontend",
+    "test:backend": "cd backend && bun run test -- --run",
+    "test:frontend": "cd frontend && bun run test -- --run",
+    "typecheck": "bun run typecheck:backend && bun run typecheck:frontend",
+    "typecheck:backend": "cd backend && bun run typecheck",
+    "typecheck:frontend": "cd frontend && bun run typecheck",
+    "build": "bun run build:frontend",
+    "build:frontend": "cd frontend && bun run build",
+    "lint": "bun run lint:backend && bun run lint:frontend",
+    "lint:backend": "cd backend && bun run lint",
+    "lint:frontend": "cd frontend && bun run lint",
+    "check": "bun run typecheck && bun run lint && bun run test",
+    "db:generate": "cd backend && bunx drizzle-kit generate",
+    "db:migrate:local": "bunx wrangler d1 migrations apply splitogram-db --local",
+    "deploy": "bunx wrangler deploy",
+    "tunnel:start": "./scripts/tunnel.sh start",
+    "tunnel:stop": "./scripts/tunnel.sh stop",
+    "webhook:set": "./scripts/webhook.sh set",
+    "webhook:status": "./scripts/webhook.sh status"
+  },
+  "devDependencies": {
+    "wrangler": "^4.43.0"
+  }
+}

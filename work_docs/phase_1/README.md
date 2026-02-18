@@ -24,15 +24,16 @@ Tasks are grouped by domain and roughly ordered by dependency. Tasks within the 
 
 ## Task Groups
 
-| # | Group | Tasks | Notes |
-|---|-------|-------|-------|
-| 0 | [Tech Decisions](./00_tech_decisions.md) | Reference doc | Stack, architecture, template reuse plan |
-| A | [Project Setup & Infrastructure](./A_infrastructure.md) | 4 tasks | Foundation — do first. Heavy reuse from template. |
-| B | [Data Model & Core Logic](./B_data_model.md) | 5 tasks | Core backend — unblocks everything |
-| C | [Telegram Bot & Notifications](./C_bot.md) | 4 tasks | Engagement loop. Bot pattern from template. |
-| D | [TON Wallet & Settlement](./D_settlement.md) | 4 tasks | On-chain integration. New code (not in template). |
-| E | [Mini App Frontend](./E_frontend.md) | 6 tasks | User-facing UI. Shell/hooks from template. |
-| F | [Integration & Polish](./F_integration.md) | 4 tasks | Wire everything together |
+| # | Group | Tasks | Status | Notes |
+|---|-------|-------|--------|-------|
+| 0 | [Tech Decisions](./00_tech_decisions.md) | Reference doc | Done | Stack, architecture, template reuse plan |
+| A | [Project Setup & Infrastructure](./A_infrastructure.md) | 4 tasks | **Done** (A1-A3), A4 pending | Scaffolded from template. Monorepo, backend, frontend, wrangler.toml. CI/CD pending. |
+| B | [Data Model & Core Logic](./B_data_model.md) | 5 tasks | Pending | Core backend — unblocks everything |
+| C | [Telegram Bot & Notifications](./C_bot.md) | 4 tasks | Pending | Engagement loop. Bot /start + join implemented. |
+| D | [TON Wallet & Settlement](./D_settlement.md) | 4 tasks | Pending | On-chain integration. New code (not in template). |
+| E | [Mini App Frontend](./E_frontend.md) | 6 tasks | Pending | User-facing UI. Shell/hooks from template. |
+| F | [Integration & Polish](./F_integration.md) | 4 tasks | Pending | Wire everything together |
+| - | [Deferred Decisions](./later.md) | Reference doc | - | Decisions from code-tightener review, deferred items |
 
 ## Dependency Graph
 
@@ -59,7 +60,7 @@ A must complete first. B is next. Then C, D, E can proceed in parallel. F is las
 
 ## Definition of Done (Phase 1)
 
-- [ ] CLAUDE.md written with all commands and architecture
+- [x] CLAUDE.md written with all commands and architecture
 - [ ] User creates group via mini app
 - [ ] User invites others via link
 - [ ] Invitee gets bot notification, taps inline button, joins group

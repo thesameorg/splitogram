@@ -102,7 +102,7 @@ The playbook is Python-focused but these principles apply directly:
 | Principle | How |
 |-----------|-----|
 | **CLAUDE.md first** | Write CLAUDE.md before any code. Project description, all commands, architecture summary, conventions, what NOT to do. |
-| **API versioning** | All routes under `/v1`. Template doesn't do this — we add it. `POST /v1/auth`, `GET /v1/groups`, etc. |
+| **API versioning** | All routes under `/api/v1`. Template uses `/api` — we add versioning. `POST /api/v1/auth`, `GET /api/v1/groups`, etc. |
 | **One config source** | `wrangler.toml` for bindings/vars. Zod schema in `env.ts` to validate at startup. No scattered config. |
 | **Consistent error shape** | `{error: "machine_code", detail: "human message"}` on every error. Global Hono `onError` handler. |
 | **Input validation at boundary** | Zod schemas on all endpoints via `@hono/zod-validator`. Reject garbage at the gate. |
@@ -151,7 +151,7 @@ splitogram/
 │   │   ├── webhook.ts            # grammY bot handlers (/start, deep links)
 │   │   ├── env.ts                # Zod schema for Env bindings
 │   │   ├── api/
-│   │   │   ├── auth.ts           # POST /v1/auth           [from template]
+│   │   │   ├── auth.ts           # POST /api/v1/auth       [from template]
 │   │   │   ├── health.ts         # GET /health              [from template]
 │   │   │   ├── groups.ts         # Group CRUD + invite
 │   │   │   ├── expenses.ts       # Expense CRUD

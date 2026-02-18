@@ -95,7 +95,7 @@ frontend/src/
 ### Request Flow
 
 1. Mini App loads → reads `initData` from TG WebApp context
-2. `POST /v1/auth` with initData → backend validates HMAC-SHA256 signature → creates KV session → returns session ID
+2. `POST /api/v1/auth` with initData → backend validates HMAC-SHA256 signature → creates KV session → returns session ID
 3. All subsequent requests include `Authorization: Bearer {sessionId}`
 4. Auth middleware validates session from KV on every request
 5. Bot webhook at `POST /webhook` — grammY handles /start commands and deep links
@@ -113,21 +113,23 @@ Amounts stored as integers in micro-USDT (1 USDT = 1,000,000). No floating point
 
 ### Settlement Flow
 
-1. User taps "Settle up" → frontend calls `GET /v1/settlements/:id/tx`
-2. Backend constructs Jetton transfer payload (recipient, amount, memo)
+1. User taps "Settle up" → frontend calls `POST /api/v1/groups/:id/settlements` (creates settlement on demand from debt graph)
+2. Frontend calls `GET /api/v1/settlements/:id/tx` → backend returns Jetton transfer payload (recipient, amount, memo)
 3. Frontend sends tx via `tonConnectUI.sendTransaction()` → user approves in wallet
-4. Frontend sends BOC to `POST /v1/settlements/:id/verify`
+4. Frontend sends BOC to `POST /api/v1/settlements/:id/verify`
 5. Backend verifies on TONAPI: correct sender, recipient, amount, memo
-6. On success: status → `settled_onchain`. On failure: rollback to `open`
+6. On success: status → `settled_onchain`. On failure: user can tap "Refresh status" to re-check or rollback to `open`
 
 ## Conventions
 
-- All API routes under `/v1` prefix
+- All API routes under `/api/v1` prefix
 - Error responses: `{ error: "machine_code", detail: "human message" }`
 - Zod validation on all endpoint inputs via `@hono/zod-validator`
 - Explicit timeout on every external I/O call (`AbortSignal.timeout()`)
 - Bot notifications are fire-and-forget with 1 bounded retry — never block the API response
-- Health endpoint `GET /health` excluded from auth
+- Health endpoint `GET /api/health` excluded from auth
+- Settlements created on demand when user taps "Settle up" (not pre-created)
+- USDT master contract address env-switched via `USDT_MASTER_ADDRESS` (different for testnet/mainnet)
 - Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation)
 
 ## Template Reference

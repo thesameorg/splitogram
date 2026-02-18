@@ -21,6 +21,7 @@ Copy bot setup pattern from template's `webhook.ts`. Template already handles gr
   - `/start group_{group_id}` → send "Open Group" button
 - Bot profile: set name, description, avatar, mini app button via BotFather
 - Error handling: bot errors logged, never crash the Worker
+- **Join handler calls internal service directly** — the bot `/start join_{code}` handler queries the DB and inserts group membership directly, not via HTTP endpoints
 
 **From template:** grammY webhook handler pattern, Hono route for `/webhook`
 
