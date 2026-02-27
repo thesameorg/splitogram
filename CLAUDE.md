@@ -102,6 +102,10 @@ TON Connect UI
 - **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend)
 - **TON transactions** constructed on frontend via `@ton/ton`, sent via `@tonconnect/ui-react`
 
+### Bun Workspaces
+
+Root `package.json` defines `workspaces: ["backend", "frontend"]`. A single `bun install` at root installs both. Root scripts delegate to workspace scripts (e.g., `bun run test:backend` → `cd backend && bun run test`).
+
 ### Repo Structure
 
 ```
@@ -115,23 +119,54 @@ backend/src/
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
 │   └── schema.ts         # All table definitions
+├── dev/                  # Dev-only utilities (mock user for auth bypass)
 └── models/               # Zod request/response schemas
 
 frontend/src/
-├── App.tsx               # TG SDK init + TonConnectUIProvider + router
+├── App.tsx               # TG SDK init + TonConnectUIProvider + router + deep link handling
 ├── services/api.ts       # Fetch wrapper with session header injection
 ├── pages/                # Home, Group, AddExpense, SettleUp
 ├── components/
 └── hooks/                # TG back button, main button, etc.
 ```
 
+### Hono Context Types
+
+The backend uses Hono's typed context pattern to pass data through middleware. This is a key pattern to understand:
+
+```ts
+// middleware/auth.ts — sets session on context
+export type AuthContext = { Bindings: Env; Variables: { session: SessionData } };
+
+// middleware/db.ts — sets Drizzle instance on context
+export type DBContext = { Bindings: Env; Variables: { db: Database } };
+
+// Route handlers use intersection types to require both:
+type GroupEnv = AuthContext & DBContext;
+const app = new Hono<GroupEnv>();
+app.get('/', (c) => {
+  const db = c.get('db');           // from dbMiddleware
+  const session = c.get('session'); // from authMiddleware
+});
+```
+
+Middleware registration order matters — `dbMiddleware` is global (all routes), `authMiddleware` is applied per-prefix before `app.route()`:
+```ts
+app.use('/api/v1/groups/*', authMiddleware);  // must come before .route()
+app.route('/api/v1/groups', groupsApp);
+```
+
 ### Request Flow
 
 1. Mini App loads → reads `initData` from TG WebApp context
-2. `POST /api/v1/auth` with initData → backend validates HMAC-SHA256 signature → creates KV session → returns session ID
+2. `POST /api/v1/auth` with initData → backend validates HMAC-SHA256 signature → creates KV session (1h TTL, auto-expires) → returns session ID
 3. All subsequent requests include `Authorization: Bearer {sessionId}`
 4. Auth middleware validates session from KV on every request
 5. Bot webhook at `POST /webhook` — grammY handles /start commands and deep links
+
+### Deep Links (Bot → Mini App)
+
+Bot sends links with `start_param` (e.g., `group_123`). Frontend reads `window.Telegram.WebApp.initDataUnsafe.start_param` in App.tsx and routes to the matching page after auth completes. Patterns: `group_{id}`, `settle_{id}`, `expense_{id}`.
 
 ### Data Model
 
@@ -153,21 +188,33 @@ Amounts stored as integers in micro-USDT (1 USDT = 1,000,000). No floating point
 5. Backend verifies on TONAPI: correct sender, recipient, amount, memo
 6. On success: status → `settled_onchain`. On failure: user can tap "Refresh status" to re-check or rollback to `open`
 
+### Background Work Pattern
+
+Cloudflare Workers terminate after the response is sent. To run fire-and-forget work (e.g., sending Telegram notifications), use `c.executionCtx.waitUntil(promise)` — this keeps the worker alive until the promise resolves without blocking the response. All notification sends use this pattern.
+
 ## Conventions
 
 - All API routes under `/api/v1` prefix
 - Error responses: `{ error: "machine_code", detail: "human message" }`
-- Zod validation on all endpoint inputs via `@hono/zod-validator`
+- Zod validation on all endpoint inputs via `@hono/zod-validator` — access validated data via `c.req.valid('json')`
 - Explicit timeout on every external I/O call (`AbortSignal.timeout()`)
-- Bot notifications are fire-and-forget with 1 bounded retry — never block the API response
+- Bot notifications are fire-and-forget via `waitUntil()` with 1 bounded retry — never block the API response
 - Health endpoint `GET /api/health` excluded from auth
 - Settlements created on demand when user taps "Settle up" (not pre-created)
 - USDT master contract address env-switched via `USDT_MASTER_ADDRESS` (different for testnet/mainnet)
-- Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation)
+- Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation, auto-creates mock user from `backend/src/dev/mock-user.ts`)
 
 ## Code Style
 
 Prettier config (`.prettierrc`): single quotes, trailing commas, semicolons, 100 char width, 2-space indent. Run `bun run format` before committing.
+
+## CI/CD Pipeline
+
+Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrates 4 steps in sequence:
+1. **Build & Test** — lint + typecheck + tests (backend & frontend in parallel)
+2. **Deploy Worker** — D1 migrations → secrets → `wrangler deploy` → health check
+3. **Deploy Pages** — build frontend → deploy to Cloudflare Pages
+4. **Setup Webhook** — configure Telegram bot webhook to worker URL
 
 ## Planning Docs
 
