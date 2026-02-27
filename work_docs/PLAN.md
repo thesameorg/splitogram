@@ -35,7 +35,7 @@ See `work_docs/phase-1-summary.md` for detailed findings.
 
 ---
 
-## Phase 2: Splitwise Polish
+## Phase 2: Splitwise Polish (planned at ./todo_phase_2/)
 
 **Goal:** Make the expense splitting experience solid and complete — the app people actually want to use daily. No crypto, just a great Splitwise clone inside Telegram.
 
