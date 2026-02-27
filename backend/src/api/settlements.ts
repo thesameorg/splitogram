@@ -5,6 +5,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import { settlements, groupMembers, users, groups } from '../db/schema';
 import { simplifyDebts } from '../services/debt-solver';
 import { computeGroupBalances } from './balances';
+import { notify } from '../services/notifications';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 import type { Env } from '../env';
@@ -52,7 +53,10 @@ settlementsApp.post('/groups/:id/settlements', async (c) => {
   const myDebts = debts.filter((d) => d.from === currentUser.id);
 
   if (myDebts.length === 0) {
-    return c.json({ error: 'no_debts', detail: 'You have no outstanding debts in this group' }, 400);
+    return c.json(
+      { error: 'no_debts', detail: 'You have no outstanding debts in this group' },
+      400,
+    );
   }
 
   // Create settlements for each debt (idempotent — check for existing open ones)
@@ -131,18 +135,29 @@ settlementsApp.get('/settlements/:id', async (c) => {
 
   // Check user is involved (debtor or creditor)
   if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
-    return c.json({ error: 'not_involved', detail: 'You are not involved in this settlement' }, 403);
+    return c.json(
+      { error: 'not_involved', detail: 'You are not involved in this settlement' },
+      403,
+    );
   }
 
   // Get user details
   const [fromUserInfo] = await db
-    .select({ displayName: users.displayName, username: users.username, walletAddress: users.walletAddress })
+    .select({
+      displayName: users.displayName,
+      username: users.username,
+      walletAddress: users.walletAddress,
+    })
     .from(users)
     .where(eq(users.id, settlement.fromUser))
     .limit(1);
 
   const [toUserInfo] = await db
-    .select({ displayName: users.displayName, username: users.username, walletAddress: users.walletAddress })
+    .select({
+      displayName: users.displayName,
+      username: users.username,
+      walletAddress: users.walletAddress,
+    })
     .from(users)
     .where(eq(users.id, settlement.toUser))
     .limit(1);
@@ -185,11 +200,17 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   }
 
   if (settlement.fromUser !== currentUser.id) {
-    return c.json({ error: 'not_debtor', detail: 'Only the debtor can get transaction params' }, 403);
+    return c.json(
+      { error: 'not_debtor', detail: 'Only the debtor can get transaction params' },
+      403,
+    );
   }
 
   if (settlement.status !== 'open') {
-    return c.json({ error: 'invalid_status', detail: `Settlement is ${settlement.status}, expected open` }, 400);
+    return c.json(
+      { error: 'invalid_status', detail: `Settlement is ${settlement.status}, expected open` },
+      400,
+    );
   }
 
   // Get creditor's wallet address
@@ -200,10 +221,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     .limit(1);
 
   if (!creditor?.walletAddress) {
-    return c.json(
-      { error: 'no_wallet', detail: 'Creditor has not connected a wallet' },
-      400,
-    );
+    return c.json({ error: 'no_wallet', detail: 'Creditor has not connected a wallet' }, 400);
   }
 
   const usdtMasterAddress = c.env.USDT_MASTER_ADDRESS;
@@ -221,10 +239,12 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
 });
 
 // --- Verify settlement on-chain ---
-const verifySchema = z.object({
-  boc: z.string().optional(),
-  txHash: z.string().optional(),
-}).refine((d) => d.boc || d.txHash, { message: 'Either boc or txHash is required' });
+const verifySchema = z
+  .object({
+    boc: z.string().optional(),
+    txHash: z.string().optional(),
+  })
+  .refine((d) => d.boc || d.txHash, { message: 'Either boc or txHash is required' });
 
 settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema), async (c) => {
   const db = c.get('db');
@@ -261,7 +281,10 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
   }
 
   if (settlement.status !== 'open' && settlement.status !== 'payment_pending') {
-    return c.json({ error: 'invalid_status', detail: `Settlement is already ${settlement.status}` }, 400);
+    return c.json(
+      { error: 'invalid_status', detail: `Settlement is already ${settlement.status}` },
+      400,
+    );
   }
 
   // Mark as payment_pending while we verify
@@ -288,7 +311,7 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
       const sendResp = await fetch('https://testnet.tonapi.io/v2/blockchain/message', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${tonapiKey}`,
+          Authorization: `Bearer ${tonapiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ boc }),
@@ -299,7 +322,8 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
         // BOC sent — need to poll for confirmation
         return c.json({
           status: 'payment_pending',
-          detail: 'Transaction broadcast, awaiting on-chain confirmation. Poll GET /settlements/:id for status.',
+          detail:
+            'Transaction broadcast, awaiting on-chain confirmation. Poll GET /settlements/:id for status.',
           settlementId,
         });
       }
@@ -328,6 +352,27 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
             updatedAt: new Date().toISOString(),
           })
           .where(eq(settlements.id, settlementId));
+
+        // Fire-and-forget notification
+        const notifyCtx = {
+          botToken: c.env.TELEGRAM_BOT_TOKEN,
+          pagesUrl: c.env.PAGES_URL || '',
+        };
+        c.executionCtx.waitUntil(
+          sendSettlementNotification(
+            notifyCtx,
+            db,
+            {
+              id: settlementId,
+              amount: settlement.amount,
+              status: 'settled_onchain',
+              txHash: resolvedTxHash,
+            },
+            settlement.fromUser,
+            settlement.toUser,
+            settlement.groupId,
+          ),
+        );
 
         return c.json({ status: 'settled_onchain', txHash: resolvedTxHash, settlementId });
       }
@@ -376,13 +421,19 @@ settlementsApp.post('/settlements/:id/mark-external', async (c) => {
   // Only creditor can mark as externally settled
   if (settlement.toUser !== currentUser.id) {
     return c.json(
-      { error: 'not_creditor', detail: 'Only the creditor can mark a settlement as externally settled' },
+      {
+        error: 'not_creditor',
+        detail: 'Only the creditor can mark a settlement as externally settled',
+      },
       403,
     );
   }
 
   if (settlement.status !== 'open' && settlement.status !== 'payment_pending') {
-    return c.json({ error: 'invalid_status', detail: `Settlement is already ${settlement.status}` }, 400);
+    return c.json(
+      { error: 'invalid_status', detail: `Settlement is already ${settlement.status}` },
+      400,
+    );
   }
 
   await db
@@ -392,6 +443,19 @@ settlementsApp.post('/settlements/:id/mark-external', async (c) => {
       updatedAt: new Date().toISOString(),
     })
     .where(eq(settlements.id, settlementId));
+
+  // Fire-and-forget notification
+  const notifyCtx = { botToken: c.env.TELEGRAM_BOT_TOKEN, pagesUrl: c.env.PAGES_URL || '' };
+  c.executionCtx.waitUntil(
+    sendSettlementNotification(
+      notifyCtx,
+      db,
+      { id: settlementId, amount: settlement.amount, status: 'settled_external', txHash: null },
+      settlement.fromUser,
+      settlement.toUser,
+      settlement.groupId,
+    ),
+  );
 
   return c.json({ status: 'settled_external', settlementId });
 });
@@ -426,6 +490,46 @@ settlementsApp.delete('/users/me/wallet', async (c) => {
   return c.json({ walletAddress: null });
 });
 
+// --- Settlement notification helper ---
+async function sendSettlementNotification(
+  notifyCtx: { botToken: string; pagesUrl: string },
+  db: any,
+  settlement: { id: number; amount: number; status: string; txHash?: string | null },
+  fromUserId: number,
+  toUserId: number,
+  groupId: number,
+): Promise<void> {
+  try {
+    const [debtor] = await db
+      .select({ telegramId: users.telegramId, displayName: users.displayName })
+      .from(users)
+      .where(eq(users.id, fromUserId))
+      .limit(1);
+
+    const [creditor] = await db
+      .select({ telegramId: users.telegramId, displayName: users.displayName })
+      .from(users)
+      .where(eq(users.id, toUserId))
+      .limit(1);
+
+    const [group] = await db
+      .select({ name: groups.name })
+      .from(groups)
+      .where(eq(groups.id, groupId))
+      .limit(1);
+
+    await notify.settlementCompleted(
+      notifyCtx,
+      { ...settlement, groupId },
+      debtor,
+      creditor,
+      group.name,
+    );
+  } catch (e) {
+    console.error('Notification failed (settlement_completed):', e);
+  }
+}
+
 // --- TONAPI verification helper ---
 async function verifyTransaction(
   env: Env,
@@ -435,17 +539,14 @@ async function verifyTransaction(
   const tonapiKey = env.TONAPI_KEY;
   if (!tonapiKey) return false;
 
-  const resp = await fetch(
-    `https://testnet.tonapi.io/v2/blockchain/transactions/${txHash}`,
-    {
-      headers: { Authorization: `Bearer ${tonapiKey}` },
-      signal: AbortSignal.timeout(10000),
-    },
-  );
+  const resp = await fetch(`https://testnet.tonapi.io/v2/blockchain/transactions/${txHash}`, {
+    headers: { Authorization: `Bearer ${tonapiKey}` },
+    signal: AbortSignal.timeout(10000),
+  });
 
   if (!resp.ok) return false;
 
-  const tx = await resp.json() as any;
+  const tx = (await resp.json()) as any;
 
   // Basic verification: transaction exists and is confirmed
   // Full verification (sender, recipient, amount, comment) requires parsing Jetton transfer messages

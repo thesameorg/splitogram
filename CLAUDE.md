@@ -30,11 +30,14 @@ bun run test                 # run all tests (backend + frontend)
 bun run test:backend         # backend tests only
 bun run test:frontend        # frontend tests only
 # Single test file:
-cd backend && bunx vitest run src/services/debt-solver.test.ts
+cd backend && bunx vitest run tests/debt-solver.test.ts
 
-# Lint & typecheck
-bun run lint
-bun run typecheck
+# Lint, typecheck, format
+bun run typecheck             # typecheck backend + frontend
+bun run lint                  # placeholder (echo 'lint ok') — no ESLint yet
+bun run format                # prettier --write .
+bun run format:check          # prettier --check . (CI-friendly)
+bun run check                 # typecheck + lint + test (all at once)
 
 # Tunnel & webhook (for bot testing)
 bun run tunnel:start         # ngrok tunnel on :5173 (Vite, proxies API+webhook to :8787)
@@ -99,17 +102,6 @@ TON Connect UI
 - **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend)
 - **TON transactions** constructed on frontend via `@ton/ton`, sent via `@tonconnect/ui-react`
 
-### Stack
-
-| Layer    | Tech                                                                 |
-| -------- | -------------------------------------------------------------------- |
-| Runtime  | Bun                                                                  |
-| Backend  | Hono + grammY + Drizzle + Zod                                        |
-| Frontend | React 19 + Vite + Tailwind + `@tonconnect/ui-react` + `@twa-dev/sdk` |
-| Database | Cloudflare D1 (SQLite) via Drizzle                                   |
-| Sessions | Cloudflare KV                                                        |
-| CI/CD    | GitHub Actions → Cloudflare                                          |
-
 ### Repo Structure
 
 ```
@@ -173,16 +165,11 @@ Amounts stored as integers in micro-USDT (1 USDT = 1,000,000). No floating point
 - USDT master contract address env-switched via `USDT_MASTER_ADDRESS` (different for testnet/mainnet)
 - Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation)
 
-## Template Reference
+## Code Style
 
-Auth, sessions, middleware, deployment pipeline, and bot webhook pattern are adapted from:
-`/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`
-
-See `work_docs/phase_1/00_tech_decisions.md` for the full reuse map.
+Prettier config (`.prettierrc`): single quotes, trailing commas, semicolons, 100 char width, 2-space indent. Run `bun run format` before committing.
 
 ## Planning Docs
 
-- `work_docs/idea.md` — business overview, competitive landscape, user flow, decisions
 - `work_docs/phases.md` — 9-phase roadmap
 - `work_docs/phase_1/` — Phase 1 task breakdown with tech details per task group
-- `work_docs/playbook.md` — engineering principles (Python-focused, but conventions apply)

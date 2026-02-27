@@ -2,7 +2,15 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, sql, desc } from 'drizzle-orm';
-import { groups, groupMembers, users, expenses, expenseParticipants, settlements } from '../db/schema';
+import {
+  groups,
+  groupMembers,
+  users,
+  expenses,
+  expenseParticipants,
+  settlements,
+} from '../db/schema';
+import { notify } from '../services/notifications';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 
@@ -60,13 +68,16 @@ groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
     role: 'admin',
   });
 
-  return c.json({
-    id: group.id,
-    name: group.name,
-    inviteCode: group.inviteCode,
-    isPair: group.isPair,
-    createdAt: group.createdAt,
-  }, 201);
+  return c.json(
+    {
+      id: group.id,
+      name: group.name,
+      inviteCode: group.inviteCode,
+      isPair: group.isPair,
+      createdAt: group.createdAt,
+    },
+    201,
+  );
 });
 
 // --- List user's groups ---
@@ -155,11 +166,7 @@ groupsApp.get('/:id', async (c) => {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  const [group] = await db
-    .select()
-    .from(groups)
-    .where(eq(groups.id, groupId))
-    .limit(1);
+  const [group] = await db.select().from(groups).where(eq(groups.id, groupId)).limit(1);
 
   if (!group) {
     return c.json({ error: 'group_not_found', detail: 'Group not found' }, 404);
@@ -266,7 +273,10 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
     .limit(1);
 
   if (existing) {
-    return c.json({ error: 'already_member', detail: 'You are already a member of this group' }, 409);
+    return c.json(
+      { error: 'already_member', detail: 'You are already a member of this group' },
+      409,
+    );
   }
 
   await db.insert(groupMembers).values({
@@ -274,6 +284,33 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
     userId: user.id,
     role: 'member',
   });
+
+  // Fire-and-forget notification
+  const notifyCtx = { botToken: c.env.TELEGRAM_BOT_TOKEN, pagesUrl: c.env.PAGES_URL || '' };
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        const [newMember] = await db
+          .select({ telegramId: users.telegramId, displayName: users.displayName })
+          .from(users)
+          .where(eq(users.id, user.id))
+          .limit(1);
+
+        const existingMembers = await db
+          .select({ telegramId: users.telegramId, displayName: users.displayName })
+          .from(groupMembers)
+          .innerJoin(users, eq(groupMembers.userId, users.id))
+          .where(eq(groupMembers.groupId, groupId));
+
+        await notify.memberJoined(notifyCtx, newMember, existingMembers, {
+          id: groupId,
+          name: group.name,
+        });
+      } catch (e) {
+        console.error('Notification failed (member_joined):', e);
+      }
+    })(),
+  );
 
   return c.json({ joined: true, groupId, groupName: group.name });
 });

@@ -61,7 +61,7 @@ export const notify = {
       `"${expense.description}" — ${formatAmount(expense.amount)}`;
 
     const keyboard = [
-      [{ text: 'View Group', web_app: { url: `${ctx.pagesUrl}` } }],
+      [{ text: 'View Group', web_app: { url: `${ctx.pagesUrl}/groups/${expense.groupId}` } }],
     ];
 
     // Notify all participants except the payer
@@ -74,23 +74,29 @@ export const notify = {
 
   async settlementCompleted(
     ctx: NotifyContext,
-    settlement: { id: number; amount: number; status: string; txHash?: string | null },
+    settlement: {
+      id: number;
+      amount: number;
+      status: string;
+      txHash?: string | null;
+      groupId: number;
+    },
     debtor: NotifyUser,
     creditor: NotifyUser,
     groupName: string,
   ): Promise<void> {
     const amountStr = formatAmount(settlement.amount);
     const method = settlement.status === 'settled_onchain' ? 'on-chain' : 'externally';
-    const txInfo = settlement.txHash ? `\nTx: <code>${settlement.txHash.slice(0, 16)}...</code>` : '';
+    const txInfo = settlement.txHash
+      ? `\nTx: <code>${settlement.txHash.slice(0, 16)}...</code>`
+      : '';
 
-    const creditorText =
-      `<b>${debtor.displayName}</b> settled ${amountStr} with you ${method} in <b>${groupName}</b>${txInfo}`;
+    const creditorText = `<b>${debtor.displayName}</b> settled ${amountStr} with you ${method} in <b>${groupName}</b>${txInfo}`;
 
-    const debtorText =
-      `You settled ${amountStr} with <b>${creditor.displayName}</b> ${method} in <b>${groupName}</b>${txInfo}`;
+    const debtorText = `You settled ${amountStr} with <b>${creditor.displayName}</b> ${method} in <b>${groupName}</b>${txInfo}`;
 
     const keyboard = [
-      [{ text: 'View Group', web_app: { url: `${ctx.pagesUrl}` } }],
+      [{ text: 'View Group', web_app: { url: `${ctx.pagesUrl}/groups/${settlement.groupId}` } }],
     ];
 
     await Promise.allSettled([
@@ -103,12 +109,12 @@ export const notify = {
     ctx: NotifyContext,
     newMember: NotifyUser,
     existingMembers: NotifyUser[],
-    groupName: string,
+    group: { id: number; name: string },
   ): Promise<void> {
-    const text = `<b>${newMember.displayName}</b> joined <b>${groupName}</b>`;
+    const text = `<b>${newMember.displayName}</b> joined <b>${group.name}</b>`;
 
     const keyboard = [
-      [{ text: 'Open Group', web_app: { url: `${ctx.pagesUrl}` } }],
+      [{ text: 'Open Group', web_app: { url: `${ctx.pagesUrl}/groups/${group.id}` } }],
     ];
 
     const tasks = existingMembers

@@ -1,8 +1,9 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { eq, and, desc, sql } from 'drizzle-orm';
-import { expenses, expenseParticipants, groupMembers, users } from '../db/schema';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
+import { expenses, expenseParticipants, groupMembers, groups, users } from '../db/schema';
+import { notify } from '../services/notifications';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 
@@ -111,6 +112,41 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   }));
 
   await db.insert(expenseParticipants).values(participantValues);
+
+  // Fire-and-forget notification
+  const notifyCtx = { botToken: c.env.TELEGRAM_BOT_TOKEN, pagesUrl: c.env.PAGES_URL || '' };
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        const [group] = await db
+          .select({ name: groups.name })
+          .from(groups)
+          .where(eq(groups.id, groupId))
+          .limit(1);
+
+        const [payer] = await db
+          .select({ telegramId: users.telegramId, displayName: users.displayName })
+          .from(users)
+          .where(eq(users.id, payerId))
+          .limit(1);
+
+        const participantUsers = await db
+          .select({ telegramId: users.telegramId, displayName: users.displayName })
+          .from(users)
+          .where(inArray(users.id, participantIds));
+
+        await notify.expenseCreated(
+          notifyCtx,
+          { id: expense.id, description, amount, groupId },
+          payer,
+          participantUsers,
+          group.name,
+        );
+      } catch (e) {
+        console.error('Notification failed (expense_created):', e);
+      }
+    })(),
+  );
 
   return c.json(
     {
