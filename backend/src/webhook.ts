@@ -2,12 +2,16 @@ import { Context } from 'hono';
 import { Bot, webhookCallback, Context as GrammyContext } from 'grammy';
 import { createDatabase } from './db';
 import { users, groups, groupMembers } from './db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export async function handleWebhook(c: Context) {
   const botToken = c.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) {
     return c.json({ error: 'bot_not_configured', detail: 'Bot token not configured' }, 500);
+  }
+
+  if (!c.env.PAGES_URL) {
+    console.warn('PAGES_URL is not set — bot buttons will link to empty URLs');
   }
 
   const bot = new Bot(botToken);
@@ -46,30 +50,33 @@ export async function handleWebhook(c: Context) {
             telegramId,
             username: ctx.from?.username ?? null,
             displayName: firstName,
+            botStarted: true,
           })
           .returning();
         user = inserted;
+      } else if (!user.botStarted) {
+        await db
+          .update(users)
+          .set({ botStarted: true })
+          .where(eq(users.id, user.id));
       }
 
       // Check if already a member
-      const existingMember = await db
-        .select()
+      const [existingMember] = await db
+        .select({ id: groupMembers.id })
         .from(groupMembers)
-        .where(eq(groupMembers.groupId, group.id))
-        .limit(100);
+        .where(and(eq(groupMembers.groupId, group.id), eq(groupMembers.userId, user.id)))
+        .limit(1);
 
-      const alreadyMember = existingMember.some((m) => m.userId === user.id);
+      const alreadyMember = !!existingMember;
+
+      const groupUrl = `${c.env.PAGES_URL ?? ''}/groups/${group.id}`;
 
       if (alreadyMember) {
         await ctx.reply(`You're already in "${group.name}"! Open the app to see your expenses.`, {
           reply_markup: {
             inline_keyboard: [
-              [
-                {
-                  text: 'Open Splitogram',
-                  web_app: { url: `${c.env.PAGES_URL ?? ''}` },
-                },
-              ],
+              [{ text: `Open "${group.name}"`, web_app: { url: groupUrl } }],
             ],
           },
         });
@@ -86,21 +93,26 @@ export async function handleWebhook(c: Context) {
       await ctx.reply(`You've joined "${group.name}"! Open the app to start splitting expenses.`, {
         reply_markup: {
           inline_keyboard: [
-            [
-              {
-                text: 'Open Splitogram',
-                web_app: { url: `${c.env.PAGES_URL ?? ''}` },
-              },
-            ],
+            [{ text: `Open "${group.name}"`, web_app: { url: groupUrl } }],
           ],
         },
       });
       return;
     }
 
+    // Mark bot as started for this user
+    const defaultTgId = ctx.from?.id;
+    if (defaultTgId) {
+      const db = createDatabase(c.env.DB);
+      await db
+        .update(users)
+        .set({ botStarted: true })
+        .where(eq(users.telegramId, defaultTgId));
+    }
+
     // Default /start response
     await ctx.reply(
-      `Hey ${firstName}! Welcome to Splitogram.\n\nSplit expenses with friends and settle up with USDT on TON.`,
+      `Hey ${firstName}! Welcome to Splitogram.\n\nSplit expenses with friends and settle up easily.`,
       {
         reply_markup: {
           inline_keyboard: [

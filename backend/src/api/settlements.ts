@@ -6,6 +6,7 @@ import { settlements, groupMembers, users, groups } from '../db/schema';
 import { simplifyDebts } from '../services/debt-solver';
 import { computeGroupBalances } from './balances';
 import { notify } from '../services/notifications';
+import type { Database } from '../db';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 import type { Env } from '../env';
@@ -14,94 +15,104 @@ type SettlementEnv = AuthContext & DBContext & { Bindings: Env };
 
 const settlementsApp = new Hono<SettlementEnv>();
 
-// --- Create settlement on demand from debt graph ---
-settlementsApp.post('/groups/:id/settlements', async (c) => {
-  const db = c.get('db');
-  const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+// --- Create settlement for a specific debt ---
+const createSettlementSchema = z.object({
+  fromUserId: z.number().int().positive(),
+  toUserId: z.number().int().positive(),
+});
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+settlementsApp.post(
+  '/groups/:id/settlements',
+  zValidator('json', createSettlementSchema),
+  async (c) => {
+    const db = c.get('db');
+    const session = c.get('session');
+    const groupId = parseInt(c.req.param('id'), 10);
+    const { fromUserId, toUserId } = c.req.valid('json');
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
+    if (isNaN(groupId)) {
+      return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+    }
 
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+    const [currentUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.telegramId, session.telegramId))
+      .limit(1);
 
-  // Check membership
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
-    .limit(1);
+    if (!currentUser) {
+      return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+    }
 
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+    // Current user must be one of the parties
+    if (currentUser.id !== fromUserId && currentUser.id !== toUserId) {
+      return c.json(
+        { error: 'not_involved', detail: 'You must be the debtor or creditor' },
+        403,
+      );
+    }
 
-  // Compute current debt graph
-  const netBalances = await computeGroupBalances(db, groupId);
-  const debts = simplifyDebts(netBalances);
+    // Check membership
+    const [membership] = await db
+      .select()
+      .from(groupMembers)
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+      .limit(1);
 
-  // Find debts where current user is the debtor
-  const myDebts = debts.filter((d) => d.from === currentUser.id);
+    if (!membership) {
+      return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+    }
 
-  if (myDebts.length === 0) {
-    return c.json(
-      { error: 'no_debts', detail: 'You have no outstanding debts in this group' },
-      400,
-    );
-  }
+    // Compute current debt graph and find the specific debt
+    const netBalances = await computeGroupBalances(db, groupId);
+    const debts = simplifyDebts(netBalances);
+    const targetDebt = debts.find((d) => d.from === fromUserId && d.to === toUserId);
 
-  // Create settlements for each debt (idempotent — check for existing open ones)
-  const created = [];
-  for (const debt of myDebts) {
-    // Check if open settlement already exists
+    if (!targetDebt) {
+      return c.json(
+        { error: 'no_debt', detail: 'No outstanding debt between these users' },
+        400,
+      );
+    }
+
+    // Idempotent: check for existing open settlement
     const [existing] = await db
       .select()
       .from(settlements)
       .where(
         and(
           eq(settlements.groupId, groupId),
-          eq(settlements.fromUser, debt.from),
-          eq(settlements.toUser, debt.to),
+          eq(settlements.fromUser, fromUserId),
+          eq(settlements.toUser, toUserId),
           eq(settlements.status, 'open'),
         ),
       )
       .limit(1);
 
     if (existing) {
-      // Update amount if changed
-      if (existing.amount !== debt.amount) {
+      if (existing.amount !== targetDebt.amount) {
         await db
           .update(settlements)
-          .set({ amount: debt.amount, updatedAt: new Date().toISOString() })
+          .set({ amount: targetDebt.amount, updatedAt: new Date().toISOString() })
           .where(eq(settlements.id, existing.id));
       }
-      created.push({ ...existing, amount: debt.amount });
-    } else {
-      const [settlement] = await db
-        .insert(settlements)
-        .values({
-          groupId,
-          fromUser: debt.from,
-          toUser: debt.to,
-          amount: debt.amount,
-          status: 'open',
-        })
-        .returning();
-      created.push(settlement);
+      return c.json({ settlement: { ...existing, amount: targetDebt.amount } }, 200);
     }
-  }
 
-  return c.json({ settlements: created }, 201);
-});
+    const [settlement] = await db
+      .insert(settlements)
+      .values({
+        groupId,
+        fromUser: fromUserId,
+        toUser: toUserId,
+        amount: targetDebt.amount,
+        status: 'open',
+      })
+      .returning();
+
+    return c.json({ settlement }, 201);
+  },
+);
 
 // --- Get settlement detail ---
 settlementsApp.get('/settlements/:id', async (c) => {
@@ -141,29 +152,37 @@ settlementsApp.get('/settlements/:id', async (c) => {
     );
   }
 
-  // Get user details
-  const [fromUserInfo] = await db
-    .select({
-      displayName: users.displayName,
-      username: users.username,
-      walletAddress: users.walletAddress,
-    })
-    .from(users)
-    .where(eq(users.id, settlement.fromUser))
-    .limit(1);
-
-  const [toUserInfo] = await db
-    .select({
-      displayName: users.displayName,
-      username: users.username,
-      walletAddress: users.walletAddress,
-    })
-    .from(users)
-    .where(eq(users.id, settlement.toUser))
-    .limit(1);
+  // Get user details and group currency
+  const [[fromUserInfo], [toUserInfo], [group]] = await Promise.all([
+    db
+      .select({
+        displayName: users.displayName,
+        username: users.username,
+        walletAddress: users.walletAddress,
+      })
+      .from(users)
+      .where(eq(users.id, settlement.fromUser))
+      .limit(1),
+    db
+      .select({
+        displayName: users.displayName,
+        username: users.username,
+        walletAddress: users.walletAddress,
+      })
+      .from(users)
+      .where(eq(users.id, settlement.toUser))
+      .limit(1),
+    db
+      .select({ currency: groups.currency })
+      .from(groups)
+      .where(eq(groups.id, settlement.groupId))
+      .limit(1),
+  ]);
 
   return c.json({
     ...settlement,
+    currentUserId: currentUser.id,
+    currency: group?.currency ?? 'USD',
     from: { userId: settlement.fromUser, ...fromUserInfo },
     to: { userId: settlement.toUser, ...toUserInfo },
   });
@@ -354,13 +373,19 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
           .where(eq(settlements.id, settlementId));
 
         // Fire-and-forget notification
-        const notifyCtx = {
+        const onchainNotifyCtx = {
           botToken: c.env.TELEGRAM_BOT_TOKEN,
           pagesUrl: c.env.PAGES_URL || '',
+          onBotBlocked: (telegramId: number) => {
+            db.update(users)
+              .set({ botStarted: false })
+              .where(eq(users.telegramId, telegramId))
+              .catch(() => {});
+          },
         };
         c.executionCtx.waitUntil(
           sendSettlementNotification(
-            notifyCtx,
+            onchainNotifyCtx,
             db,
             {
               id: settlementId,
@@ -388,77 +413,94 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
   });
 });
 
-// --- Mark as settled externally ---
-settlementsApp.post('/settlements/:id/mark-external', async (c) => {
-  const db = c.get('db');
-  const session = c.get('session');
-  const settlementId = parseInt(c.req.param('id'), 10);
-
-  if (isNaN(settlementId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-  }
-
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
-
-  const [settlement] = await db
-    .select()
-    .from(settlements)
-    .where(eq(settlements.id, settlementId))
-    .limit(1);
-
-  if (!settlement) {
-    return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
-  }
-
-  // Only creditor can mark as externally settled
-  if (settlement.toUser !== currentUser.id) {
-    return c.json(
-      {
-        error: 'not_creditor',
-        detail: 'Only the creditor can mark a settlement as externally settled',
-      },
-      403,
-    );
-  }
-
-  if (settlement.status !== 'open' && settlement.status !== 'payment_pending') {
-    return c.json(
-      { error: 'invalid_status', detail: `Settlement is already ${settlement.status}` },
-      400,
-    );
-  }
-
-  await db
-    .update(settlements)
-    .set({
-      status: 'settled_external',
-      updatedAt: new Date().toISOString(),
-    })
-    .where(eq(settlements.id, settlementId));
-
-  // Fire-and-forget notification
-  const notifyCtx = { botToken: c.env.TELEGRAM_BOT_TOKEN, pagesUrl: c.env.PAGES_URL || '' };
-  c.executionCtx.waitUntil(
-    sendSettlementNotification(
-      notifyCtx,
-      db,
-      { id: settlementId, amount: settlement.amount, status: 'settled_external', txHash: null },
-      settlement.fromUser,
-      settlement.toUser,
-      settlement.groupId,
-    ),
-  );
-
-  return c.json({ status: 'settled_external', settlementId });
+// --- Mark as settled externally (either party) ---
+const markExternalSchema = z.object({
+  comment: z.string().max(500).optional(),
 });
+
+settlementsApp.post(
+  '/settlements/:id/mark-external',
+  zValidator('json', markExternalSchema),
+  async (c) => {
+    const db = c.get('db');
+    const session = c.get('session');
+    const settlementId = parseInt(c.req.param('id'), 10);
+    const { comment } = c.req.valid('json');
+
+    if (isNaN(settlementId)) {
+      return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
+    }
+
+    const [currentUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.telegramId, session.telegramId))
+      .limit(1);
+
+    if (!currentUser) {
+      return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+    }
+
+    const [settlement] = await db
+      .select()
+      .from(settlements)
+      .where(eq(settlements.id, settlementId))
+      .limit(1);
+
+    if (!settlement) {
+      return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
+    }
+
+    // Either debtor or creditor can mark as settled
+    if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
+      return c.json(
+        { error: 'not_involved', detail: 'You are not involved in this settlement' },
+        403,
+      );
+    }
+
+    if (settlement.status !== 'open' && settlement.status !== 'payment_pending') {
+      return c.json(
+        { error: 'invalid_status', detail: `Settlement is already ${settlement.status}` },
+        400,
+      );
+    }
+
+    await db
+      .update(settlements)
+      .set({
+        status: 'settled_external',
+        comment: comment ?? null,
+        settledBy: currentUser.id,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(settlements.id, settlementId));
+
+    // Fire-and-forget notification
+    const notifyCtx = {
+      botToken: c.env.TELEGRAM_BOT_TOKEN,
+      pagesUrl: c.env.PAGES_URL || '',
+      onBotBlocked: (telegramId: number) => {
+        db.update(users)
+          .set({ botStarted: false })
+          .where(eq(users.telegramId, telegramId))
+          .catch(() => {});
+      },
+    };
+    c.executionCtx.waitUntil(
+      sendSettlementNotification(
+        notifyCtx,
+        db,
+        { id: settlementId, amount: settlement.amount, status: 'settled_external', txHash: null },
+        settlement.fromUser,
+        settlement.toUser,
+        settlement.groupId,
+      ),
+    );
+
+    return c.json({ status: 'settled_external', settlementId });
+  },
+);
 
 // --- Wallet endpoint ---
 const walletSchema = z.object({
@@ -492,31 +534,39 @@ settlementsApp.delete('/users/me/wallet', async (c) => {
 
 // --- Settlement notification helper ---
 async function sendSettlementNotification(
-  notifyCtx: { botToken: string; pagesUrl: string },
-  db: any,
+  notifyCtx: { botToken: string; pagesUrl: string; onBotBlocked?: (telegramId: number) => void },
+  db: Database,
   settlement: { id: number; amount: number; status: string; txHash?: string | null },
   fromUserId: number,
   toUserId: number,
   groupId: number,
 ): Promise<void> {
   try {
-    const [debtor] = await db
-      .select({ telegramId: users.telegramId, displayName: users.displayName })
-      .from(users)
-      .where(eq(users.id, fromUserId))
-      .limit(1);
-
-    const [creditor] = await db
-      .select({ telegramId: users.telegramId, displayName: users.displayName })
-      .from(users)
-      .where(eq(users.id, toUserId))
-      .limit(1);
-
-    const [group] = await db
-      .select({ name: groups.name })
-      .from(groups)
-      .where(eq(groups.id, groupId))
-      .limit(1);
+    const [[debtor], [creditor], [group]] = await Promise.all([
+      db
+        .select({
+          telegramId: users.telegramId,
+          displayName: users.displayName,
+          botStarted: users.botStarted,
+        })
+        .from(users)
+        .where(eq(users.id, fromUserId))
+        .limit(1),
+      db
+        .select({
+          telegramId: users.telegramId,
+          displayName: users.displayName,
+          botStarted: users.botStarted,
+        })
+        .from(users)
+        .where(eq(users.id, toUserId))
+        .limit(1),
+      db
+        .select({ name: groups.name, currency: groups.currency })
+        .from(groups)
+        .where(eq(groups.id, groupId))
+        .limit(1),
+    ]);
 
     await notify.settlementCompleted(
       notifyCtx,
@@ -524,6 +574,7 @@ async function sendSettlementNotification(
       debtor,
       creditor,
       group.name,
+      group.currency,
     );
   } catch (e) {
     console.error('Notification failed (settlement_completed):', e);
@@ -531,6 +582,11 @@ async function sendSettlementNotification(
 }
 
 // --- TONAPI verification helper ---
+// SECURITY GATE: This is a STUB. Do NOT enable Phase 3 crypto settlement until this
+// function fully verifies: sender wallet, recipient wallet, amount, Jetton contract
+// address (USDT_MASTER_ADDRESS), and memo (splitogram:{settlementId}).
+// Currently it only checks that the tx hash exists on-chain — anyone can submit any
+// legitimate tx hash to mark a settlement as paid.
 async function verifyTransaction(
   env: Env,
   settlement: { id: number; fromUser: number; toUser: number; amount: number },
@@ -548,9 +604,6 @@ async function verifyTransaction(
 
   const tx = (await resp.json()) as any;
 
-  // Basic verification: transaction exists and is confirmed
-  // Full verification (sender, recipient, amount, comment) requires parsing Jetton transfer messages
-  // For Phase 1, accept if tx exists — detailed verification is a Phase 2 improvement
   return tx && tx.hash === txHash;
 }
 

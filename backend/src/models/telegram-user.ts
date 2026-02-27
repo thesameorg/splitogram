@@ -16,7 +16,7 @@ export const TelegramUserSchema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().optional(),
   username: z.string().min(1).optional(),
-  language_code: z.string().length(2),
+  language_code: z.string().min(2),
   is_premium: z.boolean().optional(),
   allows_write_to_pm: z.boolean().optional(),
   photo_url: z.string().url().optional(),

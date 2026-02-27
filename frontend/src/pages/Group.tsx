@@ -3,10 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api, type GroupDetail, type Expense, type DebtEntry } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { config } from '../config';
-
-function formatAmount(microUsdt: number): string {
-  return `$${(microUsdt / 1_000_000).toFixed(2)}`;
-}
+import { formatAmount } from '../utils/format';
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -30,6 +27,7 @@ export function Group() {
   const [tab, setTab] = useState<'expenses' | 'balances'>('expenses');
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   useTelegramBackButton(true);
 
@@ -51,11 +49,17 @@ export function Group() {
       const tgId = webApp?.initDataUnsafe?.user?.id;
       if (tgId) {
         const member = groupData.members.find((m) => m.telegramId === tgId);
-        if (member) setCurrentUserId(member.userId);
+        if (member) {
+          setCurrentUserId(member.userId);
+          setCurrentUserRole(member.role);
+        }
       } else {
         // Dev mode — assume first admin is current user
         const admin = groupData.members.find((m) => m.role === 'admin');
-        if (admin) setCurrentUserId(admin.userId);
+        if (admin) {
+          setCurrentUserId(admin.userId);
+          setCurrentUserRole(admin.role);
+        }
       }
     } catch (err) {
       console.error('Failed to load group:', err);
@@ -86,15 +90,24 @@ export function Group() {
     }
   }
 
+  function canModifyExpense(exp: Expense): boolean {
+    return currentUserId === exp.paidBy || currentUserRole === 'admin';
+  }
+
+  async function handleDeleteExpense(expenseId: number) {
+    if (!confirm('Delete this expense? Balances will be recalculated.')) return;
+    try {
+      await api.deleteExpense(groupId, expenseId);
+      loadData();
+    } catch (err) {
+      console.error('Failed to delete expense:', err);
+    }
+  }
+
   async function handleSettleUp(debt: DebtEntry) {
     try {
-      const result = await api.createSettlements(groupId);
-      const settlement = result.settlements.find(
-        (s) => s.fromUser === debt.from.userId && s.toUser === debt.to.userId,
-      );
-      if (settlement) {
-        navigate(`/settle/${settlement.id}`);
-      }
+      const result = await api.createSettlement(groupId, debt.from.userId, debt.to.userId);
+      navigate(`/settle/${result.settlement.id}`);
     } catch (err) {
       console.error('Failed to create settlement:', err);
     }
@@ -117,12 +130,20 @@ export function Group() {
             <h1 className="text-xl font-bold">{group.name}</h1>
             <div className="text-sm text-gray-500">{group.members.length} {group.members.length === 1 ? 'member' : 'members'}</div>
           </div>
-          <button
-            onClick={handleShareInvite}
-            className="text-blue-500 text-sm font-medium px-3 py-1 border border-blue-500 rounded-lg"
-          >
-            Invite
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleShareInvite}
+              className="text-blue-500 text-sm font-medium px-3 py-1 border border-blue-500 rounded-lg"
+            >
+              Invite
+            </button>
+            <button
+              onClick={() => navigate(`/groups/${groupId}/settings`)}
+              className="text-gray-500 text-sm font-medium px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg"
+            >
+              Settings
+            </button>
+          </div>
         </div>
 
         {/* Member avatars */}
@@ -130,8 +151,9 @@ export function Group() {
           {group.members.map((m) => (
             <div
               key={m.userId}
-              className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-sm"
+              className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-1"
             >
+              {m.role === 'admin' && <span title="Creator">*</span>}
               {m.displayName}
             </div>
           ))}
@@ -180,10 +202,28 @@ export function Group() {
                       Paid by {exp.payerName} &middot; {timeAgo(exp.createdAt)}
                     </div>
                   </div>
-                  <div className="font-medium">{formatAmount(exp.amount)}</div>
+                  <div className="font-medium">{formatAmount(exp.amount, group?.currency)}</div>
                 </div>
-                <div className="mt-2 text-xs text-gray-400">
-                  Split among {exp.participants.length}: {exp.participants.map((p) => p.displayName).join(', ')}
+                <div className="mt-2 flex justify-between items-center">
+                  <div className="text-xs text-gray-400">
+                    Split among {exp.participants.length}: {exp.participants.map((p) => p.displayName).join(', ')}
+                  </div>
+                  {canModifyExpense(exp) && (
+                    <div className="flex gap-2 ml-2 shrink-0">
+                      <button
+                        onClick={() => navigate(`/groups/${groupId}/edit-expense/${exp.id}`)}
+                        className="text-xs text-blue-500"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteExpense(exp.id)}
+                        className="text-xs text-red-500"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
@@ -201,11 +241,17 @@ export function Group() {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <span className="font-medium">{debt.from.displayName}</span>
-                    <span className="text-gray-500"> owes </span>
-                    <span className="font-medium">{debt.to.displayName}</span>
+                    <span className="font-medium">
+                      {currentUserId === debt.from.userId ? 'You' : debt.from.displayName}
+                    </span>
+                    <span className="text-gray-500">
+                      {currentUserId === debt.from.userId ? ' owe ' : ' owes '}
+                    </span>
+                    <span className="font-medium">
+                      {currentUserId === debt.to.userId ? 'you' : debt.to.displayName}
+                    </span>
                   </div>
-                  <div className="font-medium text-red-500">{formatAmount(debt.amount)}</div>
+                  <div className="font-medium text-red-500">{formatAmount(debt.amount, group?.currency)}</div>
                 </div>
                 {currentUserId === debt.from.userId && (
                   <button

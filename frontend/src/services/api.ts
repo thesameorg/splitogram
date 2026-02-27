@@ -60,6 +60,7 @@ export interface GroupSummary {
   name: string;
   inviteCode: string;
   isPair: boolean;
+  currency: string;
   createdAt: string;
   role: string;
   memberCount: number;
@@ -81,7 +82,10 @@ export interface GroupDetail {
   name: string;
   inviteCode: string;
   isPair: boolean;
+  currency: string;
   createdAt: string;
+  createdBy: number;
+  muted: boolean;
   members: GroupMember[];
 }
 
@@ -127,7 +131,16 @@ export interface Settlement {
   amount: number;
   status: string;
   txHash: string | null;
+  comment: string | null;
+  settledBy: number | null;
   createdAt: string;
+}
+
+export interface SettlementDetail extends Settlement {
+  currentUserId: number;
+  currency: string;
+  from: { userId: number; displayName: string; username: string | null; walletAddress: string | null };
+  to: { userId: number; displayName: string; username: string | null; walletAddress: string | null };
 }
 
 // --- API Functions ---
@@ -136,13 +149,43 @@ export const api = {
   // Groups
   listGroups: () => apiRequest<{ groups: GroupSummary[] }>('/api/v1/groups'),
 
-  createGroup: (name: string) =>
-    apiRequest<{ id: number; name: string; inviteCode: string }>('/api/v1/groups', {
-      method: 'POST',
-      body: JSON.stringify({ name }),
-    }),
+  createGroup: (name: string, currency: string = 'USD') =>
+    apiRequest<{ id: number; name: string; inviteCode: string; currency: string }>(
+      '/api/v1/groups',
+      { method: 'POST', body: JSON.stringify({ name, currency }) },
+    ),
 
   getGroup: (id: number) => apiRequest<GroupDetail>(`/api/v1/groups/${id}`),
+
+  updateGroup: (id: number, data: { name?: string; currency?: string }) =>
+    apiRequest<{ id: number; name: string; currency: string; inviteCode: string }>(
+      `/api/v1/groups/${id}`,
+      { method: 'PATCH', body: JSON.stringify(data) },
+    ),
+
+  toggleMute: (id: number) =>
+    apiRequest<{ muted: boolean }>(`/api/v1/groups/${id}/mute`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
+
+  regenerateInvite: (id: number) =>
+    apiRequest<{ inviteCode: string }>(`/api/v1/groups/${id}/regenerate-invite`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
+
+  deleteGroup: (id: number, force = false) =>
+    apiRequest<{ deleted: boolean; groupId: number }>(
+      `/api/v1/groups/${id}${force ? '?force=true' : ''}`,
+      { method: 'DELETE' },
+    ),
+
+  leaveGroup: (id: number) =>
+    apiRequest<{ left: boolean; groupId: number }>(`/api/v1/groups/${id}/leave`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
 
   joinGroup: (id: number, inviteCode: string) =>
     apiRequest<{ joined: boolean; groupId: number; groupName: string }>(
@@ -170,6 +213,22 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  editExpense: (
+    groupId: number,
+    expenseId: number,
+    data: { amount?: number; description?: string; participantIds?: number[] },
+  ) =>
+    apiRequest<{ id: number; updated: boolean }>(
+      `/api/v1/groups/${groupId}/expenses/${expenseId}`,
+      { method: 'PUT', body: JSON.stringify(data) },
+    ),
+
+  deleteExpense: (groupId: number, expenseId: number) =>
+    apiRequest<{ id: number; deleted: boolean }>(
+      `/api/v1/groups/${groupId}/expenses/${expenseId}`,
+      { method: 'DELETE' },
+    ),
+
   // Balances
   getBalances: (groupId: number) =>
     apiRequest<{ debts: DebtEntry[] }>(`/api/v1/groups/${groupId}/balances`),
@@ -178,43 +237,17 @@ export const api = {
     apiRequest<MyBalance>(`/api/v1/groups/${groupId}/balances/me`),
 
   // Settlements
-  createSettlements: (groupId: number) =>
-    apiRequest<{ settlements: Settlement[] }>(`/api/v1/groups/${groupId}/settlements`, {
+  createSettlement: (groupId: number, fromUserId: number, toUserId: number) =>
+    apiRequest<{ settlement: Settlement }>(`/api/v1/groups/${groupId}/settlements`, {
       method: 'POST',
+      body: JSON.stringify({ fromUserId, toUserId }),
     }),
 
-  getSettlement: (id: number) => apiRequest<Settlement>(`/api/v1/settlements/${id}`),
+  getSettlement: (id: number) => apiRequest<SettlementDetail>(`/api/v1/settlements/${id}`),
 
-  getSettlementTx: (id: number) =>
-    apiRequest<{
-      settlementId: number;
-      amount: number;
-      recipientAddress: string;
-      usdtMasterAddress: string;
-      comment: string;
-    }>(`/api/v1/settlements/${id}/tx`),
-
-  verifySettlement: (id: number, data: { boc?: string; txHash?: string }) =>
-    apiRequest<{ status: string; txHash?: string; settlementId: number }>(
-      `/api/v1/settlements/${id}/verify`,
-      { method: 'POST', body: JSON.stringify(data) },
-    ),
-
-  markExternal: (id: number) =>
+  markExternal: (id: number, comment?: string) =>
     apiRequest<{ status: string; settlementId: number }>(
       `/api/v1/settlements/${id}/mark-external`,
-      { method: 'POST' },
+      { method: 'POST', body: JSON.stringify({ comment }) },
     ),
-
-  // Wallet
-  setWallet: (address: string) =>
-    apiRequest<{ walletAddress: string }>('/api/v1/users/me/wallet', {
-      method: 'PUT',
-      body: JSON.stringify({ address }),
-    }),
-
-  clearWallet: () =>
-    apiRequest<{ walletAddress: null }>('/api/v1/users/me/wallet', {
-      method: 'DELETE',
-    }),
 };

@@ -1,28 +1,29 @@
-import { Bot } from 'grammy';
+import { Api, GrammyError } from 'grammy';
+import { formatAmount } from '../utils/format';
 
 interface NotifyUser {
   telegramId: number;
   displayName: string;
+  botStarted?: boolean;
 }
 
 interface NotifyContext {
   botToken: string;
   pagesUrl: string;
+  onBotBlocked?: (telegramId: number) => void;
 }
 
-function formatAmount(microUsdt: number): string {
-  const usdt = microUsdt / 1_000_000;
-  return `$${usdt.toFixed(2)}`;
+function createApi(ctx: NotifyContext): Api {
+  return new Api(ctx.botToken);
 }
 
 async function sendMessage(
+  api: Api,
   ctx: NotifyContext,
   telegramId: number,
   text: string,
   inlineKeyboard?: Array<Array<{ text: string; web_app?: { url: string }; url?: string }>>,
 ): Promise<void> {
-  const bot = new Bot(ctx.botToken);
-
   const opts: any = { parse_mode: 'HTML' as const };
   if (inlineKeyboard) {
     opts.reply_markup = { inline_keyboard: inlineKeyboard };
@@ -30,22 +31,35 @@ async function sendMessage(
 
   // Fire-and-forget with 1 bounded retry
   try {
-    await bot.api.sendMessage(telegramId, text, {
+    await api.sendMessage(telegramId, text, {
       ...opts,
       signal: AbortSignal.timeout(5000),
     });
   } catch (firstError) {
-    // 1 retry after 1s
+    // 403 = user blocked bot or never started it — don't retry
+    if (firstError instanceof GrammyError && firstError.error_code === 403) {
+      ctx.onBotBlocked?.(telegramId);
+      return;
+    }
+    // 1 retry after 1s for other errors
     try {
       await new Promise((r) => setTimeout(r, 1000));
-      await bot.api.sendMessage(telegramId, text, {
+      await api.sendMessage(telegramId, text, {
         ...opts,
         signal: AbortSignal.timeout(5000),
       });
-    } catch {
+    } catch (retryError) {
+      if (retryError instanceof GrammyError && retryError.error_code === 403) {
+        ctx.onBotBlocked?.(telegramId);
+        return;
+      }
       console.error(`Failed to notify user ${telegramId}:`, firstError);
     }
   }
+}
+
+function canNotify(user: NotifyUser): boolean {
+  return user.botStarted !== false;
 }
 
 export const notify = {
@@ -53,21 +67,23 @@ export const notify = {
     ctx: NotifyContext,
     expense: { id: number; description: string; amount: number; groupId: number },
     payer: NotifyUser,
-    participants: NotifyUser[],
+    participants: (NotifyUser & { muted?: boolean })[],
     groupName: string,
+    currency: string = 'USD',
   ): Promise<void> {
+    const api = createApi(ctx);
     const text =
       `<b>${payer.displayName}</b> added an expense in <b>${groupName}</b>\n` +
-      `"${expense.description}" — ${formatAmount(expense.amount)}`;
+      `"${expense.description}" — ${formatAmount(expense.amount, currency)}`;
 
     const keyboard = [
       [{ text: 'View Group', web_app: { url: `${ctx.pagesUrl}/groups/${expense.groupId}` } }],
     ];
 
-    // Notify all participants except the payer
+    // Notify participants except payer, skipping muted and bot-not-started
     const tasks = participants
-      .filter((p) => p.telegramId !== payer.telegramId)
-      .map((p) => sendMessage(ctx, p.telegramId, text, keyboard));
+      .filter((p) => p.telegramId !== payer.telegramId && !p.muted && canNotify(p))
+      .map((p) => sendMessage(api, ctx, p.telegramId, text, keyboard));
 
     await Promise.allSettled(tasks);
   },
@@ -84,8 +100,10 @@ export const notify = {
     debtor: NotifyUser,
     creditor: NotifyUser,
     groupName: string,
+    currency: string = 'USD',
   ): Promise<void> {
-    const amountStr = formatAmount(settlement.amount);
+    const api = createApi(ctx);
+    const amountStr = formatAmount(settlement.amount, currency);
     const method = settlement.status === 'settled_onchain' ? 'on-chain' : 'externally';
     const txInfo = settlement.txHash
       ? `\nTx: <code>${settlement.txHash.slice(0, 16)}...</code>`
@@ -99,10 +117,14 @@ export const notify = {
       [{ text: 'View Group', web_app: { url: `${ctx.pagesUrl}/groups/${settlement.groupId}` } }],
     ];
 
-    await Promise.allSettled([
-      sendMessage(ctx, creditor.telegramId, creditorText, keyboard),
-      sendMessage(ctx, debtor.telegramId, debtorText, keyboard),
-    ]);
+    const tasks = [];
+    if (canNotify(creditor)) {
+      tasks.push(sendMessage(api, ctx, creditor.telegramId, creditorText, keyboard));
+    }
+    if (canNotify(debtor)) {
+      tasks.push(sendMessage(api, ctx, debtor.telegramId, debtorText, keyboard));
+    }
+    await Promise.allSettled(tasks);
   },
 
   async memberJoined(
@@ -111,6 +133,7 @@ export const notify = {
     existingMembers: NotifyUser[],
     group: { id: number; name: string },
   ): Promise<void> {
+    const api = createApi(ctx);
     const text = `<b>${newMember.displayName}</b> joined <b>${group.name}</b>`;
 
     const keyboard = [
@@ -118,8 +141,8 @@ export const notify = {
     ];
 
     const tasks = existingMembers
-      .filter((m) => m.telegramId !== newMember.telegramId)
-      .map((m) => sendMessage(ctx, m.telegramId, text, keyboard));
+      .filter((m) => m.telegramId !== newMember.telegramId && canNotify(m))
+      .map((m) => sendMessage(api, ctx, m.telegramId, text, keyboard));
 
     await Promise.allSettled(tasks);
   },

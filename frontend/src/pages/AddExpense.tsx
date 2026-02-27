@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type GroupDetail } from '../services/api';
+import { formatAmount } from '../utils/format';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { useTelegramMainButton } from '../hooks/useTelegramMainButton';
 
 export function AddExpense() {
-  const { id } = useParams<{ id: string }>();
+  const { id, expenseId: expenseIdParam } = useParams<{ id: string; expenseId?: string }>();
   const navigate = useNavigate();
   const groupId = parseInt(id ?? '', 10);
+  const expenseId = expenseIdParam ? parseInt(expenseIdParam, 10) : null;
+  const isEditMode = expenseId !== null;
 
   const [group, setGroup] = useState<GroupDetail | null>(null);
   const [description, setDescription] = useState('');
@@ -21,51 +24,86 @@ export function AddExpense() {
 
   useEffect(() => {
     if (isNaN(groupId)) return;
-    api.getGroup(groupId).then((data) => {
-      setGroup(data);
-      // Default: all members selected, current user pays
-      const allIds = new Set(data.members.map((m) => m.userId));
-      setSelectedParticipants(allIds);
 
-      // Determine current user
-      const webApp = window.Telegram?.WebApp;
-      const tgId = webApp?.initDataUnsafe?.user?.id;
-      if (tgId) {
-        const member = data.members.find((m) => m.telegramId === tgId);
-        if (member) setPaidBy(member.userId);
-      } else {
-        const admin = data.members.find((m) => m.role === 'admin');
-        if (admin) setPaidBy(admin.userId);
-      }
-    });
-  }, [groupId]);
+    const loadGroup = api.getGroup(groupId);
+
+    if (isEditMode && expenseId) {
+      // Load group and expense data in parallel
+      Promise.all([loadGroup, api.listExpenses(groupId)]).then(([groupData, expensesData]) => {
+        setGroup(groupData);
+        const expense = expensesData.expenses.find((e) => e.id === expenseId);
+        if (expense) {
+          setDescription(expense.description);
+          setAmountStr((expense.amount / 1_000_000).toString());
+          setPaidBy(expense.paidBy);
+          setSelectedParticipants(new Set(expense.participants.map((p) => p.userId)));
+        }
+      });
+    } else {
+      loadGroup.then((data) => {
+        setGroup(data);
+        const allIds = new Set(data.members.map((m) => m.userId));
+        setSelectedParticipants(allIds);
+
+        const webApp = window.Telegram?.WebApp;
+        const tgId = webApp?.initDataUnsafe?.user?.id;
+        if (tgId) {
+          const member = data.members.find((m) => m.telegramId === tgId);
+          if (member) setPaidBy(member.userId);
+        } else {
+          const admin = data.members.find((m) => m.role === 'admin');
+          if (admin) setPaidBy(admin.userId);
+        }
+      });
+    }
+  }, [groupId, expenseId, isEditMode]);
 
   const amount = parseFloat(amountStr);
   const amountMicro = isNaN(amount) ? 0 : Math.round(amount * 1_000_000);
   const perPerson = selectedParticipants.size > 0 ? amountMicro / selectedParticipants.size : 0;
-  const canSubmit = description.trim() && amountMicro > 0 && selectedParticipants.size >= 2 && paidBy !== null;
+  const canSubmit =
+    description.trim() && amountMicro > 0 && selectedParticipants.size >= 2 && paidBy !== null;
 
   const handleSubmit = useCallback(async () => {
     if (!canSubmit || submitting || paidBy === null) return;
     setSubmitting(true);
     setError(null);
     try {
-      await api.createExpense(groupId, {
-        amount: amountMicro,
-        description: description.trim(),
-        paidBy,
-        participantIds: Array.from(selectedParticipants),
-      });
+      if (isEditMode && expenseId) {
+        await api.editExpense(groupId, expenseId, {
+          amount: amountMicro,
+          description: description.trim(),
+          participantIds: Array.from(selectedParticipants),
+        });
+      } else {
+        await api.createExpense(groupId, {
+          amount: amountMicro,
+          description: description.trim(),
+          paidBy,
+          participantIds: Array.from(selectedParticipants),
+        });
+      }
       navigate(`/groups/${groupId}`, { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Failed to add expense');
+      setError(err.message || `Failed to ${isEditMode ? 'update' : 'add'} expense`);
     } finally {
       setSubmitting(false);
     }
-  }, [canSubmit, submitting, paidBy, groupId, amountMicro, description, selectedParticipants, navigate]);
+  }, [
+    canSubmit,
+    submitting,
+    paidBy,
+    groupId,
+    expenseId,
+    isEditMode,
+    amountMicro,
+    description,
+    selectedParticipants,
+    navigate,
+  ]);
 
   useTelegramMainButton({
-    text: 'Add Expense',
+    text: isEditMode ? 'Save Changes' : 'Add Expense',
     onClick: handleSubmit,
     disabled: !canSubmit,
     loading: submitting,
@@ -94,7 +132,7 @@ export function AddExpense() {
 
   return (
     <div className="p-4 pb-24">
-      <h1 className="text-xl font-bold mb-6">Add Expense</h1>
+      <h1 className="text-xl font-bold mb-6">{isEditMode ? 'Edit Expense' : 'Add Expense'}</h1>
 
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl mb-4 text-sm">
@@ -120,7 +158,7 @@ export function AddExpense() {
       {/* Amount */}
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">
-          Amount (USDT)
+          Amount
         </label>
         <input
           type="number"
@@ -143,6 +181,7 @@ export function AddExpense() {
           value={paidBy ?? ''}
           onChange={(e) => setPaidBy(parseInt(e.target.value, 10))}
           className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-transparent"
+          disabled={isEditMode}
         >
           {group.members.map((m) => (
             <option key={m.userId} value={m.userId}>
@@ -177,18 +216,20 @@ export function AddExpense() {
       {/* Per-person amount */}
       {selectedParticipants.size > 0 && amountMicro > 0 && (
         <div className="text-center text-sm text-gray-500 mt-6">
-          ${(perPerson / 1_000_000).toFixed(2)} per person ({selectedParticipants.size} people)
+          {formatAmount(perPerson, group.currency)} per person ({selectedParticipants.size} people)
         </div>
       )}
 
       {/* Submit button (fallback for non-TG env) */}
-      <button
-        onClick={handleSubmit}
-        disabled={!canSubmit || submitting}
-        className="w-full mt-6 bg-blue-500 text-white py-3 rounded-xl font-medium disabled:opacity-50"
-      >
-        {submitting ? 'Adding...' : 'Add Expense'}
-      </button>
+      {!window.Telegram?.WebApp && (
+        <button
+          onClick={handleSubmit}
+          disabled={!canSubmit || submitting}
+          className="w-full mt-6 bg-blue-500 text-white py-3 rounded-xl font-medium disabled:opacity-50"
+        >
+          {submitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Add Expense'}
+        </button>
+      )}
     </div>
   );
 }

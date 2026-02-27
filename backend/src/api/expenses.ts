@@ -114,25 +114,48 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   await db.insert(expenseParticipants).values(participantValues);
 
   // Fire-and-forget notification
-  const notifyCtx = { botToken: c.env.TELEGRAM_BOT_TOKEN, pagesUrl: c.env.PAGES_URL || '' };
+  const notifyCtx = {
+    botToken: c.env.TELEGRAM_BOT_TOKEN,
+    pagesUrl: c.env.PAGES_URL || '',
+    onBotBlocked: (telegramId: number) => {
+      db.update(users)
+        .set({ botStarted: false })
+        .where(eq(users.telegramId, telegramId))
+        .catch(() => {});
+    },
+  };
   c.executionCtx.waitUntil(
     (async () => {
       try {
         const [group] = await db
-          .select({ name: groups.name })
+          .select({ name: groups.name, currency: groups.currency })
           .from(groups)
           .where(eq(groups.id, groupId))
           .limit(1);
 
         const [payer] = await db
-          .select({ telegramId: users.telegramId, displayName: users.displayName })
+          .select({
+            telegramId: users.telegramId,
+            displayName: users.displayName,
+            botStarted: users.botStarted,
+          })
           .from(users)
           .where(eq(users.id, payerId))
           .limit(1);
 
+        // Get participants with muted status from group_members
         const participantUsers = await db
-          .select({ telegramId: users.telegramId, displayName: users.displayName })
+          .select({
+            telegramId: users.telegramId,
+            displayName: users.displayName,
+            botStarted: users.botStarted,
+            muted: groupMembers.muted,
+          })
           .from(users)
+          .innerJoin(
+            groupMembers,
+            and(eq(groupMembers.userId, users.id), eq(groupMembers.groupId, groupId)),
+          )
           .where(inArray(users.id, participantIds));
 
         await notify.expenseCreated(
@@ -141,6 +164,7 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
           payer,
           participantUsers,
           group.name,
+          group.currency,
         );
       } catch (e) {
         console.error('Notification failed (expense_created):', e);
@@ -198,8 +222,8 @@ expensesApp.get('/', async (c) => {
   }
 
   // Pagination
-  const limit = Math.min(parseInt(c.req.query('limit') ?? '50', 10), 100);
-  const offset = parseInt(c.req.query('offset') ?? '0', 10);
+  const limit = Math.min(Math.max(1, parseInt(c.req.query('limit') ?? '50', 10) || 50), 100);
+  const offset = Math.max(0, parseInt(c.req.query('offset') ?? '0', 10) || 0);
 
   const expenseList = await db
     .select({
@@ -235,6 +259,183 @@ expensesApp.get('/', async (c) => {
   );
 
   return c.json({ expenses: result });
+});
+
+// --- Edit expense ---
+const editExpenseSchema = z.object({
+  amount: z.number().int().positive().optional(),
+  description: z.string().min(1).max(500).optional(),
+  participantIds: z.array(z.number().int().positive()).min(2).optional(),
+});
+
+expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const expenseId = parseInt(c.req.param('expenseId'), 10);
+  const updates = c.req.valid('json');
+
+  if (isNaN(groupId) || isNaN(expenseId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
+  }
+
+  const [currentUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!currentUser) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  // Fetch expense
+  const [expense] = await db
+    .select()
+    .from(expenses)
+    .where(and(eq(expenses.id, expenseId), eq(expenses.groupId, groupId)))
+    .limit(1);
+
+  if (!expense) {
+    return c.json({ error: 'expense_not_found', detail: 'Expense not found' }, 404);
+  }
+
+  // Only creator or group admin can edit
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (expense.paidBy !== currentUser.id && membership.role !== 'admin') {
+    return c.json(
+      { error: 'not_authorized', detail: 'Only the expense creator or group admin can edit' },
+      403,
+    );
+  }
+
+  // Update expense fields
+  const expenseUpdates: Record<string, any> = {};
+  if (updates.description !== undefined) expenseUpdates.description = updates.description;
+
+  const newAmount = updates.amount ?? expense.amount;
+  if (updates.amount !== undefined) expenseUpdates.amount = updates.amount;
+
+  if (Object.keys(expenseUpdates).length > 0) {
+    await db.update(expenses).set(expenseUpdates).where(eq(expenses.id, expenseId));
+  }
+
+  // Recalculate shares if participants or amount changed
+  if (updates.participantIds || updates.amount) {
+    const participantIds = updates.participantIds ??
+      (await db
+        .select({ userId: expenseParticipants.userId })
+        .from(expenseParticipants)
+        .where(eq(expenseParticipants.expenseId, expenseId))
+      ).map((p) => p.userId);
+
+    // Validate participants are group members
+    if (updates.participantIds) {
+      const groupMembersList = await db
+        .select({ userId: groupMembers.userId })
+        .from(groupMembers)
+        .where(eq(groupMembers.groupId, groupId));
+
+      const memberIds = new Set(groupMembersList.map((m) => m.userId));
+      for (const pid of participantIds) {
+        if (!memberIds.has(pid)) {
+          return c.json(
+            { error: 'participant_not_member', detail: `User ${pid} is not a group member` },
+            400,
+          );
+        }
+      }
+
+      if (!participantIds.includes(expense.paidBy)) {
+        return c.json(
+          { error: 'payer_not_participant', detail: 'Payer must be included in participants' },
+          400,
+        );
+      }
+    }
+
+    // Recalculate equal split
+    const count = participantIds.length;
+    const baseShare = Math.floor(newAmount / count);
+    const remainder = newAmount - baseShare * count;
+
+    // Delete old participants and insert new
+    await db.delete(expenseParticipants).where(eq(expenseParticipants.expenseId, expenseId));
+
+    const participantValues = participantIds.map((userId, idx) => ({
+      expenseId,
+      userId,
+      shareAmount: idx === 0 ? baseShare + remainder : baseShare,
+    }));
+
+    await db.insert(expenseParticipants).values(participantValues);
+  }
+
+  return c.json({ id: expenseId, updated: true });
+});
+
+// --- Delete expense ---
+expensesApp.delete('/:expenseId', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const expenseId = parseInt(c.req.param('expenseId'), 10);
+
+  if (isNaN(groupId) || isNaN(expenseId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
+  }
+
+  const [currentUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!currentUser) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [expense] = await db
+    .select()
+    .from(expenses)
+    .where(and(eq(expenses.id, expenseId), eq(expenses.groupId, groupId)))
+    .limit(1);
+
+  if (!expense) {
+    return c.json({ error: 'expense_not_found', detail: 'Expense not found' }, 404);
+  }
+
+  // Only creator or group admin can delete
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (expense.paidBy !== currentUser.id && membership.role !== 'admin') {
+    return c.json(
+      { error: 'not_authorized', detail: 'Only the expense creator or group admin can delete' },
+      403,
+    );
+  }
+
+  // expense_participants cascade-deletes via FK onDelete: 'cascade'
+  await db.delete(expenses).where(eq(expenses.id, expenseId));
+
+  return c.json({ id: expenseId, deleted: true });
 });
 
 export { expensesApp };

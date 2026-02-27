@@ -16,7 +16,7 @@
     "stop": "pkill -f 'wrangler dev.*8787' || true; pkill -f 'vite' || true; pkill -f 'workerd' || true; echo 'Dev servers stopped'",
     "test": "bun run test:backend && bun run test:frontend",
     "test:backend": "cd backend && bun run test -- --run",
-    "test:frontend": "cd frontend && bun run test -- --run",
+    "test:frontend": "cd frontend && bun run test",
     "typecheck": "bun run typecheck:backend && bun run typecheck:frontend",
     "typecheck:backend": "cd backend && bun run typecheck",
     "typecheck:frontend": "cd frontend && bun run typecheck",

@@ -2,12 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, type GroupSummary } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
-
-function formatAmount(microUsdt: number): string {
-  const usdt = microUsdt / 1_000_000;
-  if (usdt === 0) return '$0.00';
-  return usdt > 0 ? `+$${usdt.toFixed(2)}` : `-$${Math.abs(usdt).toFixed(2)}`;
-}
+import { formatAmount, formatSignedAmount } from '../utils/format';
+import { CURRENCIES, CURRENCY_CODES } from '../utils/currencies';
 
 export function Home() {
   const navigate = useNavigate();
@@ -16,6 +12,7 @@ export function Home() {
   const [showCreate, setShowCreate] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [creating, setCreating] = useState(false);
+  const [newGroupCurrency, setNewGroupCurrency] = useState('USD');
 
   useTelegramBackButton(false);
 
@@ -38,9 +35,10 @@ export function Home() {
     if (!newGroupName.trim()) return;
     setCreating(true);
     try {
-      const group = await api.createGroup(newGroupName.trim());
+      const group = await api.createGroup(newGroupName.trim(), newGroupCurrency);
       setShowCreate(false);
       setNewGroupName('');
+      setNewGroupCurrency('USD');
       navigate(`/groups/${group.id}`);
     } catch (err) {
       console.error('Failed to create group:', err);
@@ -117,7 +115,7 @@ export function Home() {
                         : 'text-red-600 dark:text-red-400'
                     }`}
                   >
-                    {formatAmount(group.netBalance)}
+                    {formatSignedAmount(group.netBalance, group.currency)}
                   </div>
                 )}
               </div>
@@ -150,6 +148,17 @@ export function Home() {
               className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl mb-4 bg-transparent"
               autoFocus
             />
+            <select
+              value={newGroupCurrency}
+              onChange={(e) => setNewGroupCurrency(e.target.value)}
+              className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl mb-4 bg-transparent"
+            >
+              {CURRENCY_CODES.map((code) => (
+                <option key={code} value={code}>
+                  {CURRENCIES[code].symbol} {CURRENCIES[code].name} ({code})
+                </option>
+              ))}
+            </select>
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowCreate(false); setNewGroupName(''); }}

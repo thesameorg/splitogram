@@ -1,4 +1,4 @@
-import type { SessionData, Env } from '../env';
+import type { SessionData } from '../env';
 import type { TelegramUser } from '../models/telegram-user';
 import { getDisplayName } from '../models/telegram-user';
 
@@ -45,23 +45,4 @@ export class SessionManager {
     }
   }
 
-  async refreshSession(sessionId: string): Promise<SessionData | null> {
-    const session = await this.validateSession(sessionId);
-    if (!session) return null;
-
-    const updated: SessionData = {
-      ...session,
-      expiresAt: Date.now() + this.sessionTTL * 1000,
-    };
-
-    await this.kv.put(`session:${sessionId}`, JSON.stringify(updated), {
-      expirationTtl: this.sessionTTL,
-    });
-
-    return updated;
-  }
-
-  static create(env: Env, sessionTTL?: number): SessionManager {
-    return new SessionManager(env.SESSIONS, sessionTTL);
-  }
 }

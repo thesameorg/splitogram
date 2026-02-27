@@ -5,13 +5,14 @@ export const users = sqliteTable(
   'users',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    telegramId: integer('telegram_id').notNull().unique(),
+    telegramId: integer('telegram_id').notNull(),
     username: text('username'),
     displayName: text('display_name').notNull(),
     walletAddress: text('wallet_address'),
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
+    botStarted: integer('bot_started', { mode: 'boolean' }).notNull().default(false),
     updatedAt: text('updated_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
@@ -25,8 +26,9 @@ export const groups = sqliteTable(
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
-    inviteCode: text('invite_code').notNull().unique(),
+    inviteCode: text('invite_code').notNull(),
     isPair: integer('is_pair', { mode: 'boolean' }).notNull().default(false),
+    currency: text('currency').notNull().default('USD'),
     createdBy: integer('created_by')
       .notNull()
       .references(() => users.id),
@@ -54,6 +56,7 @@ export const groupMembers = sqliteTable(
     role: text('role', { enum: ['admin', 'member'] })
       .notNull()
       .default('member'),
+    muted: integer('muted', { mode: 'boolean' }).notNull().default(false),
     joinedAt: text('joined_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
@@ -130,6 +133,8 @@ export const settlements = sqliteTable(
       .notNull()
       .default('open'),
     txHash: text('tx_hash'),
+    comment: text('comment'),
+    settledBy: integer('settled_by').references(() => users.id),
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

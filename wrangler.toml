@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [observability.logs]
 enabled = true
-head_sampling_rate = 0.1
+head_sampling_rate = 1.0
 
 # KV Namespaces — create in CF dashboard and replace ID
 [[kv_namespaces]]
@@ -22,7 +22,7 @@ migrations_dir = "backend/drizzle/migrations"
 # Non-secret environment variables
 [vars]
 ENVIRONMENT = "production"
-# PAGES_URL = "https://splitogram.pages.dev"
+PAGES_URL = "https://splitogram.pages.dev"
 # USDT_MASTER_ADDRESS = "kQBqSpvo4S87mX9tjHaG4zhYZeORhVhMapBJpnMZ64jV_JBr"  # testnet USDT
 
 pages_build_output_dir = "frontend/dist"

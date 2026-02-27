@@ -1,15 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { useAuth } from './hooks/useAuth';
+import { api, ApiError } from './services/api';
 import { Home } from './pages/Home';
 import { Group } from './pages/Group';
 import { AddExpense } from './pages/AddExpense';
 import { SettleUp } from './pages/SettleUp';
+import { GroupSettings } from './pages/GroupSettings';
 import './index.css';
-
-const tonConnectManifestUrl =
-  import.meta.env.VITE_TON_MANIFEST_URL || 'https://splitogram.pages.dev/tonconnect-manifest.json';
 
 function AppContent() {
   const auth = useAuth();
@@ -43,13 +41,31 @@ function AppContent() {
     if (startParam.startsWith('group_')) {
       const id = startParam.slice('group_'.length);
       if (id) navigate(`/groups/${id}`);
+    } else if (startParam.startsWith('join_')) {
+      const inviteCode = startParam.slice('join_'.length);
+      if (inviteCode) {
+        // Resolve invite → join if needed → navigate to group
+        api
+          .resolveInvite(inviteCode)
+          .then(async (info) => {
+            try {
+              await api.joinGroup(info.id, inviteCode);
+            } catch (err) {
+              // already_member is fine — just navigate to the group
+              if (!(err instanceof ApiError && err.errorCode === 'already_member')) throw err;
+            }
+            navigate(`/groups/${info.id}`);
+          })
+          .catch((err) => {
+            console.error('Failed to handle join deep link:', err);
+          });
+      }
     } else if (startParam.startsWith('settle_')) {
       const id = startParam.slice('settle_'.length);
       if (id) navigate(`/settle/${id}`);
     } else if (startParam.startsWith('expense_')) {
-      // Expense deep links navigate to the group (expense detail view TBD)
-      const id = startParam.slice('expense_'.length);
-      if (id) navigate(`/groups/${id}`);
+      // Expense deep links — no standalone page yet, just go home
+      navigate('/');
     }
   }, [auth.authenticated, navigate]);
 
@@ -76,7 +92,9 @@ function AppContent() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/groups/:id" element={<Group />} />
+      <Route path="/groups/:id/settings" element={<GroupSettings />} />
       <Route path="/groups/:id/add-expense" element={<AddExpense />} />
+      <Route path="/groups/:id/edit-expense/:expenseId" element={<AddExpense />} />
       <Route path="/settle/:id" element={<SettleUp />} />
     </Routes>
   );
@@ -84,11 +102,9 @@ function AppContent() {
 
 function App() {
   return (
-    <TonConnectUIProvider manifestUrl={tonConnectManifestUrl}>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
-    </TonConnectUIProvider>
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 

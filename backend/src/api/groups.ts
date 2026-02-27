@@ -2,14 +2,9 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, sql, desc } from 'drizzle-orm';
-import {
-  groups,
-  groupMembers,
-  users,
-  expenses,
-  expenseParticipants,
-  settlements,
-} from '../db/schema';
+import { groups, groupMembers, users, expenses, expenseParticipants, settlements } from '../db/schema';
+import { computeGroupBalances } from './balances';
+import { CURRENCY_CODES } from '../utils/currencies';
 import { notify } from '../services/notifications';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -32,12 +27,13 @@ function generateInviteCode(): string {
 // --- Create group ---
 const createGroupSchema = z.object({
   name: z.string().min(1).max(100),
+  currency: z.string().refine((c) => CURRENCY_CODES.includes(c)).optional(),
 });
 
 groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const { name } = c.req.valid('json');
+  const { name, currency } = c.req.valid('json');
 
   // Resolve internal user ID from telegram ID
   const [user] = await db
@@ -57,6 +53,7 @@ groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
     .values({
       name,
       inviteCode,
+      currency: currency ?? 'USD',
       createdBy: user.id,
     })
     .returning();
@@ -74,6 +71,7 @@ groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
       name: group.name,
       inviteCode: group.inviteCode,
       isPair: group.isPair,
+      currency: group.currency,
       createdAt: group.createdAt,
     },
     201,
@@ -102,6 +100,7 @@ groupsApp.get('/', async (c) => {
       name: groups.name,
       inviteCode: groups.inviteCode,
       isPair: groups.isPair,
+      currency: groups.currency,
       createdAt: groups.createdAt,
       role: groupMembers.role,
     })
@@ -110,27 +109,44 @@ groupsApp.get('/', async (c) => {
     .where(eq(groupMembers.userId, user.id))
     .orderBy(desc(groups.createdAt));
 
-  // For each group, compute net balance for this user
-  const result = await Promise.all(
-    userGroups.map(async (g) => {
-      const netBalance = await computeUserNetBalance(db, g.id, user.id);
-      const memberCount = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(groupMembers)
-        .where(eq(groupMembers.groupId, g.id));
+  if (userGroups.length === 0) {
+    return c.json({ groups: [] });
+  }
 
-      return {
-        id: g.id,
-        name: g.name,
-        inviteCode: g.inviteCode,
-        isPair: g.isPair,
-        createdAt: g.createdAt,
-        role: g.role,
-        memberCount: memberCount[0]?.count ?? 0,
-        netBalance, // positive = owed to user, negative = user owes
-      };
+  const groupIds = userGroups.map((g) => g.id);
+
+  // Batch: member counts for all groups in one query
+  const memberCounts = await db
+    .select({
+      groupId: groupMembers.groupId,
+      count: sql<number>`count(*)`,
+    })
+    .from(groupMembers)
+    .where(sql`${groupMembers.groupId} IN (${sql.join(groupIds.map((id) => sql`${id}`), sql`, `)})`)
+    .groupBy(groupMembers.groupId);
+
+  const countMap = new Map(memberCounts.map((r) => [r.groupId, r.count]));
+
+  // Compute net balances per group (uses computeGroupBalances — single source of truth)
+  const balanceMap = new Map<number, number>();
+  await Promise.all(
+    groupIds.map(async (groupId) => {
+      const netBalances = await computeGroupBalances(db, groupId);
+      balanceMap.set(groupId, netBalances.get(user.id) ?? 0);
     }),
   );
+
+  const result = userGroups.map((g) => ({
+    id: g.id,
+    name: g.name,
+    inviteCode: g.inviteCode,
+    isPair: g.isPair,
+    currency: g.currency,
+    createdAt: g.createdAt,
+    role: g.role,
+    memberCount: countMap.get(g.id) ?? 0,
+    netBalance: balanceMap.get(g.id) ?? 0, // positive = owed to user, negative = user owes
+  }));
 
   return c.json({ groups: result });
 });
@@ -192,9 +208,280 @@ groupsApp.get('/:id', async (c) => {
     name: group.name,
     inviteCode: group.inviteCode,
     isPair: group.isPair,
+    currency: group.currency,
     createdAt: group.createdAt,
+    createdBy: group.createdBy,
+    muted: membership.muted,
     members,
   });
+});
+
+// --- Update group settings ---
+const updateGroupSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  currency: z.string().refine((c) => CURRENCY_CODES.includes(c)).optional(),
+});
+
+groupsApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+  const updates = c.req.valid('json');
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  // Only admin can update group settings
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (membership.role !== 'admin') {
+    return c.json(
+      { error: 'not_admin', detail: 'Only group admins can update settings' },
+      403,
+    );
+  }
+
+  const setValues: Record<string, any> = { updatedAt: new Date().toISOString() };
+  if (updates.name !== undefined) setValues.name = updates.name;
+  if (updates.currency !== undefined) setValues.currency = updates.currency;
+
+  await db.update(groups).set(setValues).where(eq(groups.id, groupId));
+
+  const [updated] = await db.select().from(groups).where(eq(groups.id, groupId)).limit(1);
+
+  return c.json({
+    id: updated.id,
+    name: updated.name,
+    currency: updated.currency,
+    inviteCode: updated.inviteCode,
+  });
+});
+
+// --- Toggle mute notifications ---
+groupsApp.post('/:id/mute', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ id: groupMembers.id, muted: groupMembers.muted })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  const newMuted = !membership.muted;
+  await db
+    .update(groupMembers)
+    .set({ muted: newMuted })
+    .where(eq(groupMembers.id, membership.id));
+
+  return c.json({ muted: newMuted });
+});
+
+// --- Regenerate invite code ---
+groupsApp.post('/:id/regenerate-invite', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (membership.role !== 'admin') {
+    return c.json({ error: 'not_admin', detail: 'Only group admins can regenerate invite' }, 403);
+  }
+
+  const newCode = generateInviteCode();
+  await db
+    .update(groups)
+    .set({ inviteCode: newCode, updatedAt: new Date().toISOString() })
+    .where(eq(groups.id, groupId));
+
+  return c.json({ inviteCode: newCode });
+});
+
+// --- Delete group ---
+groupsApp.delete('/:id', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (membership.role !== 'admin') {
+    return c.json({ error: 'not_admin', detail: 'Only group admins can delete the group' }, 403);
+  }
+
+  // Check if there are outstanding balances
+  const force = c.req.query('force') === 'true';
+  if (!force) {
+    const netBalances = await computeGroupBalances(db, groupId);
+    const hasOutstanding = Array.from(netBalances.values()).some((b) => b !== 0);
+    if (hasOutstanding) {
+      return c.json(
+        {
+          error: 'outstanding_balances',
+          detail: 'Group has unsettled balances. Use ?force=true to delete anyway.',
+        },
+        400,
+      );
+    }
+  }
+
+  // Cascade delete: expense_participants → expenses → settlements → group_members → group
+  // Get expense IDs for this group
+  const groupExpenses = await db
+    .select({ id: expenses.id })
+    .from(expenses)
+    .where(eq(expenses.groupId, groupId));
+
+  if (groupExpenses.length > 0) {
+    const expenseIds = groupExpenses.map((e) => e.id);
+    await db
+      .delete(expenseParticipants)
+      .where(sql`${expenseParticipants.expenseId} IN (${sql.join(expenseIds.map((id) => sql`${id}`), sql`, `)})`);
+  }
+
+  await db.delete(expenses).where(eq(expenses.groupId, groupId));
+  await db.delete(settlements).where(eq(settlements.groupId, groupId));
+  await db.delete(groupMembers).where(eq(groupMembers.groupId, groupId));
+  await db.delete(groups).where(eq(groups.id, groupId));
+
+  return c.json({ deleted: true, groupId });
+});
+
+// --- Leave group ---
+groupsApp.post('/:id/leave', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (membership.role === 'admin') {
+    return c.json(
+      { error: 'admin_cannot_leave', detail: 'Group creator cannot leave. Delete the group instead.' },
+      400,
+    );
+  }
+
+  // Check user's net balance is zero
+  const netBalances = await computeGroupBalances(db, groupId);
+  const userBalance = netBalances.get(user.id) ?? 0;
+  if (userBalance !== 0) {
+    return c.json(
+      { error: 'outstanding_balance', detail: 'Settle all debts before leaving the group.' },
+      400,
+    );
+  }
+
+  await db
+    .delete(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)));
+
+  return c.json({ left: true, groupId });
 });
 
 // --- Resolve invite code (public — no auth needed for resolving) ---
@@ -286,18 +573,35 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
   });
 
   // Fire-and-forget notification
-  const notifyCtx = { botToken: c.env.TELEGRAM_BOT_TOKEN, pagesUrl: c.env.PAGES_URL || '' };
+  const notifyCtx = {
+    botToken: c.env.TELEGRAM_BOT_TOKEN,
+    pagesUrl: c.env.PAGES_URL || '',
+    onBotBlocked: (telegramId: number) => {
+      db.update(users)
+        .set({ botStarted: false })
+        .where(eq(users.telegramId, telegramId))
+        .catch(() => {});
+    },
+  };
   c.executionCtx.waitUntil(
     (async () => {
       try {
         const [newMember] = await db
-          .select({ telegramId: users.telegramId, displayName: users.displayName })
+          .select({
+            telegramId: users.telegramId,
+            displayName: users.displayName,
+            botStarted: users.botStarted,
+          })
           .from(users)
           .where(eq(users.id, user.id))
           .limit(1);
 
         const existingMembers = await db
-          .select({ telegramId: users.telegramId, displayName: users.displayName })
+          .select({
+            telegramId: users.telegramId,
+            displayName: users.displayName,
+            botStarted: users.botStarted,
+          })
           .from(groupMembers)
           .innerJoin(users, eq(groupMembers.userId, users.id))
           .where(eq(groupMembers.groupId, groupId));
@@ -315,60 +619,4 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
   return c.json({ joined: true, groupId, groupName: group.name });
 });
 
-// --- Helper: compute net balance for a user in a group ---
-async function computeUserNetBalance(db: any, groupId: number, userId: number): Promise<number> {
-  // What user paid for others (expenses they paid, minus their own share)
-  const paidExpenses = await db
-    .select({
-      totalPaid: sql<number>`coalesce(sum(${expenses.amount}), 0)`,
-    })
-    .from(expenses)
-    .where(and(eq(expenses.groupId, groupId), eq(expenses.paidBy, userId)));
-
-  // What user's share is across all expenses in this group
-  const userShares = await db
-    .select({
-      totalShare: sql<number>`coalesce(sum(${expenseParticipants.shareAmount}), 0)`,
-    })
-    .from(expenseParticipants)
-    .innerJoin(expenses, eq(expenseParticipants.expenseId, expenses.id))
-    .where(and(eq(expenses.groupId, groupId), eq(expenseParticipants.userId, userId)));
-
-  // Settlements received (user is creditor, settlement completed)
-  const received = await db
-    .select({
-      totalReceived: sql<number>`coalesce(sum(${settlements.amount}), 0)`,
-    })
-    .from(settlements)
-    .where(
-      and(
-        eq(settlements.groupId, groupId),
-        eq(settlements.toUser, userId),
-        sql`${settlements.status} IN ('settled_onchain', 'settled_external')`,
-      ),
-    );
-
-  // Settlements paid (user is debtor, settlement completed)
-  const paid = await db
-    .select({
-      totalPaid: sql<number>`coalesce(sum(${settlements.amount}), 0)`,
-    })
-    .from(settlements)
-    .where(
-      and(
-        eq(settlements.groupId, groupId),
-        eq(settlements.fromUser, userId),
-        sql`${settlements.status} IN ('settled_onchain', 'settled_external')`,
-      ),
-    );
-
-  const totalPaid = paidExpenses[0]?.totalPaid ?? 0;
-  const totalShare = userShares[0]?.totalShare ?? 0;
-  const totalReceived = received[0]?.totalReceived ?? 0;
-  const totalSettlementsPaid = paid[0]?.totalPaid ?? 0;
-
-  // Net = what I paid - what I owe + settlements received - settlements I paid
-  return totalPaid - totalShare + totalReceived - totalSettlementsPaid;
-}
-
-export { groupsApp, computeUserNetBalance };
+export { groupsApp };

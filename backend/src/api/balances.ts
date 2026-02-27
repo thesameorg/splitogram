@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { eq, and, sql } from 'drizzle-orm';
 import { expenses, expenseParticipants, settlements, groupMembers, users } from '../db/schema';
 import { simplifyDebts } from '../services/debt-solver';
+import type { Database } from '../db';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 
@@ -149,7 +150,7 @@ balancesApp.get('/me', async (c) => {
 });
 
 // --- Helper: compute net balances for all members in a group ---
-async function computeGroupBalances(db: any, groupId: number): Promise<Map<number, number>> {
+async function computeGroupBalances(db: Database, groupId: number): Promise<Map<number, number>> {
   const balances = new Map<number, number>();
 
   // Get all group members to ensure everyone is in the map
