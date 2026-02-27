@@ -84,11 +84,11 @@ Push to `main` triggers the full deploy pipeline:
 
 ## Project status
 
-Phase 1 (Testnet Prototype) — in progress. See [work_docs/phases.md](work_docs/phases.md) for the full roadmap.
+Phase 1 (Core Prototype) done. Phase 2 (Splitwise Polish) in progress. See [work_docs/PLAN.md](work_docs/PLAN.md) for the full roadmap.
 
 ## Docs
 
 - [CLAUDE.md](CLAUDE.md) — full architecture, conventions, and local dev setup
+- [work_docs/PLAN.md](work_docs/PLAN.md) — 10-phase roadmap
 - [work_docs/idea.md](work_docs/idea.md) — business overview and competitive landscape
-- [work_docs/phases.md](work_docs/phases.md) — 9-phase roadmap
-- [work_docs/phase_1/](work_docs/phase_1/) — Phase 1 task breakdown
+- [work_docs/tech-decisions.md](work_docs/tech-decisions.md) — stack and architecture decisions
