@@ -84,7 +84,7 @@ Push to `main` triggers the full deploy pipeline:
 
 ## Project status
 
-Phase 1 (Core Prototype) done. Phase 2 (Splitwise Polish) in progress. See [work_docs/PLAN.md](work_docs/PLAN.md) for the full roadmap.
+Phase 1 (Core Prototype) and Phase 2 (Splitwise Polish) done. Phase 3 (Crypto Settlement) next. See [work_docs/PLAN.md](work_docs/PLAN.md) for the full roadmap.
 
 ## Docs
 

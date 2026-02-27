@@ -111,11 +111,12 @@ Root `package.json` defines `workspaces: ["backend", "frontend"]`. A single `bun
 ```
 backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
-├── webhook.ts            # grammY bot: /start, deep links, notification handlers
+├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking
 ├── env.ts                # Zod schema for Env bindings
-├── api/                  # Route handlers (auth, groups, expenses, balances, settlement)
+├── api/                  # Route handlers (auth, groups, expenses, balances, settlements)
 ├── middleware/            # auth (session validation), db (Drizzle injection)
-├── services/             # telegram-auth, session, notifications, debt-solver, ton-verify
+├── services/             # telegram-auth, session, notifications, debt-solver
+├── utils/                # currencies, format (shared with frontend)
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
 │   └── schema.ts         # All table definitions
@@ -123,11 +124,12 @@ backend/src/
 └── models/               # Zod request/response schemas
 
 frontend/src/
-├── App.tsx               # TG SDK init + TonConnectUIProvider + router + deep link handling
+├── App.tsx               # TG SDK init + router + deep link handling (join_, group_, settle_)
 ├── services/api.ts       # Fetch wrapper with session header injection
-├── pages/                # Home, Group, AddExpense, SettleUp
+├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp
+├── utils/                # currencies, format (shared with backend)
 ├── components/
-└── hooks/                # TG back button, main button, etc.
+└── hooks/                # useAuth, useTelegramBackButton, useTelegramMainButton
 ```
 
 ### Hono Context Types
@@ -166,27 +168,32 @@ app.route('/api/v1/groups', groupsApp);
 
 ### Deep Links (Bot → Mini App)
 
-Bot sends links with `start_param` (e.g., `group_123`). Frontend reads `window.Telegram.WebApp.initDataUnsafe.start_param` in App.tsx and routes to the matching page after auth completes. Patterns: `group_{id}`, `settle_{id}`, `expense_{id}`.
+Bot sends links with `start_param`. Frontend reads `window.Telegram.WebApp.initDataUnsafe.start_param` in App.tsx and routes to the matching page after auth completes. Patterns:
+- `group_{id}` → navigate to group page
+- `join_{inviteCode}` → auto-resolve invite, join group, navigate to group
+- `settle_{id}` → navigate to settlement page
+- `expense_{id}` → navigate to home (no standalone page yet)
 
 ### Data Model
 
-- **users**: telegram_id, username, display_name, wallet_address
-- **groups**: name, invite_code, is_pair (for 1-on-1)
-- **group_members**: group_id, user_id, role
-- **expenses**: group_id, paid_by, amount (micro-USDT integer), description
+- **users**: telegram_id, username, display_name, wallet_address, bot_started
+- **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by
+- **group_members**: group_id, user_id, role (admin/member), muted
+- **expenses**: group_id, paid_by, amount (micro-units integer), description
 - **expense_participants**: expense_id, user_id, share_amount
-- **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash
+- **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, comment, settled_by
 
-Amounts stored as integers in micro-USDT (1 USDT = 1,000,000). No floating point.
+Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-group. No floating point.
 
-### Settlement Flow
+### Settlement Flow (Phase 2 — Manual)
 
-1. User taps "Settle up" → frontend calls `POST /api/v1/groups/:id/settlements` (creates settlement on demand from debt graph)
-2. Frontend calls `GET /api/v1/settlements/:id/tx` → backend returns Jetton transfer payload (recipient, amount, memo)
-3. Frontend sends tx via `tonConnectUI.sendTransaction()` → user approves in wallet
-4. Frontend sends BOC to `POST /api/v1/settlements/:id/verify`
-5. Backend verifies on TONAPI: correct sender, recipient, amount, memo
-6. On success: status → `settled_onchain`. On failure: user can tap "Refresh status" to re-check or rollback to `open`
+1. User taps "Settle up" on a balance → `POST /api/v1/groups/:id/settlements` creates settlement from debt graph
+2. Frontend navigates to `/settle/:id` showing settlement details
+3. Either party (debtor or creditor) taps "Mark as Settled" with optional comment
+4. `POST /api/v1/settlements/:id/settle` → status → `settled_external`, records who settled and comment
+5. Both parties get bot notification (if not muted and bot started)
+
+On-chain USDT settlement deferred to Phase 3 (will add `settled_onchain` path via TON Connect).
 
 ### Background Work Pattern
 
@@ -199,9 +206,11 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - Zod validation on all endpoint inputs via `@hono/zod-validator` — access validated data via `c.req.valid('json')`
 - Explicit timeout on every external I/O call (`AbortSignal.timeout()`)
 - Bot notifications are fire-and-forget via `waitUntil()` with 1 bounded retry — never block the API response
+- Bot 403 handling: catch `GrammyError` 403, set `botStarted = false`, skip non-started users via `canNotify()`
+- Per-group mute: `group_members.muted` flag, muted users skip expense notifications
 - Health endpoint `GET /api/health` excluded from auth
 - Settlements created on demand when user taps "Settle up" (not pre-created)
-- USDT master contract address env-switched via `USDT_MASTER_ADDRESS` (different for testnet/mainnet)
+- Shared currency utilities in `utils/currencies.ts` + `utils/format.ts` (both backend and frontend)
 - Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation, auto-creates mock user from `backend/src/dev/mock-user.ts`)
 
 ## Code Style
@@ -218,6 +227,6 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 
 ## Planning Docs
 
-- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1 done, Phase 2 current)
+- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-2 done, Phase 3 next)
 - `work_docs/tech-decisions.md` — stack, architecture, key engineering principles
 - `work_docs/idea.md` — business overview and competitive landscape

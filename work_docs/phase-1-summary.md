@@ -21,24 +21,19 @@ Full API surface documented in CLAUDE.md.
 
 Tested on deployed production (2026-02-27).
 
-**Bugs:**
-- `PAGES_URL` env var broken in deploy — wrangler `--var` uses `:` separator, CI had `=`. Bot replies crashed (empty Web App URL). **Fixed** in workflow.
-- "USDT contract not configured" — `USDT_MASTER_ADDRESS` not set (moot now, crypto deferred)
-- Creditor "mark as settled" button disabled despite spec allowing it
-- "Please open in Telegram" flash on first open after redeploy
+**Bugs (all fixed in Phase 2):**
+- `PAGES_URL` env var broken in deploy — wrangler `--var` uses `:` separator, CI had `=`. **Fixed.**
+- "USDT contract not configured" — `USDT_MASTER_ADDRESS` not set (moot, crypto deferred). **Fixed.**
+- Creditor "mark as settled" button disabled. **Fixed** — either party can now settle.
+- "Please open in Telegram" flash on first open after redeploy. **Fixed.**
 
-**Missing features (moved to Phase 2):**
-- Edit/delete expense
-- Group settings, delete, leave group
-- Group currency
-- Manual settlement by either party (not just creditor)
-- UX: redundant buttons, unclear labels, no owner indicator
-
-**Design feedback (moved to Phase 2):**
-- Notifications too noisy (fires on every expense)
-- Deep links: `join` and `group` should be merged
-- Join flow should open the app, not just send a bot message
-- "You owe" / "Owes you" labels instead of third-person names
+**Missing features (all built in Phase 2):**
+- Edit/delete expense — **done**
+- Group settings, delete, leave group — **done**
+- Group currency (15 currencies) — **done**
+- Manual settlement by either party — **done**
+- UX: personalized labels, owner indicators, smart deep links — **done**
+- Per-group mute toggle, bot 403 handling — **done**
 
 **Deferred to Phase 3+ (crypto):**
 - TON Connect wallet polish, wallet management screen
@@ -48,5 +43,4 @@ Tested on deployed production (2026-02-27).
 ## Known Technical Debt
 
 - **Concurrent settlement race condition** — two users can settle same debt simultaneously. Fix: KV distributed lock. Not an issue until multi-user crypto settlement (Phase 3).
-- **Bot 403 on users who haven't /started** — `sendMessage` throws if user never interacted with bot. Fix: catch 403, track `bot_started` flag. Phase 2.
 - **Invite code collision** — nanoid(8) collisions negligible at MVP scale. DB unique constraint catches it. Add retry at scale.

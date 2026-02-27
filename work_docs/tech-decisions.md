@@ -1,6 +1,6 @@
 # Tech Stack & Architecture Decisions
 
-Made during Phase 1 planning. Still the active stack.
+Made during Phase 1 planning, updated after Phase 2.
 
 ## Stack
 
@@ -47,7 +47,11 @@ No library. ~30-line greedy algorithm in `services/debt-solver.ts`:
 2. Separate into creditors (positive) and debtors (negative)
 3. Greedy match: pair largest creditor with largest debtor, transfer `min(credit, |debt|)`, repeat
 
-Good enough for groups under 50 people. Tested with 5 cases.
+Good enough for groups under 50 people. Tested with 6 cases.
+
+## Currency Support (Phase 2)
+
+15 currencies with correct symbols and decimal handling. Shared `utils/currencies.ts` + `utils/format.ts` in both backend and frontend (identical files). Amounts stored as micro-units (1 unit = 1,000,000) regardless of currency. Zero-decimal currencies (VND, JPY, IDR) display without decimals but use the same micro-unit storage.
 
 ## Template Origin
 

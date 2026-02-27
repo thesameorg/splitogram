@@ -35,62 +35,58 @@ See `work_docs/phase-1-summary.md` for detailed findings.
 
 ---
 
-## Phase 2: Splitwise Polish (planned at ./todo_phase_2/)
+## Phase 2: Splitwise Polish — DONE
 
 **Goal:** Make the expense splitting experience solid and complete — the app people actually want to use daily. No crypto, just a great Splitwise clone inside Telegram.
 
-**Deliverables:**
+**What was built:**
 
-- **Bug fixes:**
-  - Fix `PAGES_URL` deployment (bot replies currently broken)
-  - Fix "please open in Telegram" on first open after redeploy
-  - Fix creditor "mark as settled" button being disabled
-- **Manual settlement rework:**
+- **Bug fixes (Wave 1):**
+  - Fixed `PAGES_URL` deployment (wrangler `--var` separator)
+  - Fixed creditor "Mark as Settled" being disabled
+  - Fixed webhook join for 101+ members
+  - Fixed `language_code` validation rejecting valid users
+  - Removed crypto references from bot messages
+- **Tech debt cleanup (Wave 2):**
+  - Fixed N+1 query on home screen (single query with joins)
+  - Unified balance computation into one `computeGroupBalances` function
+  - Typed Drizzle DB throughout (no more `db: any`)
+  - Shared `formatAmount` / `getCurrency` utilities (backend + frontend)
+  - Singleton Bot API instance per notification batch
+  - Pagination offset clamping, dead code removal
+- **Manual settlement rework (Wave 3):**
   - Either party (debtor OR creditor) can mark a debt as settled
   - Settlement with optional comment (e.g., "paid via bank transfer")
-  - Remove crypto settlement UI for now (no wallet connect, no USDT references)
-  - Settlement creates a record visible in group activity
-- **Expense management:**
-  - Edit expense after creation (amount, description, participants)
-  - Delete expense
-- **Group currency:**
-  - Each group has a currency (e.g., USD, EUR, THB, VND) — set at creation, editable in settings
-  - All expenses in the group are in that currency
-  - Display amounts with correct currency symbol/code
-  - Default: USD. Predefined list of common currencies (no need for full ISO 4217)
-  - Purely cosmetic in Phase 2 — no exchange rates, no on-chain implications yet
-- **Group management:**
-  - Group settings page (rename, description, currency)
-  - Delete group (creator only)
-  - Leave group (with handling of outstanding balances)
-  - Group owner indicator in UI
-  - Emoji avatar for groups (optional nice-to-have)
-- **UX fixes (from testing):**
-  - "You owe" / "Owes you" labels instead of third-person names on settle screen
-  - Single "Create" button on add expense (TG MainButton only, remove in-page button)
-  - Simplify deep links — merge `join` and `group` into one smart handler
-  - Join deep link should open the mini app after joining (not just send bot message)
-- **Notification improvements:**
-  - Don't notify on every single expense — batch or summarize
-  - Or: make notifications configurable per group (mute option)
-- **Amount display:**
-  - Show amounts in the group's currency (e.g., "$15.00", "€12.00", "₫350,000")
-  - Drop all USDT labeling from the UI
+  - Removed all crypto/wallet UI — clean manual flow
+- **Expense management (Wave 3):**
+  - Edit expense (amount, description, participants) — `PUT /api/v1/groups/:id/expenses/:expenseId`
+  - Delete expense — `DELETE /api/v1/groups/:id/expenses/:expenseId`
+- **Per-group currency (Wave 3):**
+  - 15 currencies (USD, EUR, GBP, THB, VND, JPY, IDR, etc.) with correct symbols and decimals
+  - Currency selectable at group creation and in settings
+  - All amounts display with correct currency formatting (including zero-decimal currencies)
+- **Group management (Wave 4):**
+  - Group settings page (rename, currency, invite regeneration)
+  - Delete group (admin only, cascade delete, force-delete for outstanding balances)
+  - Leave group (non-admin, zero-balance check)
+  - Owner indicator in member list
+- **UX fixes (Wave 4):**
+  - Personalized "You owe" / "Owes you" labels using current user ID
+  - Hidden in-page submit button when inside Telegram (TG MainButton only)
+  - Smart `join_` deep link: auto-resolve invite → join → navigate to group
+  - Bot join buttons deep-link directly to group page
+- **Notification improvements (Wave 4):**
+  - Per-group mute toggle (muted members skip notifications)
+  - Bot 403 handling: catch blocked users, track `botStarted` flag, skip non-started users
+  - `GrammyError` catch with `onBotBlocked` callback pattern
+- **Frontend tests (Wave 5):**
+  - 19 tests for `formatAmount` / `formatSignedAmount` (multi-currency, zero-decimal, signed)
+  - 7 tests for currency utilities (`CURRENCIES`, `CURRENCY_CODES`, `getCurrency`)
+  - Total: 32 tests passing (6 backend + 26 frontend)
 
-**Scope boundaries:**
+**DB migrations:** 0001 (settlement comment/settledBy), 0002 (group currency), 0003 (botStarted, muted)
 
-- No wallet connection, no crypto settlement, no TON anything
-- No percentage/custom splits (Phase 5)
-- No file attachments
-- No recurring expenses
-- Equal splits only
-
-**Success criteria:**
-
-- A user can: create group → invite friends → add expenses → everyone sees balances → debts get marked as settled manually → group is clean
-- Full cycle tested with 3+ real people
-- Zero broken bot interactions
-- UX feels on par with Splitwise basic functionality
+All Phase 2 specs completed and archived.
 
 ---
 
