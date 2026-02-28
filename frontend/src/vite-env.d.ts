@@ -56,6 +56,11 @@ interface TelegramWebApp {
   close(): void;
   expand(): void;
   openTelegramLink(url: string): void;
+  CloudStorage?: {
+    getItem(key: string, callback: (err: any, value: string | null) => void): void;
+    setItem(key: string, value: string, callback?: (err: any) => void): void;
+    removeItem(key: string, callback?: (err: any) => void): void;
+  };
 }
 
 declare global {

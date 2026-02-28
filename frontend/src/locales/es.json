@@ -1,0 +1,136 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Por favor, abre esta aplicación desde Telegram."
+  },
+  "tabs": {
+    "groups": "Grupos",
+    "activity": "Actividad",
+    "account": "Cuenta"
+  },
+  "home": {
+    "owedToYou": "Te deben: {{amount}}",
+    "youOwe": "Debes: {{amount}}",
+    "noGroups": "Aún no hay grupos",
+    "createFirst": "Crea tu primer grupo",
+    "member_one": "{{count}} miembro",
+    "member_other": "{{count}} miembros"
+  },
+  "createGroup": {
+    "title": "Crear grupo",
+    "placeholder": "Nombre del grupo",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "creating": "Creando..."
+  },
+  "group": {
+    "invite": "Invitar",
+    "settings": "Ajustes",
+    "info": "Info",
+    "transactions": "Transacciones",
+    "balances": "Balances",
+    "noTransactions": "Aún no hay transacciones",
+    "allSettled": "¡Todo saldado!",
+    "addExpense": "+ Añadir gasto",
+    "paidBy": "Pagado por {{name}}",
+    "splitAmong": "Entre {{count}}",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "youOwe": "Debes a",
+    "owesYou": "te debe",
+    "owe": "debe a",
+    "owes": "debe a",
+    "settleUp": "Saldar",
+    "markAsSettled": "Marcar como saldado",
+    "youPaid": "Pagaste a {{name}}",
+    "paidYou": "{{name}} te pagó",
+    "paid": "{{from}} pagó a {{to}}",
+    "deleteConfirm": "¿Eliminar este gasto? Los balances se recalcularán.",
+    "member_one": "{{count}} miembro",
+    "member_other": "{{count}} miembros"
+  },
+  "groupSettings": {
+    "title": "Ajustes del grupo",
+    "infoTitle": "Info del grupo",
+    "groupName": "Nombre del grupo",
+    "currency": "Moneda",
+    "save": "Guardar cambios",
+    "saving": "Guardando...",
+    "inviteLink": "Enlace de invitación",
+    "shareInvite": "Compartir",
+    "regenerate": "Regenerar",
+    "regenerateConfirm": "¿Generar un nuevo enlace? El anterior dejará de funcionar.",
+    "notifications": "Notificaciones",
+    "muted": "Silenciadas",
+    "on": "Activadas",
+    "members": "Miembros ({{count}})",
+    "you": "tú",
+    "createdBy": "Creado por {{name}}",
+    "deleteGroup": "Eliminar grupo",
+    "leaveGroup": "Salir del grupo",
+    "deleteConfirm": "¿Eliminar \"{{name}}\"? No se puede deshacer.",
+    "deleteForceConfirm": "El grupo tiene saldos pendientes. ¿Eliminar de todos modos?",
+    "leaveConfirm": "¿Salir de \"{{name}}\"?",
+    "settingsSaved": "Ajustes guardados",
+    "inviteRegenerated": "Enlace regenerado",
+    "kick": "Eliminar",
+    "kickConfirm": "¿Eliminar a {{name}} del grupo?"
+  },
+  "addExpense": {
+    "title": "Añadir gasto",
+    "editTitle": "Editar gasto",
+    "description": "Descripción",
+    "descriptionPlaceholder": "¿Para qué fue?",
+    "amount": "Monto",
+    "amountWithCurrency": "Monto ({{currency}})",
+    "paidBy": "Pagado por",
+    "splitAmong": "Dividir entre",
+    "perPerson": "{{amount}} por persona ({{count}} personas)",
+    "submit": "Añadir gasto",
+    "save": "Guardar cambios",
+    "saving": "Guardando..."
+  },
+  "settleUp": {
+    "title": "Saldar deuda",
+    "youOwe": "Debes a {{name}}",
+    "owesYou": "{{name}} te debe",
+    "owes": "{{from}} debe a {{to}}",
+    "settled": "Saldado",
+    "note": "Nota (opcional)",
+    "notePlaceholder": "ej., transferencia bancaria",
+    "markAsPaid": "Marcar como pagado",
+    "markAsReceived": "Confirmar recibido",
+    "settling": "Guardando...",
+    "notFound": "Liquidación no encontrada"
+  },
+  "account": {
+    "title": "Cuenta",
+    "displayName": "Nombre",
+    "telegramUsername": "Usuario de Telegram",
+    "noUsername": "Sin nombre de usuario",
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "nameUpdated": "Nombre actualizado",
+    "language": "Idioma",
+    "languageEn": "English",
+    "languageRu": "Русский",
+    "languageEs": "Español"
+  },
+  "activity": {
+    "title": "Actividad",
+    "comingSoon": "Feed de actividad próximamente"
+  },
+  "currencyPicker": {
+    "title": "Seleccionar moneda",
+    "search": "Buscar monedas...",
+    "noResults": "No se encontraron monedas"
+  },
+  "loading": "Cargando...",
+  "time": {
+    "justNow": "ahora",
+    "minutesAgo": "hace {{count}}m",
+    "hoursAgo": "hace {{count}}h",
+    "daysAgo": "hace {{count}}d"
+  }
+}

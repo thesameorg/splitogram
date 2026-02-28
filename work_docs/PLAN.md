@@ -168,28 +168,47 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 5: Themes & Internationalization — NEXT
+## Phase 5: Themes & Internationalization — DONE
 
 **Goal:** Native dark/light theming via Telegram's CSS variables and multi-language UI.
 
-**Steps:**
+**What was built:**
 
-1. ~~**RESEARCH: Telegram Mini App theme API + persistence**~~ — **DECIDED: follow Telegram's theme, CloudStorage for language.** Telegram injects 15 CSS variables that auto-update on theme change. No user toggle needed — theme follows Telegram. localStorage is unreliable in TG WebView (iOS WKWebView clears it). Use Telegram CloudStorage (Bot API 6.9, cross-device) for language preference. See `work_docs/research/done/5-themes-and-persistence.md`.
-2. ~~**RESEARCH: i18n approach**~~ — **DECIDED: react-i18next.** See `work_docs/research/done/5-i18n-approach.md`.
-3. ~~**Q&A: Decide persistence strategy**~~ — **DECIDED: CloudStorage for language, no persistence for theme.** See step 1.
-4. **Theme system** — Map Telegram's `--tg-theme-*` CSS variables to Tailwind custom colors (`bg-tg-bg`, `text-tg-text`, etc.). Replace all hardcoded colors with `tg-*` tokens. No `dark:` prefixes needed — CSS vars handle both modes automatically.
-5. **i18n framework** — `react-i18next` with JSON translation files, one per language. Namespaced keys, CLDR plural rules, `{{variable}}` interpolation.
-6. **Missing translation fallback** — In development: show the raw key (e.g., `ACCOUNT_DESCRIPTION_TEXT`) to catch untranslated strings. In production: fall back to English.
-7. **Languages: English (base), Russian, Spanish.**
-8. **Save language preference** — Telegram CloudStorage on change, read on init. Default: detect from `initData.user.language_code`, fallback to English.
-9. **Wire up Account page** — Language selector functional. No theme selector (follows Telegram).
+- **Theme system:**
+  - Mapped all 15 Telegram `--tg-theme-*` CSS variables to Tailwind `tg-*` color tokens in `tailwind.config.js`
+  - Added fallback CSS custom properties in `index.css` for dev/browser (light mode defaults)
+  - Replaced all hardcoded colors (`bg-white`, `text-gray-500`, `bg-blue-500`, etc.) with `tg-*` tokens across all components
+  - Removed all `dark:` prefixes — CSS vars handle both modes automatically
+  - Removed manual `dark` class toggling and `document.body.style` from App.tsx
+  - Kept semantic green/red for balances (positive/negative amounts) as hardcoded Tailwind colors
+- **i18n (react-i18next):**
+  - Installed `react-i18next` + `i18next`
+  - Created `i18n.ts` config with inline JSON imports, fallback to English, dev missing key warnings
+  - 3 locale files: `en.json`, `ru.json`, `es.json` (~100 keys each)
+  - Replaced all hardcoded English strings with `t()` calls across all pages and components
+  - CLDR plurals for Russian (one/few/many forms for member counts)
+  - `timeAgo()` utility uses i18n for time strings
+- **Language persistence (CloudStorage):**
+  - On init: try CloudStorage → detect from TG user `language_code` → fallback English
+  - On change: save to CloudStorage (fire-and-forget)
+  - Added `CloudStorage` to Telegram WebApp type declarations
+- **Language selector on Account page:**
+  - 3-button row: English, Русский, Español
+  - Active language highlighted with `tg-button` style
+  - Switching language updates all visible text immediately
+- **Phase 4 bug fixes (bundled):**
+  - A1: Balance colors in Group page — red if user owes, green if owed to user, neutral otherwise
+  - A2: Home screen per-currency balance breakdown — groups balances by currency, shows one row per currency
+  - A3: Transaction/settlement amount colors — green if you paid/received, red if you owe, neutral for uninvolved
+  - A4: Currency shown in Amount field label (e.g., "Amount (USD)")
+  - A5: Fixed MainButton jumping — split into separate effects for show/hide, text, enabled/progress, click handler
+  - A6: Settings → "Info" label for non-admin
+  - A7: Removed "Admin" text from member badges — crown only
+  - A8: Admin kick member — backend `DELETE /groups/:id/members/:userId` + frontend kick button (X) in GroupSettings
+  - A9: Input validation maxLength on group name (100), expense description (500), settlement comment (500)
+- **Frontend deps added:** `react-i18next@16.5.4`, `i18next@25.8.13`
 
-**Success criteria:**
-
-- Theme follows Telegram's dark/light mode via CSS variables (no separate toggle)
-- All UI text comes from translation files
-- Switching language changes all visible text and persists across sessions/devices via CloudStorage
-- Dev mode shows raw keys for missing translations; production falls back to English
+**Tests:** All 50 tests passing (6 backend + 44 frontend)
 
 ---
 

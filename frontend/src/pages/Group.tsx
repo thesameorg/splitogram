@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   api,
   type GroupDetail,
@@ -19,6 +20,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 export function Group() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const groupId = parseInt(id ?? '', 10);
 
   const [group, setGroup] = useState<GroupDetail | null>(null);
@@ -65,7 +67,7 @@ export function Group() {
   }
 
   async function handleDeleteExpense(expenseId: number) {
-    if (!confirm('Delete this expense? Balances will be recalculated.')) return;
+    if (!confirm(t('group.deleteConfirm'))) return;
     try {
       await api.deleteExpense(groupId, expenseId);
       loadData();
@@ -89,67 +91,77 @@ export function Group() {
 
     let label: string;
     if (isFromMe) {
-      label = `You paid ${settlement.toUserName}`;
+      label = t('group.youPaid', { name: settlement.toUserName });
     } else if (isToMe) {
-      label = `${settlement.fromUserName} paid you`;
+      label = t('group.paidYou', { name: settlement.fromUserName });
     } else {
-      label = `${settlement.fromUserName} paid ${settlement.toUserName}`;
+      label = t('group.paid', { from: settlement.fromUserName, to: settlement.toUserName });
     }
+
+    // A3: Settlement amount color — red if you paid, green if paid to you
+    const amountColor = isFromMe ? 'text-red-600' : isToMe ? 'text-green-600' : 'text-green-700';
 
     return (
       <div
         key={`s-${settlement.id}`}
-        className="bg-green-50 dark:bg-green-900/10 p-4 rounded-xl border border-green-200 dark:border-green-800"
+        className="bg-green-50 p-4 rounded-xl border border-green-200"
       >
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
-            <span className="text-green-600 dark:text-green-400 text-lg">&#10003;</span>
+            <span className="text-green-600 text-lg">&#10003;</span>
             <div>
-              <div className="font-medium text-green-800 dark:text-green-300">{label}</div>
-              <div className="text-sm text-gray-500">{timeAgo(settlement.createdAt)}</div>
+              <div className="font-medium text-green-800">{label}</div>
+              <div className="text-sm text-tg-hint">{timeAgo(settlement.createdAt)}</div>
             </div>
           </div>
-          <div className="font-medium text-green-700 dark:text-green-400">
+          <div className={`font-medium ${amountColor}`}>
             {formatAmount(settlement.amount, group?.currency)}
           </div>
         </div>
         {settlement.comment && (
-          <div className="mt-2 text-sm text-gray-500 italic">{settlement.comment}</div>
+          <div className="mt-2 text-sm text-tg-hint italic">{settlement.comment}</div>
         )}
       </div>
     );
   }
 
   function renderExpenseCard(exp: Expense) {
+    // A3: Expense amount color — green if I paid, red if I'm a participant who didn't pay
+    const isPayer = currentUserId === exp.paidBy;
+    const isParticipant = exp.participants.some((p) => p.userId === currentUserId);
+    const amountColor = isPayer ? 'text-green-600' : isParticipant ? 'text-red-600' : '';
+
     return (
-      <div
-        key={`e-${exp.id}`}
-        className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700"
-      >
+      <div key={`e-${exp.id}`} className="bg-tg-section p-4 rounded-xl border border-tg-separator">
         <div className="flex justify-between items-start">
           <div>
             <div className="font-medium">{exp.description}</div>
-            <div className="text-sm text-gray-500">
-              Paid by {exp.payerName} &middot; {timeAgo(exp.createdAt)}
+            <div className="text-sm text-tg-hint">
+              {t('group.paidBy', { name: exp.payerName })} &middot; {timeAgo(exp.createdAt)}
             </div>
           </div>
-          <div className="font-medium">{formatAmount(exp.amount, group?.currency)}</div>
+          <div className={`font-medium ${amountColor}`}>
+            {formatAmount(exp.amount, group?.currency)}
+          </div>
         </div>
         <div className="mt-2 flex justify-between items-center">
-          <div className="text-xs text-gray-400">
-            Split among {exp.participants.length}:{' '}
+          <div className="text-xs text-tg-hint">
+            {t('group.splitAmong', { count: exp.participants.length })}:{' '}
             {exp.participants.map((p) => p.displayName).join(', ')}
           </div>
           {canModifyExpense(exp) && (
             <div className="flex gap-2 ml-2 shrink-0">
               <button
                 onClick={() => navigate(`/groups/${groupId}/edit-expense/${exp.id}`)}
-                className="text-xs text-blue-500"
+                className="text-xs text-tg-link"
               >
-                Edit
+                {t('group.edit')}
               </button>
-              <button onClick={() => handleDeleteExpense(exp.id)} className="text-xs text-red-500">
-                Delete
+              <button
+                onClick={() => handleDeleteExpense(exp.id)}
+                className="text-xs text-tg-destructive"
+              >
+                {t('group.delete')}
               </button>
             </div>
           )}
@@ -167,22 +179,23 @@ export function Group() {
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-xl font-bold">{group.name}</h1>
-            <div className="text-sm text-gray-500">
-              {group.members.length} {group.members.length === 1 ? 'member' : 'members'}
+            <div className="text-sm text-tg-hint">
+              {t('group.member', { count: group.members.length })}
             </div>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => shareInviteLink(group.inviteCode, group.name)}
-              className="text-blue-500 text-sm font-medium px-3 py-1 border border-blue-500 rounded-lg"
+              className="text-tg-link text-sm font-medium px-3 py-1 border border-tg-link rounded-lg"
             >
-              Invite
+              {t('group.invite')}
             </button>
+            {/* A6: Show "Info" for non-admin */}
             <button
               onClick={() => navigate(`/groups/${groupId}/settings`)}
-              className="text-gray-500 text-sm font-medium px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg"
+              className="text-tg-hint text-sm font-medium px-3 py-1 border border-tg-separator rounded-lg"
             >
-              Settings
+              {currentUserRole === 'admin' ? t('group.settings') : t('group.info')}
             </button>
           </div>
         </div>
@@ -192,7 +205,7 @@ export function Group() {
           {group.members.map((m) => (
             <div
               key={m.userId}
-              className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-1"
+              className="bg-tg-secondary-bg px-3 py-1 rounded-full text-sm flex items-center gap-1"
             >
               {m.role === 'admin' && <span title="Admin">&#9812;</span>}
               {m.displayName}
@@ -202,26 +215,24 @@ export function Group() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+      <div className="flex border-b border-tg-separator mb-4">
         <button
           onClick={() => setTab('transactions')}
           className={`flex-1 pb-2 text-sm font-medium border-b-2 ${
             tab === 'transactions'
-              ? 'border-blue-500 text-blue-500'
-              : 'border-transparent text-gray-500'
+              ? 'border-tg-link text-tg-link'
+              : 'border-transparent text-tg-hint'
           }`}
         >
-          Transactions
+          {t('group.transactions')}
         </button>
         <button
           onClick={() => setTab('balances')}
           className={`flex-1 pb-2 text-sm font-medium border-b-2 ${
-            tab === 'balances'
-              ? 'border-blue-500 text-blue-500'
-              : 'border-transparent text-gray-500'
+            tab === 'balances' ? 'border-tg-link text-tg-link' : 'border-transparent text-tg-hint'
           }`}
         >
-          Balances
+          {t('group.balances')}
         </button>
       </div>
 
@@ -229,57 +240,63 @@ export function Group() {
       {tab === 'transactions' ? (
         <div className="space-y-3">
           {transactions.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">No transactions yet</p>
+            <p className="text-center text-tg-hint py-8">{t('group.noTransactions')}</p>
           ) : (
-            transactions.map((t) =>
-              t.type === 'expense' ? renderExpenseCard(t.data) : renderSettlementCard(t.data),
+            transactions.map((tx) =>
+              tx.type === 'expense' ? renderExpenseCard(tx.data) : renderSettlementCard(tx.data),
             )
           )}
         </div>
       ) : (
         <div className="space-y-3">
           {debts.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">All settled up!</p>
+            <p className="text-center text-tg-hint py-8">{t('group.allSettled')}</p>
           ) : (
-            debts.map((debt, i) => (
-              <div
-                key={i}
-                className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700"
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="font-medium">
-                      {currentUserId === debt.from.userId ? 'You' : debt.from.displayName}
-                    </span>
-                    <span className="text-gray-500">
-                      {currentUserId === debt.from.userId ? ' owe ' : ' owes '}
-                    </span>
-                    <span className="font-medium">
-                      {currentUserId === debt.to.userId ? 'you' : debt.to.displayName}
-                    </span>
+            debts.map((debt, i) => {
+              // A1: Balance color based on perspective
+              const isUserFrom = currentUserId === debt.from.userId;
+              const isUserTo = currentUserId === debt.to.userId;
+              const amountColor = isUserFrom
+                ? 'text-red-600'
+                : isUserTo
+                  ? 'text-green-600'
+                  : 'text-tg-text';
+
+              return (
+                <div key={i} className="bg-tg-section p-4 rounded-xl border border-tg-separator">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="font-medium">
+                        {isUserFrom ? 'You' : debt.from.displayName}
+                      </span>
+                      <span className="text-tg-hint">
+                        {isUserFrom ? ` ${t('group.youOwe')} ` : ` ${t('group.owes')} `}
+                      </span>
+                      <span className="font-medium">{isUserTo ? 'you' : debt.to.displayName}</span>
+                    </div>
+                    <div className={`font-medium ${amountColor}`}>
+                      {formatAmount(debt.amount, group?.currency)}
+                    </div>
                   </div>
-                  <div className="font-medium text-red-500">
-                    {formatAmount(debt.amount, group?.currency)}
-                  </div>
+                  {isUserFrom && (
+                    <button
+                      onClick={() => handleSettleUp(debt)}
+                      className="mt-3 w-full bg-tg-button text-tg-button-text py-2 rounded-lg text-sm font-medium"
+                    >
+                      {t('group.settleUp')}
+                    </button>
+                  )}
+                  {isUserTo && (
+                    <button
+                      onClick={() => handleSettleUp(debt)}
+                      className="mt-3 w-full text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
+                    >
+                      {t('group.markAsSettled')}
+                    </button>
+                  )}
                 </div>
-                {currentUserId === debt.from.userId && (
-                  <button
-                    onClick={() => handleSettleUp(debt)}
-                    className="mt-3 w-full bg-blue-500 text-white py-2 rounded-lg text-sm font-medium"
-                  >
-                    Settle Up
-                  </button>
-                )}
-                {currentUserId === debt.to.userId && (
-                  <button
-                    onClick={() => handleSettleUp(debt)}
-                    className="mt-3 w-full text-gray-500 py-2 rounded-lg text-sm border border-gray-200 dark:border-gray-600"
-                  >
-                    Mark as Settled
-                  </button>
-                )}
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}
@@ -287,9 +304,9 @@ export function Group() {
       {/* Add Expense FAB */}
       <button
         onClick={() => navigate(`/groups/${groupId}/add-expense`)}
-        className="fixed bottom-20 right-6 bg-blue-500 text-white px-6 py-3 rounded-full shadow-lg font-medium"
+        className="fixed bottom-20 right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium"
       >
-        + Add Expense
+        {t('group.addExpense')}
       </button>
     </PageLayout>
   );

@@ -1,0 +1,136 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Please open this app from Telegram."
+  },
+  "tabs": {
+    "groups": "Groups",
+    "activity": "Activity",
+    "account": "Account"
+  },
+  "home": {
+    "owedToYou": "Owed to you: {{amount}}",
+    "youOwe": "You owe: {{amount}}",
+    "noGroups": "No groups yet",
+    "createFirst": "Create your first group",
+    "member_one": "{{count}} member",
+    "member_other": "{{count}} members"
+  },
+  "createGroup": {
+    "title": "Create Group",
+    "placeholder": "Group name",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating..."
+  },
+  "group": {
+    "invite": "Invite",
+    "settings": "Settings",
+    "info": "Info",
+    "transactions": "Transactions",
+    "balances": "Balances",
+    "noTransactions": "No transactions yet",
+    "allSettled": "All settled up!",
+    "addExpense": "+ Add Expense",
+    "paidBy": "Paid by {{name}}",
+    "splitAmong": "Split among {{count}}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "youOwe": "You owe",
+    "owesYou": "owes you",
+    "owe": "owe",
+    "owes": "owes",
+    "settleUp": "Settle Up",
+    "markAsSettled": "Mark as Settled",
+    "youPaid": "You paid {{name}}",
+    "paidYou": "{{name}} paid you",
+    "paid": "{{from}} paid {{to}}",
+    "deleteConfirm": "Delete this expense? Balances will be recalculated.",
+    "member_one": "{{count}} member",
+    "member_other": "{{count}} members"
+  },
+  "groupSettings": {
+    "title": "Group Settings",
+    "infoTitle": "Group Info",
+    "groupName": "Group name",
+    "currency": "Currency",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "inviteLink": "Invite link",
+    "shareInvite": "Share Invite",
+    "regenerate": "Regenerate",
+    "regenerateConfirm": "Generate a new invite link? The old link will stop working.",
+    "notifications": "Notifications",
+    "muted": "Muted",
+    "on": "On",
+    "members": "Members ({{count}})",
+    "you": "you",
+    "createdBy": "Created by {{name}}",
+    "deleteGroup": "Delete Group",
+    "leaveGroup": "Leave Group",
+    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone.",
+    "deleteForceConfirm": "Group has unsettled balances. Delete anyway?",
+    "leaveConfirm": "Leave \"{{name}}\"?",
+    "settingsSaved": "Settings saved",
+    "inviteRegenerated": "Invite link regenerated",
+    "kick": "Remove",
+    "kickConfirm": "Remove {{name}} from the group?"
+  },
+  "addExpense": {
+    "title": "Add Expense",
+    "editTitle": "Edit Expense",
+    "description": "Description",
+    "descriptionPlaceholder": "What was it for?",
+    "amount": "Amount",
+    "amountWithCurrency": "Amount ({{currency}})",
+    "paidBy": "Paid by",
+    "splitAmong": "Split among",
+    "perPerson": "{{amount}} per person ({{count}} people)",
+    "submit": "Add Expense",
+    "save": "Save Changes",
+    "saving": "Saving..."
+  },
+  "settleUp": {
+    "title": "Settle Up",
+    "youOwe": "You owe {{name}}",
+    "owesYou": "{{name}} owes you",
+    "owes": "{{from}} owes {{to}}",
+    "settled": "Settled",
+    "note": "Note (optional)",
+    "notePlaceholder": "e.g., paid via bank transfer",
+    "markAsPaid": "Mark as Paid",
+    "markAsReceived": "Mark as Received",
+    "settling": "Settling...",
+    "notFound": "Settlement not found"
+  },
+  "account": {
+    "title": "Account",
+    "displayName": "Display name",
+    "telegramUsername": "Telegram username",
+    "noUsername": "No username set",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "nameUpdated": "Name updated",
+    "language": "Language",
+    "languageEn": "English",
+    "languageRu": "Русский",
+    "languageEs": "Español"
+  },
+  "activity": {
+    "title": "Activity",
+    "comingSoon": "Activity feed coming soon"
+  },
+  "currencyPicker": {
+    "title": "Select Currency",
+    "search": "Search currencies...",
+    "noResults": "No currencies found"
+  },
+  "loading": "Loading...",
+  "time": {
+    "justNow": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  }
+}

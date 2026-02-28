@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api, type GroupSummary } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatAmount, formatSignedAmount } from '../utils/format';
@@ -10,6 +11,7 @@ import { CurrencyPicker, CurrencyButton } from '../components/CurrencyPicker';
 
 export function Home() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [groups, setGroups] = useState<GroupSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -51,11 +53,18 @@ export function Home() {
     }
   }
 
-  const totalOwed = groups.reduce((sum, g) => (g.netBalance > 0 ? sum + g.netBalance : sum), 0);
-  const totalOwe = groups.reduce(
-    (sum, g) => (g.netBalance < 0 ? sum + Math.abs(g.netBalance) : sum),
-    0,
+  // A2: Group balances by currency
+  const balancesByCurrency = groups.reduce<Record<string, { owed: number; owe: number }>>(
+    (acc, g) => {
+      const cur = g.currency || 'USD';
+      if (!acc[cur]) acc[cur] = { owed: 0, owe: 0 };
+      if (g.netBalance > 0) acc[cur].owed += g.netBalance;
+      if (g.netBalance < 0) acc[cur].owe += Math.abs(g.netBalance);
+      return acc;
+    },
+    {},
   );
+  const hasBalances = Object.values(balancesByCurrency).some((b) => b.owed > 0 || b.owe > 0);
 
   if (loading) return <LoadingScreen />;
 
@@ -63,23 +72,27 @@ export function Home() {
     <PageLayout>
       {/* Balance Summary */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold mb-3">Splitogram</h1>
-        {(totalOwed > 0 || totalOwe > 0) && (
-          <div className="flex gap-4 text-sm">
-            {totalOwed > 0 && (
-              <div className="bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg">
-                <span className="text-green-600 dark:text-green-400 font-medium">
-                  Owed to you: {formatAmount(totalOwed)}
-                </span>
+        <h1 className="text-xl font-bold mb-3">{t('app.title')}</h1>
+        {hasBalances && (
+          <div className="flex gap-4 text-sm flex-wrap">
+            {Object.entries(balancesByCurrency).map(([currency, bal]) => (
+              <div key={currency} className="flex gap-2">
+                {bal.owed > 0 && (
+                  <div className="bg-green-50 px-3 py-2 rounded-lg">
+                    <span className="text-green-600 font-medium">
+                      {t('home.owedToYou', { amount: formatAmount(bal.owed, currency) })}
+                    </span>
+                  </div>
+                )}
+                {bal.owe > 0 && (
+                  <div className="bg-red-50 px-3 py-2 rounded-lg">
+                    <span className="text-red-600 font-medium">
+                      {t('home.youOwe', { amount: formatAmount(bal.owe, currency) })}
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-            {totalOwe > 0 && (
-              <div className="bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
-                <span className="text-red-600 dark:text-red-400 font-medium">
-                  You owe: {formatAmount(-totalOwe)}
-                </span>
-              </div>
-            )}
+            ))}
           </div>
         )}
       </div>
@@ -87,12 +100,12 @@ export function Home() {
       {/* Group List */}
       {groups.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No groups yet</p>
+          <p className="text-tg-hint mb-4">{t('home.noGroups')}</p>
           <button
             onClick={() => setShowCreate(true)}
-            className="bg-blue-500 text-white px-6 py-3 rounded-xl font-medium"
+            className="bg-tg-button text-tg-button-text px-6 py-3 rounded-xl font-medium"
           >
-            Create your first group
+            {t('home.createFirst')}
           </button>
         </div>
       ) : (
@@ -101,21 +114,19 @@ export function Home() {
             <button
               key={group.id}
               onClick={() => navigate(`/groups/${group.id}`)}
-              className="w-full text-left bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
+              className="w-full text-left bg-tg-section p-4 rounded-xl shadow-sm border border-tg-separator"
             >
               <div className="flex justify-between items-center">
                 <div>
                   <div className="font-medium">{group.name}</div>
-                  <div className="text-sm text-gray-500">
-                    {group.memberCount} {group.memberCount === 1 ? 'member' : 'members'}
+                  <div className="text-sm text-tg-hint">
+                    {t('home.member', { count: group.memberCount })}
                   </div>
                 </div>
                 {group.netBalance !== 0 && (
                   <div
                     className={`text-sm font-medium ${
-                      group.netBalance > 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
+                      group.netBalance > 0 ? 'text-green-600' : 'text-red-600'
                     }`}
                   >
                     {formatSignedAmount(group.netBalance, group.currency)}
@@ -131,7 +142,7 @@ export function Home() {
       {groups.length > 0 && !showCreate && (
         <button
           onClick={() => setShowCreate(true)}
-          className="fixed bottom-20 right-6 bg-blue-500 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl"
+          className="fixed bottom-20 right-6 bg-tg-button text-tg-button-text w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl"
         >
           +
         </button>
@@ -144,16 +155,17 @@ export function Home() {
           setShowCreate(false);
           setNewGroupName('');
         }}
-        title="Create Group"
+        title={t('createGroup.title')}
       >
         <input
           type="text"
-          placeholder="Group name"
+          placeholder={t('createGroup.placeholder')}
           value={newGroupName}
           onChange={(e) => setNewGroupName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
-          className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl mb-4 bg-transparent"
+          className="w-full p-3 border border-tg-separator rounded-xl mb-4 bg-transparent"
           autoFocus
+          maxLength={100}
         />
         <div className="mb-4">
           <CurrencyButton value={newGroupCurrency} onClick={() => setShowCurrencyPicker(true)} />
@@ -171,16 +183,16 @@ export function Home() {
               setShowCreate(false);
               setNewGroupName('');
             }}
-            className="flex-1 p-3 rounded-xl border border-gray-200 dark:border-gray-600"
+            className="flex-1 p-3 rounded-xl border border-tg-separator"
           >
-            Cancel
+            {t('createGroup.cancel')}
           </button>
           <button
             onClick={handleCreateGroup}
             disabled={creating || !newGroupName.trim()}
-            className="flex-1 p-3 rounded-xl bg-blue-500 text-white font-medium disabled:opacity-50"
+            className="flex-1 p-3 rounded-xl bg-tg-button text-tg-button-text font-medium disabled:opacity-50"
           >
-            {creating ? 'Creating...' : 'Create'}
+            {creating ? t('createGroup.creating') : t('createGroup.create')}
           </button>
         </div>
       </BottomSheet>

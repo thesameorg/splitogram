@@ -502,6 +502,79 @@ groupsApp.post('/:id/leave', async (c) => {
   return c.json({ left: true, groupId });
 });
 
+// --- Kick member (admin only) ---
+groupsApp.delete('/:id/members/:userId', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+  const targetUserId = parseInt(c.req.param('userId'), 10);
+
+  if (isNaN(groupId) || isNaN(targetUserId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  // Check caller is admin
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (membership.role !== 'admin') {
+    return c.json({ error: 'not_admin', detail: 'Only group admins can kick members' }, 403);
+  }
+
+  // Cannot kick self
+  if (user.id === targetUserId) {
+    return c.json({ error: 'cannot_kick_self', detail: 'Cannot kick yourself' }, 400);
+  }
+
+  // Check target is a member and not an admin
+  const [targetMembership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, targetUserId)))
+    .limit(1);
+
+  if (!targetMembership) {
+    return c.json(
+      { error: 'target_not_member', detail: 'User is not a member of this group' },
+      404,
+    );
+  }
+
+  if (targetMembership.role === 'admin') {
+    return c.json({ error: 'cannot_kick_admin', detail: 'Cannot kick another admin' }, 400);
+  }
+
+  // Check target's net balance is zero
+  const netBalances = await computeGroupBalances(db, groupId);
+  const targetBalance = netBalances.get(targetUserId) ?? 0;
+  if (targetBalance !== 0) {
+    return c.json({ error: 'outstanding_balance', detail: 'Member has unsettled debts.' }, 400);
+  }
+
+  await db
+    .delete(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, targetUserId)));
+
+  return c.json({ kicked: true, groupId, userId: targetUserId });
+});
+
 // --- Resolve invite code (public — no auth needed for resolving) ---
 groupsApp.get('/join/:inviteCode', async (c) => {
   const db = c.get('db');

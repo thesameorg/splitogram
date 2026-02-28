@@ -221,6 +221,12 @@ export const api = {
       body: JSON.stringify({}),
     }),
 
+  kickMember: (groupId: number, userId: number) =>
+    apiRequest<{ kicked: boolean; groupId: number; userId: number }>(
+      `/api/v1/groups/${groupId}/members/${userId}`,
+      { method: 'DELETE' },
+    ),
+
   joinGroup: (id: number, inviteCode: string) =>
     apiRequest<{ joined: boolean; groupId: number; groupName: string }>(
       `/api/v1/groups/${id}/join`,

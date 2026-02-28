@@ -8,4 +8,3 @@
   DELETE FROM groups;
   DELETE FROM users;
 ```
-

@@ -1,0 +1,138 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Пожалуйста, откройте приложение из Telegram."
+  },
+  "tabs": {
+    "groups": "Группы",
+    "activity": "Активность",
+    "account": "Аккаунт"
+  },
+  "home": {
+    "owedToYou": "Вам должны: {{amount}}",
+    "youOwe": "Вы должны: {{amount}}",
+    "noGroups": "Групп пока нет",
+    "createFirst": "Создайте первую группу",
+    "member_one": "{{count}} участник",
+    "member_few": "{{count}} участника",
+    "member_many": "{{count}} участников"
+  },
+  "createGroup": {
+    "title": "Создать группу",
+    "placeholder": "Название группы",
+    "cancel": "Отмена",
+    "create": "Создать",
+    "creating": "Создание..."
+  },
+  "group": {
+    "invite": "Пригласить",
+    "settings": "Настройки",
+    "info": "Инфо",
+    "transactions": "Транзакции",
+    "balances": "Балансы",
+    "noTransactions": "Транзакций пока нет",
+    "allSettled": "Все долги закрыты!",
+    "addExpense": "+ Добавить расход",
+    "paidBy": "Оплатил(а) {{name}}",
+    "splitAmong": "Между {{count}}",
+    "edit": "Ред.",
+    "delete": "Удалить",
+    "youOwe": "Вы должны",
+    "owesYou": "должен(на) вам",
+    "owe": "должен(на)",
+    "owes": "должен(на)",
+    "settleUp": "Рассчитаться",
+    "markAsSettled": "Отметить оплату",
+    "youPaid": "Вы заплатили {{name}}",
+    "paidYou": "{{name}} заплатил(а) вам",
+    "paid": "{{from}} заплатил(а) {{to}}",
+    "deleteConfirm": "Удалить этот расход? Балансы будут пересчитаны.",
+    "member_one": "{{count}} участник",
+    "member_few": "{{count}} участника",
+    "member_many": "{{count}} участников"
+  },
+  "groupSettings": {
+    "title": "Настройки группы",
+    "infoTitle": "Информация о группе",
+    "groupName": "Название группы",
+    "currency": "Валюта",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "inviteLink": "Ссылка-приглашение",
+    "shareInvite": "Поделиться",
+    "regenerate": "Обновить",
+    "regenerateConfirm": "Создать новую ссылку? Старая перестанет работать.",
+    "notifications": "Уведомления",
+    "muted": "Выключены",
+    "on": "Включены",
+    "members": "Участники ({{count}})",
+    "you": "вы",
+    "createdBy": "Создал(а) {{name}}",
+    "deleteGroup": "Удалить группу",
+    "leaveGroup": "Покинуть группу",
+    "deleteConfirm": "Удалить «{{name}}»? Это нельзя отменить.",
+    "deleteForceConfirm": "В группе есть нерассчитанные долги. Удалить всё равно?",
+    "leaveConfirm": "Покинуть «{{name}}»?",
+    "settingsSaved": "Настройки сохранены",
+    "inviteRegenerated": "Ссылка обновлена",
+    "kick": "Удалить",
+    "kickConfirm": "Удалить {{name}} из группы?"
+  },
+  "addExpense": {
+    "title": "Добавить расход",
+    "editTitle": "Редактировать расход",
+    "description": "Описание",
+    "descriptionPlaceholder": "За что платили?",
+    "amount": "Сумма",
+    "amountWithCurrency": "Сумма ({{currency}})",
+    "paidBy": "Кто платил",
+    "splitAmong": "Разделить между",
+    "perPerson": "{{amount}} на человека ({{count}} чел.)",
+    "submit": "Добавить расход",
+    "save": "Сохранить",
+    "saving": "Сохранение..."
+  },
+  "settleUp": {
+    "title": "Расчёт",
+    "youOwe": "Вы должны {{name}}",
+    "owesYou": "{{name}} должен(на) вам",
+    "owes": "{{from}} должен(на) {{to}}",
+    "settled": "Оплачено",
+    "note": "Комментарий (необязательно)",
+    "notePlaceholder": "например, перевод на карту",
+    "markAsPaid": "Отметить как оплачено",
+    "markAsReceived": "Подтвердить получение",
+    "settling": "Сохранение...",
+    "notFound": "Расчёт не найден"
+  },
+  "account": {
+    "title": "Аккаунт",
+    "displayName": "Имя",
+    "telegramUsername": "Имя пользователя Telegram",
+    "noUsername": "Не задано",
+    "edit": "Изменить",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "nameUpdated": "Имя обновлено",
+    "language": "Язык",
+    "languageEn": "English",
+    "languageRu": "Русский",
+    "languageEs": "Español"
+  },
+  "activity": {
+    "title": "Активность",
+    "comingSoon": "Лента активности скоро появится"
+  },
+  "currencyPicker": {
+    "title": "Выбрать валюту",
+    "search": "Поиск валюты...",
+    "noResults": "Валюта не найдена"
+  },
+  "loading": "Загрузка...",
+  "time": {
+    "justNow": "только что",
+    "minutesAgo": "{{count}} мин. назад",
+    "hoursAgo": "{{count}} ч. назад",
+    "daysAgo": "{{count}} дн. назад"
+  }
+}

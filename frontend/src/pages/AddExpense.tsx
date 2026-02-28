@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api, type GroupDetail } from '../services/api';
 import { formatAmount } from '../utils/format';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
@@ -12,6 +13,7 @@ import { ErrorBanner } from '../components/ErrorBanner';
 export function AddExpense() {
   const { id, expenseId: expenseIdParam } = useParams<{ id: string; expenseId?: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const groupId = parseInt(id ?? '', 10);
   const expenseId = expenseIdParam ? parseInt(expenseIdParam, 10) : null;
   const isEditMode = expenseId !== null;
@@ -99,7 +101,7 @@ export function AddExpense() {
   ]);
 
   useTelegramMainButton({
-    text: isEditMode ? 'Save Changes' : 'Add Expense',
+    text: isEditMode ? t('addExpense.save') : t('addExpense.submit'),
     onClick: handleSubmit,
     disabled: !canSubmit,
     loading: submitting,
@@ -122,29 +124,32 @@ export function AddExpense() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">{isEditMode ? 'Edit Expense' : 'Add Expense'}</h1>
+      <h1 className="text-xl font-bold mb-6">
+        {isEditMode ? t('addExpense.editTitle') : t('addExpense.title')}
+      </h1>
 
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       {/* Description */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">
-          Description
+        <label className="block text-sm font-medium mb-1 text-tg-hint">
+          {t('addExpense.description')}
         </label>
         <input
           type="text"
-          placeholder="What was it for?"
+          placeholder={t('addExpense.descriptionPlaceholder')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-transparent"
+          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
           autoFocus
+          maxLength={500}
         />
       </div>
 
-      {/* Amount — text input with decimal keyboard, no spinner */}
+      {/* Amount — A4: show currency in label */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">
-          Amount
+        <label className="block text-sm font-medium mb-1 text-tg-hint">
+          {t('addExpense.amountWithCurrency', { currency: group.currency })}
         </label>
         <input
           type="text"
@@ -152,19 +157,19 @@ export function AddExpense() {
           placeholder="0.00"
           value={amountStr}
           onChange={(e) => setAmountStr(e.target.value)}
-          className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-transparent text-2xl"
+          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-2xl"
         />
       </div>
 
       {/* Paid By */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">
-          Paid by
+        <label className="block text-sm font-medium mb-1 text-tg-hint">
+          {t('addExpense.paidBy')}
         </label>
         <select
           value={paidBy ?? ''}
           onChange={(e) => setPaidBy(parseInt(e.target.value, 10))}
-          className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-transparent"
+          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
           disabled={isEditMode}
         >
           {group.members.map((m) => (
@@ -177,8 +182,8 @@ export function AddExpense() {
 
       {/* Split Among */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-2 text-gray-600 dark:text-gray-400">
-          Split among
+        <label className="block text-sm font-medium mb-2 text-tg-hint">
+          {t('addExpense.splitAmong')}
         </label>
         <div className="flex flex-wrap gap-2">
           {group.members.map((m) => (
@@ -187,8 +192,8 @@ export function AddExpense() {
               onClick={() => toggleParticipant(m.userId)}
               className={`px-4 py-2 rounded-full text-sm font-medium border ${
                 selectedParticipants.has(m.userId)
-                  ? 'bg-blue-500 text-white border-blue-500'
-                  : 'bg-transparent text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-600'
+                  ? 'bg-tg-button text-tg-button-text border-tg-button'
+                  : 'bg-transparent text-tg-hint border-tg-separator'
               }`}
             >
               {m.displayName}
@@ -199,8 +204,11 @@ export function AddExpense() {
 
       {/* Per-person amount */}
       {selectedParticipants.size > 0 && amountMicro > 0 && (
-        <div className="text-center text-sm text-gray-500 mt-6">
-          {formatAmount(perPerson, group.currency)} per person ({selectedParticipants.size} people)
+        <div className="text-center text-sm text-tg-hint mt-6">
+          {t('addExpense.perPerson', {
+            amount: formatAmount(perPerson, group.currency),
+            count: selectedParticipants.size,
+          })}
         </div>
       )}
 
@@ -209,9 +217,13 @@ export function AddExpense() {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit || submitting}
-          className="w-full mt-6 bg-blue-500 text-white py-3 rounded-xl font-medium disabled:opacity-50"
+          className="w-full mt-6 bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
         >
-          {submitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Add Expense'}
+          {submitting
+            ? t('addExpense.saving')
+            : isEditMode
+              ? t('addExpense.save')
+              : t('addExpense.submit')}
         </button>
       )}
     </PageLayout>

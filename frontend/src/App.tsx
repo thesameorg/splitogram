@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from './hooks/useAuth';
 import { api, ApiError } from './services/api';
 import { AppLayout } from './components/AppLayout';
@@ -17,20 +18,13 @@ function AppContent() {
   const auth = useAuth();
   const navigate = useNavigate();
   const deepLinkHandled = useRef(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
     if (webApp) {
       webApp.ready();
       webApp.expand();
-      document.body.style.backgroundColor = webApp.backgroundColor;
-      document.body.style.color = webApp.themeParams.text_color || '#000000';
-
-      if (webApp.colorScheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
     }
   }, []);
 
@@ -76,10 +70,10 @@ function AppContent() {
 
   if (!auth.authenticated) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4 text-center">
+      <div className="flex items-center justify-center min-h-screen p-4 text-center bg-tg-bg text-tg-text">
         <div>
-          <h1 className="text-xl font-bold mb-2">Splitogram</h1>
-          <p className="text-gray-500">Please open this app from Telegram.</p>
+          <h1 className="text-xl font-bold mb-2">{t('app.title')}</h1>
+          <p className="text-tg-hint">{t('app.openFromTelegram')}</p>
         </div>
       </div>
     );

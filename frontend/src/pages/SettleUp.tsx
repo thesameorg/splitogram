@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api, type SettlementDetail } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatAmount } from '../utils/format';
@@ -10,6 +11,7 @@ import { ErrorBanner } from '../components/ErrorBanner';
 export function SettleUp() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const settlementId = parseInt(id ?? '', 10);
 
   const [settlement, setSettlement] = useState<SettlementDetail | null>(null);
@@ -59,7 +61,7 @@ export function SettleUp() {
     return (
       <PageLayout>
         <div className="text-center py-12">
-          <p className="text-red-500">{error || 'Settlement not found'}</p>
+          <p className="text-tg-destructive">{error || t('settleUp.notFound')}</p>
         </div>
       </PageLayout>
     );
@@ -67,24 +69,19 @@ export function SettleUp() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">Settle Up</h1>
+      <h1 className="text-xl font-bold mb-6">{t('settleUp.title')}</h1>
 
       {/* Settlement info */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 mb-6 text-center">
-        <div className="text-sm text-gray-500 mb-2">
-          {isDebtor ? (
-            <>
-              You owe <span className="font-medium">{settlement.to?.displayName}</span>
-            </>
-          ) : isCreditor ? (
-            <>
-              <span className="font-medium">{settlement.from?.displayName}</span> owes you
-            </>
-          ) : (
-            <>
-              {settlement.from?.displayName} owes {settlement.to?.displayName}
-            </>
-          )}
+      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator mb-6 text-center">
+        <div className="text-sm text-tg-hint mb-2">
+          {isDebtor
+            ? t('settleUp.youOwe', { name: settlement.to?.displayName })
+            : isCreditor
+              ? t('settleUp.owesYou', { name: settlement.from?.displayName })
+              : t('settleUp.owes', {
+                  from: settlement.from?.displayName,
+                  to: settlement.to?.displayName,
+                })}
         </div>
         <div className="text-3xl font-bold mb-1">
           {formatAmount(settlement.amount, settlement.currency)}
@@ -93,10 +90,10 @@ export function SettleUp() {
 
       {/* Status */}
       {isSettled && (
-        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl mb-6 text-center">
-          <div className="text-green-600 dark:text-green-400 font-medium text-lg">Settled</div>
+        <div className="bg-green-50 p-4 rounded-xl mb-6 text-center">
+          <div className="text-green-600 font-medium text-lg">{t('settleUp.settled')}</div>
           {settlement.comment && (
-            <div className="text-sm text-gray-500 mt-1">{settlement.comment}</div>
+            <div className="text-sm text-tg-hint mt-1">{settlement.comment}</div>
           )}
         </div>
       )}
@@ -107,24 +104,29 @@ export function SettleUp() {
       {!isSettled && (isDebtor || isCreditor) && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">
-              Note (optional)
+            <label className="block text-sm font-medium mb-1 text-tg-hint">
+              {t('settleUp.note')}
             </label>
             <input
               type="text"
-              placeholder="e.g., paid via bank transfer"
+              placeholder={t('settleUp.notePlaceholder')}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-transparent"
+              className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+              maxLength={500}
             />
           </div>
 
           <button
             onClick={handleMarkSettled}
             disabled={submitting}
-            className="w-full bg-blue-500 text-white py-4 rounded-xl font-medium disabled:opacity-50"
+            className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium disabled:opacity-50"
           >
-            {submitting ? 'Settling...' : isDebtor ? 'Mark as Paid' : 'Mark as Received'}
+            {submitting
+              ? t('settleUp.settling')
+              : isDebtor
+                ? t('settleUp.markAsPaid')
+                : t('settleUp.markAsReceived')}
           </button>
         </div>
       )}
