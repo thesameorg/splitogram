@@ -90,17 +90,16 @@ bun run webhook:set            # point bot webhook to tunnel
 
 ```
 Cloudflare Pages          Cloudflare Worker              Cloudflare D1 (SQLite)
-(frontend static)    →    (API + bot webhook)      →     Cloudflare KV (sessions)
-React + Vite               Hono + grammY + Drizzle        TONAPI (external REST)
-TON Connect UI
+(frontend static)    →    (API + bot webhook)      →     TONAPI (external REST)
+React + Vite + Tailwind    Hono + grammY + Drizzle
 ```
 
 - **Backend** runs as a single Cloudflare Worker handling both API routes and Telegram bot webhook
 - **Frontend** is a static React app on Cloudflare Pages
 - **Database** is Cloudflare D1 (SQLite) accessed via Drizzle ORM
-- **Sessions** stored in Cloudflare KV with 1-hour TTL
-- **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend)
-- **TON transactions** constructed on frontend via `@ton/ton`, sent via `@tonconnect/ui-react`
+- **Auth** is stateless HMAC verification of Telegram `initData` per request — no sessions, no KV
+- **Frontend UI** is plain React + Tailwind (no component library — decided Phase 3)
+- **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend, deferred to Phase 10)
 
 ### Bun Workspaces
 
@@ -161,10 +160,9 @@ app.route('/api/v1/groups', groupsApp);
 ### Request Flow
 
 1. Mini App loads → reads `initData` from TG WebApp context
-2. `POST /api/v1/auth` with initData → backend validates HMAC-SHA256 signature → creates KV session (1h TTL, auto-expires) → returns session ID
-3. All subsequent requests include `Authorization: Bearer {sessionId}`
-4. Auth middleware validates session from KV on every request
-5. Bot webhook at `POST /webhook` — grammY handles /start commands and deep links
+2. Every API request includes `initData` — backend verifies HMAC-SHA256 signature per request (stateless, no sessions)
+3. Auth middleware extracts user from verified `initData` on every request
+4. Bot webhook at `POST /webhook` — grammY handles /start commands and deep links
 
 ### Deep Links (Bot → Mini App)
 

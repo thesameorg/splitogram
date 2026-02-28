@@ -18,7 +18,7 @@ Living document. Updated as architectural decisions are made.
 | TON Connect       | `@tonconnect/ui-react`           | Official, React bindings (deferred to Phase 10)        |
 | TON verification  | TONAPI REST API (plain `fetch`)  | No SDK needed on backend (deferred to Phase 10)        |
 
-**Frontend framework/UI library:** Currently plain React + Tailwind. A decision on whether to adopt a component library (Telegram UI kit, shadcn/ui, etc.) is pending — see `work_docs/research/frontend-framework.md`.
+**Frontend framework/UI library:** Plain React + Tailwind, no component library. Decided Phase 3 — see below.
 
 ---
 
@@ -47,6 +47,18 @@ React + Vite               Hono + grammY + Drizzle        TONAPI (external REST,
 **What was removed:** KV binding from `env.ts`, session middleware, session service, KV namespace from wrangler config.
 
 **Previous approach (Phases 1-2):** `POST /api/v1/auth` validated initData, created a KV session (1h TTL), returned a session ID. All requests sent `Authorization: Bearer {sessionId}`. Auth middleware hit KV on every request to validate.
+
+---
+
+## Frontend: No Component Library (decided Phase 3)
+
+**Decision:** Stay with plain React 19 + Tailwind CSS. No component library (no shadcn/ui, no @telegram-apps/telegram-ui).
+
+**Why:** Evaluated both candidates — `@telegram-apps/telegram-ui` is unmaintained (last release Oct 2024, no React 19 support, grant-funded with no active development) and shadcn/ui adds Radix UI dependency weight, has no bottom nav component, and has known iOS WebView issues with Select. Our components are simple lists, cards, and forms — a library adds migration cost and dependency risk without meaningful benefit.
+
+**Approach:** Build a small set of reusable primitives (`<BottomTabs>`, `<BottomSheet>`, `<PageLayout>`, CSS variable theme tokens) instead. Re-evaluate if a mature, React 19-compatible Telegram UI library emerges.
+
+See `work_docs/research/3-frontend-framework.md` for full analysis.
 
 ---
 
@@ -145,7 +157,7 @@ Each has a dedicated file in `work_docs/research/`:
 
 | Topic                          | Phase | File                          |
 | ------------------------------ | ----- | ----------------------------- |
-| Frontend framework / UI lib    | 3     | `frontend-framework.md`       |
+| ~~Frontend framework / UI lib~~| 3     | `3-frontend-framework.md` — **DECIDED: no library, stay with React + Tailwind** |
 | Balance integrity rules        | 4     | `balance-integrity.md`        |
 | Themes & preference persistence| 5     | `themes-and-persistence.md`   |
 | i18n approach                  | 5     | `i18n-approach.md`            |

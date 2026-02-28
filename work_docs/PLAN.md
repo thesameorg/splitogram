@@ -101,7 +101,7 @@ All Phase 2 specs completed and archived.
 1. **Bugfix: Login-with-Telegram first-open failure** — Auth fails on first app open, works on second (per user). This is a production bug hitting every new user. Investigate and fix first.
 2. **Bugfix: Users without @username or profile image** — Verify all flows (auth, display, group members, notifications) handle missing username and missing avatar gracefully.
 3. **Architecture: Remove KV sessions, go stateless** — Telegram's `initData` is HMAC-signed and can be verified on every request server-side with zero external calls. KV sessions add latency, complexity, and a failure mode for no benefit. Remove the KV session layer. Auth becomes stateless HMAC verification per request. Remove KV binding from `env.ts`, simplify auth middleware.
-4. **RESEARCH: Frontend framework/UI library decision** — Current stack is plain React + Tailwind. Evaluate whether to adopt a component library or framework (e.g., Telegram UI kit, shadcn/ui, or similar) given upcoming needs: themes, i18n, bottom nav, form components. Decide before building new UI.
+4. ~~**RESEARCH: Frontend framework/UI library decision**~~ — **DECIDED: stay with React + Tailwind, no component library.** `@telegram-apps/telegram-ui` is unmaintained and React 19-incompatible; shadcn/ui adds Radix dependency weight with known iOS WebView issues and no bottom nav. Build small reusable primitives instead. See `work_docs/research/3-frontend-framework.md`.
 5. **Technical: Component architecture cleanup** — Audit frontend components. Split large files into focused single-responsibility `.tsx` files. Each UI element identifiable and editable in one place.
 6. **Bottom sticky navigation — three tabs:** Groups (current home), Activity (empty state initially — "coming soon" or blank), Account.
 7. **Groups screen improvements:**
@@ -331,7 +331,7 @@ Phases 4, 5, and 6 can run in parallel after Phase 3. Phase 10 has no dependency
 ## Open Decisions (to resolve via Q&A steps)
 
 - **Balance integrity after settlement** — Decide in Phase 4 Q&A (after Splitwise research)
-- **Frontend framework/UI library** — Decide in Phase 3 research (before building new UI)
+- ~~**Frontend framework/UI library**~~ — DECIDED Phase 3: no library, stay with React + Tailwind
 - **i18n approach** — Custom JSON vs `react-i18next`. Decide in Phase 5 research.
 - **User preference persistence** — localStorage vs localStorage+DB vs cookies for theme/language. Decide in Phase 5 Q&A after researching TG WebView behavior.
 - **R2 access pattern** — Public URLs vs signed URLs for images. Decide in Phase 6 research.
