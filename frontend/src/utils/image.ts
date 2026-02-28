@@ -1,3 +1,5 @@
+import { config } from '../config';
+
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_INPUT_SIZE = 20 * 1024 * 1024; // 20 MB raw input
 
@@ -74,7 +76,7 @@ export function processReceiptThumbnail(file: File): Promise<ProcessedImage> {
   return processImage(file, 200, 0.75);
 }
 
-/** Build the R2 image URL for display */
+/** Build the R2 image URL for display — points to Worker origin in production */
 export function imageUrl(key: string): string {
-  return `/r2/${key}`;
+  return `${config.apiBaseUrl}/r2/${key}`;
 }
