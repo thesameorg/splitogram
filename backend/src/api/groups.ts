@@ -13,6 +13,7 @@ import {
 import { computeGroupBalances } from './balances';
 import { CURRENCY_CODES } from '../utils/currencies';
 import { notify } from '../services/notifications';
+import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 
@@ -111,6 +112,8 @@ groupsApp.get('/', async (c) => {
       inviteCode: groups.inviteCode,
       isPair: groups.isPair,
       currency: groups.currency,
+      avatarKey: groups.avatarKey,
+      avatarEmoji: groups.avatarEmoji,
       createdAt: groups.createdAt,
       role: groupMembers.role,
     })
@@ -157,6 +160,8 @@ groupsApp.get('/', async (c) => {
     inviteCode: g.inviteCode,
     isPair: g.isPair,
     currency: g.currency,
+    avatarKey: g.avatarKey,
+    avatarEmoji: g.avatarEmoji,
     createdAt: g.createdAt,
     role: g.role,
     memberCount: countMap.get(g.id) ?? 0,
@@ -211,6 +216,7 @@ groupsApp.get('/:id', async (c) => {
       username: users.username,
       displayName: users.displayName,
       walletAddress: users.walletAddress,
+      avatarKey: users.avatarKey,
       role: groupMembers.role,
       joinedAt: groupMembers.joinedAt,
     })
@@ -224,6 +230,8 @@ groupsApp.get('/:id', async (c) => {
     inviteCode: group.inviteCode,
     isPair: group.isPair,
     currency: group.currency,
+    avatarKey: group.avatarKey,
+    avatarEmoji: group.avatarEmoji,
     createdAt: group.createdAt,
     createdBy: group.createdBy,
     muted: membership.muted,
@@ -238,6 +246,7 @@ const updateGroupSchema = z.object({
     .string()
     .refine((c) => CURRENCY_CODES.includes(c))
     .optional(),
+  avatarEmoji: z.string().max(10).nullable().optional(),
 });
 
 groupsApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
@@ -278,6 +287,7 @@ groupsApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
   const setValues: Record<string, any> = { updatedAt: new Date().toISOString() };
   if (updates.name !== undefined) setValues.name = updates.name;
   if (updates.currency !== undefined) setValues.currency = updates.currency;
+  if (updates.avatarEmoji !== undefined) setValues.avatarEmoji = updates.avatarEmoji;
 
   await db.update(groups).set(setValues).where(eq(groups.id, groupId));
 
@@ -370,6 +380,121 @@ groupsApp.post('/:id/regenerate-invite', async (c) => {
   return c.json({ inviteCode: newCode });
 });
 
+// --- Upload group avatar ---
+groupsApp.post('/:id/avatar', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership || membership.role !== 'admin') {
+    return c.json({ error: 'not_admin', detail: 'Only group admins can change avatar' }, 403);
+  }
+
+  const body = await c.req.parseBody();
+  const file = body['avatar'];
+  if (!(file instanceof File)) {
+    return c.json({ error: 'missing_file', detail: 'No avatar file provided' }, 400);
+  }
+
+  const validationError = validateUpload(file);
+  if (validationError) {
+    return c.json({ error: 'invalid_file', detail: validationError }, 400);
+  }
+
+  // Get old avatar key for cleanup
+  const [group] = await db
+    .select({ avatarKey: groups.avatarKey })
+    .from(groups)
+    .where(eq(groups.id, groupId))
+    .limit(1);
+
+  const key = generateR2Key('groups', groupId);
+  await c.env.IMAGES.put(key, await file.arrayBuffer(), {
+    httpMetadata: { contentType: 'image/jpeg' },
+  });
+
+  // Delete old avatar (best-effort)
+  if (group?.avatarKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, group.avatarKey));
+  }
+
+  // Save key and clear emoji (custom image takes priority)
+  await db
+    .update(groups)
+    .set({ avatarKey: key, avatarEmoji: null, updatedAt: new Date().toISOString() })
+    .where(eq(groups.id, groupId));
+
+  return c.json({ avatarKey: key });
+});
+
+// --- Delete group avatar ---
+groupsApp.delete('/:id/avatar', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership || membership.role !== 'admin') {
+    return c.json({ error: 'not_admin', detail: 'Only group admins can change avatar' }, 403);
+  }
+
+  const [group] = await db
+    .select({ avatarKey: groups.avatarKey })
+    .from(groups)
+    .where(eq(groups.id, groupId))
+    .limit(1);
+
+  if (group?.avatarKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, group.avatarKey));
+  }
+
+  await db
+    .update(groups)
+    .set({ avatarKey: null, updatedAt: new Date().toISOString() })
+    .where(eq(groups.id, groupId));
+
+  return c.json({ deleted: true });
+});
+
 // --- Delete group ---
 groupsApp.delete('/:id', async (c) => {
   const db = c.get('db');
@@ -419,6 +544,31 @@ groupsApp.delete('/:id', async (c) => {
       );
     }
   }
+
+  // Clean up R2 images (best-effort, fire-and-forget)
+  const [groupData] = await db
+    .select({ avatarKey: groups.avatarKey })
+    .from(groups)
+    .where(eq(groups.id, groupId))
+    .limit(1);
+
+  c.executionCtx.waitUntil(
+    (async () => {
+      // Delete group avatar
+      if (groupData?.avatarKey) {
+        await safeR2Delete(c.env.IMAGES, groupData.avatarKey);
+      }
+      // Delete all expense receipts for this group
+      const receipts = await db
+        .select({ receiptKey: expenses.receiptKey, receiptThumbKey: expenses.receiptThumbKey })
+        .from(expenses)
+        .where(eq(expenses.groupId, groupId));
+      for (const r of receipts) {
+        if (r.receiptKey) await safeR2Delete(c.env.IMAGES, r.receiptKey);
+        if (r.receiptThumbKey) await safeR2Delete(c.env.IMAGES, r.receiptThumbKey);
+      }
+    })(),
+  );
 
   // Cascade delete: expense_participants → expenses → settlements → group_members → group
   // Get expense IDs for this group

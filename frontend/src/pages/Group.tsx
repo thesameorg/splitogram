@@ -14,8 +14,11 @@ import { formatAmount } from '../utils/format';
 import { timeAgo } from '../utils/time';
 import { shareInviteLink } from '../utils/share';
 import { mergeTransactions, type TransactionItem } from '../utils/transactions';
+import { imageUrl } from '../utils/image';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
+import { Avatar } from '../components/Avatar';
+import { BottomSheet } from '../components/BottomSheet';
 
 export function Group() {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +33,7 @@ export function Group() {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
 
   useTelegramBackButton(true);
 
@@ -144,6 +148,15 @@ export function Group() {
             {formatAmount(exp.amount, group?.currency)}
           </div>
         </div>
+        {exp.receiptThumbKey && (
+          <button onClick={() => setReceiptViewKey(exp.receiptKey)} className="mt-2">
+            <img
+              src={imageUrl(exp.receiptThumbKey)}
+              alt="Receipt"
+              className="w-16 h-16 rounded-lg object-cover border border-tg-separator"
+            />
+          </button>
+        )}
         <div className="mt-2 flex justify-between items-center">
           <div className="text-xs text-tg-hint">
             {t('group.splitAmong', { count: exp.participants.length })}:{' '}
@@ -177,10 +190,18 @@ export function Group() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-xl font-bold">{group.name}</h1>
-            <div className="text-sm text-tg-hint">
-              {t('group.member', { count: group.members.length })}
+          <div className="flex items-center gap-3">
+            <Avatar
+              avatarKey={group.avatarKey}
+              emoji={group.avatarEmoji}
+              displayName={group.name}
+              size="lg"
+            />
+            <div>
+              <h1 className="text-xl font-bold">{group.name}</h1>
+              <div className="text-sm text-tg-hint">
+                {t('group.member', { count: group.members.length })}
+              </div>
             </div>
           </div>
           <div className="flex gap-2">
@@ -205,8 +226,9 @@ export function Group() {
           {group.members.map((m) => (
             <div
               key={m.userId}
-              className="bg-tg-secondary-bg px-3 py-1 rounded-full text-sm flex items-center gap-1"
+              className="bg-tg-secondary-bg px-3 py-1 rounded-full text-sm flex items-center gap-1.5"
             >
+              <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
               {m.role === 'admin' && <span title="Admin">&#9812;</span>}
               {m.displayName}
             </div>
@@ -308,6 +330,13 @@ export function Group() {
       >
         {t('group.addExpense')}
       </button>
+
+      {/* Receipt viewer */}
+      <BottomSheet open={!!receiptViewKey} onClose={() => setReceiptViewKey(null)} title="">
+        {receiptViewKey && (
+          <img src={imageUrl(receiptViewKey)} alt="Receipt" className="w-full rounded-xl" />
+        )}
+      </BottomSheet>
     </PageLayout>
   );
 }

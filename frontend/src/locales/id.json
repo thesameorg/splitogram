@@ -72,7 +72,14 @@
     "settingsSaved": "Pengaturan disimpan",
     "inviteRegenerated": "Tautan diperbarui",
     "kick": "Keluarkan",
-    "kickConfirm": "Keluarkan {{name}} dari grup?"
+    "kickConfirm": "Keluarkan {{name}} dari grup?",
+    "groupEmoji": "Ikon grup",
+    "groupPhoto": "Foto grup",
+    "changeGroupPhoto": "Ubah foto",
+    "removeGroupPhoto": "Hapus foto",
+    "emojiPicker": "Pilih emoji",
+    "groupPhotoUpdated": "Foto grup diperbarui",
+    "groupPhotoRemoved": "Foto grup dihapus"
   },
   "addExpense": {
     "title": "Tambah Pengeluaran",
@@ -86,7 +93,10 @@
     "perPerson": "{{amount}} per orang ({{count}} orang)",
     "submit": "Tambah Pengeluaran",
     "save": "Simpan",
-    "saving": "Menyimpan..."
+    "saving": "Menyimpan...",
+    "attachReceipt": "Lampirkan struk",
+    "receiptAttached": "Struk terlampir",
+    "removeReceipt": "Hapus"
   },
   "settleUp": {
     "title": "Lunasi",
@@ -110,6 +120,11 @@
     "save": "Simpan",
     "cancel": "Batal",
     "nameUpdated": "Nama diperbarui",
+    "avatarUpdated": "Foto diperbarui",
+    "avatarRemoved": "Foto dihapus",
+    "addPhoto": "Tambah foto",
+    "changePhoto": "Ubah foto",
+    "removePhoto": "Hapus",
     "language": "Bahasa"
   },
   "activity": {

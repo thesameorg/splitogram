@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api, type UserProfile } from '../services/api';
 import { PageLayout } from '../components/PageLayout';
@@ -6,19 +6,21 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { SuccessBanner } from '../components/SuccessBanner';
 import { BottomSheet } from '../components/BottomSheet';
+import { Avatar } from '../components/Avatar';
+import { validateImageFile, processAvatar } from '../utils/image';
 
 const LANGUAGES = [
-  { code: 'en', flag: '🇬🇧', name: 'English' },
-  { code: 'ru', flag: '🇷🇺', name: 'Русский' },
-  { code: 'es', flag: '🇪🇸', name: 'Español' },
-  { code: 'hi', flag: '🇮🇳', name: 'हिन्दी' },
-  { code: 'id', flag: '🇮🇩', name: 'Bahasa Indonesia' },
-  { code: 'fa', flag: '🇮🇷', name: 'فارسی' },
-  { code: 'pt', flag: '🇧🇷', name: 'Português' },
-  { code: 'uk', flag: '🇺🇦', name: 'Українська' },
-  { code: 'de', flag: '🇩🇪', name: 'Deutsch' },
-  { code: 'it', flag: '🇮🇹', name: 'Italiano' },
-  { code: 'vi', flag: '🇻🇳', name: 'Tiếng Việt' },
+  { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
+  { code: 'ru', flag: '\u{1F1F7}\u{1F1FA}', name: 'Русский' },
+  { code: 'es', flag: '\u{1F1EA}\u{1F1F8}', name: 'Español' },
+  { code: 'hi', flag: '\u{1F1EE}\u{1F1F3}', name: 'हिन्दी' },
+  { code: 'id', flag: '\u{1F1EE}\u{1F1E9}', name: 'Bahasa Indonesia' },
+  { code: 'fa', flag: '\u{1F1EE}\u{1F1F7}', name: 'فارسی' },
+  { code: 'pt', flag: '\u{1F1E7}\u{1F1F7}', name: 'Português' },
+  { code: 'uk', flag: '\u{1F1FA}\u{1F1E6}', name: 'Українська' },
+  { code: 'de', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' },
+  { code: 'it', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' },
+  { code: 'vi', flag: '\u{1F1FB}\u{1F1F3}', name: 'Tiếng Việt' },
 ] as const;
 
 export function Account() {
@@ -28,9 +30,11 @@ export function Account() {
   const [editName, setEditName] = useState('');
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showLangPicker, setShowLangPicker] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
@@ -62,6 +66,46 @@ export function Account() {
     }
   }
 
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Reset input so same file can be re-selected
+    e.target.value = '';
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setError(null);
+    try {
+      const processed = await processAvatar(file);
+      const result = await api.uploadAvatar(processed.blob);
+      setUser((prev) => (prev ? { ...prev, avatarKey: result.avatarKey } : prev));
+      setSuccess(t('account.avatarUpdated'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload avatar');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
+  async function handleAvatarDelete() {
+    if (!user?.avatarKey) return;
+    setError(null);
+    try {
+      await api.deleteAvatar();
+      setUser((prev) => (prev ? { ...prev, avatarKey: null } : prev));
+      setSuccess(t('account.avatarRemoved'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove avatar');
+    }
+  }
+
   if (loading) return <LoadingScreen />;
 
   return (
@@ -70,6 +114,42 @@ export function Account() {
 
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
       {success && <SuccessBanner message={success} onDismiss={() => setSuccess(null)} />}
+
+      {/* Avatar */}
+      <div className="flex flex-col items-center mb-6">
+        <div className="relative">
+          <Avatar avatarKey={user?.avatarKey} displayName={user?.displayName ?? ''} size="lg" />
+          {uploadingAvatar && (
+            <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+        <div className="flex gap-3 mt-3">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="text-tg-link text-sm font-medium disabled:opacity-50"
+          >
+            {user?.avatarKey ? t('account.changePhoto') : t('account.addPhoto')}
+          </button>
+          {user?.avatarKey && (
+            <button
+              onClick={handleAvatarDelete}
+              className="text-tg-destructive text-sm font-medium"
+            >
+              {t('account.removePhoto')}
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleAvatarUpload}
+          className="hidden"
+        />
+      </div>
 
       {/* Display Name */}
       <div className="mb-4">

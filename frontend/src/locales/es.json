@@ -74,7 +74,14 @@
     "settingsSaved": "Ajustes guardados",
     "inviteRegenerated": "Enlace regenerado",
     "kick": "Eliminar",
-    "kickConfirm": "¿Eliminar a {{name}} del grupo?"
+    "kickConfirm": "¿Eliminar a {{name}} del grupo?",
+    "groupEmoji": "Icono del grupo",
+    "groupPhoto": "Foto del grupo",
+    "changeGroupPhoto": "Cambiar foto",
+    "removeGroupPhoto": "Eliminar foto",
+    "emojiPicker": "Elegir emoji",
+    "groupPhotoUpdated": "Foto del grupo actualizada",
+    "groupPhotoRemoved": "Foto del grupo eliminada"
   },
   "addExpense": {
     "title": "Añadir gasto",
@@ -88,7 +95,10 @@
     "perPerson": "{{amount}} por persona ({{count}} personas)",
     "submit": "Añadir gasto",
     "save": "Guardar cambios",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "attachReceipt": "Adjuntar recibo",
+    "receiptAttached": "Recibo adjuntado",
+    "removeReceipt": "Eliminar"
   },
   "settleUp": {
     "title": "Saldar deuda",
@@ -112,6 +122,11 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "nameUpdated": "Nombre actualizado",
+    "avatarUpdated": "Foto actualizada",
+    "avatarRemoved": "Foto eliminada",
+    "addPhoto": "Añadir foto",
+    "changePhoto": "Cambiar foto",
+    "removePhoto": "Eliminar",
     "language": "Idioma"
   },
   "activity": {

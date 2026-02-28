@@ -13,6 +13,7 @@ export const users = sqliteTable(
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
     botStarted: integer('bot_started', { mode: 'boolean' }).notNull().default(false),
+    avatarKey: text('avatar_key'),
     updatedAt: text('updated_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
@@ -32,6 +33,8 @@ export const groups = sqliteTable(
     createdBy: integer('created_by')
       .notNull()
       .references(() => users.id),
+    avatarKey: text('avatar_key'),
+    avatarEmoji: text('avatar_emoji'),
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
@@ -81,6 +84,8 @@ export const expenses = sqliteTable(
       .references(() => users.id),
     amount: integer('amount').notNull(), // micro-USDT (1 USDT = 1,000,000)
     description: text('description').notNull(),
+    receiptKey: text('receipt_key'),
+    receiptThumbKey: text('receipt_thumb_key'),
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

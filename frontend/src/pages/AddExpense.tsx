@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, type GroupDetail } from '../services/api';
 import { formatAmount } from '../utils/format';
+import { validateImageFile, processReceipt, processReceiptThumbnail } from '../utils/image';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { useTelegramMainButton } from '../hooks/useTelegramMainButton';
@@ -25,6 +26,9 @@ export function AddExpense() {
   const [selectedParticipants, setSelectedParticipants] = useState<Set<number>>(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useTelegramBackButton(true);
 
@@ -73,13 +77,29 @@ export function AddExpense() {
           description: description.trim(),
           participantIds: Array.from(selectedParticipants),
         });
+        // Upload receipt if new file selected in edit mode
+        if (receiptFile) {
+          const [processed, thumb] = await Promise.all([
+            processReceipt(receiptFile),
+            processReceiptThumbnail(receiptFile),
+          ]);
+          await api.uploadReceipt(groupId, expenseId, processed.blob, thumb.blob);
+        }
       } else {
-        await api.createExpense(groupId, {
+        const result = await api.createExpense(groupId, {
           amount: amountMicro,
           description: description.trim(),
           paidBy,
           participantIds: Array.from(selectedParticipants),
         });
+        // Upload receipt after expense is created
+        if (receiptFile) {
+          const [processed, thumb] = await Promise.all([
+            processReceipt(receiptFile),
+            processReceiptThumbnail(receiptFile),
+          ]);
+          await api.uploadReceipt(groupId, result.id, processed.blob, thumb.blob);
+        }
       }
       navigate(`/groups/${groupId}`, { replace: true });
     } catch (err: any) {
@@ -97,6 +117,7 @@ export function AddExpense() {
     amountMicro,
     description,
     selectedParticipants,
+    receiptFile,
     navigate,
   ]);
 
@@ -118,6 +139,31 @@ export function AddExpense() {
       }
       return next;
     });
+  }
+
+  function handleReceiptSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setReceiptFile(file);
+    // Create preview URL
+    const url = URL.createObjectURL(file);
+    setReceiptPreview(url);
+  }
+
+  function handleRemoveReceipt() {
+    setReceiptFile(null);
+    if (receiptPreview) {
+      URL.revokeObjectURL(receiptPreview);
+      setReceiptPreview(null);
+    }
   }
 
   if (!group) return <LoadingScreen />;
@@ -200,6 +246,36 @@ export function AddExpense() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Receipt attachment */}
+      <div className="mb-4">
+        {receiptPreview ? (
+          <div className="flex items-center gap-3 p-3 bg-tg-section rounded-xl border border-tg-separator">
+            <img src={receiptPreview} alt="Receipt" className="w-12 h-12 rounded-lg object-cover" />
+            <span className="flex-1 text-sm font-medium">{t('addExpense.receiptAttached')}</span>
+            <button
+              onClick={handleRemoveReceipt}
+              className="text-tg-destructive text-sm font-medium"
+            >
+              {t('addExpense.removeReceipt')}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full p-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
+          >
+            {t('addExpense.attachReceipt')}
+          </button>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleReceiptSelect}
+          className="hidden"
+        />
       </div>
 
       {/* Per-person amount */}

@@ -9,6 +9,8 @@ function makeExpense(overrides: Partial<Expense> = {}): Expense {
     payerName: 'Alice',
     amount: 1000000,
     description: 'Lunch',
+    receiptKey: null,
+    receiptThumbKey: null,
     createdAt: '2025-01-15T12:00:00.000Z',
     participants: [{ userId: 1, displayName: 'Alice', shareAmount: 500000 }],
     ...overrides,

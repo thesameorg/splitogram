@@ -72,7 +72,14 @@
     "settingsSaved": "Đã lưu cài đặt",
     "inviteRegenerated": "Đã tạo liên kết mới",
     "kick": "Xóa",
-    "kickConfirm": "Xóa {{name}} khỏi nhóm?"
+    "kickConfirm": "Xóa {{name}} khỏi nhóm?",
+    "groupEmoji": "Biểu tượng nhóm",
+    "groupPhoto": "Ảnh nhóm",
+    "changeGroupPhoto": "Đổi ảnh",
+    "removeGroupPhoto": "Xóa ảnh",
+    "emojiPicker": "Chọn emoji",
+    "groupPhotoUpdated": "Đã cập nhật ảnh nhóm",
+    "groupPhotoRemoved": "Đã xóa ảnh nhóm"
   },
   "addExpense": {
     "title": "Thêm Chi phí",
@@ -86,7 +93,10 @@
     "perPerson": "{{amount}} mỗi người ({{count}} người)",
     "submit": "Thêm Chi phí",
     "save": "Lưu",
-    "saving": "Đang lưu..."
+    "saving": "Đang lưu...",
+    "attachReceipt": "Đính kèm hóa đơn",
+    "receiptAttached": "Đã đính kèm hóa đơn",
+    "removeReceipt": "Xóa"
   },
   "settleUp": {
     "title": "Thanh toán",
@@ -110,6 +120,11 @@
     "save": "Lưu",
     "cancel": "Hủy",
     "nameUpdated": "Đã cập nhật tên",
+    "avatarUpdated": "Đã cập nhật ảnh",
+    "avatarRemoved": "Đã xóa ảnh",
+    "addPhoto": "Thêm ảnh",
+    "changePhoto": "Đổi ảnh",
+    "removePhoto": "Xóa",
     "language": "Ngôn ngữ"
   },
   "activity": {

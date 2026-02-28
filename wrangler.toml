@@ -21,3 +21,7 @@ PAGES_URL = "https://splitogram.pages.dev"
 # USDT_MASTER_ADDRESS = "kQBqSpvo4S87mX9tjHaG4zhYZeORhVhMapBJpnMZ64jV_JBr"  # testnet USDT
 
 pages_build_output_dir = "frontend/dist"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "splitogram-images"

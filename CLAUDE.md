@@ -115,10 +115,10 @@ backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
 ├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking
 ├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
-├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements)
+├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, r2)
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
 ├── services/             # telegram-auth, notifications, debt-solver
-├── utils/                # currencies, format (shared with frontend)
+├── utils/                # currencies, format (shared with frontend), r2 (key gen, safe delete)
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
 │   └── schema.ts         # All table definitions
@@ -132,7 +132,7 @@ frontend/src/
 ├── services/api.ts       # Fetch wrapper with initData auth header
 ├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
 ├── utils/                # currencies, format, time, share, transactions, image
-├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker
+├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker, Avatar
 └── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
 ```
 

@@ -76,7 +76,14 @@
     "settingsSaved": "Настройки сохранены",
     "inviteRegenerated": "Ссылка обновлена",
     "kick": "Удалить",
-    "kickConfirm": "Удалить {{name}} из группы?"
+    "kickConfirm": "Удалить {{name}} из группы?",
+    "groupEmoji": "Иконка группы",
+    "groupPhoto": "Фото группы",
+    "changeGroupPhoto": "Изменить фото",
+    "removeGroupPhoto": "Удалить фото",
+    "emojiPicker": "Выберите эмодзи",
+    "groupPhotoUpdated": "Фото группы обновлено",
+    "groupPhotoRemoved": "Фото группы удалено"
   },
   "addExpense": {
     "title": "Добавить расход",
@@ -90,7 +97,10 @@
     "perPerson": "{{amount}} на человека ({{count}} чел.)",
     "submit": "Добавить расход",
     "save": "Сохранить",
-    "saving": "Сохранение..."
+    "saving": "Сохранение...",
+    "attachReceipt": "Прикрепить чек",
+    "receiptAttached": "Чек прикреплён",
+    "removeReceipt": "Удалить"
   },
   "settleUp": {
     "title": "Расчёт",
@@ -114,6 +124,11 @@
     "save": "Сохранить",
     "cancel": "Отмена",
     "nameUpdated": "Имя обновлено",
+    "avatarUpdated": "Фото обновлено",
+    "avatarRemoved": "Фото удалено",
+    "addPhoto": "Добавить фото",
+    "changePhoto": "Изменить фото",
+    "removePhoto": "Удалить",
     "language": "Язык"
   },
   "activity": {

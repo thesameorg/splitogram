@@ -16,8 +16,9 @@ function getInitData(): string | null {
 }
 
 export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const isFormData = options.body instanceof FormData;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string>),
   };
 
@@ -50,6 +51,8 @@ export interface GroupSummary {
   inviteCode: string;
   isPair: boolean;
   currency: string;
+  avatarKey: string | null;
+  avatarEmoji: string | null;
   createdAt: string;
   role: string;
   memberCount: number;
@@ -62,6 +65,7 @@ export interface GroupMember {
   username: string | null;
   displayName: string;
   walletAddress: string | null;
+  avatarKey: string | null;
   role: string;
   joinedAt: string;
 }
@@ -72,6 +76,8 @@ export interface GroupDetail {
   inviteCode: string;
   isPair: boolean;
   currency: string;
+  avatarKey: string | null;
+  avatarEmoji: string | null;
   createdAt: string;
   createdBy: number;
   muted: boolean;
@@ -90,6 +96,8 @@ export interface Expense {
   payerName: string;
   amount: number;
   description: string;
+  receiptKey: string | null;
+  receiptThumbKey: string | null;
   createdAt: string;
   participants: ExpenseParticipant[];
 }
@@ -160,6 +168,7 @@ export interface UserProfile {
   telegramId: number;
   displayName: string;
   username: string | null;
+  avatarKey: string | null;
 }
 
 // --- API Functions ---
@@ -179,6 +188,17 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+  uploadAvatar: (blob: Blob) => {
+    const formData = new FormData();
+    formData.append('avatar', blob, 'avatar.jpg');
+    return apiRequest<{ avatarKey: string }>('/api/v1/users/me/avatar', {
+      method: 'POST',
+      headers: {},
+      body: formData,
+    });
+  },
+  deleteAvatar: () =>
+    apiRequest<{ deleted: boolean }>('/api/v1/users/me/avatar', { method: 'DELETE' }),
 
   // Groups
   listGroups: () => apiRequest<{ groups: GroupSummary[] }>('/api/v1/groups'),
@@ -191,11 +211,26 @@ export const api = {
 
   getGroup: (id: number) => apiRequest<GroupDetail>(`/api/v1/groups/${id}`),
 
-  updateGroup: (id: number, data: { name?: string; currency?: string }) =>
+  updateGroup: (
+    id: number,
+    data: { name?: string; currency?: string; avatarEmoji?: string | null },
+  ) =>
     apiRequest<{ id: number; name: string; currency: string; inviteCode: string }>(
       `/api/v1/groups/${id}`,
       { method: 'PATCH', body: JSON.stringify(data) },
     ),
+
+  uploadGroupAvatar: (groupId: number, blob: Blob) => {
+    const formData = new FormData();
+    formData.append('avatar', blob, 'avatar.jpg');
+    return apiRequest<{ avatarKey: string }>(`/api/v1/groups/${groupId}/avatar`, {
+      method: 'POST',
+      headers: {},
+      body: formData,
+    });
+  },
+  deleteGroupAvatar: (groupId: number) =>
+    apiRequest<{ deleted: boolean }>(`/api/v1/groups/${groupId}/avatar`, { method: 'DELETE' }),
 
   toggleMute: (id: number) =>
     apiRequest<{ muted: boolean }>(`/api/v1/groups/${id}/mute`, {
@@ -268,6 +303,20 @@ export const api = {
       `/api/v1/groups/${groupId}/expenses/${expenseId}`,
       { method: 'DELETE' },
     ),
+
+  uploadReceipt: (groupId: number, expenseId: number, receipt: Blob, thumbnail: Blob) => {
+    const formData = new FormData();
+    formData.append('receipt', receipt, 'receipt.jpg');
+    formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
+    return apiRequest<{ receiptKey: string; receiptThumbKey: string | null }>(
+      `/api/v1/groups/${groupId}/expenses/${expenseId}/receipt`,
+      { method: 'POST', headers: {}, body: formData },
+    );
+  },
+  deleteReceipt: (groupId: number, expenseId: number) =>
+    apiRequest<{ deleted: boolean }>(`/api/v1/groups/${groupId}/expenses/${expenseId}/receipt`, {
+      method: 'DELETE',
+    }),
 
   // Balances
   getBalances: (groupId: number) =>

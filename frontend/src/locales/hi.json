@@ -74,7 +74,14 @@
     "settingsSaved": "सेटिंग्स सहेजी गईं",
     "inviteRegenerated": "लिंक अपडेट हो गया",
     "kick": "हटाएँ",
-    "kickConfirm": "{{name}} को समूह से हटाएँ?"
+    "kickConfirm": "{{name}} को समूह से हटाएँ?",
+    "groupEmoji": "समूह आइकन",
+    "groupPhoto": "समूह फ़ोटो",
+    "changeGroupPhoto": "फ़ोटो बदलें",
+    "removeGroupPhoto": "फ़ोटो हटाएँ",
+    "emojiPicker": "इमोजी चुनें",
+    "groupPhotoUpdated": "समूह फ़ोटो अपडेट हो गई",
+    "groupPhotoRemoved": "समूह फ़ोटो हटा दी गई"
   },
   "addExpense": {
     "title": "खर्च जोड़ें",
@@ -88,7 +95,10 @@
     "perPerson": "{{amount}} प्रति व्यक्ति ({{count}} लोग)",
     "submit": "खर्च जोड़ें",
     "save": "सहेजें",
-    "saving": "सहेज रहे हैं..."
+    "saving": "सहेज रहे हैं...",
+    "attachReceipt": "रसीद संलग्न करें",
+    "receiptAttached": "रसीद संलग्न है",
+    "removeReceipt": "हटाएँ"
   },
   "settleUp": {
     "title": "हिसाब करें",
@@ -112,6 +122,11 @@
     "save": "सहेजें",
     "cancel": "रद्द करें",
     "nameUpdated": "नाम अपडेट हो गया",
+    "avatarUpdated": "फ़ोटो अपडेट हो गई",
+    "avatarRemoved": "फ़ोटो हटा दी गई",
+    "addPhoto": "फ़ोटो जोड़ें",
+    "changePhoto": "फ़ोटो बदलें",
+    "removePhoto": "हटाएँ",
     "language": "भाषा"
   },
   "activity": {

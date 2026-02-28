@@ -76,7 +76,14 @@
     "settingsSaved": "Налаштування збережені",
     "inviteRegenerated": "Посилання оновлено",
     "kick": "Видалити",
-    "kickConfirm": "Видалити {{name}} з групи?"
+    "kickConfirm": "Видалити {{name}} з групи?",
+    "groupEmoji": "Іконка групи",
+    "groupPhoto": "Фото групи",
+    "changeGroupPhoto": "Змінити фото",
+    "removeGroupPhoto": "Видалити фото",
+    "emojiPicker": "Оберіть емодзі",
+    "groupPhotoUpdated": "Фото групи оновлено",
+    "groupPhotoRemoved": "Фото групи видалено"
   },
   "addExpense": {
     "title": "Додати витрату",
@@ -90,7 +97,10 @@
     "perPerson": "{{amount}} на людину ({{count}} осіб)",
     "submit": "Додати витрату",
     "save": "Зберегти",
-    "saving": "Збереження..."
+    "saving": "Збереження...",
+    "attachReceipt": "Прикріпити чек",
+    "receiptAttached": "Чек прикріплено",
+    "removeReceipt": "Видалити"
   },
   "settleUp": {
     "title": "Розрахунок",
@@ -114,6 +124,11 @@
     "save": "Зберегти",
     "cancel": "Скасувати",
     "nameUpdated": "Ім'я оновлено",
+    "avatarUpdated": "Фото оновлено",
+    "avatarRemoved": "Фото видалено",
+    "addPhoto": "Додати фото",
+    "changePhoto": "Змінити фото",
+    "removePhoto": "Видалити",
     "language": "Мова"
   },
   "activity": {

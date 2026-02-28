@@ -212,36 +212,52 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 6: Images & Storage
+## Phase 6: Images & Storage — DONE
 
 **Goal:** User/group avatars and expense receipt attachments via Cloudflare R2.
 
-**Key decisions (see `work_docs/research/6-image-storage-r2.md`):**
+**What was built:**
 
-- One R2 bucket (`splitogram-images`) with path prefixes (`avatars/`, `groups/`, `receipts/`)
-- Worker-served via `GET /r2/*` route — no public bucket, no signed URLs
-- Client-side image processing (resize, compress, EXIF strip) via native Canvas API — zero new dependencies
-- Client-side thumbnail generation for receipts — no server-side image processing
-- DB columns on existing tables (no separate images table)
+- **R2 infrastructure:**
+  - R2 bucket `splitogram-images` with `IMAGES` binding in `wrangler.toml`
+  - Worker-served images via `GET /r2/*` route with `Cache-Control: public, max-age=31536000, immutable`
+  - Vite dev proxy for `/r2` pointing to wrangler
+  - `backend/src/utils/r2.ts` — shared R2 utilities (key generation, safe delete, upload validation)
+- **Client-side image processing (`frontend/src/utils/image.ts`):**
+  - `processImage()` pipeline: load → resize → strip EXIF → JPEG blob via Canvas API
+  - `processAvatar()` (256px, 0.80 quality), `processReceipt()` (1200px, 0.85), `processReceiptThumbnail()` (200px, 0.75)
+  - `validateImageFile()` — type + size validation (20MB input limit, JPEG/PNG/WebP)
+  - Zero new dependencies — all native Canvas API
+- **DB migration 0004:**
+  - `users.avatar_key`, `groups.avatar_key`, `groups.avatar_emoji`
+  - `expenses.receipt_key`, `expenses.receipt_thumb_key`
+- **User avatars:**
+  - Upload: `POST /api/v1/users/me/avatar` (multipart FormData, 5MB server limit)
+  - Delete: `DELETE /api/v1/users/me/avatar`
+  - Old avatar auto-deleted from R2 on re-upload
+  - `Avatar` component with initials fallback, used on Account page + member lists (Group, GroupSettings)
+- **Group avatars:**
+  - Emoji picker (20 preset emojis) on GroupSettings page
+  - Custom image upload: `POST /api/v1/groups/:id/avatar` (admin only)
+  - Delete: `DELETE /api/v1/groups/:id/avatar`
+  - Custom image clears emoji, emoji clears image
+  - Displayed on Home page group list + Group page header
+- **Expense receipt attachments:**
+  - Optional image on AddExpense page with preview
+  - Upload: `POST /api/v1/groups/:id/expenses/:expenseId/receipt` (original + thumbnail)
+  - Delete: `DELETE /api/v1/groups/:id/expenses/:expenseId/receipt`
+  - Client-side thumbnail generation (200px)
+  - Thumbnail displayed in transaction list, full image on tap in BottomSheet
+- **R2 cleanup on delete:**
+  - Expense deleted → receipt + thumbnail deleted from R2
+  - Group deleted → group avatar + all expense receipts batch deleted
+  - Avatar re-uploaded → old avatar deleted
+  - All cleanup is best-effort via `waitUntil()`, never blocks DB operations
+- **i18n:** All new UI strings translated to all 11 languages
 
-**Steps:**
+**DB migrations:** 0004 (avatar_key, avatar_emoji, receipt_key, receipt_thumb_key)
 
-1. ~~**RESEARCH: Cloudflare R2 with Workers**~~ — **DECIDED.** See `work_docs/research/6-image-storage-r2.md`.
-2. **R2 infrastructure setup** — Create bucket, add R2 binding to `wrangler.toml` + `Env` type, add `/r2/*` serving route with streaming + immutable cache headers, add Vite dev proxy for `/r2`, update CI/CD deploy pipeline.
-3. **Client-side image processing utility** — `frontend/src/utils/image.ts`: `processImage()` pipeline (load → resize → strip EXIF → JPEG blob via Canvas), `processAvatar()` (256px), `processReceipt()` (1200px) + `processReceiptThumbnail()` (200px), `validateImageFile()`. Zero dependencies.
-4. **DB migration 0004** — Add columns: `users.avatar_key`, `groups.avatar_key`, `groups.avatar_emoji`, `expenses.receipt_key`, `expenses.receipt_thumb_key`.
-5. **User avatars** — Upload endpoint `POST /api/v1/users/me/avatar` (multipart FormData), delete old avatar from R2 on re-upload, display on Account page + member lists throughout app.
-6. **Group avatars** — Emoji picker for quick group icons (stored as `avatar_emoji`), optional custom image upload `POST /api/v1/groups/:id/avatar`, display on Home page group list + Group page header.
-7. **Expense receipt attachments** — Optional image on AddExpense page, upload both original + thumbnail via `POST /api/v1/groups/:id/expenses` (extended), display thumbnail in transaction list, full image on tap. JPG, PNG, WebP only.
-8. **Cleanup on delete** — Delete R2 objects when: avatar re-uploaded (old deleted), expense deleted, group deleted (batch delete receipts). Best-effort: log errors, never block DB deletion.
-
-**Success criteria:**
-
-- User and group avatars display throughout the app
-- Receipt images upload and display correctly on expenses
-- No orphaned files in R2 after deletion
-- Thumbnails load fast in transaction lists
-- Zero new npm dependencies for image handling
+**Tests:** All 50 tests passing (6 backend + 44 frontend). Zero new dependencies.
 
 ---
 

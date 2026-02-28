@@ -8,6 +8,7 @@ import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { BottomSheet } from '../components/BottomSheet';
 import { CurrencyPicker, CurrencyButton } from '../components/CurrencyPicker';
+import { Avatar } from '../components/Avatar';
 
 export function Home() {
   const navigate = useNavigate();
@@ -117,10 +118,18 @@ export function Home() {
               className="w-full text-left bg-tg-section p-4 rounded-xl shadow-sm border border-tg-separator"
             >
               <div className="flex justify-between items-center">
-                <div>
-                  <div className="font-medium">{group.name}</div>
-                  <div className="text-sm text-tg-hint">
-                    {t('home.member', { count: group.memberCount })}
+                <div className="flex items-center gap-3">
+                  <Avatar
+                    avatarKey={group.avatarKey}
+                    emoji={group.avatarEmoji}
+                    displayName={group.name}
+                    size="md"
+                  />
+                  <div>
+                    <div className="font-medium">{group.name}</div>
+                    <div className="text-sm text-tg-hint">
+                      {t('home.member', { count: group.memberCount })}
+                    </div>
                   </div>
                 </div>
                 {group.netBalance !== 0 && (

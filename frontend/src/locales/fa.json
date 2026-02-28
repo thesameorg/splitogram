@@ -74,7 +74,14 @@
     "settingsSaved": "تنظیمات ذخیره شد",
     "inviteRegenerated": "لینک به‌روز شد",
     "kick": "حذف",
-    "kickConfirm": "{{name}} از گروه حذف شود؟"
+    "kickConfirm": "{{name}} از گروه حذف شود؟",
+    "groupEmoji": "آیکون گروه",
+    "groupPhoto": "عکس گروه",
+    "changeGroupPhoto": "تغییر عکس",
+    "removeGroupPhoto": "حذف عکس",
+    "emojiPicker": "انتخاب ایموجی",
+    "groupPhotoUpdated": "عکس گروه به‌روز شد",
+    "groupPhotoRemoved": "عکس گروه حذف شد"
   },
   "addExpense": {
     "title": "افزودن هزینه",
@@ -88,7 +95,10 @@
     "perPerson": "{{amount}} به ازای هر نفر ({{count}} نفر)",
     "submit": "افزودن هزینه",
     "save": "ذخیره",
-    "saving": "در حال ذخیره..."
+    "saving": "در حال ذخیره...",
+    "attachReceipt": "پیوست رسید",
+    "receiptAttached": "رسید پیوست شد",
+    "removeReceipt": "حذف"
   },
   "settleUp": {
     "title": "تسویه حساب",
@@ -112,6 +122,11 @@
     "save": "ذخیره",
     "cancel": "لغو",
     "nameUpdated": "نام به‌روز شد",
+    "avatarUpdated": "عکس به‌روز شد",
+    "avatarRemoved": "عکس حذف شد",
+    "addPhoto": "افزودن عکس",
+    "changePhoto": "تغییر عکس",
+    "removePhoto": "حذف",
     "language": "زبان"
   },
   "activity": {

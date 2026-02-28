@@ -74,7 +74,14 @@
     "settingsSaved": "Settings saved",
     "inviteRegenerated": "Invite link regenerated",
     "kick": "Remove",
-    "kickConfirm": "Remove {{name}} from the group?"
+    "kickConfirm": "Remove {{name}} from the group?",
+    "groupEmoji": "Group icon",
+    "groupPhoto": "Group photo",
+    "changeGroupPhoto": "Change photo",
+    "removeGroupPhoto": "Remove photo",
+    "emojiPicker": "Choose emoji",
+    "groupPhotoUpdated": "Group photo updated",
+    "groupPhotoRemoved": "Group photo removed"
   },
   "addExpense": {
     "title": "Add Expense",
@@ -88,7 +95,10 @@
     "perPerson": "{{amount}} per person ({{count}} people)",
     "submit": "Add Expense",
     "save": "Save Changes",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "attachReceipt": "Attach receipt",
+    "receiptAttached": "Receipt attached",
+    "removeReceipt": "Remove"
   },
   "settleUp": {
     "title": "Settle Up",
@@ -112,6 +122,11 @@
     "save": "Save",
     "cancel": "Cancel",
     "nameUpdated": "Name updated",
+    "avatarUpdated": "Photo updated",
+    "avatarRemoved": "Photo removed",
+    "addPhoto": "Add photo",
+    "changePhoto": "Change photo",
+    "removePhoto": "Remove",
     "language": "Language"
   },
   "activity": {

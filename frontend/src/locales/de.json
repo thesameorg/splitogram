@@ -74,7 +74,14 @@
     "settingsSaved": "Einstellungen gespeichert",
     "inviteRegenerated": "Link wurde erneuert",
     "kick": "Entfernen",
-    "kickConfirm": "{{name}} aus der Gruppe entfernen?"
+    "kickConfirm": "{{name}} aus der Gruppe entfernen?",
+    "groupEmoji": "Gruppen-Icon",
+    "groupPhoto": "Gruppenfoto",
+    "changeGroupPhoto": "Foto ändern",
+    "removeGroupPhoto": "Foto entfernen",
+    "emojiPicker": "Emoji wählen",
+    "groupPhotoUpdated": "Gruppenfoto aktualisiert",
+    "groupPhotoRemoved": "Gruppenfoto entfernt"
   },
   "addExpense": {
     "title": "Ausgabe hinzufügen",
@@ -88,7 +95,10 @@
     "perPerson": "{{amount}} pro Person ({{count}} Personen)",
     "submit": "Ausgabe hinzufügen",
     "save": "Speichern",
-    "saving": "Wird gespeichert..."
+    "saving": "Wird gespeichert...",
+    "attachReceipt": "Beleg anhängen",
+    "receiptAttached": "Beleg angehängt",
+    "removeReceipt": "Entfernen"
   },
   "settleUp": {
     "title": "Begleichen",
@@ -112,6 +122,11 @@
     "save": "Speichern",
     "cancel": "Abbrechen",
     "nameUpdated": "Name aktualisiert",
+    "avatarUpdated": "Foto aktualisiert",
+    "avatarRemoved": "Foto entfernt",
+    "addPhoto": "Foto hinzufügen",
+    "changePhoto": "Foto ändern",
+    "removePhoto": "Entfernen",
     "language": "Sprache"
   },
   "activity": {

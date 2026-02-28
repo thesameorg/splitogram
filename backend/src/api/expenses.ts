@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { expenses, expenseParticipants, groupMembers, groups, users } from '../db/schema';
 import { notify } from '../services/notifications';
+import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 
@@ -232,6 +233,8 @@ expensesApp.get('/', async (c) => {
       payerName: users.displayName,
       amount: expenses.amount,
       description: expenses.description,
+      receiptKey: expenses.receiptKey,
+      receiptThumbKey: expenses.receiptThumbKey,
       createdAt: expenses.createdAt,
     })
     .from(expenses)
@@ -434,10 +437,181 @@ expensesApp.delete('/:expenseId', async (c) => {
     );
   }
 
+  // Clean up receipt from R2 (best-effort)
+  if (expense.receiptKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, expense.receiptKey));
+  }
+  if (expense.receiptThumbKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, expense.receiptThumbKey));
+  }
+
   // expense_participants cascade-deletes via FK onDelete: 'cascade'
   await db.delete(expenses).where(eq(expenses.id, expenseId));
 
   return c.json({ id: expenseId, deleted: true });
+});
+
+// --- Upload receipt for expense ---
+expensesApp.post('/:expenseId/receipt', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const expenseId = parseInt(c.req.param('expenseId'), 10);
+
+  if (isNaN(groupId) || isNaN(expenseId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
+  }
+
+  const [currentUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!currentUser) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [expense] = await db
+    .select()
+    .from(expenses)
+    .where(and(eq(expenses.id, expenseId), eq(expenses.groupId, groupId)))
+    .limit(1);
+
+  if (!expense) {
+    return c.json({ error: 'expense_not_found', detail: 'Expense not found' }, 404);
+  }
+
+  // Only creator or group admin can upload receipt
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (expense.paidBy !== currentUser.id && membership.role !== 'admin') {
+    return c.json(
+      {
+        error: 'not_authorized',
+        detail: 'Only the expense creator or group admin can upload receipt',
+      },
+      403,
+    );
+  }
+
+  const body = await c.req.parseBody();
+  const receipt = body['receipt'];
+  const thumbnail = body['thumbnail'];
+
+  if (!(receipt instanceof File)) {
+    return c.json({ error: 'missing_file', detail: 'No receipt file provided' }, 400);
+  }
+
+  const validationError = validateUpload(receipt);
+  if (validationError) {
+    return c.json({ error: 'invalid_file', detail: validationError }, 400);
+  }
+
+  // Upload receipt to R2
+  const receiptKey = generateR2Key('receipts', expenseId);
+  await c.env.IMAGES.put(receiptKey, await receipt.arrayBuffer(), {
+    httpMetadata: { contentType: 'image/jpeg' },
+  });
+
+  // Upload thumbnail if provided
+  let thumbKey: string | null = null;
+  if (thumbnail instanceof File) {
+    thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
+    await c.env.IMAGES.put(thumbKey, await thumbnail.arrayBuffer(), {
+      httpMetadata: { contentType: 'image/jpeg' },
+    });
+  }
+
+  // Delete old receipt from R2 (best-effort)
+  if (expense.receiptKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, expense.receiptKey));
+  }
+  if (expense.receiptThumbKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, expense.receiptThumbKey));
+  }
+
+  // Save keys in DB
+  await db
+    .update(expenses)
+    .set({ receiptKey, receiptThumbKey: thumbKey })
+    .where(eq(expenses.id, expenseId));
+
+  return c.json({ receiptKey, receiptThumbKey: thumbKey });
+});
+
+// --- Delete receipt from expense ---
+expensesApp.delete('/:expenseId/receipt', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const expenseId = parseInt(c.req.param('expenseId'), 10);
+
+  if (isNaN(groupId) || isNaN(expenseId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
+  }
+
+  const [currentUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!currentUser) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [expense] = await db
+    .select()
+    .from(expenses)
+    .where(and(eq(expenses.id, expenseId), eq(expenses.groupId, groupId)))
+    .limit(1);
+
+  if (!expense) {
+    return c.json({ error: 'expense_not_found', detail: 'Expense not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  if (expense.paidBy !== currentUser.id && membership.role !== 'admin') {
+    return c.json(
+      {
+        error: 'not_authorized',
+        detail: 'Only the expense creator or group admin can delete receipt',
+      },
+      403,
+    );
+  }
+
+  if (expense.receiptKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, expense.receiptKey));
+  }
+  if (expense.receiptThumbKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, expense.receiptThumbKey));
+  }
+
+  await db
+    .update(expenses)
+    .set({ receiptKey: null, receiptThumbKey: null })
+    .where(eq(expenses.id, expenseId));
+
+  return c.json({ deleted: true });
 });
 
 export { expensesApp };

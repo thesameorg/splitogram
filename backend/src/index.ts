@@ -9,6 +9,7 @@ import { expensesApp } from './api/expenses';
 import { balancesApp } from './api/balances';
 import { settlementsApp } from './api/settlements';
 import { usersApp } from './api/users';
+import { r2App } from './api/r2';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
 import type { Env } from './env';
@@ -42,6 +43,9 @@ app.use(
 app.get('/api/health', healthHandler);
 app.post('/webhook', handleWebhook);
 app.post('/api/v1/auth', authHandler);
+
+// --- R2 image serving (public, cached) ---
+app.route('/r2', r2App);
 
 // --- Protected endpoints ---
 // Groups

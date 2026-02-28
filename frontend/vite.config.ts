@@ -10,6 +10,7 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:8787',
       '/webhook': 'http://localhost:8787',
+      '/r2': 'http://localhost:8787',
     },
   },
   build: {

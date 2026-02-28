@@ -1,15 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, type GroupDetail, ApiError } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { shareInviteLink } from '../utils/share';
+import { validateImageFile, processAvatar } from '../utils/image';
 import { CurrencyPicker, CurrencyButton } from '../components/CurrencyPicker';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { SuccessBanner } from '../components/SuccessBanner';
+import { Avatar } from '../components/Avatar';
+import { BottomSheet } from '../components/BottomSheet';
+
+const GROUP_EMOJIS = [
+  '\u{1F3E0}',
+  '\u{2708}\u{FE0F}',
+  '\u{1F37D}\u{FE0F}',
+  '\u{1F3D5}\u{FE0F}',
+  '\u{1F3EB}',
+  '\u{1F3E2}',
+  '\u{1F3C0}',
+  '\u{1F3B5}',
+  '\u{1F697}',
+  '\u{1F3AE}',
+  '\u{1F4BC}',
+  '\u{1F4DA}',
+  '\u{1F389}',
+  '\u{2615}',
+  '\u{1F3D6}\u{FE0F}',
+  '\u{1F3B2}',
+  '\u{1F4B0}',
+  '\u{1F6D2}',
+  '\u{1F3CB}\u{FE0F}',
+  '\u{2764}\u{FE0F}',
+];
 
 export function GroupSettings() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +54,9 @@ export function GroupSettings() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useTelegramBackButton(true);
 
@@ -91,6 +120,62 @@ export function GroupSettings() {
     shareInviteLink(group.inviteCode, group.name);
   }
 
+  async function handleSelectEmoji(emoji: string) {
+    setShowEmojiPicker(false);
+    setError(null);
+    try {
+      await api.updateGroup(groupId, { avatarEmoji: emoji });
+      setGroup((prev) => (prev ? { ...prev, avatarEmoji: emoji, avatarKey: null } : prev));
+    } catch (err: any) {
+      setError(err.message || 'Failed to set emoji');
+    }
+  }
+
+  async function handleGroupAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setError(null);
+    try {
+      const processed = await processAvatar(file);
+      const result = await api.uploadGroupAvatar(groupId, processed.blob);
+      setGroup((prev) =>
+        prev ? { ...prev, avatarKey: result.avatarKey, avatarEmoji: null } : prev,
+      );
+      setSuccess(t('groupSettings.groupPhotoUpdated'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload group photo');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
+  async function handleRemoveGroupAvatar() {
+    setError(null);
+    try {
+      if (group?.avatarKey) {
+        await api.deleteGroupAvatar(groupId);
+      }
+      if (group?.avatarEmoji) {
+        await api.updateGroup(groupId, { avatarEmoji: null });
+      }
+      setGroup((prev) => (prev ? { ...prev, avatarKey: null, avatarEmoji: null } : prev));
+      setSuccess(t('groupSettings.groupPhotoRemoved'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove group photo');
+    }
+  }
+
   async function handleDeleteGroup() {
     if (!confirm(t('groupSettings.deleteConfirm', { name: group?.name }))) return;
     setError(null);
@@ -149,6 +234,57 @@ export function GroupSettings() {
 
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
       {success && <SuccessBanner message={success} onDismiss={() => setSuccess(null)} />}
+
+      {/* Group avatar */}
+      <div className="flex flex-col items-center mb-6">
+        <div className="relative">
+          <Avatar
+            avatarKey={group.avatarKey}
+            emoji={group.avatarEmoji}
+            displayName={group.name}
+            size="lg"
+          />
+          {uploadingAvatar && (
+            <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+        {isAdmin && (
+          <div className="flex gap-3 mt-3">
+            <button
+              onClick={() => setShowEmojiPicker(true)}
+              className="text-tg-link text-sm font-medium"
+            >
+              {t('groupSettings.emojiPicker')}
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="text-tg-link text-sm font-medium disabled:opacity-50"
+            >
+              {group.avatarKey
+                ? t('groupSettings.changeGroupPhoto')
+                : t('groupSettings.groupPhoto')}
+            </button>
+            {(group.avatarKey || group.avatarEmoji) && (
+              <button
+                onClick={handleRemoveGroupAvatar}
+                className="text-tg-destructive text-sm font-medium"
+              >
+                {t('groupSettings.removeGroupPhoto')}
+              </button>
+            )}
+          </div>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleGroupAvatarUpload}
+          className="hidden"
+        />
+      </div>
 
       {/* Group name */}
       <div className="mb-4">
@@ -249,8 +385,8 @@ export function GroupSettings() {
               className="flex items-center justify-between bg-tg-section p-3 rounded-xl border border-tg-separator"
             >
               <div className="flex items-center gap-2">
+                <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
                 <span className="font-medium">{m.displayName}</span>
-                {/* A7: Crown only, no "Admin" text */}
                 {m.role === 'admin' && <span className="text-xs text-app-warning">&#9812;</span>}
                 {m.userId === currentUserId && (
                   <span className="text-xs text-tg-hint">{t('groupSettings.you')}</span>
@@ -258,7 +394,6 @@ export function GroupSettings() {
               </div>
               <div className="flex items-center gap-2">
                 {m.username && <span className="text-sm text-tg-hint">@{m.username}</span>}
-                {/* A8: Kick button — admin can kick non-admin, non-self members */}
                 {isAdmin && m.role !== 'admin' && m.userId !== currentUserId && (
                   <button
                     onClick={() => handleKickMember(m.userId, m.displayName)}
@@ -299,6 +434,27 @@ export function GroupSettings() {
           </button>
         )}
       </div>
+
+      {/* Emoji Picker */}
+      <BottomSheet
+        open={showEmojiPicker}
+        onClose={() => setShowEmojiPicker(false)}
+        title={t('groupSettings.emojiPicker')}
+      >
+        <div className="grid grid-cols-5 gap-2">
+          {GROUP_EMOJIS.map((emoji) => (
+            <button
+              key={emoji}
+              onClick={() => handleSelectEmoji(emoji)}
+              className={`text-2xl p-3 rounded-xl ${
+                group.avatarEmoji === emoji ? 'bg-tg-button/10 ring-2 ring-tg-button' : ''
+              }`}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      </BottomSheet>
     </PageLayout>
   );
 }

@@ -1,8 +1,11 @@
-import type { D1Database } from '@cloudflare/workers-types';
+import type { D1Database, R2Bucket } from '@cloudflare/workers-types';
 
 export interface Env {
   // D1 Database
   DB: D1Database;
+
+  // R2 Image Storage
+  IMAGES: R2Bucket;
 
   // Environment Variables
   ENVIRONMENT: string;

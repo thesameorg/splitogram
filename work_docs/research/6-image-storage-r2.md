@@ -69,11 +69,11 @@ Pattern: `GET /r2/:key+` → `R2.get(key)` → stream `object.body` directly to 
 
 Target sizes:
 
-| Type | Max dimension | Quality | Typical output |
-|------|--------------|---------|----------------|
-| Avatar | 256px | 0.80 | 30–80 KB |
-| Receipt full | 1200px | 0.85 | 200–400 KB |
-| Receipt thumbnail | 200px | 0.75 | 10–30 KB |
+| Type              | Max dimension | Quality | Typical output |
+| ----------------- | ------------- | ------- | -------------- |
+| Avatar            | 256px         | 0.80    | 30–80 KB       |
+| Receipt full      | 1200px        | 0.85    | 200–400 KB     |
+| Receipt thumbnail | 200px         | 0.75    | 10–30 KB       |
 
 **OffscreenCanvas** — available iOS 16.4+. Fallback to `document.createElement('canvas')` for older versions. The template uses regular Canvas throughout — safe and proven.
 
@@ -98,7 +98,11 @@ For avatars: the "original" is already small (256px), so no separate thumbnail n
 **Delete from R2 when entity is deleted.** Best-effort: log errors, don't block DB deletion. Pattern from template:
 
 ```ts
-try { await env.IMAGES.delete(key); } catch (e) { console.error('R2 cleanup failed:', e); }
+try {
+  await env.IMAGES.delete(key);
+} catch (e) {
+  console.error('R2 cleanup failed:', e);
+}
 // Always proceed with DB deletion
 ```
 
@@ -141,13 +145,13 @@ No separate `images` table — each entity has at most one image. Simpler querie
 
 ### 5. Max file size and accepted types
 
-| Limit | Value |
-|-------|-------|
-| Raw input (before processing) | 20 MB |
-| Processed output (after client resize) | < 1 MB typical |
-| Server hard limit | 5 MB |
-| Accepted input types | JPEG, PNG, WebP |
-| Output format | JPEG (universal compatibility) |
+| Limit                                  | Value                          |
+| -------------------------------------- | ------------------------------ |
+| Raw input (before processing)          | 20 MB                          |
+| Processed output (after client resize) | < 1 MB typical                 |
+| Server hard limit                      | 5 MB                           |
+| Accepted input types                   | JPEG, PNG, WebP                |
+| Output format                          | JPEG (universal compatibility) |
 
 ### 6. R2 key naming
 
