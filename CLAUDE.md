@@ -128,8 +128,8 @@ frontend/src/
 ├── App.tsx               # TG SDK init + AppLayout router + deep link handling
 ├── services/api.ts       # Fetch wrapper with initData auth header
 ├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
-├── utils/                # currencies, format, time, share
-├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs
+├── utils/                # currencies, format, time, share, transactions
+├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker
 └── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
 ```
 
@@ -230,6 +230,6 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 
 ## Planning Docs
 
-- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-3 done, Phase 4 next)
+- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-4 done, Phase 5 next)
 - `work_docs/tech-decisions.md` — stack, architecture, key engineering principles
 - `work_docs/idea.md` — business overview and competitive landscape

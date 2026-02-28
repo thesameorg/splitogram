@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { api, type GroupSummary } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatAmount, formatSignedAmount } from '../utils/format';
-import { CURRENCIES, CURRENCY_CODES } from '../utils/currencies';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { BottomSheet } from '../components/BottomSheet';
+import { CurrencyPicker, CurrencyButton } from '../components/CurrencyPicker';
 
 export function Home() {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ export function Home() {
   const [newGroupName, setNewGroupName] = useState('');
   const [creating, setCreating] = useState(false);
   const [newGroupCurrency, setNewGroupCurrency] = useState('USD');
+  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
 
   useTelegramBackButton(false);
 
@@ -154,17 +155,16 @@ export function Home() {
           className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl mb-4 bg-transparent"
           autoFocus
         />
-        <select
+        <div className="mb-4">
+          <CurrencyButton value={newGroupCurrency} onClick={() => setShowCurrencyPicker(true)} />
+        </div>
+        <CurrencyPicker
+          open={showCurrencyPicker}
+          onClose={() => setShowCurrencyPicker(false)}
           value={newGroupCurrency}
-          onChange={(e) => setNewGroupCurrency(e.target.value)}
-          className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl mb-4 bg-transparent"
-        >
-          {CURRENCY_CODES.map((code) => (
-            <option key={code} value={code}>
-              {CURRENCIES[code].symbol} {CURRENCIES[code].name} ({code})
-            </option>
-          ))}
-        </select>
+          onSelect={setNewGroupCurrency}
+          zIndex={60}
+        />
         <div className="flex gap-3">
           <button
             onClick={() => {

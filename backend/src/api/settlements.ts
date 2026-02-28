@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray, desc } from 'drizzle-orm';
 import { settlements, groupMembers, users, groups } from '../db/schema';
 import { simplifyDebts } from '../services/debt-solver';
 import { computeGroupBalances } from './balances';
@@ -107,6 +107,83 @@ settlementsApp.post(
     return c.json({ settlement }, 201);
   },
 );
+
+// --- List completed settlements for a group ---
+settlementsApp.get('/groups/:id/settlements', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const limit = Math.min(parseInt(c.req.query('limit') ?? '50', 10) || 50, 100);
+  const offset = parseInt(c.req.query('offset') ?? '0', 10) || 0;
+
+  // Check membership
+  const [currentUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!currentUser) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select()
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  // Fetch completed settlements
+  const rows = await db
+    .select()
+    .from(settlements)
+    .where(
+      and(
+        eq(settlements.groupId, groupId),
+        sql`${settlements.status} IN ('settled_external', 'settled_onchain')`,
+      ),
+    )
+    .orderBy(desc(settlements.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  if (rows.length === 0) {
+    return c.json({ settlements: [] });
+  }
+
+  // Batch-fetch user display names
+  const userIds = [...new Set(rows.flatMap((r) => [r.fromUser, r.toUser]))];
+  const userRows = await db
+    .select({ id: users.id, displayName: users.displayName })
+    .from(users)
+    .where(inArray(users.id, userIds));
+
+  const userMap = new Map(userRows.map((u) => [u.id, u.displayName]));
+
+  const result = rows.map((r) => ({
+    id: r.id,
+    groupId: r.groupId,
+    fromUser: r.fromUser,
+    fromUserName: userMap.get(r.fromUser) ?? 'Unknown',
+    toUser: r.toUser,
+    toUserName: userMap.get(r.toUser) ?? 'Unknown',
+    amount: r.amount,
+    status: r.status,
+    comment: r.comment,
+    createdAt: r.createdAt,
+  }));
+
+  return c.json({ settlements: result });
+});
 
 // --- Get settlement detail ---
 settlementsApp.get('/settlements/:id', async (c) => {

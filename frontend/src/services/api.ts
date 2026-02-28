@@ -142,6 +142,19 @@ export interface SettlementDetail extends Settlement {
   };
 }
 
+export interface SettlementListItem {
+  id: number;
+  groupId: number;
+  fromUser: number;
+  fromUserName: string;
+  toUser: number;
+  toUserName: string;
+  amount: number;
+  status: string;
+  comment: string | null;
+  createdAt: string;
+}
+
 export interface UserProfile {
   id: number;
   telegramId: number;
@@ -257,6 +270,9 @@ export const api = {
   getMyBalance: (groupId: number) => apiRequest<MyBalance>(`/api/v1/groups/${groupId}/balances/me`),
 
   // Settlements
+  listSettlements: (groupId: number) =>
+    apiRequest<{ settlements: SettlementListItem[] }>(`/api/v1/groups/${groupId}/settlements`),
+
   createSettlement: (groupId: number, fromUserId: number, toUserId: number) =>
     apiRequest<{ settlement: Settlement }>(`/api/v1/groups/${groupId}/settlements`, {
       method: 'POST',

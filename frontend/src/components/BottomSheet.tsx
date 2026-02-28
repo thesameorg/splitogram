@@ -5,18 +5,20 @@ export function BottomSheet({
   onClose,
   title,
   children,
+  zIndex = 50,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
+  zIndex?: number;
 }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end z-50" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 flex items-end" style={{ zIndex }} onClick={onClose}>
       <div
-        className="bg-white dark:bg-gray-800 w-full rounded-t-2xl p-6"
+        className="bg-white dark:bg-gray-800 w-full rounded-t-2xl p-6 max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-bold mb-4">{title}</h2>

@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api, type GroupDetail, ApiError } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
-import { CURRENCIES, CURRENCY_CODES } from '../utils/currencies';
 import { shareInviteLink } from '../utils/share';
+import { CurrencyPicker, CurrencyButton } from '../components/CurrencyPicker';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -25,6 +25,7 @@ export function GroupSettings() {
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
 
   useTelegramBackButton(true);
 
@@ -151,18 +152,17 @@ export function GroupSettings() {
         <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">
           Currency
         </label>
-        <select
+        <CurrencyButton
           value={currency}
-          onChange={(e) => setCurrency(e.target.value)}
-          className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-transparent"
+          onClick={() => setShowCurrencyPicker(true)}
           disabled={!isAdmin}
-        >
-          {CURRENCY_CODES.map((code) => (
-            <option key={code} value={code}>
-              {CURRENCIES[code].symbol} {CURRENCIES[code].name} ({code})
-            </option>
-          ))}
-        </select>
+        />
+        <CurrencyPicker
+          open={showCurrencyPicker}
+          onClose={() => setShowCurrencyPicker(false)}
+          value={currency}
+          onSelect={(code) => setCurrency(code)}
+        />
       </div>
 
       {/* Save button */}

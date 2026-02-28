@@ -139,25 +139,36 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 4: Transactions & Accounting Rework — NEXT
+## Phase 4: Transactions & Accounting Rework — DONE
 
 **Goal:** Unify expenses and settlements into a coherent transaction view. Solve the balance integrity problem — prevent broken balances from post-settlement edits without being too restrictive.
 
-**Steps:**
+**What was built:**
 
-1. ~~**RESEARCH: How Splitwise handles editing after settlement**~~ — **CLOSED: non-problem by design.** Balances recompute from scratch on every request (expenses - settlements). Settlements are independent payment records; editing an expense naturally adjusts the balance. No special handling needed. See `work_docs/research/4-balance-integrity.md`.
-2. ~~**Q&A: Decide balance integrity rules**~~ — **CLOSED: no rules needed.** The math is already correct. Optional polish: confirmation dialog on expense edit when settled users exist, settlement history in activity feed.
-3. **Unified transaction list** — Settlements visible alongside expenses with visually distinct layout (different card style, icon, color).
-4. **Currencies: full list with search** — Load a comprehensive currency list (online source → saved as JSON). Add search bar to currency selector (search by name, code, symbol). USD pinned at top.
-
-**Success criteria:**
-
-- Transaction list shows both expenses and settlements, visually distinct
-- Currency selector has full searchable list
+- **Balance integrity (Research):**
+  - ~~RESEARCH: How Splitwise handles editing after settlement~~ — **CLOSED: non-problem by design.** Balances recompute from scratch on every request (expenses - settlements). Settlements are independent payment records; editing an expense naturally adjusts the balance. No special handling needed. See `work_docs/research/4-balance-integrity.md`.
+  - ~~Q&A: Decide balance integrity rules~~ — **CLOSED: no rules needed.** The math is already correct.
+- **Unified transaction list:**
+  - Backend: `GET /api/v1/groups/:id/settlements` — lists completed settlements (settled_external + settled_onchain) with pagination and batch-resolved user names
+  - Frontend: `mergeTransactions()` utility merges expenses + settlements sorted by createdAt DESC
+  - `TransactionItem` discriminated union type for type-safe rendering
+  - Settlement cards: green-tinted background, checkmark icon, "You paid X" / "X paid you" personalization, optional comment display
+  - Group page Transactions tab now shows both expenses and settlements in a unified timeline
+- **Full currency list with search:**
+  - Expanded from 15 to 150+ active ISO 4217 currencies (both backend + frontend)
+  - `PINNED_CURRENCIES` (USD first), `CURRENCY_LIST` (pinned + rest sorted alphabetically), `searchCurrencies(query)` (filters by code, name, symbol, case-insensitive)
+  - `CurrencyPicker` component: searchable BottomSheet with blue highlight + checkmark on selected item
+  - `CurrencyButton` component: displays current currency with down-arrow indicator
+  - Replaced `<select>` dropdowns in Home.tsx (create group) and GroupSettings.tsx (edit currency)
+  - `BottomSheet` enhanced: `max-h-[85vh]` overflow protection, `zIndex` prop for stacking
+- **Tests:**
+  - 13 new currency tests (CURRENCY_LIST ordering, searchCurrencies edge cases, 3-decimal currencies, 100+ count)
+  - 6 new transaction merge tests (empty, expenses-only, settlements-only, interleaving, same-timestamp stability)
+  - Total: 50 tests passing (6 backend + 44 frontend)
 
 ---
 
-## Phase 5: Themes & Internationalization
+## Phase 5: Themes & Internationalization — NEXT
 
 **Goal:** Native dark/light theming via Telegram's CSS variables and multi-language UI.
 
@@ -328,19 +339,19 @@ All Phase 2 specs completed and archived.
 
 ## Phase Summary
 
-| Phase | Name                      | Key Milestone                        | Depends On  |
-| ----- | ------------------------- | ------------------------------------ | ----------- |
-| 1     | Core Prototype            | Basic expense splitting works        | —           |
-| 2     | Splitwise Polish          | Daily-usable Splitwise clone         | Phase 1     |
-| 3     | UX Overhaul               | Stateless auth + 3-tab nav + cleanup | Phase 2     |
-| 4     | Transactions & Accounting | Unified transaction view + integrity | Phase 3     |
-| 5     | Themes & i18n             | Dark/light + 3 languages             | Phase 3     |
-| 6     | Images & Storage          | Avatars + attachments via R2         | Phase 3     |
-| 7     | Retention & Engagement    | Activity feed + reminders            | Phase 4     |
-| 8     | Advanced Splitting        | Equal / % / manual split modes       | Phase 4     |
-| 9     | Growth & Virality         | _Speculative — evaluate later_       | Phase 7     |
-| 10    | Crypto Settlement         | On-chain USDT (mainnet)              | Phase 4     |
-| 11    | AI & Monetization         | _Speculative — evaluate later_       | Phase 8, 10 |
+| Phase | Name                      | Key Milestone                         | Depends On  |
+| ----- | ------------------------- | ------------------------------------- | ----------- |
+| 1     | Core Prototype            | Basic expense splitting works         | —           |
+| 2     | Splitwise Polish          | Daily-usable Splitwise clone          | Phase 1     |
+| 3     | UX Overhaul               | Stateless auth + 3-tab nav + cleanup  | Phase 2     |
+| 4     | Transactions & Accounting | Unified timeline + full currency list | Phase 3     |
+| 5     | Themes & i18n             | Dark/light + 3 languages              | Phase 3     |
+| 6     | Images & Storage          | Avatars + attachments via R2          | Phase 3     |
+| 7     | Retention & Engagement    | Activity feed + reminders             | Phase 4     |
+| 8     | Advanced Splitting        | Equal / % / manual split modes        | Phase 4     |
+| 9     | Growth & Virality         | _Speculative — evaluate later_        | Phase 7     |
+| 10    | Crypto Settlement         | On-chain USDT (mainnet)               | Phase 4     |
+| 11    | AI & Monetization         | _Speculative — evaluate later_        | Phase 8, 10 |
 
 Phases 4, 5, and 6 can run in parallel after Phase 3. Phase 10 has no dependency on Phases 5–9.
 
