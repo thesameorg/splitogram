@@ -2,7 +2,7 @@
 
 **Phase:** 4
 **Type:** RESEARCH → Q&A → decision
-**Status:** open
+**Status:** CLOSED — non-problem by design
 
 ---
 
@@ -51,4 +51,28 @@ This is the #1 accounting integrity risk in the app.
 
 ## Decision
 
-_To be filled after Splitwise research and Q&A session._
+**No special handling needed.** The current architecture already handles this correctly.
+
+### Why this is a non-problem
+
+`computeGroupBalances` (balances.ts) recomputes from scratch on every request:
+
+```
+net balance = (what you paid) - (your expense shares) - (completed settlements)
+```
+
+Settlements are independent payment records — they freeze the amount that actually changed hands. Editing an expense changes the expense/share terms, and the balance naturally reflects the delta. The math is always correct:
+
+- A owes B $50 → settles $50 → expense edited to $60 → balance shows A owes B $10. Correct.
+- A owes B $50 → settles $50 → expense edited to $30 → balance shows B owes A $20. Correct (overpaid).
+
+The settlement isn't "wrong" — it correctly records what was paid. The balance correctly shows what's currently owed. These are independent facts and should stay independent. This is how Splitwise works too.
+
+### Splitwise research
+
+Skipped — unnecessary. Splitwise treats settlements as payment records and recalculates balances the same way. No blocking, no reopening.
+
+### Optional polish (not urgent, not integrity)
+
+- **Confirmation dialog on expense edit:** if the edit touches users with completed settlements in that group, show "This may change settled balances. Continue?" — just awareness, not blocking.
+- **Settlement history in activity feed:** so users can see what was paid vs. what's now owed after edits.

@@ -132,15 +132,13 @@ All Phase 2 specs completed and archived.
 
 **Steps:**
 
-1. **RESEARCH: How Splitwise handles editing after settlement** — What happens when someone edits an expense that was already settled? Does it reopen the settlement? Block edits? Show a warning? Document findings.
-2. **Q&A: Decide balance integrity rules** — Based on research, choose approach. Candidates: (a) warn + auto-reopen affected settlements, (b) block edits on expenses involved in settlements, (c) allow edits but show "balances changed since last settlement" indicator. Pick one.
+1. ~~**RESEARCH: How Splitwise handles editing after settlement**~~ — **CLOSED: non-problem by design.** Balances recompute from scratch on every request (expenses - settlements). Settlements are independent payment records; editing an expense naturally adjusts the balance. No special handling needed. See `work_docs/research/4-balance-integrity.md`.
+2. ~~**Q&A: Decide balance integrity rules**~~ — **CLOSED: no rules needed.** The math is already correct. Optional polish: confirmation dialog on expense edit when settled users exist, settlement history in activity feed.
 3. **Unified transaction list** — Settlements visible alongside expenses with visually distinct layout (different card style, icon, color).
-4. **Implement balance integrity rules** (from Q&A in step 2).
-5. **Currencies: full list with search** — Load a comprehensive currency list (online source → saved as JSON). Add search bar to currency selector (search by name, code, symbol). USD pinned at top.
+4. **Currencies: full list with search** — Load a comprehensive currency list (online source → saved as JSON). Add search bar to currency selector (search by name, code, symbol). USD pinned at top.
 
 **Success criteria:**
 - Transaction list shows both expenses and settlements, visually distinct
-- Editing a settled expense follows the chosen integrity rule without breaking balances
 - Currency selector has full searchable list
 
 ---
@@ -330,7 +328,7 @@ Phases 4, 5, and 6 can run in parallel after Phase 3. Phase 10 has no dependency
 
 ## Open Decisions (to resolve via Q&A steps)
 
-- **Balance integrity after settlement** — Decide in Phase 4 Q&A (after Splitwise research)
+- ~~**Balance integrity after settlement**~~ — **CLOSED: non-problem.** Balances recompute from scratch; no special handling needed. See `work_docs/research/4-balance-integrity.md`.
 - ~~**Frontend framework/UI library**~~ — DECIDED Phase 3: no library, stay with React + Tailwind
 - **i18n approach** — Custom JSON vs `react-i18next`. Decide in Phase 5 research.
 - **User preference persistence** — localStorage vs localStorage+DB vs cookies for theme/language. Decide in Phase 5 Q&A after researching TG WebView behavior.
