@@ -92,8 +92,8 @@ bun run webhook:set            # point bot webhook to tunnel
 
 ```
 Cloudflare Pages          Cloudflare Worker              Cloudflare D1 (SQLite)
-(frontend static)    →    (API + bot webhook)      →     TONAPI (external REST)
-React + Vite + Tailwind    Hono + grammY + Drizzle
+(frontend static)    →    (API + bot webhook)      →     Cloudflare R2 (image storage)
+React + Vite + Tailwind    Hono + grammY + Drizzle        TONAPI (external REST)
 ```
 
 - **Backend** runs as a single Cloudflare Worker handling both API routes and Telegram bot webhook
@@ -101,6 +101,7 @@ React + Vite + Tailwind    Hono + grammY + Drizzle
 - **Database** is Cloudflare D1 (SQLite) accessed via Drizzle ORM
 - **Auth** is stateless HMAC verification of Telegram `initData` per request — no sessions, no KV
 - **Frontend UI** is plain React + Tailwind + react-i18next (no component library — decided Phase 3). Theming via Telegram CSS variables mapped to `tg-*` Tailwind tokens.
+- **Image storage** is Cloudflare R2, served via Worker at `/r2/*` with immutable caching. Client-side resize/compress via Canvas API (zero deps). One bucket with `avatars/`, `groups/`, `receipts/` prefixes.
 - **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend, deferred to Phase 10)
 
 ### Bun Workspaces
@@ -113,7 +114,7 @@ Root `package.json` defines `workspaces: ["backend", "frontend"]`. A single `bun
 backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
 ├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking
-├── env.ts                # Env bindings (D1, secrets) + SessionData type
+├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
 ├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements)
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
 ├── services/             # telegram-auth, notifications, debt-solver
@@ -130,7 +131,7 @@ frontend/src/
 ├── locales/              # Translation JSON files (en, ru, es, hi, id, fa, pt, uk, de, it, vi)
 ├── services/api.ts       # Fetch wrapper with initData auth header
 ├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
-├── utils/                # currencies, format, time, share, transactions
+├── utils/                # currencies, format, time, share, transactions, image
 ├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker
 └── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
 ```
@@ -180,10 +181,10 @@ Bot sends links with `start_param`. Frontend reads `window.Telegram.WebApp.initD
 
 ### Data Model
 
-- **users**: telegram_id, username, display_name, wallet_address, bot_started
-- **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by
+- **users**: telegram_id, username, display_name, wallet_address, bot_started, avatar_key
+- **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by, avatar_key, avatar_emoji
 - **group_members**: group_id, user_id, role (admin/member), muted
-- **expenses**: group_id, paid_by, amount (micro-units integer), description
+- **expenses**: group_id, paid_by, amount (micro-units integer), description, receipt_key, receipt_thumb_key
 - **expense_participants**: expense_id, user_id, share_amount
 - **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, comment, settled_by
 

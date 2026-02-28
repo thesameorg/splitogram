@@ -214,27 +214,34 @@ All Phase 2 specs completed and archived.
 
 ## Phase 6: Images & Storage
 
-**Goal:** User/group avatars and transaction document attachments via Cloudflare R2.
+**Goal:** User/group avatars and expense receipt attachments via Cloudflare R2.
 
-**Prerequisites:** Set up R2 bucket(s) before any code — separate logical spaces for avatars and transaction documents.
+**Key decisions (see `work_docs/research/6-image-storage-r2.md`):**
+
+- One R2 bucket (`splitogram-images`) with path prefixes (`avatars/`, `groups/`, `receipts/`)
+- Worker-served via `GET /r2/*` route — no public bucket, no signed URLs
+- Client-side image processing (resize, compress, EXIF strip) via native Canvas API — zero new dependencies
+- Client-side thumbnail generation for receipts — no server-side image processing
+- DB columns on existing tables (no separate images table)
 
 **Steps:**
 
-1. **RESEARCH: Cloudflare R2 with Workers** — Access patterns (signed URLs vs public), client-side image conversion (HEIC → JPG for iPhone), thumbnail generation strategy (Workers vs client-side).
-2. **User avatars** — Allow custom upload from Account page (on top of existing Telegram avatar from Phase 3).
-3. **Group avatars** — Emoji picker for quick group icons + optional custom image upload.
-4. **Transaction image attachments** — Attach images to expenses and settlements (receipts, proof). JPG, PNG, SVG only.
-5. **Client-side processing** — Convert non-standard formats (HEIC, etc.) to JPG/PNG on device. Strip EXIF metadata. Rename to neutral ID.
-6. **Thumbnail generation** — 96px square thumbnails for list views. Avoid loading full-size images in feeds.
-7. **Cleanup on delete** — When image is removed (or parent entity deleted), delete from R2. No orphaned files.
+1. ~~**RESEARCH: Cloudflare R2 with Workers**~~ — **DECIDED.** See `work_docs/research/6-image-storage-r2.md`.
+2. **R2 infrastructure setup** — Create bucket, add R2 binding to `wrangler.toml` + `Env` type, add `/r2/*` serving route with streaming + immutable cache headers, add Vite dev proxy for `/r2`, update CI/CD deploy pipeline.
+3. **Client-side image processing utility** — `frontend/src/utils/image.ts`: `processImage()` pipeline (load → resize → strip EXIF → JPEG blob via Canvas), `processAvatar()` (256px), `processReceipt()` (1200px) + `processReceiptThumbnail()` (200px), `validateImageFile()`. Zero dependencies.
+4. **DB migration 0004** — Add columns: `users.avatar_key`, `groups.avatar_key`, `groups.avatar_emoji`, `expenses.receipt_key`, `expenses.receipt_thumb_key`.
+5. **User avatars** — Upload endpoint `POST /api/v1/users/me/avatar` (multipart FormData), delete old avatar from R2 on re-upload, display on Account page + member lists throughout app.
+6. **Group avatars** — Emoji picker for quick group icons (stored as `avatar_emoji`), optional custom image upload `POST /api/v1/groups/:id/avatar`, display on Home page group list + Group page header.
+7. **Expense receipt attachments** — Optional image on AddExpense page, upload both original + thumbnail via `POST /api/v1/groups/:id/expenses` (extended), display thumbnail in transaction list, full image on tap. JPG, PNG, WebP only.
+8. **Cleanup on delete** — Delete R2 objects when: avatar re-uploaded (old deleted), expense deleted, group deleted (batch delete receipts). Best-effort: log errors, never block DB deletion.
 
 **Success criteria:**
 
 - User and group avatars display throughout the app
-- Transaction images upload and display correctly
-- iPhone photos (HEIC) handled transparently
+- Receipt images upload and display correctly on expenses
 - No orphaned files in R2 after deletion
-- Thumbnails load fast in list views
+- Thumbnails load fast in transaction lists
+- Zero new npm dependencies for image handling
 
 ---
 
@@ -382,7 +389,7 @@ Phases 4, 5, and 6 can run in parallel after Phase 3. Phase 10 has no dependency
 - ~~**Frontend framework/UI library**~~ — DECIDED Phase 3: no library, stay with React + Tailwind
 - ~~**i18n approach**~~ — **DECIDED: react-i18next.** See `work_docs/research/5-i18n-approach.md`.
 - ~~**User preference persistence**~~ — **DECIDED: CloudStorage for language, no persistence for theme (follows Telegram).** localStorage unreliable in TG WebView. See `work_docs/research/done/5-themes-and-persistence.md`.
-- **R2 access pattern** — Public URLs vs signed URLs for images. Decide in Phase 6 research.
+- ~~**R2 access pattern**~~ — **DECIDED: Worker-served, no public bucket.** Content-addressed keys with immutable caching. See `work_docs/research/6-image-storage-r2.md`.
 - **Exchange rate source for cross-group balances** — Free API for USD conversion. Decide in Phase 7 (before Phase 10's crypto rate discussion).
 - **Premium pricing** — $3 vs $5/month. Evaluate if Phase 11 ever becomes concrete.
 - **Free tier group size** — Currently uncapped. Consider limits if growth demands it.
