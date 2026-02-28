@@ -6,18 +6,16 @@ Living document. Updated as architectural decisions are made.
 
 ## Stack
 
-| Layer             | Choice                           | Why                                                    |
-| ----------------- | -------------------------------- | ------------------------------------------------------ |
-| Runtime           | Bun                              | Fast, native TS, workspace support                     |
-| Backend           | Hono (CF Worker)                 | Built for Workers, 14KB, runs on Bun/Node/Workers      |
-| Bot               | grammY                           | TS-first, modern, plugin ecosystem                     |
-| ORM               | Drizzle                          | Typed, lightweight, D1 adapter                         |
-| Validation        | Zod + `@hono/zod-validator`      | Integrated with Hono                                   |
-| Frontend          | React 19 + Vite + Tailwind       | Mature ecosystem, TON Connect React bindings           |
-| i18n              | react-i18next                    | CLDR plurals (Russian 3-form), interpolation, 15KB gz  |
-| TG Mini App SDK   | `@twa-dev/sdk`                   | Telegram WebApp API access                             |
-| TON Connect       | `@tonconnect/ui-react`           | Official, React bindings (deferred to Phase 10)        |
-| TON verification  | TONAPI REST API (plain `fetch`)  | No SDK needed on backend (deferred to Phase 10)        |
+| Layer            | Choice                          | Why                                                   |
+| ---------------- | ------------------------------- | ----------------------------------------------------- |
+| Runtime          | Bun                             | Fast, native TS, workspace support                    |
+| Backend          | Hono (CF Worker)                | Built for Workers, 14KB, runs on Bun/Node/Workers     |
+| Bot              | grammY                          | TS-first, modern, plugin ecosystem                    |
+| ORM              | Drizzle                         | Typed, lightweight, D1 adapter                        |
+| Validation       | Zod + `@hono/zod-validator`     | Integrated with Hono                                  |
+| Frontend         | React 19 + Vite + Tailwind      | Mature ecosystem, small reusable component primitives |
+| i18n             | react-i18next                   | CLDR plurals (Russian 3-form), interpolation, 15KB gz |
+| TON verification | TONAPI REST API (plain `fetch`) | No SDK needed on backend (deferred to Phase 10)       |
 
 **Frontend framework/UI library:** Plain React + Tailwind, no component library. Decided Phase 3 — see below.
 
@@ -37,15 +35,23 @@ React + Vite               Hono + grammY + Drizzle        TONAPI (external REST,
 
 ---
 
-## Authentication: Stateless HMAC (decided Phase 3)
+## Authentication: Stateless HMAC (implemented Phase 3)
 
 **Decision:** Remove KV sessions. Auth is stateless HMAC verification per request.
 
 **How it works:** Telegram's `initData` is HMAC-SHA256 signed by the bot token. The backend verifies the signature on every API request — zero external calls, no KV, no session state.
 
+**Auth header format:** `Authorization: tma <initData>` — frontend sends this on every request. Backend validates signature, looks up user in D1, sets session context.
+
+**Login flow:** Frontend calls `POST /api/v1/auth` once on mount (upserts user into D1, returns profile). All subsequent API calls carry initData in headers — middleware validates inline.
+
+**First-open fix:** Frontend retries auth once after 150ms delay if initData is not available on first frame (TG WebApp SDK race condition).
+
+**`auth_date` max age:** 86400s (24h). Generous window since TG doesn't refresh initData mid-session and we verify on every request.
+
 **Why:** KV sessions added latency (network round-trip on every request), a failure mode (KV down = everyone logged out), and complexity — all for zero benefit. Telegram Mini Apps don't have "logout." The signed `initData` is the session.
 
-**What was removed:** KV binding from `env.ts`, session middleware, session service, KV namespace from wrangler config.
+**What was removed:** KV binding from `env.ts`, `session-manager.ts`, KV namespace from wrangler config. Frontend removed all localStorage/sessionId logic.
 
 **Previous approach (Phases 1-2):** `POST /api/v1/auth` validated initData, created a KV session (1h TTL), returned a session ID. All requests sent `Authorization: Bearer {sessionId}`. Auth middleware hit KV on every request to validate.
 
@@ -63,13 +69,28 @@ See `work_docs/research/3-frontend-framework.md` for full analysis.
 
 ---
 
-## Navigation: 3-Tab Bottom Nav (decided Phase 3)
+## Navigation: 3-Tab Bottom Nav (implemented Phase 3)
 
 **Tabs:** Groups | Activity | Account
 
-- **Groups** — home screen, list of user's groups with balances
-- **Activity** — cross-group activity feed (all groups the user belongs to), with pagination. Empty state until Phase 7 populates it.
-- **Account** — profile (display name, Telegram avatar from `initData`), language selector (wired up in Phase 5). No theme selector — follows Telegram's dark/light mode automatically.
+- **Groups** (`/`) — home screen, list of user's groups with balances
+- **Activity** (`/activity`) — placeholder ("coming soon"). Populated in Phase 7.
+- **Account** (`/account`) — editable display name via `PUT /api/v1/users/me`, read-only Telegram username. Language selector wired up in Phase 5. No theme selector — follows Telegram.
+
+**Layout:** `AppLayout` wraps tabbed routes (`/`, `/activity`, `/account`, `/groups/:id`) with `BottomTabs`. Inner pages (AddExpense, GroupSettings, SettleUp) render without tabs — full-screen.
+
+## Component Primitives (implemented Phase 3)
+
+Small reusable components extracted from pages:
+
+- **`PageLayout`** — consistent `p-4 pb-24` wrapper
+- **`LoadingScreen`** — full-screen centered spinner
+- **`ErrorBanner` / `SuccessBanner`** — dismissable status banners
+- **`BottomSheet`** — modal sliding up from bottom
+- **`AppLayout` + `BottomTabs`** — persistent shell with 3-tab bottom nav
+- **`resolveCurrentUser()`** — determines current user from group members (TG user ID → member lookup, dev fallback to first admin)
+- **`shareInviteLink()`** — shared utility for invite sharing (TG share dialog or clipboard)
+- **`timeAgo()`** — relative time formatting
 
 ---
 
@@ -179,6 +200,7 @@ See `work_docs/research/done/5-themes-and-persistence.md` for full analysis.
 **Why:** ~80-120 unique UI strings, heavy interpolation ("You owe {{name}} {{amount}}"), and Russian plural forms (3 forms: 1/2-4/5+) rule out a simple JSON lookup. i18next handles CLDR plural rules out of the box, adds ~15KB gzipped (negligible), and uses translator-friendly JSON format.
 
 **Structure:**
+
 ```
 frontend/src/i18n/
   en.json    — English (base)
@@ -216,12 +238,12 @@ Scaffolded from `/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`.
 
 ## DB Migrations
 
-| Migration | What                                      | Phase |
-| --------- | ----------------------------------------- | ----- |
-| 0000      | Initial schema                            | 1     |
-| 0001      | Settlement comment + settledBy columns    | 2     |
-| 0002      | Group currency column                     | 2     |
-| 0003      | users.botStarted + group_members.muted    | 2     |
+| Migration | What                                   | Phase |
+| --------- | -------------------------------------- | ----- |
+| 0000      | Initial schema                         | 1     |
+| 0001      | Settlement comment + settledBy columns | 2     |
+| 0002      | Group currency column                  | 2     |
+| 0003      | users.botStarted + group_members.muted | 2     |
 
 ---
 
@@ -229,14 +251,14 @@ Scaffolded from `/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`.
 
 Each has a dedicated file in `work_docs/research/`:
 
-| Topic                          | Phase | File                          |
-| ------------------------------ | ----- | ----------------------------- |
-| ~~Frontend framework / UI lib~~| 3     | `3-frontend-framework.md` — **DECIDED: no library, stay with React + Tailwind** |
-| Balance integrity rules        | 4     | `balance-integrity.md`        |
-| ~~Themes & preference persistence~~ | 5 | `done/5-themes-and-persistence.md` — **DECIDED: follow TG theme, CloudStorage for language** |
-| ~~i18n approach~~              | 5     | `done/5-i18n-approach.md` — **DECIDED: react-i18next** |
-| Image storage (R2)             | 6     | `image-storage-r2.md`         |
-| Exchange rates                 | 7     | `exchange-rates.md`           |
-| TON Connect & crypto           | 10    | `ton-connect-crypto.md`       |
-| Growth & virality              | 9     | `growth-virality.md`          |
-| AI & monetization              | 11    | `ai-monetization.md`          |
+| Topic                               | Phase | File                                                                                         |
+| ----------------------------------- | ----- | -------------------------------------------------------------------------------------------- |
+| ~~Frontend framework / UI lib~~     | 3     | `3-frontend-framework.md` — **DECIDED: no library, stay with React + Tailwind**              |
+| Balance integrity rules             | 4     | `balance-integrity.md`                                                                       |
+| ~~Themes & preference persistence~~ | 5     | `done/5-themes-and-persistence.md` — **DECIDED: follow TG theme, CloudStorage for language** |
+| ~~i18n approach~~                   | 5     | `done/5-i18n-approach.md` — **DECIDED: react-i18next**                                       |
+| Image storage (R2)                  | 6     | `image-storage-r2.md`                                                                        |
+| Exchange rates                      | 7     | `exchange-rates.md`                                                                          |
+| TON Connect & crypto                | 10    | `ton-connect-crypto.md`                                                                      |
+| Growth & virality                   | 9     | `growth-virality.md`                                                                         |
+| AI & monetization                   | 11    | `ai-monetization.md`                                                                         |

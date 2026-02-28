@@ -55,6 +55,7 @@ bun run deploy               # deploy worker to Cloudflare
 Full local setup: backend + frontend + bot webhook via ngrok tunnel.
 
 ### Prerequisites
+
 - Bun, ngrok, jq installed
 - `.env` file with `TELEGRAM_BOT_TOKEN`, `VITE_TELEGRAM_BOT_USERNAME`
 - `.dev.vars` file with secrets for wrangler (TELEGRAM_BOT_TOKEN, DEV_AUTH_BYPASS_ENABLED, TONAPI_KEY, USDT_MASTER_ADDRESS, PAGES_URL)
@@ -78,6 +79,7 @@ bun run webhook:set            # point bot webhook to tunnel
 ```
 
 ### Key details
+
 - **Tunnel points to Vite (5173), not wrangler (8787).** Vite proxies `/api/*` and `/webhook` to the backend. This way one tunnel serves both the Mini App frontend and the bot webhook.
 - **`.dev.vars` PAGES_URL** must match the current ngrok URL (changes every restart on free tier). Update it and restart wrangler when tunnel URL changes.
 - **`DEV_AUTH_BYPASS_ENABLED=true`** in `.dev.vars` skips TG initData validation, auto-creates a mock "DEV Developer" user.
@@ -111,10 +113,10 @@ Root `package.json` defines `workspaces: ["backend", "frontend"]`. A single `bun
 backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
 ├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking
-├── env.ts                # Zod schema for Env bindings
-├── api/                  # Route handlers (auth, groups, expenses, balances, settlements)
-├── middleware/            # auth (session validation), db (Drizzle injection)
-├── services/             # telegram-auth, session, notifications, debt-solver
+├── env.ts                # Env bindings (D1, secrets) + SessionData type
+├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements)
+├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
+├── services/             # telegram-auth, notifications, debt-solver
 ├── utils/                # currencies, format (shared with frontend)
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
@@ -123,12 +125,12 @@ backend/src/
 └── models/               # Zod request/response schemas
 
 frontend/src/
-├── App.tsx               # TG SDK init + router + deep link handling (join_, group_, settle_)
-├── services/api.ts       # Fetch wrapper with session header injection
-├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp
-├── utils/                # currencies, format (shared with backend)
-├── components/
-└── hooks/                # useAuth, useTelegramBackButton, useTelegramMainButton
+├── App.tsx               # TG SDK init + AppLayout router + deep link handling
+├── services/api.ts       # Fetch wrapper with initData auth header
+├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
+├── utils/                # currencies, format, time, share
+├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs
+└── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
 ```
 
 ### Hono Context Types
@@ -146,27 +148,29 @@ export type DBContext = { Bindings: Env; Variables: { db: Database } };
 type GroupEnv = AuthContext & DBContext;
 const app = new Hono<GroupEnv>();
 app.get('/', (c) => {
-  const db = c.get('db');           // from dbMiddleware
+  const db = c.get('db'); // from dbMiddleware
   const session = c.get('session'); // from authMiddleware
 });
 ```
 
 Middleware registration order matters — `dbMiddleware` is global (all routes), `authMiddleware` is applied per-prefix before `app.route()`:
+
 ```ts
-app.use('/api/v1/groups/*', authMiddleware);  // must come before .route()
+app.use('/api/v1/groups/*', authMiddleware); // must come before .route()
 app.route('/api/v1/groups', groupsApp);
 ```
 
 ### Request Flow
 
-1. Mini App loads → reads `initData` from TG WebApp context
-2. Every API request includes `initData` — backend verifies HMAC-SHA256 signature per request (stateless, no sessions)
-3. Auth middleware extracts user from verified `initData` on every request
+1. Mini App loads → calls `POST /api/v1/auth` to upsert user (register/update profile in D1)
+2. Every API request sends `Authorization: tma <initData>` header
+3. Auth middleware validates HMAC-SHA256 signature, looks up user in D1, sets session context
 4. Bot webhook at `POST /webhook` — grammY handles /start commands and deep links
 
 ### Deep Links (Bot → Mini App)
 
 Bot sends links with `start_param`. Frontend reads `window.Telegram.WebApp.initDataUnsafe.start_param` in App.tsx and routes to the matching page after auth completes. Patterns:
+
 - `group_{id}` → navigate to group page
 - `join_{inviteCode}` → auto-resolve invite, join group, navigate to group
 - `settle_{id}` → navigate to settlement page
@@ -191,7 +195,7 @@ Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-
 4. `POST /api/v1/settlements/:id/settle` → status → `settled_external`, records who settled and comment
 5. Both parties get bot notification (if not muted and bot started)
 
-On-chain USDT settlement deferred to Phase 3 (will add `settled_onchain` path via TON Connect).
+On-chain USDT settlement deferred to Phase 10 (will add `settled_onchain` path via TON Connect).
 
 ### Background Work Pattern
 
@@ -218,6 +222,7 @@ Prettier config (`.prettierrc`): single quotes, trailing commas, semicolons, 100
 ## CI/CD Pipeline
 
 Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrates 4 steps in sequence:
+
 1. **Build & Test** — lint + typecheck + tests (backend & frontend in parallel)
 2. **Deploy Worker** — D1 migrations → secrets → `wrangler deploy` → health check
 3. **Deploy Pages** — build frontend → deploy to Cloudflare Pages
@@ -225,6 +230,6 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 
 ## Planning Docs
 
-- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-2 done, Phase 3 next)
+- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-3 done, Phase 4 next)
 - `work_docs/tech-decisions.md` — stack, architecture, key engineering principles
 - `work_docs/idea.md` — business overview and competitive landscape

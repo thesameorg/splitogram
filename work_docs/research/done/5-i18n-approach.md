@@ -11,6 +11,7 @@
 Need to support English (base), Russian, Spanish. More languages possible later.
 
 Requirements:
+
 - All UI text from translation files (no hardcoded strings)
 - Missing translation in dev: show raw key (e.g., `ACCOUNT_DESCRIPTION`). In production: fall back to English.
 - Language switchable from Account page, persists (see `themes-and-persistence.md`)
@@ -67,6 +68,7 @@ Requirements:
 **react-i18next (Option B).**
 
 Reasons:
+
 - Russian plurals (3 forms) handled correctly out of the box via CLDR — building this from scratch is error-prone
 - Heavy interpolation throughout the app — i18next's `{{variable}}` syntax is clean and safe
 - 15KB gzipped is nothing for our app

@@ -2,8 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type GroupDetail } from '../services/api';
 import { formatAmount } from '../utils/format';
+import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { useTelegramMainButton } from '../hooks/useTelegramMainButton';
+import { PageLayout } from '../components/PageLayout';
+import { LoadingScreen } from '../components/LoadingScreen';
+import { ErrorBanner } from '../components/ErrorBanner';
 
 export function AddExpense() {
   const { id, expenseId: expenseIdParam } = useParams<{ id: string; expenseId?: string }>();
@@ -28,7 +32,6 @@ export function AddExpense() {
     const loadGroup = api.getGroup(groupId);
 
     if (isEditMode && expenseId) {
-      // Load group and expense data in parallel
       Promise.all([loadGroup, api.listExpenses(groupId)]).then(([groupData, expensesData]) => {
         setGroup(groupData);
         const expense = expensesData.expenses.find((e) => e.id === expenseId);
@@ -45,15 +48,8 @@ export function AddExpense() {
         const allIds = new Set(data.members.map((m) => m.userId));
         setSelectedParticipants(allIds);
 
-        const webApp = window.Telegram?.WebApp;
-        const tgId = webApp?.initDataUnsafe?.user?.id;
-        if (tgId) {
-          const member = data.members.find((m) => m.telegramId === tgId);
-          if (member) setPaidBy(member.userId);
-        } else {
-          const admin = data.members.find((m) => m.role === 'admin');
-          if (admin) setPaidBy(admin.userId);
-        }
+        const user = resolveCurrentUser(data.members);
+        if (user) setPaidBy(user.userId);
       });
     }
   }, [groupId, expenseId, isEditMode]);
@@ -122,23 +118,13 @@ export function AddExpense() {
     });
   }
 
-  if (!group) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">Loading...</div>
-      </div>
-    );
-  }
+  if (!group) return <LoadingScreen />;
 
   return (
-    <div className="p-4 pb-24">
+    <PageLayout>
       <h1 className="text-xl font-bold mb-6">{isEditMode ? 'Edit Expense' : 'Add Expense'}</h1>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl mb-4 text-sm">
-          {error}
-        </div>
-      )}
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       {/* Description */}
       <div className="mb-4">
@@ -155,20 +141,18 @@ export function AddExpense() {
         />
       </div>
 
-      {/* Amount */}
+      {/* Amount — text input with decimal keyboard, no spinner */}
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">
           Amount
         </label>
         <input
-          type="number"
+          type="text"
+          inputMode="decimal"
           placeholder="0.00"
           value={amountStr}
           onChange={(e) => setAmountStr(e.target.value)}
           className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-transparent text-2xl"
-          min="0"
-          step="0.01"
-          inputMode="decimal"
         />
       </div>
 
@@ -230,6 +214,6 @@ export function AddExpense() {
           {submitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Add Expense'}
         </button>
       )}
-    </div>
+    </PageLayout>
   );
 }

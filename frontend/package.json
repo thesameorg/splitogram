@@ -12,8 +12,6 @@
     "lint": "echo 'lint ok'"
   },
   "dependencies": {
-    "@twa-dev/sdk": "^8.0.2",
-    "@tonconnect/ui-react": "^2.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.3"

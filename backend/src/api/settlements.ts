@@ -46,10 +46,7 @@ settlementsApp.post(
 
     // Current user must be one of the parties
     if (currentUser.id !== fromUserId && currentUser.id !== toUserId) {
-      return c.json(
-        { error: 'not_involved', detail: 'You must be the debtor or creditor' },
-        403,
-      );
+      return c.json({ error: 'not_involved', detail: 'You must be the debtor or creditor' }, 403);
     }
 
     // Check membership
@@ -69,10 +66,7 @@ settlementsApp.post(
     const targetDebt = debts.find((d) => d.from === fromUserId && d.to === toUserId);
 
     if (!targetDebt) {
-      return c.json(
-        { error: 'no_debt', detail: 'No outstanding debt between these users' },
-        400,
-      );
+      return c.json({ error: 'no_debt', detail: 'No outstanding debt between these users' }, 400);
     }
 
     // Idempotent: check for existing open settlement

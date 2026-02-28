@@ -7,11 +7,6 @@ compatibility_flags = ["nodejs_compat"]
 enabled = true
 head_sampling_rate = 1.0
 
-# KV Namespaces — create in CF dashboard and replace ID
-[[kv_namespaces]]
-binding = "SESSIONS"
-id = "757ac20a8bde4f5089a02d08f31f6be7"
-
 # D1 Database — create in CF dashboard and replace ID
 [[d1_databases]]
 binding = "DB"

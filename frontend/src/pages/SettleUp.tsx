@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api, type SettlementDetail } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatAmount } from '../utils/format';
+import { PageLayout } from '../components/PageLayout';
+import { LoadingScreen } from '../components/LoadingScreen';
+import { ErrorBanner } from '../components/ErrorBanner';
 
 export function SettleUp() {
   const { id } = useParams<{ id: string }>();
@@ -41,7 +44,6 @@ export function SettleUp() {
     setSubmitting(true);
     try {
       await api.markExternal(settlementId, comment.trim() || undefined);
-      // Briefly show success then navigate back
       setSettlement((prev) => (prev ? { ...prev, status: 'settled_external' as const } : prev));
       setTimeout(() => navigate(-1), 1000);
     } catch (err: any) {
@@ -51,24 +53,20 @@ export function SettleUp() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">Loading...</div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingScreen />;
 
   if (!settlement) {
     return (
-      <div className="p-4 text-center">
-        <p className="text-red-500">{error || 'Settlement not found'}</p>
-      </div>
+      <PageLayout>
+        <div className="text-center py-12">
+          <p className="text-red-500">{error || 'Settlement not found'}</p>
+        </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="p-4 pb-24">
+    <PageLayout>
       <h1 className="text-xl font-bold mb-6">Settle Up</h1>
 
       {/* Settlement info */}
@@ -88,7 +86,9 @@ export function SettleUp() {
             </>
           )}
         </div>
-        <div className="text-3xl font-bold mb-1">{formatAmount(settlement.amount, settlement.currency)}</div>
+        <div className="text-3xl font-bold mb-1">
+          {formatAmount(settlement.amount, settlement.currency)}
+        </div>
       </div>
 
       {/* Status */}
@@ -101,16 +101,11 @@ export function SettleUp() {
         </div>
       )}
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl mb-4 text-sm">
-          {error}
-        </div>
-      )}
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
-      {/* Actions — only if not yet settled */}
+      {/* Actions */}
       {!isSettled && (isDebtor || isCreditor) && (
         <div className="space-y-4">
-          {/* Comment field */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">
               Note (optional)
@@ -129,14 +124,10 @@ export function SettleUp() {
             disabled={submitting}
             className="w-full bg-blue-500 text-white py-4 rounded-xl font-medium disabled:opacity-50"
           >
-            {submitting
-              ? 'Settling...'
-              : isDebtor
-                ? 'Mark as Paid'
-                : 'Mark as Received'}
+            {submitting ? 'Settling...' : isDebtor ? 'Mark as Paid' : 'Mark as Received'}
           </button>
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }

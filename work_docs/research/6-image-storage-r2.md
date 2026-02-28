@@ -9,6 +9,7 @@
 ## Context
 
 Need image storage for:
+
 - User avatars (custom upload, replacing Telegram default)
 - Group avatars (emoji or custom image)
 - Transaction image attachments (receipts, proof — JPG, PNG, SVG only)

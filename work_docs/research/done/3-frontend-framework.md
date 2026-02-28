@@ -11,6 +11,7 @@
 Current stack: React 19 + Vite + Tailwind CSS. No component library. All components are hand-built.
 
 Upcoming needs that stress this setup:
+
 - Bottom tab navigation (3 tabs, persistent)
 - Dark/light/system theme switching (Phase 5)
 - i18n across all components (Phase 5)
@@ -63,6 +64,7 @@ Should we adopt a component library or UI framework, or stay with plain React + 
 **Stay with React 19 + Tailwind CSS. No component library.**
 
 Instead, build a small set of reusable primitives as needed:
+
 - `<BottomTabs>` — fixed bottom bar, 3 tabs, active state
 - `<BottomSheet>` — extract from existing Home.tsx pattern
 - `<PageLayout>` — consistent padding, scroll area, bottom safe area

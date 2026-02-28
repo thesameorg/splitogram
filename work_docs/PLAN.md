@@ -92,41 +92,54 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 3: UX Overhaul — NEXT
+## Phase 3: UX Overhaul — DONE
 
 **Goal:** Fix bugs, go stateless, restructure navigation, clean up the UI. Make the app feel like a real product.
 
-**Steps:**
+**What was built:**
 
-1. **Bugfix: Login-with-Telegram first-open failure** — Auth fails on first app open, works on second (per user). This is a production bug hitting every new user. Investigate and fix first.
-2. **Bugfix: Users without @username or profile image** — Verify all flows (auth, display, group members, notifications) handle missing username and missing avatar gracefully.
-3. **Architecture: Remove KV sessions, go stateless** — Telegram's `initData` is HMAC-signed and can be verified on every request server-side with zero external calls. KV sessions add latency, complexity, and a failure mode for no benefit. Remove the KV session layer. Auth becomes stateless HMAC verification per request. Remove KV binding from `env.ts`, simplify auth middleware.
-4. ~~**RESEARCH: Frontend framework/UI library decision**~~ — **DECIDED: stay with React + Tailwind, no component library.** `@telegram-apps/telegram-ui` is unmaintained and React 19-incompatible; shadcn/ui adds Radix dependency weight with known iOS WebView issues and no bottom nav. Build small reusable primitives instead. See `work_docs/research/3-frontend-framework.md`.
-5. **Technical: Component architecture cleanup** — Audit frontend components. Split large files into focused single-responsibility `.tsx` files. Each UI element identifiable and editable in one place.
-6. **Bottom sticky navigation — three tabs:** Groups (current home), Activity (empty state initially — "coming soon" or blank), Account.
-7. **Groups screen improvements:**
-   - Admin shown with crown icon
-   - Copy-invite-link button visible to any group member (not just admin)
-8. **Account page:**
-   - Edit display name
-   - Telegram avatar displayed (from `initData` `photo_url` — no storage needed)
-   - Telegram username shown (read-only)
-9. **UX cleanups (moved from Phase 4):**
-   - Rename "Expenses" section to "Transactions" throughout the app
-   - Remove up/down spinner buttons on amount input field
-   - Fix back-button navigation after creating or editing transactions
+- **Stateless auth migration (Wave 1):**
+  - Removed KV sessions entirely — auth is now stateless HMAC verification per request
+  - Auth header format: `Authorization: tma <initData>` on every API call
+  - `POST /api/v1/auth` simplified to upsert-only (register/update user, return profile)
+  - Auth middleware validates initData, looks up user in D1 — no KV round-trip
+  - `auth_date` max age increased to 86400s (TG doesn't refresh initData mid-session)
+  - Deleted `session-manager.ts`, removed `SESSIONS: KVNamespace` from env and wrangler config
+  - Frontend: removed all localStorage/sessionId logic, sends initData on every request
+  - useAuth: retry once after 150ms if initData not available on first frame (fixes first-open bug)
+  - Added `GET/PUT /api/v1/users/me` endpoint for Account page
+- **Bug fixes (Wave 2):**
+  - Removed unused deps: `@twa-dev/sdk`, `@tonconnect/ui-react`
+  - Audited username handling — all render sites already guard for null
+- **Component primitives (Wave 3):**
+  - `PageLayout` — consistent padding wrapper for all pages
+  - `LoadingScreen` — full-screen centered spinner (replaces 6 duplicated states)
+  - `ErrorBanner` / `SuccessBanner` — dismissable status banners
+  - `BottomSheet` — modal sliding up from bottom (extracted from Home.tsx)
+  - `AppLayout` + `BottomTabs` — persistent shell with 3-tab bottom nav
+  - `resolveCurrentUser()` hook — replaces duplicated TG user detection in 3 pages
+  - Extracted `timeAgo()` to `utils/time.ts`, `shareInviteLink()` to `utils/share.ts`
+- **Navigation & new pages (Wave 4):**
+  - 3-tab bottom nav: Groups (`/`), Activity (`/activity`), Account (`/account`)
+  - AppLayout wraps tabbed routes; inner pages (AddExpense, GroupSettings, SettleUp) render without tabs
+  - Activity page: placeholder ("Activity feed coming soon")
+  - Account page: editable display name via `PUT /api/v1/users/me`, read-only username
+- **Screen improvements (Wave 5):**
+  - Admin shown with crown icon (&#9812;) + "Admin" badge in member lists
+  - "Expenses" tab renamed to "Transactions"
+  - Amount input: `type="text" inputMode="decimal"` (no spinner buttons)
+  - FABs repositioned to clear bottom tabs (`bottom-20`)
+  - Create group navigates with `{ replace: true }` (fixes back-button)
+  - All 5 pages refactored to use new components
 
-**Success criteria:**
-- Login bug fixed and verified
-- Auth is stateless — KV sessions removed
-- App has 3-tab navigation (Groups, Activity, Account)
-- Account page shows real Telegram avatar and editable name
-- Frontend components cleanly separated
-- No navigation bugs after create/edit flows
+**Deferred to later phases:**
+
+- Telegram avatar display on Account page (Phase 6 — requires image handling)
+- ~~Frontend framework/UI library~~ — **DECIDED: no library.** See `work_docs/research/3-frontend-framework.md`
 
 ---
 
-## Phase 4: Transactions & Accounting Rework
+## Phase 4: Transactions & Accounting Rework — NEXT
 
 **Goal:** Unify expenses and settlements into a coherent transaction view. Solve the balance integrity problem — prevent broken balances from post-settlement edits without being too restrictive.
 
@@ -138,6 +151,7 @@ All Phase 2 specs completed and archived.
 4. **Currencies: full list with search** — Load a comprehensive currency list (online source → saved as JSON). Add search bar to currency selector (search by name, code, symbol). USD pinned at top.
 
 **Success criteria:**
+
 - Transaction list shows both expenses and settlements, visually distinct
 - Currency selector has full searchable list
 
@@ -160,6 +174,7 @@ All Phase 2 specs completed and archived.
 9. **Wire up Account page** — Language selector functional. No theme selector (follows Telegram).
 
 **Success criteria:**
+
 - Theme follows Telegram's dark/light mode via CSS variables (no separate toggle)
 - All UI text comes from translation files
 - Switching language changes all visible text and persists across sessions/devices via CloudStorage
@@ -184,6 +199,7 @@ All Phase 2 specs completed and archived.
 7. **Cleanup on delete** — When image is removed (or parent entity deleted), delete from R2. No orphaned files.
 
 **Success criteria:**
+
 - User and group avatars display throughout the app
 - Transaction images upload and display correctly
 - iPhone photos (HEIC) handled transparently
@@ -204,11 +220,13 @@ All Phase 2 specs completed and archived.
 4. **Cross-group balance summary on home screen** — Show net balance across all groups. For users in groups with different currencies, convert to USD equivalent for the total. Use a simple free exchange rate API (single `fetch()` call, cached).
 
 **Scope boundaries:**
+
 - No scheduled/automatic reminders — always manually triggered by creditor
 - No analytics or dashboards
 - No export
 
 **Success criteria:**
+
 - Activity tab shows meaningful cross-group feed with pagination
 - Creditors can nudge debtors via the app
 - Home screen shows a useful "you owe / you're owed" total in USD
@@ -228,11 +246,13 @@ All Phase 2 specs completed and archived.
 2. **Update edit expense flow** to support changing split mode on existing expenses.
 
 **Scope boundaries:**
+
 - No custom ratios (covered by manual mode)
 - No recurring expenses
 - No expense categories
 
 **Success criteria:**
+
 - All three split modes work in create and edit flows
 - Zero-remainder validation prevents mismatched amounts
 - Covers the vast majority of real splitting scenarios
@@ -273,12 +293,14 @@ All Phase 2 specs completed and archived.
 11. Switch to mainnet after testnet validation
 
 **Scope boundaries:**
+
 - USDT only (no TON coin yet)
 - No partial payments
 - No transaction fees
 - No rate guarantees — small slippage accepted
 
 **Success criteria:**
+
 - First real USDT settlement on-chain
 - Zero false "settled" states
 - Non-crypto users unaffected (manual settlement still works)
@@ -306,19 +328,19 @@ All Phase 2 specs completed and archived.
 
 ## Phase Summary
 
-| Phase | Name                        | Key Milestone                        | Depends On  |
-| ----- | --------------------------- | ------------------------------------ | ----------- |
-| 1     | Core Prototype              | Basic expense splitting works        | —           |
-| 2     | Splitwise Polish            | Daily-usable Splitwise clone         | Phase 1     |
-| 3     | UX Overhaul                 | Stateless auth + 3-tab nav + cleanup | Phase 2     |
-| 4     | Transactions & Accounting   | Unified transaction view + integrity | Phase 3     |
-| 5     | Themes & i18n               | Dark/light + 3 languages             | Phase 3     |
-| 6     | Images & Storage            | Avatars + attachments via R2         | Phase 3     |
-| 7     | Retention & Engagement      | Activity feed + reminders            | Phase 4     |
-| 8     | Advanced Splitting          | Equal / % / manual split modes       | Phase 4     |
-| 9     | Growth & Virality           | *Speculative — evaluate later*       | Phase 7     |
-| 10    | Crypto Settlement           | On-chain USDT (mainnet)              | Phase 4     |
-| 11    | AI & Monetization           | *Speculative — evaluate later*       | Phase 8, 10 |
+| Phase | Name                      | Key Milestone                        | Depends On  |
+| ----- | ------------------------- | ------------------------------------ | ----------- |
+| 1     | Core Prototype            | Basic expense splitting works        | —           |
+| 2     | Splitwise Polish          | Daily-usable Splitwise clone         | Phase 1     |
+| 3     | UX Overhaul               | Stateless auth + 3-tab nav + cleanup | Phase 2     |
+| 4     | Transactions & Accounting | Unified transaction view + integrity | Phase 3     |
+| 5     | Themes & i18n             | Dark/light + 3 languages             | Phase 3     |
+| 6     | Images & Storage          | Avatars + attachments via R2         | Phase 3     |
+| 7     | Retention & Engagement    | Activity feed + reminders            | Phase 4     |
+| 8     | Advanced Splitting        | Equal / % / manual split modes       | Phase 4     |
+| 9     | Growth & Virality         | _Speculative — evaluate later_       | Phase 7     |
+| 10    | Crypto Settlement         | On-chain USDT (mainnet)              | Phase 4     |
+| 11    | AI & Monetization         | _Speculative — evaluate later_       | Phase 8, 10 |
 
 Phases 4, 5, and 6 can run in parallel after Phase 3. Phase 10 has no dependency on Phases 5–9.
 

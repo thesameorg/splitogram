@@ -2,8 +2,12 @@ import { useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { api, ApiError } from './services/api';
+import { AppLayout } from './components/AppLayout';
+import { LoadingScreen } from './components/LoadingScreen';
 import { Home } from './pages/Home';
 import { Group } from './pages/Group';
+import { Activity } from './pages/Activity';
+import { Account } from './pages/Account';
 import { AddExpense } from './pages/AddExpense';
 import { SettleUp } from './pages/SettleUp';
 import { GroupSettings } from './pages/GroupSettings';
@@ -44,14 +48,12 @@ function AppContent() {
     } else if (startParam.startsWith('join_')) {
       const inviteCode = startParam.slice('join_'.length);
       if (inviteCode) {
-        // Resolve invite → join if needed → navigate to group
         api
           .resolveInvite(inviteCode)
           .then(async (info) => {
             try {
               await api.joinGroup(info.id, inviteCode);
             } catch (err) {
-              // already_member is fine — just navigate to the group
               if (!(err instanceof ApiError && err.errorCode === 'already_member')) throw err;
             }
             navigate(`/groups/${info.id}`);
@@ -64,17 +66,12 @@ function AppContent() {
       const id = startParam.slice('settle_'.length);
       if (id) navigate(`/settle/${id}`);
     } else if (startParam.startsWith('expense_')) {
-      // Expense deep links — no standalone page yet, just go home
       navigate('/');
     }
   }, [auth.authenticated, navigate]);
 
   if (auth.loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">Loading...</div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!auth.authenticated) {
@@ -90,8 +87,15 @@ function AppContent() {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/groups/:id" element={<Group />} />
+      {/* Routes with bottom tabs */}
+      <Route element={<AppLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/activity" element={<Activity />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/groups/:id" element={<Group />} />
+      </Route>
+
+      {/* Full-screen routes (no tabs) */}
       <Route path="/groups/:id/settings" element={<GroupSettings />} />
       <Route path="/groups/:id/add-expense" element={<AddExpense />} />
       <Route path="/groups/:id/edit-expense/:expenseId" element={<AddExpense />} />

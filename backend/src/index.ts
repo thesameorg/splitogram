@@ -8,6 +8,7 @@ import { groupsApp } from './api/groups';
 import { expensesApp } from './api/expenses';
 import { balancesApp } from './api/balances';
 import { settlementsApp } from './api/settlements';
+import { usersApp } from './api/users';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
 import type { Env } from './env';
@@ -55,10 +56,13 @@ app.route('/api/v1/groups/:id/expenses', expensesApp);
 app.use('/api/v1/groups/:id/balances/*', authMiddleware);
 app.route('/api/v1/groups/:id/balances', balancesApp);
 
-// Settlements & Wallet (mixed routes)
+// Settlements
 app.use('/api/v1/settlements/*', authMiddleware);
-app.use('/api/v1/users/*', authMiddleware);
 app.route('/api/v1', settlementsApp);
+
+// Users
+app.use('/api/v1/users/*', authMiddleware);
+app.route('/api/v1/users', usersApp);
 
 // --- Root info ---
 app.get('/', (c) => {

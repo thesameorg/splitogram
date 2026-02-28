@@ -2,7 +2,14 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, sql, desc } from 'drizzle-orm';
-import { groups, groupMembers, users, expenses, expenseParticipants, settlements } from '../db/schema';
+import {
+  groups,
+  groupMembers,
+  users,
+  expenses,
+  expenseParticipants,
+  settlements,
+} from '../db/schema';
 import { computeGroupBalances } from './balances';
 import { CURRENCY_CODES } from '../utils/currencies';
 import { notify } from '../services/notifications';
@@ -27,7 +34,10 @@ function generateInviteCode(): string {
 // --- Create group ---
 const createGroupSchema = z.object({
   name: z.string().min(1).max(100),
-  currency: z.string().refine((c) => CURRENCY_CODES.includes(c)).optional(),
+  currency: z
+    .string()
+    .refine((c) => CURRENCY_CODES.includes(c))
+    .optional(),
 });
 
 groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
@@ -122,7 +132,12 @@ groupsApp.get('/', async (c) => {
       count: sql<number>`count(*)`,
     })
     .from(groupMembers)
-    .where(sql`${groupMembers.groupId} IN (${sql.join(groupIds.map((id) => sql`${id}`), sql`, `)})`)
+    .where(
+      sql`${groupMembers.groupId} IN (${sql.join(
+        groupIds.map((id) => sql`${id}`),
+        sql`, `,
+      )})`,
+    )
     .groupBy(groupMembers.groupId);
 
   const countMap = new Map(memberCounts.map((r) => [r.groupId, r.count]));
@@ -219,7 +234,10 @@ groupsApp.get('/:id', async (c) => {
 // --- Update group settings ---
 const updateGroupSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  currency: z.string().refine((c) => CURRENCY_CODES.includes(c)).optional(),
+  currency: z
+    .string()
+    .refine((c) => CURRENCY_CODES.includes(c))
+    .optional(),
 });
 
 groupsApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
@@ -254,10 +272,7 @@ groupsApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
   }
 
   if (membership.role !== 'admin') {
-    return c.json(
-      { error: 'not_admin', detail: 'Only group admins can update settings' },
-      403,
-    );
+    return c.json({ error: 'not_admin', detail: 'Only group admins can update settings' }, 403);
   }
 
   const setValues: Record<string, any> = { updatedAt: new Date().toISOString() };
@@ -307,10 +322,7 @@ groupsApp.post('/:id/mute', async (c) => {
   }
 
   const newMuted = !membership.muted;
-  await db
-    .update(groupMembers)
-    .set({ muted: newMuted })
-    .where(eq(groupMembers.id, membership.id));
+  await db.update(groupMembers).set({ muted: newMuted }).where(eq(groupMembers.id, membership.id));
 
   return c.json({ muted: newMuted });
 });
@@ -417,9 +429,12 @@ groupsApp.delete('/:id', async (c) => {
 
   if (groupExpenses.length > 0) {
     const expenseIds = groupExpenses.map((e) => e.id);
-    await db
-      .delete(expenseParticipants)
-      .where(sql`${expenseParticipants.expenseId} IN (${sql.join(expenseIds.map((id) => sql`${id}`), sql`, `)})`);
+    await db.delete(expenseParticipants).where(
+      sql`${expenseParticipants.expenseId} IN (${sql.join(
+        expenseIds.map((id) => sql`${id}`),
+        sql`, `,
+      )})`,
+    );
   }
 
   await db.delete(expenses).where(eq(expenses.groupId, groupId));
@@ -462,7 +477,10 @@ groupsApp.post('/:id/leave', async (c) => {
 
   if (membership.role === 'admin') {
     return c.json(
-      { error: 'admin_cannot_leave', detail: 'Group creator cannot leave. Delete the group instead.' },
+      {
+        error: 'admin_cannot_leave',
+        detail: 'Group creator cannot leave. Delete the group instead.',
+      },
       400,
     );
   }

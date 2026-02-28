@@ -4,7 +4,7 @@ on:
   workflow_call:
     outputs:
       worker_url:
-        description: "URL of the deployed worker"
+        description: 'URL of the deployed worker'
         value: ${{ jobs.deploy-worker.outputs.worker_url }}
 
 jobs:

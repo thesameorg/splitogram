@@ -1,9 +1,6 @@
 import type { D1Database } from '@cloudflare/workers-types';
 
 export interface Env {
-  // KV Namespaces
-  SESSIONS: KVNamespace;
-
   // D1 Database
   DB: D1Database;
 
@@ -19,10 +16,7 @@ export interface Env {
 }
 
 export interface SessionData {
-  sessionId: string;
   telegramId: number;
   username?: string;
   displayName: string;
-  createdAt: number;
-  expiresAt: number;
 }

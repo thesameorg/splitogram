@@ -16,23 +16,23 @@ Telegram Mini Apps already have dark/light mode controlled by the user's Telegra
 
 Telegram injects 15 CSS variables (`--tg-theme-*`) into the Mini App WebView:
 
-| CSS Variable | Use |
-|---|---|
-| `--tg-theme-bg-color` | Main background |
-| `--tg-theme-text-color` | Main text |
-| `--tg-theme-hint-color` | Secondary/hint text |
-| `--tg-theme-link-color` | Links |
-| `--tg-theme-button-color` | Primary button bg |
-| `--tg-theme-button-text-color` | Primary button text |
-| `--tg-theme-secondary-bg-color` | Card/secondary background |
-| `--tg-theme-header-bg-color` | Header background |
-| `--tg-theme-accent-text-color` | Accent text |
-| `--tg-theme-section-bg-color` | Section background |
-| `--tg-theme-section-header-text-color` | Section headers |
-| `--tg-theme-subtitle-text-color` | Subtitles |
-| `--tg-theme-destructive-text-color` | Destructive actions (red) |
-| `--tg-theme-section-separator-color` | Divider lines |
-| `--tg-theme-bottom-bar-bg-color` | Bottom bar bg |
+| CSS Variable                           | Use                       |
+| -------------------------------------- | ------------------------- |
+| `--tg-theme-bg-color`                  | Main background           |
+| `--tg-theme-text-color`                | Main text                 |
+| `--tg-theme-hint-color`                | Secondary/hint text       |
+| `--tg-theme-link-color`                | Links                     |
+| `--tg-theme-button-color`              | Primary button bg         |
+| `--tg-theme-button-text-color`         | Primary button text       |
+| `--tg-theme-secondary-bg-color`        | Card/secondary background |
+| `--tg-theme-header-bg-color`           | Header background         |
+| `--tg-theme-accent-text-color`         | Accent text               |
+| `--tg-theme-section-bg-color`          | Section background        |
+| `--tg-theme-section-header-text-color` | Section headers           |
+| `--tg-theme-subtitle-text-color`       | Subtitles                 |
+| `--tg-theme-destructive-text-color`    | Destructive actions (red) |
+| `--tg-theme-section-separator-color`   | Divider lines             |
+| `--tg-theme-bottom-bar-bg-color`       | Bottom bar bg             |
 
 Plus `--tg-color-scheme` ("light" or "dark") and viewport/safe-area insets.
 
@@ -82,17 +82,18 @@ Telegram fires `themeChanged` when user switches. The injected CSS variables upd
 ### Why not localStorage
 
 localStorage is **not reliably persistent** in Telegram Mini Apps:
+
 - iOS WKWebView can clear localStorage between app restarts or under memory pressure
 - Clearing TG app cache may wipe Mini App localStorage (undocumented, platform-dependent)
 - No cross-device sync
 
 ### Telegram's built-in storage APIs
 
-| API | Sync | Limit | Since | Use For |
-|---|---|---|---|---|
-| **CloudStorage** | Cross-device (cloud) | 1024 items × 4KB | Bot API 6.9 | User prefs |
-| **DeviceStorage** | Local only | 5 MB | Bot API 8.0 | Larger local data |
-| **SecureStorage** | Local encrypted | 10 items | Bot API 8.0 | Secrets |
+| API               | Sync                 | Limit            | Since       | Use For           |
+| ----------------- | -------------------- | ---------------- | ----------- | ----------------- |
+| **CloudStorage**  | Cross-device (cloud) | 1024 items × 4KB | Bot API 6.9 | User prefs        |
+| **DeviceStorage** | Local only           | 5 MB             | Bot API 8.0 | Larger local data |
+| **SecureStorage** | Local encrypted      | 10 items         | Bot API 8.0 | Secrets           |
 
 ### Decision: CloudStorage for language preference
 
@@ -109,7 +110,9 @@ localStorage is **not reliably persistent** in Telegram Mini Apps:
 const cs = window.Telegram.WebApp.CloudStorage;
 
 // Save
-cs.setItem('lang', 'ru', (err) => { /* fire-and-forget */ });
+cs.setItem('lang', 'ru', (err) => {
+  /* fire-and-forget */
+});
 
 // Read on init
 cs.getItem('lang', (err, value) => {
@@ -131,6 +134,7 @@ cs.getItem('lang', (err, value) => {
 ## Impact on Phase 5
 
 Phase 5 simplifies significantly:
+
 - ~~Theme selector on Account page~~ → removed (follows Telegram)
 - ~~Two color palettes~~ → Telegram provides both via CSS vars
 - ~~Persistence Q&A~~ → decided (CloudStorage for language)

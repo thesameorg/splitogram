@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiRequest, setSessionId, getSessionId, clearSession } from '../services/api';
+import { api } from '../services/api';
 
 interface AuthState {
   authenticated: boolean;
@@ -21,42 +21,38 @@ export function useAuth(): AuthState {
   }, []);
 
   async function authenticate() {
-    // If we have an existing session, try to validate it
-    const existingSession = getSessionId();
-
     try {
-      const webApp = window.Telegram?.WebApp;
-      const initData = webApp?.initData;
-
-      const body: Record<string, string> = {};
-      if (existingSession) body.sessionId = existingSession;
-      if (initData) body.initData = initData;
-
-      const result = await apiRequest<{
-        authenticated: boolean;
-        sessionId: string;
-        user: { id: number; displayName?: string; first_name?: string; last_name?: string };
-        expiresAt: number;
-      }>('/api/v1/auth', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      });
+      const result = await api.authenticate();
 
       if (result.authenticated) {
-        setSessionId(result.sessionId);
-        const displayName =
-          result.user.displayName ||
-          [result.user.first_name, result.user.last_name].filter(Boolean).join(' ');
         setState({
           authenticated: true,
           loading: false,
           userId: result.user.id,
-          displayName,
+          displayName: result.user.displayName,
         });
         return;
       }
     } catch {
-      clearSession();
+      // If initData isn't available yet (first frame), retry once after a short delay
+      const initData = window.Telegram?.WebApp?.initData;
+      if (!initData) {
+        await new Promise((r) => setTimeout(r, 150));
+        try {
+          const result = await api.authenticate();
+          if (result.authenticated) {
+            setState({
+              authenticated: true,
+              loading: false,
+              userId: result.user.id,
+              displayName: result.user.displayName,
+            });
+            return;
+          }
+        } catch {
+          // Give up
+        }
+      }
     }
 
     setState({ authenticated: false, loading: false, userId: null, displayName: null });

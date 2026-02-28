@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       worker_url:
-        description: "Worker URL (optional - will be auto-detected if not provided)"
+        description: 'Worker URL (optional - will be auto-detected if not provided)'
         required: false
         type: string
 

@@ -11,9 +11,11 @@
 Two separate needs for exchange rates:
 
 ### 1. Cross-group balance summary (Phase 7)
+
 Home screen shows total balance across all groups. If user is in groups with different currencies (USD, EUR, THB), we need to convert all to USD for a single total. Approximate rate is fine — this is informational.
 
 ### 2. Currency → USDT conversion (Phase 10)
+
 When settling on-chain, convert group currency to USDT. User sees: "You owe €15.00 → ~15.82 USDT." Rate is informational, fetched once at tx time, no locking.
 
 ## Requirements
@@ -26,13 +28,13 @@ When settling on-chain, convert group currency to USDT. User sees: "You owe €1
 
 ## Options to evaluate
 
-| API                    | Free tier             | Fiat | Crypto | Notes                        |
-| ---------------------- | --------------------- | ---- | ------ | ---------------------------- |
-| exchangerate-api.com   | 1500 req/month        | yes  | no     | Simple, reliable             |
-| open.er-api.com        | Unlimited (open data) | yes  | no     | No API key needed            |
-| frankfurter.app        | Unlimited (ECB data)  | yes  | no     | No API key, EUR-based        |
-| CoinGecko              | 10K req/month         | yes  | yes    | Has USDT, good for Phase 10  |
-| Binance public API     | Generous              | no   | yes    | Crypto only, no fiat pairs   |
+| API                  | Free tier             | Fiat | Crypto | Notes                       |
+| -------------------- | --------------------- | ---- | ------ | --------------------------- |
+| exchangerate-api.com | 1500 req/month        | yes  | no     | Simple, reliable            |
+| open.er-api.com      | Unlimited (open data) | yes  | no     | No API key needed           |
+| frankfurter.app      | Unlimited (ECB data)  | yes  | no     | No API key, EUR-based       |
+| CoinGecko            | 10K req/month         | yes  | yes    | Has USDT, good for Phase 10 |
+| Binance public API   | Generous              | no   | yes    | Crypto only, no fiat pairs  |
 
 ## Research tasks
 

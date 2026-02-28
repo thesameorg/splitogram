@@ -331,11 +331,13 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
 
   // Recalculate shares if participants or amount changed
   if (updates.participantIds || updates.amount) {
-    const participantIds = updates.participantIds ??
-      (await db
-        .select({ userId: expenseParticipants.userId })
-        .from(expenseParticipants)
-        .where(eq(expenseParticipants.expenseId, expenseId))
+    const participantIds =
+      updates.participantIds ??
+      (
+        await db
+          .select({ userId: expenseParticipants.userId })
+          .from(expenseParticipants)
+          .where(eq(expenseParticipants.expenseId, expenseId))
       ).map((p) => p.userId);
 
     // Validate participants are group members

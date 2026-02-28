@@ -1,19 +1,5 @@
 import { config } from '../config';
 
-const SESSION_KEY = 'splitogram_session_id';
-
-export function getSessionId(): string | null {
-  return localStorage.getItem(SESSION_KEY);
-}
-
-export function setSessionId(id: string): void {
-  localStorage.setItem(SESSION_KEY, id);
-}
-
-export function clearSession(): void {
-  localStorage.removeItem(SESSION_KEY);
-}
-
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -25,16 +11,19 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const sessionId = getSessionId();
+function getInitData(): string | null {
+  return window.Telegram?.WebApp?.initData || null;
+}
 
+export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
 
-  if (sessionId) {
-    headers['Authorization'] = `Bearer ${sessionId}`;
+  const initData = getInitData();
+  if (initData) {
+    headers['Authorization'] = `tma ${initData}`;
   }
 
   const response = await fetch(`${config.apiBaseUrl}${endpoint}`, {
@@ -139,13 +128,45 @@ export interface Settlement {
 export interface SettlementDetail extends Settlement {
   currentUserId: number;
   currency: string;
-  from: { userId: number; displayName: string; username: string | null; walletAddress: string | null };
-  to: { userId: number; displayName: string; username: string | null; walletAddress: string | null };
+  from: {
+    userId: number;
+    displayName: string;
+    username: string | null;
+    walletAddress: string | null;
+  };
+  to: {
+    userId: number;
+    displayName: string;
+    username: string | null;
+    walletAddress: string | null;
+  };
+}
+
+export interface UserProfile {
+  id: number;
+  telegramId: number;
+  displayName: string;
+  username: string | null;
 }
 
 // --- API Functions ---
 
 export const api = {
+  // Auth
+  authenticate: () =>
+    apiRequest<{
+      authenticated: boolean;
+      user: { id: number; displayName: string; username: string | null };
+    }>('/api/v1/auth', { method: 'POST', body: JSON.stringify({}) }),
+
+  // Users
+  getMe: () => apiRequest<UserProfile>('/api/v1/users/me'),
+  updateMe: (data: { displayName: string }) =>
+    apiRequest<{ displayName: string }>('/api/v1/users/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
   // Groups
   listGroups: () => apiRequest<{ groups: GroupSummary[] }>('/api/v1/groups'),
 
@@ -233,8 +254,7 @@ export const api = {
   getBalances: (groupId: number) =>
     apiRequest<{ debts: DebtEntry[] }>(`/api/v1/groups/${groupId}/balances`),
 
-  getMyBalance: (groupId: number) =>
-    apiRequest<MyBalance>(`/api/v1/groups/${groupId}/balances/me`),
+  getMyBalance: (groupId: number) => apiRequest<MyBalance>(`/api/v1/groups/${groupId}/balances/me`),
 
   // Settlements
   createSettlement: (groupId: number, fromUserId: number, toUserId: number) =>

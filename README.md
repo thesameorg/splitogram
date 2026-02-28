@@ -4,13 +4,13 @@ Telegram Mini App for splitting group expenses with on-chain USDT settlement on 
 
 ## Stack
 
-| Layer    | Tech                                                                 |
-| -------- | -------------------------------------------------------------------- |
-| Runtime  | Bun                                                                  |
-| Backend  | Hono (Cloudflare Worker) + grammY + Drizzle ORM + Zod               |
-| Frontend | React 19 + Vite (Cloudflare Pages) + Tailwind + TON Connect         |
-| Database | Cloudflare D1 (SQLite) + KV (sessions)                              |
-| CI/CD    | GitHub Actions → Cloudflare                                          |
+| Layer    | Tech                                                        |
+| -------- | ----------------------------------------------------------- |
+| Runtime  | Bun                                                         |
+| Backend  | Hono (Cloudflare Worker) + grammY + Drizzle ORM + Zod       |
+| Frontend | React 19 + Vite (Cloudflare Pages) + Tailwind + TON Connect |
+| Database | Cloudflare D1 (SQLite) + KV (sessions)                      |
+| CI/CD    | GitHub Actions → Cloudflare                                 |
 
 ## Architecture
 
@@ -72,11 +72,13 @@ Push to `main` triggers the full deploy pipeline:
 ### Required GitHub configuration
 
 **Secrets:**
+
 - `CLOUDFLARE_API_TOKEN` — Cloudflare API token with Workers/Pages/D1 permissions
 - `CLOUDFLARE_ACCOUNT_ID` — Cloudflare account ID
 - `TELEGRAM_BOT_TOKEN` — Telegram bot token from @BotFather
 
 **Variables:**
+
 - `WORKER_URL` — deployed worker URL (e.g. `https://splitogram.dksg87.workers.dev`)
 - `PAGES_URL` — deployed pages URL (e.g. `https://splitogram.pages.dev`)
 - `PAGES_PROJECT_NAME` — Cloudflare Pages project name

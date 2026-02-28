@@ -2,8 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type GroupDetail, ApiError } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
+import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { CURRENCIES, CURRENCY_CODES } from '../utils/currencies';
-import { config } from '../config';
+import { shareInviteLink } from '../utils/share';
+import { PageLayout } from '../components/PageLayout';
+import { LoadingScreen } from '../components/LoadingScreen';
+import { ErrorBanner } from '../components/ErrorBanner';
+import { SuccessBanner } from '../components/SuccessBanner';
 
 export function GroupSettings() {
   const { id } = useParams<{ id: string }>();
@@ -33,20 +38,10 @@ export function GroupSettings() {
         setCurrency(data.currency);
         setMuted(data.muted);
 
-        const webApp = window.Telegram?.WebApp;
-        const tgId = webApp?.initDataUnsafe?.user?.id;
-        if (tgId) {
-          const member = data.members.find((m) => m.telegramId === tgId);
-          if (member) {
-            setCurrentUserId(member.userId);
-            setCurrentUserRole(member.role);
-          }
-        } else {
-          const admin = data.members.find((m) => m.role === 'admin');
-          if (admin) {
-            setCurrentUserId(admin.userId);
-            setCurrentUserRole(admin.role);
-          }
+        const user = resolveCurrentUser(data.members);
+        if (user) {
+          setCurrentUserId(user.userId);
+          setCurrentUserRole(user.role);
         }
       })
       .catch((err) => setError(err.message))
@@ -90,22 +85,7 @@ export function GroupSettings() {
 
   function handleShareInvite() {
     if (!group) return;
-    const botUsername = config.telegramBotUsername;
-    const link = botUsername
-      ? `https://t.me/${botUsername}?start=join_${group.inviteCode}`
-      : `Invite code: ${group.inviteCode}`;
-
-    const webApp = window.Telegram?.WebApp;
-    if (webApp?.openTelegramLink) {
-      const text = encodeURIComponent(`Join "${group.name}" on Splitogram! ${link}`);
-      webApp.openTelegramLink(
-        `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`,
-      );
-    } else {
-      navigator.clipboard.writeText(link);
-      setSuccess('Invite link copied!');
-      setTimeout(() => setSuccess(null), 2000);
-    }
+    shareInviteLink(group.inviteCode, group.name);
   }
 
   async function handleDeleteGroup() {
@@ -141,30 +121,16 @@ export function GroupSettings() {
     }
   }
 
-  if (loading || !group) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">Loading...</div>
-      </div>
-    );
-  }
+  if (loading || !group) return <LoadingScreen />;
 
   const creator = group.members.find((m) => m.role === 'admin');
 
   return (
-    <div className="p-4 pb-24">
+    <PageLayout>
       <h1 className="text-xl font-bold mb-6">Group Settings</h1>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl mb-4 text-sm">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 p-3 rounded-xl mb-4 text-sm">
-          {success}
-        </div>
-      )}
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+      {success && <SuccessBanner message={success} onDismiss={() => setSuccess(null)} />}
 
       {/* Group name */}
       <div className="mb-4">
@@ -268,16 +234,12 @@ export function GroupSettings() {
                 <span className="font-medium">{m.displayName}</span>
                 {m.role === 'admin' && (
                   <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-full">
-                    Creator
+                    &#9812; Admin
                   </span>
                 )}
-                {m.userId === currentUserId && (
-                  <span className="text-xs text-gray-400">you</span>
-                )}
+                {m.userId === currentUserId && <span className="text-xs text-gray-400">you</span>}
               </div>
-              {m.username && (
-                <span className="text-sm text-gray-400">@{m.username}</span>
-              )}
+              {m.username && <span className="text-sm text-gray-400">@{m.username}</span>}
             </div>
           ))}
         </div>
@@ -285,9 +247,7 @@ export function GroupSettings() {
 
       {/* Created by */}
       {creator && (
-        <div className="text-sm text-gray-500 mb-6">
-          Created by {creator.displayName}
-        </div>
+        <div className="text-sm text-gray-500 mb-6">Created by {creator.displayName}</div>
       )}
 
       {/* Danger zone */}
@@ -308,6 +268,6 @@ export function GroupSettings() {
           </button>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }

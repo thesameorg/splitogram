@@ -55,10 +55,7 @@ export async function handleWebhook(c: Context) {
           .returning();
         user = inserted;
       } else if (!user.botStarted) {
-        await db
-          .update(users)
-          .set({ botStarted: true })
-          .where(eq(users.id, user.id));
+        await db.update(users).set({ botStarted: true }).where(eq(users.id, user.id));
       }
 
       // Check if already a member
@@ -75,9 +72,7 @@ export async function handleWebhook(c: Context) {
       if (alreadyMember) {
         await ctx.reply(`You're already in "${group.name}"! Open the app to see your expenses.`, {
           reply_markup: {
-            inline_keyboard: [
-              [{ text: `Open "${group.name}"`, web_app: { url: groupUrl } }],
-            ],
+            inline_keyboard: [[{ text: `Open "${group.name}"`, web_app: { url: groupUrl } }]],
           },
         });
         return;
@@ -92,9 +87,7 @@ export async function handleWebhook(c: Context) {
 
       await ctx.reply(`You've joined "${group.name}"! Open the app to start splitting expenses.`, {
         reply_markup: {
-          inline_keyboard: [
-            [{ text: `Open "${group.name}"`, web_app: { url: groupUrl } }],
-          ],
+          inline_keyboard: [[{ text: `Open "${group.name}"`, web_app: { url: groupUrl } }]],
         },
       });
       return;
@@ -104,10 +97,7 @@ export async function handleWebhook(c: Context) {
     const defaultTgId = ctx.from?.id;
     if (defaultTgId) {
       const db = createDatabase(c.env.DB);
-      await db
-        .update(users)
-        .set({ botStarted: true })
-        .where(eq(users.telegramId, defaultTgId));
+      await db.update(users).set({ botStarted: true }).where(eq(users.telegramId, defaultTgId));
     }
 
     // Default /start response
