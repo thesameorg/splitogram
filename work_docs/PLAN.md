@@ -1,8 +1,10 @@
 # Splitogram — Business Phases
 
-Phased roadmap from prototype to full product. Each phase has a clear goal, deliverables, scope boundaries, and success criteria.
+Phased roadmap from prototype to full product. Each phase has a clear goal, deliverables, and success criteria.
 
-**Core insight (from Phase 1 testing):** Make Splitwise-on-Telegram work well first. Crypto settlement is the differentiator, but it means nothing if the core expense tracking UX is rough. Ship a solid expense splitter, then layer on-chain settlement on top.
+**Core insight:** Features first, crypto later. Ship a daily-usable expense splitter with real polish — themes, languages, images, proper accounting. Crypto settlement is the differentiator but only matters after the core product is solid.
+
+Steps marked **RESEARCH** require investigation before implementation. Steps marked **Q&A** require a decision session before proceeding.
 
 ---
 
@@ -20,7 +22,7 @@ Phased roadmap from prototype to full product. Each phase has a clear goal, deli
 - Bot notifications (expense added, member joined, settlement)
 - Deep link routing (bot → mini app at correct screen)
 - CI/CD pipeline (GitHub Actions → Cloudflare Workers + Pages)
-- TON Connect wallet integration + on-chain settlement (basic, testnet) — **functional but deferred to Phase 3 for polish**
+- TON Connect wallet integration + on-chain settlement (basic, testnet) — **functional but deferred for polish**
 
 **What was learned (manual testing):**
 
@@ -90,246 +92,251 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 3: Crypto Settlement
+## Phase 3: UX Overhaul — NEXT
 
-**Goal:** Layer on-chain USDT settlement on top of the working Splitwise core. Testnet first, then mainnet.
+**Goal:** Fix bugs, go stateless, restructure navigation, clean up the UI. Make the app feel like a real product.
 
-**Deliverables:**
+**Steps:**
 
-- Re-enable TON Connect wallet integration in settle flow (code exists from Phase 1, needs polish)
-- Wallet management screen: connect, disconnect, see address, switch wallet
-- Multiple wallet support per user (Tonkeeper, Telegram Wallet, MyTonWallet)
-- "Pay with TON wallet" as primary option alongside "Mark as settled" on settle screen
-- **Currency → USDT conversion at settlement:**
-  - When user pays on-chain, convert the group-currency debt amount to USDT
-  - Simple approach: fetch rate from a public API (e.g., CoinGecko, Binance) at settlement time
-  - Show conversion clearly: "You owe €15.00 → ~15.82 USDT at current rate"
-  - Rate is informational, fetched once at tx construction — no locking, no hedging
-  - Store the conversion rate and USDT amount on the settlement record for audit
-- Testnet USDT transfer construction + on-chain verification via TONAPI
-- Clear testnet/mainnet indicator in UI
-- Pre-flight balance check before settlement attempt
-- Switch to mainnet USDT after testnet validation
-- Payment state machine: `open → payment_pending → settled_onchain` with rollback
-- Background reconciliation: "Refresh status" button for stuck `payment_pending`
-- Clear error UX: insufficient balance, tx rejected, wallet disconnected mid-flow
-- Rate limiting on settle endpoint
-
-**Scope boundaries:**
-
-- USDT only (no TON coin settlement yet)
-- No partial payments
-- No transaction fees
-- One currency per group (multi-currency within a group is Phase 8)
-- No rate guarantees — user sees rate at settlement time, small slippage accepted
+1. **Bugfix: Login-with-Telegram first-open failure** — Auth fails on first app open, works on second (per user). This is a production bug hitting every new user. Investigate and fix first.
+2. **Bugfix: Users without @username or profile image** — Verify all flows (auth, display, group members, notifications) handle missing username and missing avatar gracefully.
+3. **Architecture: Remove KV sessions, go stateless** — Telegram's `initData` is HMAC-signed and can be verified on every request server-side with zero external calls. KV sessions add latency, complexity, and a failure mode for no benefit. Remove the KV session layer. Auth becomes stateless HMAC verification per request. Remove KV binding from `env.ts`, simplify auth middleware.
+4. **RESEARCH: Frontend framework/UI library decision** — Current stack is plain React + Tailwind. Evaluate whether to adopt a component library or framework (e.g., Telegram UI kit, shadcn/ui, or similar) given upcoming needs: themes, i18n, bottom nav, form components. Decide before building new UI.
+5. **Technical: Component architecture cleanup** — Audit frontend components. Split large files into focused single-responsibility `.tsx` files. Each UI element identifiable and editable in one place.
+6. **Bottom sticky navigation — three tabs:** Groups (current home), Activity (empty state initially — "coming soon" or blank), Account.
+7. **Groups screen improvements:**
+   - Admin shown with crown icon
+   - Copy-invite-link button visible to any group member (not just admin)
+8. **Account page:**
+   - Edit display name
+   - Telegram avatar displayed (from `initData` `photo_url` — no storage needed)
+   - Telegram username shown (read-only)
+9. **UX cleanups (moved from Phase 4):**
+   - Rename "Expenses" section to "Transactions" throughout the app
+   - Remove up/down spinner buttons on amount input field
+   - Fix back-button navigation after creating or editing transactions
 
 **Success criteria:**
-
-- First real USDT settlement processed and verified on-chain
-- Zero false "settled" states
-- Failure scenarios handled gracefully
-- Currency conversion displayed clearly before user approves
-- Non-crypto users unaffected (manual settlement still works)
+- Login bug fixed and verified
+- Auth is stateless — KV sessions removed
+- App has 3-tab navigation (Groups, Activity, Account)
+- Account page shows real Telegram avatar and editable name
+- Frontend components cleanly separated
+- No navigation bugs after create/edit flows
 
 ---
 
-## Phase 4: Retention & Trust
+## Phase 4: Transactions & Accounting Rework
 
-**Goal:** Make users come back. Build confidence that the app is reliable beyond one-time use.
+**Goal:** Unify expenses and settlements into a coherent transaction view. Solve the balance integrity problem — prevent broken balances from post-settlement edits without being too restrictive.
 
-**Deliverables:**
+**Steps:**
 
-- Rich expense history and activity feed per group
-- Group activity timeline (who added what, who settled when)
-- Debt reminders — nudge debtors via bot with a friendly "you owe X to Y"
-- Reminder scheduling (configurable frequency)
-- Balance summary across all groups on home screen (improved)
+1. **RESEARCH: How Splitwise handles editing after settlement** — What happens when someone edits an expense that was already settled? Does it reopen the settlement? Block edits? Show a warning? Document findings.
+2. **Q&A: Decide balance integrity rules** — Based on research, choose approach. Candidates: (a) warn + auto-reopen affected settlements, (b) block edits on expenses involved in settlements, (c) allow edits but show "balances changed since last settlement" indicator. Pick one.
+3. **Unified transaction list** — Settlements visible alongside expenses with visually distinct layout (different card style, icon, color).
+4. **Implement balance integrity rules** (from Q&A in step 2).
+5. **Currencies: full list with search** — Load a comprehensive currency list (online source → saved as JSON). Add search bar to currency selector (search by name, code, symbol). USD pinned at top.
+
+**Success criteria:**
+- Transaction list shows both expenses and settlements, visually distinct
+- Editing a settled expense follows the chosen integrity rule without breaking balances
+- Currency selector has full searchable list
+
+---
+
+## Phase 5: Themes & Internationalization
+
+**Goal:** Support dark/light/system themes and multiple UI languages.
+
+**Steps:**
+
+1. **RESEARCH: Telegram Mini App theme API + persistence** — How to detect system theme (dark/light) from Telegram. What CSS variables TG provides. How other Mini Apps handle theming. Critically: how reliable is localStorage in TG WebView across iOS/Android? This determines the save strategy for both themes and language.
+2. **RESEARCH: i18n approach** — Lightweight custom JSON lookup vs `react-i18next` or similar lib. Decide based on bundle size, complexity, and plural/interpolation needs.
+3. **Q&A: Decide persistence strategy for user preferences** — Based on research: localStorage only, localStorage + D1 `users` table, or cookies. Pick one approach for both theme and language.
+4. **Theme system** — Three options: dark, light, system (default). System reads from Telegram's current theme.
+5. **Two color palettes** — Light and dark. Apply via CSS variables or Tailwind dark mode.
+6. **i18n framework** — JSON-based translation files, one per language. Simple key-value with namespace support.
+7. **Missing translation fallback** — In development: show the raw key (e.g., `ACCOUNT_DESCRIPTION_TEXT`) to catch untranslated strings. In production: fall back to English.
+8. **Languages: English (base), Russian, Spanish.**
+9. **Save theme and language preferences** using the approach decided in step 3. Default theme: system. Default language: detect from Telegram's `language_code`.
+10. **Wire up Account page** — Theme selector and language selector now functional.
+
+**Success criteria:**
+- Theme switches instantly, persists across sessions
+- System theme follows Telegram's dark/light mode
+- All UI text comes from translation files
+- Switching language changes all visible text
+- Dev mode shows raw keys for missing translations; production falls back to English
+
+---
+
+## Phase 6: Images & Storage
+
+**Goal:** User/group avatars and transaction document attachments via Cloudflare R2.
+
+**Prerequisites:** Set up R2 bucket(s) before any code — separate logical spaces for avatars and transaction documents.
+
+**Steps:**
+
+1. **RESEARCH: Cloudflare R2 with Workers** — Access patterns (signed URLs vs public), client-side image conversion (HEIC → JPG for iPhone), thumbnail generation strategy (Workers vs client-side).
+2. **User avatars** — Allow custom upload from Account page (on top of existing Telegram avatar from Phase 3).
+3. **Group avatars** — Emoji picker for quick group icons + optional custom image upload.
+4. **Transaction image attachments** — Attach images to expenses and settlements (receipts, proof). JPG, PNG, SVG only.
+5. **Client-side processing** — Convert non-standard formats (HEIC, etc.) to JPG/PNG on device. Strip EXIF metadata. Rename to neutral ID.
+6. **Thumbnail generation** — 96px square thumbnails for list views. Avoid loading full-size images in feeds.
+7. **Cleanup on delete** — When image is removed (or parent entity deleted), delete from R2. No orphaned files.
+
+**Success criteria:**
+- User and group avatars display throughout the app
+- Transaction images upload and display correctly
+- iPhone photos (HEIC) handled transparently
+- No orphaned files in R2 after deletion
+- Thumbnails load fast in list views
+
+---
+
+## Phase 7: Retention & Engagement
+
+**Goal:** Keep users coming back. Fill the Activity tab, add reminders, improve the home screen.
+
+**Steps:**
+
+1. **Activity feed (cross-group)** — Populate the Activity tab from Phase 3. Shows all activity across all groups where the user is a member: expenses added/edited/deleted, settlements, members joined/left. Chronological, with pagination (pull-to-load-more).
+2. **Per-group activity** — Same feed filtered to a single group, accessible from within the group screen.
+3. **Debt reminders** — "Send reminder" button visible to creditors next to each debt. Sends bot DM to debtor. Cooldown (e.g., 1 per 24h per debt) to prevent spam.
+4. **Cross-group balance summary on home screen** — Show net balance across all groups. For users in groups with different currencies, convert to USD equivalent for the total. Use a simple free exchange rate API (single `fetch()` call, cached).
 
 **Scope boundaries:**
-
-- No file attachments yet
+- No scheduled/automatic reminders — always manually triggered by creditor
 - No analytics or dashboards
 - No export
 
 **Success criteria:**
-
-- 30-day group retention measurable and improving
-- Reminder → settlement conversion rate tracked
+- Activity tab shows meaningful cross-group feed with pagination
+- Creditors can nudge debtors via the app
+- Home screen shows a useful "you owe / you're owed" total in USD
 
 ---
 
-## Phase 5: Advanced Splitting
+## Phase 8: Advanced Splitting
 
 **Goal:** Handle real-world expense complexity beyond equal splits.
 
-**Deliverables:**
+**Steps:**
 
-- Unequal splits: exact amounts per person
-- Percentage-based splits
-- Custom ratios (e.g., 2:1:1)
-- Expense categories (food, transport, accommodation, etc.)
-- Attach photos/files to expenses and settlements (receipts, proof)
+1. **Split mode selector in expense creation flow** — Enter total amount first, then select split mode, then allocate, then save. One unified flow, three modes:
+   - **Equal** (default) — divide evenly among selected participants
+   - **Percentage** — assign % per person, must total 100%
+   - **Manual** — assign exact amounts per person, must total the entered amount (zero remainder validation)
+2. **Update edit expense flow** to support changing split mode on existing expenses.
 
 **Scope boundaries:**
-
-- No recurring expenses yet
-- No multi-currency
-- Categories and advanced splits are free (premium = AI + multi-currency + analytics)
+- No custom ratios (covered by manual mode)
+- No recurring expenses
+- No expense categories
 
 **Success criteria:**
-
+- All three split modes work in create and edit flows
+- Zero-remainder validation prevents mismatched amounts
 - Covers the vast majority of real splitting scenarios
-- Category data collected for future analytics
 
 ---
 
-## Phase 6: Growth & Virality
+## Phase 9: Growth & Virality — SPECULATIVE
 
-**Goal:** Organic user acquisition through social mechanics and reduced friction.
+> **Status: not sure at all.** Evaluate based on traction and user feedback. May be reprioritized, reduced, or dropped entirely.
 
-**Deliverables:**
+**Ideas (not commitments):**
 
-- Optimized invite flow: polish the link-based join experience
+- Optimized invite flow — polish link-based join UX
 - Social proof in chats: "Alice settled $12.50 with Bob" visible to group
-- Shareable expense summaries ("Trip to Bali — total $2,400 split among 4 people")
-- Onboarding polish: first-time user experience, tooltip walkthrough
-- Referral program (details TBD based on traction data)
-- Option for group admin to send notifications to a TG group chat (not just individual DMs)
-
-**Scope boundaries:**
-
-- No paid acquisition
-- No cross-promotion
-
-**Success criteria:**
-
-- Measurable viral coefficient
-- Invite → active user conversion rate tracked and improving
+- Shareable expense summaries ("Trip to Bali — $2,400 split among 4")
+- Onboarding polish — first-time user experience, tooltip walkthrough
+- Option for group admin to push notifications to a TG group chat (not just DMs)
+- Referral program (design TBD)
 
 ---
 
-## Phase 7: AI Features
+## Phase 10: Crypto Settlement
 
-**Goal:** Reduce friction in expense entry — the #1 chore in any expense tracker.
+**Goal:** Layer on-chain USDT settlement on top of the polished product. Testnet first, then mainnet.
 
-**Deliverables:**
+**Steps:**
 
-- AI receipt scanning: snap a photo → extract merchant, amount, date, items
+1. **RESEARCH: TON Connect current state** — Review TON Connect SDK, wallet compatibility (Tonkeeper, Telegram Wallet, MyTonWallet), USDT jetton on TON, TONAPI for verification. Check what changed since Phase 1 code was written.
+2. **Q&A: Conversion source & UX** — Decide rate API (CoinGecko, Binance, etc.). Decide conversion display UX ("€15.00 → ~15.82 USDT"). Single `fetch()` call, no SDK.
+3. Re-enable TON Connect wallet integration (Phase 1 code exists, needs refresh)
+4. Wallet management: connect, disconnect, see address
+5. "Pay with TON wallet" alongside "Mark as settled" on settle screen
+6. Currency → USDT conversion at settlement time (informational rate, no locking)
+7. Testnet USDT transfer + on-chain verification via TONAPI
+8. Payment state machine: `open → payment_pending → settled_onchain` with rollback
+9. "Refresh status" button for stuck `payment_pending` states
+10. Error UX: insufficient balance, tx rejected, wallet disconnected
+11. Switch to mainnet after testnet validation
+
+**Scope boundaries:**
+- USDT only (no TON coin yet)
+- No partial payments
+- No transaction fees
+- No rate guarantees — small slippage accepted
+
+**Success criteria:**
+- First real USDT settlement on-chain
+- Zero false "settled" states
+- Non-crypto users unaffected (manual settlement still works)
+
+---
+
+## Phase 11: AI & Monetization — SPECULATIVE
+
+> **Status: not sure at all.** These are long-term ideas. Evaluate after the core product has real users and traction data. May be reprioritized, reduced, or dropped entirely.
+
+**Ideas (not commitments):**
+
+- AI receipt scanning — photo → extract merchant, amount, date, items
 - Auto-suggest split based on receipt items
-- Auto-categorization of expenses
-- Quick-add: natural language entry ("dinner 45 split with alice and bob")
-
-**Scope boundaries:**
-
-- Accuracy doesn't need to be perfect — editable results are fine
-- No accounting integrations
-
-**Success criteria:**
-
-- Photo → parsed expense in under 5 seconds
-- Users prefer scanning over manual entry
-
----
-
-## Phase 8: Multi-Currency Within Groups
-
-**Goal:** Support mixed-currency expenses within a single group (Phase 2 gives each group one currency; this phase lets individual expenses use different currencies).
-
-**Deliverables:**
-
-- Per-expense currency override (e.g., group is USD but one expense is in EUR)
-- Automatic conversion to group base currency for balance calculation
-- Exchange rates updated via cron (background worker or scheduled fetch)
-- Clear conversion display on mixed-currency expenses
-- TON coin as additional settlement currency alongside USDT
-
-**Scope boundaries:**
-
-- No real-time rate locking — periodic updates, small slippage accepted
-- No fiat settlement — on-chain only
-- Basic per-group currency already handled since Phase 2
-
-**Success criteria:**
-
-- Mixed-currency expenses within a group work without confusion
-- Rate discrepancy complaints minimal
-
----
-
-## Phase 9: Monetization
-
-**Goal:** Generate revenue after product-market fit.
-
-**Deliverables:**
-
-- Premium subscription (~$3-5/month) via Telegram Stars or USDT
-- Gated features: AI scanning, multi-currency, analytics, unlimited group size, export
-- Optional transaction fee (0.1-0.3%) if volume justifies it
-
-**Scope boundaries:**
-
-- Free tier stays fully functional (unlimited groups, up to 10 members, all split types, USDT settlement)
-- No ads — ever
-
-**Success criteria:**
-
-- Premium conversion rate tracked
-- Revenue per user metrics established
-
----
-
-## Phase 10: Platform Expansion
-
-**Goal:** Evolve from expense splitter into a full group finance tool.
-
-**Deliverables:**
-
-- Recurring expenses (rent, subscriptions) with auto-reminders
-- Partial payments ("pay $10 of your $30 debt now")
+- Natural language expense entry ("dinner 45 split with alice and bob")
+- Multi-currency within groups — per-expense currency override, auto-conversion to group base currency
+- Premium subscription (~$3-5/month via Telegram Stars or USDT). Gated: AI scanning, multi-currency, analytics, export.
+- Partial payments ("pay $10 of your $30 debt")
 - Analytics dashboard (spending by category, trends)
 - CSV/PDF export
-- Data export and account deletion (GDPR)
-
-**Scope boundaries:**
-
-- No budgeting or savings
-- No external accounting integrations
-
-**Success criteria:**
-
-- Feature parity with Splitwise Pro + on-chain settlement as differentiator
+- Data export & account deletion (GDPR)
+- TON coin as additional settlement currency alongside USDT
 
 ---
 
 ## Phase Summary
 
-| Phase | Name                | Key Milestone                          | Depends On |
-| ----- | ------------------- | -------------------------------------- | ---------- |
-| 1     | Core Prototype      | Basic expense splitting works          | —          |
-| 2     | Splitwise Polish    | Daily-usable Splitwise clone           | Phase 1    |
-| 3     | Crypto Settlement   | On-chain USDT settlement (mainnet)     | Phase 2    |
-| 4     | Retention & Trust   | 30-day retention baseline              | Phase 2    |
-| 5     | Advanced Splitting  | Real-world expense coverage            | Phase 2    |
-| 6     | Growth & Virality   | Viral coefficient measured             | Phase 4    |
-| 7     | AI Features         | Receipt scanning live                  | Phase 5    |
-| 8     | Multi-Currency      | Mixed currencies within groups         | Phase 5    |
-| 9     | Monetization        | Revenue stream active                  | Phase 7, 8 |
-| 10    | Platform Expansion  | Full group finance tool                | Phase 9    |
+| Phase | Name                        | Key Milestone                        | Depends On  |
+| ----- | --------------------------- | ------------------------------------ | ----------- |
+| 1     | Core Prototype              | Basic expense splitting works        | —           |
+| 2     | Splitwise Polish            | Daily-usable Splitwise clone         | Phase 1     |
+| 3     | UX Overhaul                 | Stateless auth + 3-tab nav + cleanup | Phase 2     |
+| 4     | Transactions & Accounting   | Unified transaction view + integrity | Phase 3     |
+| 5     | Themes & i18n               | Dark/light + 3 languages             | Phase 3     |
+| 6     | Images & Storage            | Avatars + attachments via R2         | Phase 3     |
+| 7     | Retention & Engagement      | Activity feed + reminders            | Phase 4     |
+| 8     | Advanced Splitting          | Equal / % / manual split modes       | Phase 4     |
+| 9     | Growth & Virality           | *Speculative — evaluate later*       | Phase 7     |
+| 10    | Crypto Settlement           | On-chain USDT (mainnet)              | Phase 4     |
+| 11    | AI & Monetization           | *Speculative — evaluate later*       | Phase 8, 10 |
 
-Note: Phases 4 and 5 can run in parallel after Phase 2.
+Phases 4, 5, and 6 can run in parallel after Phase 3. Phase 10 has no dependency on Phases 5–9.
 
 ---
 
-## Open Decisions (to resolve as we go)
+## Open Decisions (to resolve via Q&A steps)
 
-- **Split types as free or premium** — All split types free. Premium = AI, multi-currency, analytics, export.
-- **Referral program details** — design when Phase 6 is scoped
-- **Transaction fee threshold** — introduce in Phase 9 only if volume justifies it
-- **TON coin settlement** — Phase 8 alongside multi-currency
-- **Premium pricing** — $3 vs $5/month, validate with users before Phase 9
-- **Free tier group size** — 10 members may be too restrictive. Consider 20-25.
-- **Data retention policy** — define before Phase 6 (growth brings diverse jurisdictions)
-- **Notification strategy** — batch vs per-event vs configurable. Decide in Phase 2.
-- **Settlement comments & attachments** — comments in Phase 2, attachments in Phase 5
-- **Currency → USDT conversion source** — CoinGecko, Binance, or similar public API. Decide in Phase 3. Keep it to a single `fetch()` call, no SDK.
-- **Currency list** — start with ~15 common currencies (USD, EUR, GBP, THB, VND, etc.). Expand later.
+- **Balance integrity after settlement** — Decide in Phase 4 Q&A (after Splitwise research)
+- **Frontend framework/UI library** — Decide in Phase 3 research (before building new UI)
+- **i18n approach** — Custom JSON vs `react-i18next`. Decide in Phase 5 research.
+- **User preference persistence** — localStorage vs localStorage+DB vs cookies for theme/language. Decide in Phase 5 Q&A after researching TG WebView behavior.
+- **R2 access pattern** — Public URLs vs signed URLs for images. Decide in Phase 6 research.
+- **Exchange rate source for cross-group balances** — Free API for USD conversion. Decide in Phase 7 (before Phase 10's crypto rate discussion).
+- **Premium pricing** — $3 vs $5/month. Evaluate if Phase 11 ever becomes concrete.
+- **Free tier group size** — Currently uncapped. Consider limits if growth demands it.
+- **Currency → USDT conversion source** — CoinGecko, Binance, etc. Decide in Phase 10 Q&A.
+- **Data retention policy** — Define before any growth push.
