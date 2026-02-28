@@ -14,6 +14,7 @@ Living document. Updated as architectural decisions are made.
 | ORM               | Drizzle                          | Typed, lightweight, D1 adapter                         |
 | Validation        | Zod + `@hono/zod-validator`      | Integrated with Hono                                   |
 | Frontend          | React 19 + Vite + Tailwind       | Mature ecosystem, TON Connect React bindings           |
+| i18n              | react-i18next                    | CLDR plurals (Russian 3-form), interpolation, 15KB gz  |
 | TG Mini App SDK   | `@twa-dev/sdk`                   | Telegram WebApp API access                             |
 | TON Connect       | `@tonconnect/ui-react`           | Official, React bindings (deferred to Phase 10)        |
 | TON verification  | TONAPI REST API (plain `fetch`)  | No SDK needed on backend (deferred to Phase 10)        |
@@ -119,6 +120,27 @@ No custom ratios (covered by manual mode). No recurring expenses. No categories.
 
 ---
 
+## i18n: react-i18next (decided Phase 5)
+
+**Decision:** Use `react-i18next` (i18next + react-i18next). No custom solution.
+
+**Why:** ~80-120 unique UI strings, heavy interpolation ("You owe {{name}} {{amount}}"), and Russian plural forms (3 forms: 1/2-4/5+) rule out a simple JSON lookup. i18next handles CLDR plural rules out of the box, adds ~15KB gzipped (negligible), and uses translator-friendly JSON format.
+
+**Structure:**
+```
+frontend/src/i18n/
+  en.json    — English (base)
+  ru.json    — Russian
+  es.json    — Spanish
+  index.ts   — i18next init, locale detection from TG language_code
+```
+
+**Fallback:** Dev mode shows raw keys for missing translations. Production falls back to English.
+
+See `work_docs/research/5-i18n-approach.md` for full analysis.
+
+---
+
 ## Key Engineering Principles
 
 - **CLAUDE.md first** — project description, commands, architecture, conventions before code
@@ -160,7 +182,7 @@ Each has a dedicated file in `work_docs/research/`:
 | ~~Frontend framework / UI lib~~| 3     | `3-frontend-framework.md` — **DECIDED: no library, stay with React + Tailwind** |
 | Balance integrity rules        | 4     | `balance-integrity.md`        |
 | Themes & preference persistence| 5     | `themes-and-persistence.md`   |
-| i18n approach                  | 5     | `i18n-approach.md`            |
+| ~~i18n approach~~              | 5     | `i18n-approach.md` — **DECIDED: react-i18next** |
 | Image storage (R2)             | 6     | `image-storage-r2.md`         |
 | Exchange rates                 | 7     | `exchange-rates.md`           |
 | TON Connect & crypto           | 10    | `ton-connect-crypto.md`       |

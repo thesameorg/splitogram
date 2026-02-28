@@ -150,11 +150,11 @@ All Phase 2 specs completed and archived.
 **Steps:**
 
 1. **RESEARCH: Telegram Mini App theme API + persistence** — How to detect system theme (dark/light) from Telegram. What CSS variables TG provides. How other Mini Apps handle theming. Critically: how reliable is localStorage in TG WebView across iOS/Android? This determines the save strategy for both themes and language.
-2. **RESEARCH: i18n approach** — Lightweight custom JSON lookup vs `react-i18next` or similar lib. Decide based on bundle size, complexity, and plural/interpolation needs.
+2. ~~**RESEARCH: i18n approach**~~ — **DECIDED: react-i18next.** Russian plurals (3 forms) need CLDR rules, heavy interpolation throughout the app (~20+ dynamic strings), ~80-120 unique strings. 15KB gzipped is negligible. See `work_docs/research/5-i18n-approach.md`.
 3. **Q&A: Decide persistence strategy for user preferences** — Based on research: localStorage only, localStorage + D1 `users` table, or cookies. Pick one approach for both theme and language.
 4. **Theme system** — Three options: dark, light, system (default). System reads from Telegram's current theme.
 5. **Two color palettes** — Light and dark. Apply via CSS variables or Tailwind dark mode.
-6. **i18n framework** — JSON-based translation files, one per language. Simple key-value with namespace support.
+6. **i18n framework** — `react-i18next` with JSON translation files, one per language. Namespaced keys, CLDR plural rules, `{{variable}}` interpolation.
 7. **Missing translation fallback** — In development: show the raw key (e.g., `ACCOUNT_DESCRIPTION_TEXT`) to catch untranslated strings. In production: fall back to English.
 8. **Languages: English (base), Russian, Spanish.**
 9. **Save theme and language preferences** using the approach decided in step 3. Default theme: system. Default language: detect from Telegram's `language_code`.
@@ -330,7 +330,7 @@ Phases 4, 5, and 6 can run in parallel after Phase 3. Phase 10 has no dependency
 
 - ~~**Balance integrity after settlement**~~ — **CLOSED: non-problem.** Balances recompute from scratch; no special handling needed. See `work_docs/research/4-balance-integrity.md`.
 - ~~**Frontend framework/UI library**~~ — DECIDED Phase 3: no library, stay with React + Tailwind
-- **i18n approach** — Custom JSON vs `react-i18next`. Decide in Phase 5 research.
+- ~~**i18n approach**~~ — **DECIDED: react-i18next.** See `work_docs/research/5-i18n-approach.md`.
 - **User preference persistence** — localStorage vs localStorage+DB vs cookies for theme/language. Decide in Phase 5 Q&A after researching TG WebView behavior.
 - **R2 access pattern** — Public URLs vs signed URLs for images. Decide in Phase 6 research.
 - **Exchange rate source for cross-group balances** — Free API for USD conversion. Decide in Phase 7 (before Phase 10's crypto rate discussion).

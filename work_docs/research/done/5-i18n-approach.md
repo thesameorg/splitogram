@@ -54,6 +54,23 @@ Requirements:
 - [ ] Check if `typesafe-i18n` supports our use case
 - [ ] How many translatable strings do we currently have? (rough count)
 
+## Research Answers
+
+1. **Pluralization needed?** Yes. Already have "member/members" with ternary. Russian has 3 plural forms (1 участник, 2 участника, 5 участников) — can't do with a simple ternary. i18next handles this via CLDR rules.
+2. **Interpolation needed?** Heavily. ~20+ dynamic strings: "You owe {name} {amount}", "Paid by {name}", "{count} members", time ago strings, invite links, confirm dialogs, error messages.
+3. **react-i18next bundle size:** ~15KB gzipped (i18next core + react-i18next). Negligible for an app already loading React (~40KB) + Tailwind.
+4. **typesafe-i18n:** Viable but smaller ecosystem, fewer examples for Russian plural handling, less translator tooling.
+5. **String count:** ~80-120 unique user-visible strings across 6 pages (Home, Group, GroupSettings, AddExpense, SettleUp, Account). Heaviest: GroupSettings and Group.
+
 ## Decision
 
-_To be filled after research._
+**react-i18next (Option B).**
+
+Reasons:
+- Russian plurals (3 forms) handled correctly out of the box via CLDR — building this from scratch is error-prone
+- Heavy interpolation throughout the app — i18next's `{{variable}}` syntax is clean and safe
+- 15KB gzipped is nothing for our app
+- ~1h setup, battle-tested, well-documented
+- Standard JSON format — any translation tool can import/export
+- Option A (custom) would need plurals + interpolation added manually (~4-6h for something worse)
+- Option C (typesafe-i18n) has smaller ecosystem and weaker Russian plural support
