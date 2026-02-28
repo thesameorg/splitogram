@@ -127,7 +127,7 @@ backend/src/
 frontend/src/
 ├── App.tsx               # TG SDK init + AppLayout router + deep link handling
 ├── i18n.ts               # react-i18next config, language detection, CloudStorage persistence
-├── locales/              # Translation JSON files (en.json, ru.json, es.json)
+├── locales/              # Translation JSON files (en, ru, es, hi, id, fa, pt, uk, de, it, vi)
 ├── services/api.ts       # Fetch wrapper with initData auth header
 ├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
 ├── utils/                # currencies, format, time, share, transactions
@@ -216,8 +216,8 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - Settlements created on demand when user taps "Settle up" (not pre-created)
 - Shared currency utilities in `utils/currencies.ts` + `utils/format.ts` (both backend and frontend)
 - Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation, auto-creates mock user from `backend/src/dev/mock-user.ts`)
-- **Theming** — Telegram `--tg-theme-*` CSS vars mapped to Tailwind `tg-*` tokens (e.g., `bg-tg-bg`, `text-tg-hint`, `bg-tg-button`). No `dark:` prefixes — CSS vars handle both modes. Fallback values in `index.css` for dev outside Telegram. Semantic green/red for balances stay as hardcoded Tailwind colors.
-- **i18n** — `react-i18next` with JSON locale files (`src/locales/{en,ru,es}.json`). All UI strings use `t('key')`. Plurals via `t('key', { count })` (CLDR rules for Russian). Language detected from TG user, persisted in CloudStorage, selectable on Account page.
+- **Theming** — Telegram `--tg-theme-*` CSS vars mapped to Tailwind `tg-*` tokens (e.g., `bg-tg-bg`, `text-tg-hint`, `bg-tg-button`). No `dark:` prefixes — CSS vars handle both modes. Fallback values in `index.css` for dev outside Telegram. Semantic colors (positive/negative/warning) use `--app-*` CSS vars with light/dark variants, mapped to Tailwind `app-*` tokens (e.g., `text-app-positive`, `bg-app-negative-bg`). `data-theme` attribute set from `webApp.colorScheme`.
+- **i18n** — `react-i18next` with 11 JSON locale files (`src/locales/{en,ru,es,hi,id,fa,pt,uk,de,it,vi}.json`). All UI strings use `t('key')`. Plurals via `t('key', { count })` (CLDR rules: one/few/many for ru/uk, other-only for id/vi). Language detected from TG user, persisted in CloudStorage, selectable on Account page via BottomSheet picker with flags.
 
 ## Code Style
 
@@ -234,6 +234,6 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 
 ## Planning Docs
 
-- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-4 done, Phase 5 next)
+- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-5 done, Phase 6 next)
 - `work_docs/tech-decisions.md` — stack, architecture, key engineering principles
 - `work_docs/idea.md` — business overview and competitive landscape

@@ -1,0 +1,133 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Bitte öffne diese App über Telegram."
+  },
+  "tabs": {
+    "groups": "Gruppen",
+    "activity": "Aktivität",
+    "account": "Konto"
+  },
+  "home": {
+    "owedToYou": "Dir geschuldet: {{amount}}",
+    "youOwe": "Du schuldest: {{amount}}",
+    "noGroups": "Noch keine Gruppen",
+    "createFirst": "Erstelle deine erste Gruppe",
+    "member_one": "{{count}} Mitglied",
+    "member_other": "{{count}} Mitglieder"
+  },
+  "createGroup": {
+    "title": "Gruppe erstellen",
+    "placeholder": "Gruppenname",
+    "cancel": "Abbrechen",
+    "create": "Erstellen",
+    "creating": "Wird erstellt..."
+  },
+  "group": {
+    "invite": "Einladen",
+    "settings": "Einstellungen",
+    "info": "Info",
+    "transactions": "Transaktionen",
+    "balances": "Salden",
+    "noTransactions": "Noch keine Transaktionen",
+    "allSettled": "Alles beglichen!",
+    "addExpense": "+ Ausgabe hinzufügen",
+    "paidBy": "Bezahlt von {{name}}",
+    "splitAmong": "Geteilt auf {{count}}",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "youOwe": "Du schuldest",
+    "owesYou": "schuldet dir",
+    "owe": "schuldet",
+    "owes": "schuldet",
+    "settleUp": "Begleichen",
+    "markAsSettled": "Als beglichen markieren",
+    "youPaid": "Du hast {{name}} bezahlt",
+    "paidYou": "{{name}} hat dir bezahlt",
+    "paid": "{{from}} hat {{to}} bezahlt",
+    "deleteConfirm": "Diese Ausgabe löschen? Die Salden werden neu berechnet.",
+    "member_one": "{{count}} Mitglied",
+    "member_other": "{{count}} Mitglieder"
+  },
+  "groupSettings": {
+    "title": "Gruppeneinstellungen",
+    "infoTitle": "Gruppeninfo",
+    "groupName": "Gruppenname",
+    "currency": "Währung",
+    "save": "Speichern",
+    "saving": "Wird gespeichert...",
+    "inviteLink": "Einladungslink",
+    "shareInvite": "Teilen",
+    "regenerate": "Neu generieren",
+    "regenerateConfirm": "Neuen Link erstellen? Der alte wird ungültig.",
+    "notifications": "Benachrichtigungen",
+    "muted": "Stumm",
+    "on": "An",
+    "members": "Mitglieder ({{count}})",
+    "you": "du",
+    "createdBy": "Erstellt von {{name}}",
+    "deleteGroup": "Gruppe löschen",
+    "leaveGroup": "Gruppe verlassen",
+    "deleteConfirm": "\"{{name}}\" löschen? Kann nicht rückgängig gemacht werden.",
+    "deleteForceConfirm": "Die Gruppe hat offene Salden. Trotzdem löschen?",
+    "leaveConfirm": "\"{{name}}\" verlassen?",
+    "settingsSaved": "Einstellungen gespeichert",
+    "inviteRegenerated": "Link wurde erneuert",
+    "kick": "Entfernen",
+    "kickConfirm": "{{name}} aus der Gruppe entfernen?"
+  },
+  "addExpense": {
+    "title": "Ausgabe hinzufügen",
+    "editTitle": "Ausgabe bearbeiten",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Wofür war das?",
+    "amount": "Betrag",
+    "amountWithCurrency": "Betrag ({{currency}})",
+    "paidBy": "Bezahlt von",
+    "splitAmong": "Aufteilen auf",
+    "perPerson": "{{amount}} pro Person ({{count}} Personen)",
+    "submit": "Ausgabe hinzufügen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert..."
+  },
+  "settleUp": {
+    "title": "Begleichen",
+    "youOwe": "Du schuldest {{name}}",
+    "owesYou": "{{name}} schuldet dir",
+    "owes": "{{from}} schuldet {{to}}",
+    "settled": "Beglichen",
+    "note": "Notiz (optional)",
+    "notePlaceholder": "z.B. Banküberweisung",
+    "markAsPaid": "Als bezahlt markieren",
+    "markAsReceived": "Empfang bestätigen",
+    "settling": "Wird gespeichert...",
+    "notFound": "Ausgleich nicht gefunden"
+  },
+  "account": {
+    "title": "Konto",
+    "displayName": "Anzeigename",
+    "telegramUsername": "Telegram-Benutzername",
+    "noUsername": "Kein Benutzername",
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "nameUpdated": "Name aktualisiert",
+    "language": "Sprache"
+  },
+  "activity": {
+    "title": "Aktivität",
+    "comingSoon": "Aktivitäts-Feed kommt bald"
+  },
+  "currencyPicker": {
+    "title": "Währung wählen",
+    "search": "Währungen suchen...",
+    "noResults": "Keine Währungen gefunden"
+  },
+  "loading": "Laden...",
+  "time": {
+    "justNow": "gerade",
+    "minutesAgo": "vor {{count}}min",
+    "hoursAgo": "vor {{count}}h",
+    "daysAgo": "vor {{count}}T"
+  }
+}

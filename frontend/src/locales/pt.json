@@ -1,0 +1,133 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Por favor, abra este aplicativo pelo Telegram."
+  },
+  "tabs": {
+    "groups": "Grupos",
+    "activity": "Atividade",
+    "account": "Conta"
+  },
+  "home": {
+    "owedToYou": "Te devem: {{amount}}",
+    "youOwe": "Você deve: {{amount}}",
+    "noGroups": "Nenhum grupo ainda",
+    "createFirst": "Crie seu primeiro grupo",
+    "member_one": "{{count}} membro",
+    "member_other": "{{count}} membros"
+  },
+  "createGroup": {
+    "title": "Criar Grupo",
+    "placeholder": "Nome do grupo",
+    "cancel": "Cancelar",
+    "create": "Criar",
+    "creating": "Criando..."
+  },
+  "group": {
+    "invite": "Convidar",
+    "settings": "Configurações",
+    "info": "Info",
+    "transactions": "Transações",
+    "balances": "Saldos",
+    "noTransactions": "Nenhuma transação ainda",
+    "allSettled": "Tudo acertado!",
+    "addExpense": "+ Adicionar Despesa",
+    "paidBy": "Pago por {{name}}",
+    "splitAmong": "Dividido entre {{count}}",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "youOwe": "Você deve",
+    "owesYou": "te deve",
+    "owe": "deve",
+    "owes": "deve",
+    "settleUp": "Acertar",
+    "markAsSettled": "Marcar como Acertado",
+    "youPaid": "Você pagou {{name}}",
+    "paidYou": "{{name}} te pagou",
+    "paid": "{{from}} pagou {{to}}",
+    "deleteConfirm": "Excluir esta despesa? Os saldos serão recalculados.",
+    "member_one": "{{count}} membro",
+    "member_other": "{{count}} membros"
+  },
+  "groupSettings": {
+    "title": "Configurações do Grupo",
+    "infoTitle": "Info do Grupo",
+    "groupName": "Nome do grupo",
+    "currency": "Moeda",
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "inviteLink": "Link de convite",
+    "shareInvite": "Compartilhar",
+    "regenerate": "Regenerar",
+    "regenerateConfirm": "Gerar novo link? O anterior vai parar de funcionar.",
+    "notifications": "Notificações",
+    "muted": "Silenciadas",
+    "on": "Ativadas",
+    "members": "Membros ({{count}})",
+    "you": "você",
+    "createdBy": "Criado por {{name}}",
+    "deleteGroup": "Excluir Grupo",
+    "leaveGroup": "Sair do Grupo",
+    "deleteConfirm": "Excluir \"{{name}}\"? Não pode ser desfeito.",
+    "deleteForceConfirm": "O grupo tem saldos pendentes. Excluir mesmo assim?",
+    "leaveConfirm": "Sair de \"{{name}}\"?",
+    "settingsSaved": "Configurações salvas",
+    "inviteRegenerated": "Link regenerado",
+    "kick": "Remover",
+    "kickConfirm": "Remover {{name}} do grupo?"
+  },
+  "addExpense": {
+    "title": "Adicionar Despesa",
+    "editTitle": "Editar Despesa",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Para que foi?",
+    "amount": "Valor",
+    "amountWithCurrency": "Valor ({{currency}})",
+    "paidBy": "Pago por",
+    "splitAmong": "Dividir entre",
+    "perPerson": "{{amount}} por pessoa ({{count}} pessoas)",
+    "submit": "Adicionar Despesa",
+    "save": "Salvar",
+    "saving": "Salvando..."
+  },
+  "settleUp": {
+    "title": "Acertar Contas",
+    "youOwe": "Você deve a {{name}}",
+    "owesYou": "{{name}} te deve",
+    "owes": "{{from}} deve a {{to}}",
+    "settled": "Acertado",
+    "note": "Nota (opcional)",
+    "notePlaceholder": "ex., transferência bancária",
+    "markAsPaid": "Marcar como Pago",
+    "markAsReceived": "Confirmar Recebimento",
+    "settling": "Salvando...",
+    "notFound": "Acerto não encontrado"
+  },
+  "account": {
+    "title": "Conta",
+    "displayName": "Nome de exibição",
+    "telegramUsername": "Usuário do Telegram",
+    "noUsername": "Sem nome de usuário",
+    "edit": "Editar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "nameUpdated": "Nome atualizado",
+    "language": "Idioma"
+  },
+  "activity": {
+    "title": "Atividade",
+    "comingSoon": "Feed de atividades em breve"
+  },
+  "currencyPicker": {
+    "title": "Selecionar Moeda",
+    "search": "Buscar moedas...",
+    "noResults": "Nenhuma moeda encontrada"
+  },
+  "loading": "Carregando...",
+  "time": {
+    "justNow": "agora",
+    "minutesAgo": "{{count}}min atrás",
+    "hoursAgo": "{{count}}h atrás",
+    "daysAgo": "{{count}}d atrás"
+  }
+}

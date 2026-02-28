@@ -4,6 +4,13 @@ export default {
   theme: {
     extend: {
       colors: {
+        app: {
+          positive: 'var(--app-positive)',
+          'positive-bg': 'var(--app-positive-bg)',
+          negative: 'var(--app-negative)',
+          'negative-bg': 'var(--app-negative-bg)',
+          warning: 'var(--app-warning)',
+        },
         tg: {
           bg: 'var(--tg-theme-bg-color)',
           text: 'var(--tg-theme-text-color)',

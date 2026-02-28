@@ -112,10 +112,7 @@
     "save": "Save",
     "cancel": "Cancel",
     "nameUpdated": "Name updated",
-    "language": "Language",
-    "languageEn": "English",
-    "languageRu": "Русский",
-    "languageEs": "Español"
+    "language": "Language"
   },
   "activity": {
     "title": "Activity",

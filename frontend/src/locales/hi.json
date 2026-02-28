@@ -1,0 +1,133 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "कृपया इस ऐप को Telegram से खोलें।"
+  },
+  "tabs": {
+    "groups": "समूह",
+    "activity": "गतिविधि",
+    "account": "खाता"
+  },
+  "home": {
+    "owedToYou": "आपको मिलने हैं: {{amount}}",
+    "youOwe": "आप देते हैं: {{amount}}",
+    "noGroups": "अभी कोई समूह नहीं",
+    "createFirst": "अपना पहला समूह बनाएँ",
+    "member_one": "{{count}} सदस्य",
+    "member_other": "{{count}} सदस्य"
+  },
+  "createGroup": {
+    "title": "समूह बनाएँ",
+    "placeholder": "समूह का नाम",
+    "cancel": "रद्द करें",
+    "create": "बनाएँ",
+    "creating": "बना रहे हैं..."
+  },
+  "group": {
+    "invite": "आमंत्रित करें",
+    "settings": "सेटिंग्स",
+    "info": "जानकारी",
+    "transactions": "लेन-देन",
+    "balances": "शेष राशि",
+    "noTransactions": "अभी कोई लेन-देन नहीं",
+    "allSettled": "सब हिसाब बराबर!",
+    "addExpense": "+ खर्च जोड़ें",
+    "paidBy": "{{name}} ने भुगतान किया",
+    "splitAmong": "{{count}} लोगों में बँटा",
+    "edit": "संपादित",
+    "delete": "हटाएँ",
+    "youOwe": "आप देते हैं",
+    "owesYou": "आपको देते हैं",
+    "owe": "देते हैं",
+    "owes": "देते हैं",
+    "settleUp": "हिसाब करें",
+    "markAsSettled": "भुगतान हुआ",
+    "youPaid": "आपने {{name}} को भुगतान किया",
+    "paidYou": "{{name}} ने आपको भुगतान किया",
+    "paid": "{{from}} ने {{to}} को भुगतान किया",
+    "deleteConfirm": "यह खर्च हटाएँ? शेष राशि पुनः गणना होगी।",
+    "member_one": "{{count}} सदस्य",
+    "member_other": "{{count}} सदस्य"
+  },
+  "groupSettings": {
+    "title": "समूह सेटिंग्स",
+    "infoTitle": "समूह जानकारी",
+    "groupName": "समूह का नाम",
+    "currency": "मुद्रा",
+    "save": "सहेजें",
+    "saving": "सहेज रहे हैं...",
+    "inviteLink": "आमंत्रण लिंक",
+    "shareInvite": "साझा करें",
+    "regenerate": "नया बनाएँ",
+    "regenerateConfirm": "नया लिंक बनाएँ? पुराना काम नहीं करेगा।",
+    "notifications": "सूचनाएँ",
+    "muted": "बंद",
+    "on": "चालू",
+    "members": "सदस्य ({{count}})",
+    "you": "आप",
+    "createdBy": "{{name}} द्वारा बनाया गया",
+    "deleteGroup": "समूह हटाएँ",
+    "leaveGroup": "समूह छोड़ें",
+    "deleteConfirm": "\"{{name}}\" हटाएँ? यह पूर्ववत नहीं किया जा सकता।",
+    "deleteForceConfirm": "समूह में बकाया शेष है। फिर भी हटाएँ?",
+    "leaveConfirm": "\"{{name}}\" छोड़ें?",
+    "settingsSaved": "सेटिंग्स सहेजी गईं",
+    "inviteRegenerated": "लिंक अपडेट हो गया",
+    "kick": "हटाएँ",
+    "kickConfirm": "{{name}} को समूह से हटाएँ?"
+  },
+  "addExpense": {
+    "title": "खर्च जोड़ें",
+    "editTitle": "खर्च संपादित करें",
+    "description": "विवरण",
+    "descriptionPlaceholder": "किसके लिए भुगतान?",
+    "amount": "राशि",
+    "amountWithCurrency": "राशि ({{currency}})",
+    "paidBy": "किसने भुगतान किया",
+    "splitAmong": "बाँटें",
+    "perPerson": "{{amount}} प्रति व्यक्ति ({{count}} लोग)",
+    "submit": "खर्च जोड़ें",
+    "save": "सहेजें",
+    "saving": "सहेज रहे हैं..."
+  },
+  "settleUp": {
+    "title": "हिसाब करें",
+    "youOwe": "आप {{name}} को देते हैं",
+    "owesYou": "{{name}} आपको देते हैं",
+    "owes": "{{from}} {{to}} को देते हैं",
+    "settled": "भुगतान हो गया",
+    "note": "नोट (वैकल्पिक)",
+    "notePlaceholder": "जैसे, बैंक ट्रांसफर",
+    "markAsPaid": "भुगतान किया",
+    "markAsReceived": "प्राप्त हुआ",
+    "settling": "सहेज रहे हैं...",
+    "notFound": "हिसाब नहीं मिला"
+  },
+  "account": {
+    "title": "खाता",
+    "displayName": "प्रदर्शित नाम",
+    "telegramUsername": "Telegram उपयोगकर्ता नाम",
+    "noUsername": "उपयोगकर्ता नाम नहीं है",
+    "edit": "संपादित करें",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "nameUpdated": "नाम अपडेट हो गया",
+    "language": "भाषा"
+  },
+  "activity": {
+    "title": "गतिविधि",
+    "comingSoon": "गतिविधि फ़ीड जल्द आ रहा है"
+  },
+  "currencyPicker": {
+    "title": "मुद्रा चुनें",
+    "search": "मुद्रा खोजें...",
+    "noResults": "कोई मुद्रा नहीं मिली"
+  },
+  "loading": "लोड हो रहा है...",
+  "time": {
+    "justNow": "अभी",
+    "minutesAgo": "{{count}} मिनट पहले",
+    "hoursAgo": "{{count}} घंटे पहले",
+    "daysAgo": "{{count}} दिन पहले"
+  }
+}

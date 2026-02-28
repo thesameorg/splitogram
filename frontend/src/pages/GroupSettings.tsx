@@ -231,7 +231,7 @@ export function GroupSettings() {
           className="w-full flex justify-between items-center p-3 border border-tg-separator rounded-xl"
         >
           <span className="text-sm font-medium">{t('groupSettings.notifications')}</span>
-          <span className={`text-sm ${muted ? 'text-red-500' : 'text-green-500'}`}>
+          <span className={`text-sm ${muted ? 'text-app-negative' : 'text-app-positive'}`}>
             {muted ? t('groupSettings.muted') : t('groupSettings.on')}
           </span>
         </button>
@@ -251,7 +251,7 @@ export function GroupSettings() {
               <div className="flex items-center gap-2">
                 <span className="font-medium">{m.displayName}</span>
                 {/* A7: Crown only, no "Admin" text */}
-                {m.role === 'admin' && <span className="text-xs text-yellow-600">&#9812;</span>}
+                {m.role === 'admin' && <span className="text-xs text-app-warning">&#9812;</span>}
                 {m.userId === currentUserId && (
                   <span className="text-xs text-tg-hint">{t('groupSettings.you')}</span>
                 )}

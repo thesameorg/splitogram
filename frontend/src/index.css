@@ -19,6 +19,21 @@
   --tg-theme-destructive-text-color: #e53935;
   --tg-theme-section-separator-color: #e0e0e0;
   --tg-theme-bottom-bar-bg-color: #ffffff;
+
+  /* Semantic app colors — light mode */
+  --app-positive: #16a34a;
+  --app-positive-bg: rgba(22, 163, 74, 0.1);
+  --app-negative: #dc2626;
+  --app-negative-bg: rgba(220, 38, 38, 0.1);
+  --app-warning: #ca8a04;
+}
+
+[data-theme='dark'] {
+  --app-positive: #4ade80;
+  --app-positive-bg: rgba(74, 222, 128, 0.12);
+  --app-negative: #f87171;
+  --app-negative-bg: rgba(248, 113, 113, 0.12);
+  --app-warning: #fbbf24;
 }
 
 body {

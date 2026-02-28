@@ -1,0 +1,133 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Per favore, apri questa app da Telegram."
+  },
+  "tabs": {
+    "groups": "Gruppi",
+    "activity": "Attività",
+    "account": "Account"
+  },
+  "home": {
+    "owedToYou": "Ti devono: {{amount}}",
+    "youOwe": "Devi: {{amount}}",
+    "noGroups": "Nessun gruppo ancora",
+    "createFirst": "Crea il tuo primo gruppo",
+    "member_one": "{{count}} membro",
+    "member_other": "{{count}} membri"
+  },
+  "createGroup": {
+    "title": "Crea Gruppo",
+    "placeholder": "Nome del gruppo",
+    "cancel": "Annulla",
+    "create": "Crea",
+    "creating": "Creazione..."
+  },
+  "group": {
+    "invite": "Invita",
+    "settings": "Impostazioni",
+    "info": "Info",
+    "transactions": "Transazioni",
+    "balances": "Saldi",
+    "noTransactions": "Nessuna transazione ancora",
+    "allSettled": "Tutto saldato!",
+    "addExpense": "+ Aggiungi Spesa",
+    "paidBy": "Pagato da {{name}}",
+    "splitAmong": "Diviso tra {{count}}",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "youOwe": "Devi a",
+    "owesYou": "ti deve",
+    "owe": "deve a",
+    "owes": "deve a",
+    "settleUp": "Salda",
+    "markAsSettled": "Segna come saldato",
+    "youPaid": "Hai pagato {{name}}",
+    "paidYou": "{{name}} ti ha pagato",
+    "paid": "{{from}} ha pagato {{to}}",
+    "deleteConfirm": "Eliminare questa spesa? I saldi saranno ricalcolati.",
+    "member_one": "{{count}} membro",
+    "member_other": "{{count}} membri"
+  },
+  "groupSettings": {
+    "title": "Impostazioni Gruppo",
+    "infoTitle": "Info Gruppo",
+    "groupName": "Nome del gruppo",
+    "currency": "Valuta",
+    "save": "Salva",
+    "saving": "Salvataggio...",
+    "inviteLink": "Link di invito",
+    "shareInvite": "Condividi",
+    "regenerate": "Rigenera",
+    "regenerateConfirm": "Generare un nuovo link? Il precedente smetterà di funzionare.",
+    "notifications": "Notifiche",
+    "muted": "Silenziate",
+    "on": "Attive",
+    "members": "Membri ({{count}})",
+    "you": "tu",
+    "createdBy": "Creato da {{name}}",
+    "deleteGroup": "Elimina Gruppo",
+    "leaveGroup": "Esci dal Gruppo",
+    "deleteConfirm": "Eliminare \"{{name}}\"? Non può essere annullato.",
+    "deleteForceConfirm": "Il gruppo ha saldi in sospeso. Eliminare comunque?",
+    "leaveConfirm": "Uscire da \"{{name}}\"?",
+    "settingsSaved": "Impostazioni salvate",
+    "inviteRegenerated": "Link rigenerato",
+    "kick": "Rimuovi",
+    "kickConfirm": "Rimuovere {{name}} dal gruppo?"
+  },
+  "addExpense": {
+    "title": "Aggiungi Spesa",
+    "editTitle": "Modifica Spesa",
+    "description": "Descrizione",
+    "descriptionPlaceholder": "Per cosa era?",
+    "amount": "Importo",
+    "amountWithCurrency": "Importo ({{currency}})",
+    "paidBy": "Pagato da",
+    "splitAmong": "Dividi tra",
+    "perPerson": "{{amount}} a persona ({{count}} persone)",
+    "submit": "Aggiungi Spesa",
+    "save": "Salva",
+    "saving": "Salvataggio..."
+  },
+  "settleUp": {
+    "title": "Salda",
+    "youOwe": "Devi a {{name}}",
+    "owesYou": "{{name}} ti deve",
+    "owes": "{{from}} deve a {{to}}",
+    "settled": "Saldato",
+    "note": "Nota (opzionale)",
+    "notePlaceholder": "es., bonifico bancario",
+    "markAsPaid": "Segna come pagato",
+    "markAsReceived": "Conferma ricezione",
+    "settling": "Salvataggio...",
+    "notFound": "Saldo non trovato"
+  },
+  "account": {
+    "title": "Account",
+    "displayName": "Nome visualizzato",
+    "telegramUsername": "Nome utente Telegram",
+    "noUsername": "Nessun nome utente",
+    "edit": "Modifica",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "nameUpdated": "Nome aggiornato",
+    "language": "Lingua"
+  },
+  "activity": {
+    "title": "Attività",
+    "comingSoon": "Feed attività in arrivo"
+  },
+  "currencyPicker": {
+    "title": "Seleziona Valuta",
+    "search": "Cerca valute...",
+    "noResults": "Nessuna valuta trovata"
+  },
+  "loading": "Caricamento...",
+  "time": {
+    "justNow": "adesso",
+    "minutesAgo": "{{count}}min fa",
+    "hoursAgo": "{{count}}h fa",
+    "daysAgo": "{{count}}g fa"
+  }
+}

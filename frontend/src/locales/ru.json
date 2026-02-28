@@ -114,10 +114,7 @@
     "save": "Сохранить",
     "cancel": "Отмена",
     "nameUpdated": "Имя обновлено",
-    "language": "Язык",
-    "languageEn": "English",
-    "languageRu": "Русский",
-    "languageEs": "Español"
+    "language": "Язык"
   },
   "activity": {
     "title": "Активность",

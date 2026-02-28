@@ -3,8 +3,16 @@ import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
 import es from './locales/es.json';
+import hi from './locales/hi.json';
+import id from './locales/id.json';
+import fa from './locales/fa.json';
+import pt from './locales/pt.json';
+import uk from './locales/uk.json';
+import de from './locales/de.json';
+import it from './locales/it.json';
+import vi from './locales/vi.json';
 
-const SUPPORTED_LANGS = ['en', 'ru', 'es'] as const;
+const SUPPORTED_LANGS = ['en', 'ru', 'es', 'hi', 'id', 'fa', 'pt', 'uk', 'de', 'it', 'vi'] as const;
 
 function detectLanguage(): string {
   // 1. Check Telegram CloudStorage (async — will be applied later if found)
@@ -21,6 +29,14 @@ i18n.use(initReactI18next).init({
     en: { translation: en },
     ru: { translation: ru },
     es: { translation: es },
+    hi: { translation: hi },
+    id: { translation: id },
+    fa: { translation: fa },
+    pt: { translation: pt },
+    uk: { translation: uk },
+    de: { translation: de },
+    it: { translation: it },
+    vi: { translation: vi },
   },
   lng: detectLanguage(),
   fallbackLng: 'en',

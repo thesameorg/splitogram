@@ -99,18 +99,18 @@ export function Group() {
     }
 
     // A3: Settlement amount color — red if you paid, green if paid to you
-    const amountColor = isFromMe ? 'text-red-600' : isToMe ? 'text-green-600' : 'text-green-700';
+    const amountColor = isFromMe ? 'text-app-negative' : 'text-app-positive';
 
     return (
       <div
         key={`s-${settlement.id}`}
-        className="bg-green-50 p-4 rounded-xl border border-green-200"
+        className="bg-app-positive-bg p-4 rounded-xl border border-app-positive/20"
       >
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
-            <span className="text-green-600 text-lg">&#10003;</span>
+            <span className="text-app-positive text-lg">&#10003;</span>
             <div>
-              <div className="font-medium text-green-800">{label}</div>
+              <div className="font-medium text-app-positive">{label}</div>
               <div className="text-sm text-tg-hint">{timeAgo(settlement.createdAt)}</div>
             </div>
           </div>
@@ -129,7 +129,7 @@ export function Group() {
     // A3: Expense amount color — green if I paid, red if I'm a participant who didn't pay
     const isPayer = currentUserId === exp.paidBy;
     const isParticipant = exp.participants.some((p) => p.userId === currentUserId);
-    const amountColor = isPayer ? 'text-green-600' : isParticipant ? 'text-red-600' : '';
+    const amountColor = isPayer ? 'text-app-positive' : isParticipant ? 'text-app-negative' : '';
 
     return (
       <div key={`e-${exp.id}`} className="bg-tg-section p-4 rounded-xl border border-tg-separator">
@@ -257,9 +257,9 @@ export function Group() {
               const isUserFrom = currentUserId === debt.from.userId;
               const isUserTo = currentUserId === debt.to.userId;
               const amountColor = isUserFrom
-                ? 'text-red-600'
+                ? 'text-app-negative'
                 : isUserTo
-                  ? 'text-green-600'
+                  ? 'text-app-positive'
                   : 'text-tg-text';
 
               return (

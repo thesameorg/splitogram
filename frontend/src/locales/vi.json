@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Vui lòng mở ứng dụng từ Telegram."
+  },
+  "tabs": {
+    "groups": "Nhóm",
+    "activity": "Hoạt động",
+    "account": "Tài khoản"
+  },
+  "home": {
+    "owedToYou": "Bạn được nợ: {{amount}}",
+    "youOwe": "Bạn nợ: {{amount}}",
+    "noGroups": "Chưa có nhóm nào",
+    "createFirst": "Tạo nhóm đầu tiên",
+    "member_other": "{{count}} thành viên"
+  },
+  "createGroup": {
+    "title": "Tạo Nhóm",
+    "placeholder": "Tên nhóm",
+    "cancel": "Hủy",
+    "create": "Tạo",
+    "creating": "Đang tạo..."
+  },
+  "group": {
+    "invite": "Mời",
+    "settings": "Cài đặt",
+    "info": "Thông tin",
+    "transactions": "Giao dịch",
+    "balances": "Số dư",
+    "noTransactions": "Chưa có giao dịch",
+    "allSettled": "Đã thanh toán hết!",
+    "addExpense": "+ Thêm Chi phí",
+    "paidBy": "{{name}} đã trả",
+    "splitAmong": "Chia cho {{count}} người",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "youOwe": "Bạn nợ",
+    "owesYou": "nợ bạn",
+    "owe": "nợ",
+    "owes": "nợ",
+    "settleUp": "Thanh toán",
+    "markAsSettled": "Đánh dấu đã trả",
+    "youPaid": "Bạn đã trả {{name}}",
+    "paidYou": "{{name}} đã trả bạn",
+    "paid": "{{from}} đã trả {{to}}",
+    "deleteConfirm": "Xóa chi phí này? Số dư sẽ được tính lại.",
+    "member_other": "{{count}} thành viên"
+  },
+  "groupSettings": {
+    "title": "Cài đặt Nhóm",
+    "infoTitle": "Thông tin Nhóm",
+    "groupName": "Tên nhóm",
+    "currency": "Tiền tệ",
+    "save": "Lưu",
+    "saving": "Đang lưu...",
+    "inviteLink": "Liên kết mời",
+    "shareInvite": "Chia sẻ",
+    "regenerate": "Tạo lại",
+    "regenerateConfirm": "Tạo liên kết mới? Liên kết cũ sẽ hết hiệu lực.",
+    "notifications": "Thông báo",
+    "muted": "Tắt",
+    "on": "Bật",
+    "members": "Thành viên ({{count}})",
+    "you": "bạn",
+    "createdBy": "Tạo bởi {{name}}",
+    "deleteGroup": "Xóa Nhóm",
+    "leaveGroup": "Rời Nhóm",
+    "deleteConfirm": "Xóa \"{{name}}\"? Không thể hoàn tác.",
+    "deleteForceConfirm": "Nhóm có số dư chưa thanh toán. Vẫn xóa?",
+    "leaveConfirm": "Rời \"{{name}}\"?",
+    "settingsSaved": "Đã lưu cài đặt",
+    "inviteRegenerated": "Đã tạo liên kết mới",
+    "kick": "Xóa",
+    "kickConfirm": "Xóa {{name}} khỏi nhóm?"
+  },
+  "addExpense": {
+    "title": "Thêm Chi phí",
+    "editTitle": "Sửa Chi phí",
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Chi cho việc gì?",
+    "amount": "Số tiền",
+    "amountWithCurrency": "Số tiền ({{currency}})",
+    "paidBy": "Người trả",
+    "splitAmong": "Chia cho",
+    "perPerson": "{{amount}} mỗi người ({{count}} người)",
+    "submit": "Thêm Chi phí",
+    "save": "Lưu",
+    "saving": "Đang lưu..."
+  },
+  "settleUp": {
+    "title": "Thanh toán",
+    "youOwe": "Bạn nợ {{name}}",
+    "owesYou": "{{name}} nợ bạn",
+    "owes": "{{from}} nợ {{to}}",
+    "settled": "Đã thanh toán",
+    "note": "Ghi chú (tùy chọn)",
+    "notePlaceholder": "VD: chuyển khoản ngân hàng",
+    "markAsPaid": "Đánh dấu đã trả",
+    "markAsReceived": "Xác nhận đã nhận",
+    "settling": "Đang lưu...",
+    "notFound": "Không tìm thấy thanh toán"
+  },
+  "account": {
+    "title": "Tài khoản",
+    "displayName": "Tên hiển thị",
+    "telegramUsername": "Tên Telegram",
+    "noUsername": "Chưa có tên",
+    "edit": "Sửa",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "nameUpdated": "Đã cập nhật tên",
+    "language": "Ngôn ngữ"
+  },
+  "activity": {
+    "title": "Hoạt động",
+    "comingSoon": "Feed hoạt động sắp có"
+  },
+  "currencyPicker": {
+    "title": "Chọn Tiền tệ",
+    "search": "Tìm tiền tệ...",
+    "noResults": "Không tìm thấy tiền tệ"
+  },
+  "loading": "Đang tải...",
+  "time": {
+    "justNow": "vừa xong",
+    "minutesAgo": "{{count}} phút trước",
+    "hoursAgo": "{{count}} giờ trước",
+    "daysAgo": "{{count}} ngày trước"
+  }
+}

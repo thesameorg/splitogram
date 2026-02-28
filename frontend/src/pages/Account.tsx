@@ -5,11 +5,20 @@ import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { SuccessBanner } from '../components/SuccessBanner';
+import { BottomSheet } from '../components/BottomSheet';
 
 const LANGUAGES = [
-  { code: 'en', label: 'account.languageEn' },
-  { code: 'ru', label: 'account.languageRu' },
-  { code: 'es', label: 'account.languageEs' },
+  { code: 'en', flag: '🇬🇧', name: 'English' },
+  { code: 'ru', flag: '🇷🇺', name: 'Русский' },
+  { code: 'es', flag: '🇪🇸', name: 'Español' },
+  { code: 'hi', flag: '🇮🇳', name: 'हिन्दी' },
+  { code: 'id', flag: '🇮🇩', name: 'Bahasa Indonesia' },
+  { code: 'fa', flag: '🇮🇷', name: 'فارسی' },
+  { code: 'pt', flag: '🇧🇷', name: 'Português' },
+  { code: 'uk', flag: '🇺🇦', name: 'Українська' },
+  { code: 'de', flag: '🇩🇪', name: 'Deutsch' },
+  { code: 'it', flag: '🇮🇹', name: 'Italiano' },
+  { code: 'vi', flag: '🇻🇳', name: 'Tiếng Việt' },
 ] as const;
 
 export function Account() {
@@ -21,6 +30,9 @@ export function Account() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showLangPicker, setShowLangPicker] = useState(false);
+
+  const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
   useEffect(() => {
     api
@@ -116,22 +128,45 @@ export function Account() {
         <label className="block text-sm font-medium mb-1 text-tg-hint">
           {t('account.language')}
         </label>
-        <div className="flex gap-2">
+        <button
+          onClick={() => setShowLangPicker(true)}
+          className="w-full flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator"
+        >
+          <span className="flex items-center gap-2">
+            <span>{currentLang.flag}</span>
+            <span className="font-medium">{currentLang.name}</span>
+          </span>
+          <span className="text-tg-hint">&#9662;</span>
+        </button>
+      </div>
+
+      {/* Language Picker Bottom Sheet */}
+      <BottomSheet
+        open={showLangPicker}
+        onClose={() => setShowLangPicker(false)}
+        title={t('account.language')}
+      >
+        <div className="overflow-y-auto max-h-[60vh] -mx-2">
           {LANGUAGES.map((lang) => (
             <button
               key={lang.code}
-              onClick={() => i18n.changeLanguage(lang.code)}
-              className={`flex-1 p-3 rounded-xl text-sm font-medium border ${
-                i18n.language === lang.code
-                  ? 'bg-tg-button text-tg-button-text border-tg-button'
-                  : 'bg-transparent border-tg-separator'
+              onClick={() => {
+                i18n.changeLanguage(lang.code);
+                setShowLangPicker(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left ${
+                i18n.language === lang.code ? 'bg-tg-button/10' : ''
               }`}
             >
-              {t(lang.label)}
+              <span className="text-xl">{lang.flag}</span>
+              <span className="font-medium flex-1">{lang.name}</span>
+              {i18n.language === lang.code && (
+                <span className="text-tg-link font-bold">&#10003;</span>
+              )}
             </button>
           ))}
         </div>
-      </div>
+      </BottomSheet>
     </PageLayout>
   );
 }

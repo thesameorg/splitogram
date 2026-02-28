@@ -25,6 +25,7 @@ function AppContent() {
     if (webApp) {
       webApp.ready();
       webApp.expand();
+      document.documentElement.dataset.theme = webApp.colorScheme;
     }
   }, []);
 

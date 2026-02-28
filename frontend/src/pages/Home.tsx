@@ -78,15 +78,15 @@ export function Home() {
             {Object.entries(balancesByCurrency).map(([currency, bal]) => (
               <div key={currency} className="flex gap-2">
                 {bal.owed > 0 && (
-                  <div className="bg-green-50 px-3 py-2 rounded-lg">
-                    <span className="text-green-600 font-medium">
+                  <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
+                    <span className="text-app-positive font-medium">
                       {t('home.owedToYou', { amount: formatAmount(bal.owed, currency) })}
                     </span>
                   </div>
                 )}
                 {bal.owe > 0 && (
-                  <div className="bg-red-50 px-3 py-2 rounded-lg">
-                    <span className="text-red-600 font-medium">
+                  <div className="bg-app-negative-bg px-3 py-2 rounded-lg">
+                    <span className="text-app-negative font-medium">
                       {t('home.youOwe', { amount: formatAmount(bal.owe, currency) })}
                     </span>
                   </div>
@@ -126,7 +126,7 @@ export function Home() {
                 {group.netBalance !== 0 && (
                   <div
                     className={`text-sm font-medium ${
-                      group.netBalance > 0 ? 'text-green-600' : 'text-red-600'
+                      group.netBalance > 0 ? 'text-app-positive' : 'text-app-negative'
                     }`}
                   >
                     {formatSignedAmount(group.netBalance, group.currency)}

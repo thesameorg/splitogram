@@ -1,0 +1,133 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "لطفاً این برنامه را از تلگرام باز کنید."
+  },
+  "tabs": {
+    "groups": "گروه‌ها",
+    "activity": "فعالیت",
+    "account": "حساب"
+  },
+  "home": {
+    "owedToYou": "طلب شما: {{amount}}",
+    "youOwe": "بدهی شما: {{amount}}",
+    "noGroups": "هنوز گروهی نیست",
+    "createFirst": "اولین گروه خود را بسازید",
+    "member_one": "{{count}} عضو",
+    "member_other": "{{count}} عضو"
+  },
+  "createGroup": {
+    "title": "ساخت گروه",
+    "placeholder": "نام گروه",
+    "cancel": "لغو",
+    "create": "ساخت",
+    "creating": "در حال ساخت..."
+  },
+  "group": {
+    "invite": "دعوت",
+    "settings": "تنظیمات",
+    "info": "اطلاعات",
+    "transactions": "تراکنش‌ها",
+    "balances": "مانده‌ها",
+    "noTransactions": "هنوز تراکنشی نیست",
+    "allSettled": "همه تسویه شد!",
+    "addExpense": "+ افزودن هزینه",
+    "paidBy": "پرداخت توسط {{name}}",
+    "splitAmong": "تقسیم بین {{count}} نفر",
+    "edit": "ویرایش",
+    "delete": "حذف",
+    "youOwe": "شما بدهکارید",
+    "owesYou": "به شما بدهکار است",
+    "owe": "بدهکار است",
+    "owes": "بدهکار است",
+    "settleUp": "تسویه",
+    "markAsSettled": "تسویه شد",
+    "youPaid": "شما به {{name}} پرداخت کردید",
+    "paidYou": "{{name}} به شما پرداخت کرد",
+    "paid": "{{from}} به {{to}} پرداخت کرد",
+    "deleteConfirm": "این هزینه حذف شود؟ مانده‌ها دوباره محاسبه می‌شوند.",
+    "member_one": "{{count}} عضو",
+    "member_other": "{{count}} عضو"
+  },
+  "groupSettings": {
+    "title": "تنظیمات گروه",
+    "infoTitle": "اطلاعات گروه",
+    "groupName": "نام گروه",
+    "currency": "ارز",
+    "save": "ذخیره",
+    "saving": "در حال ذخیره...",
+    "inviteLink": "لینک دعوت",
+    "shareInvite": "اشتراک‌گذاری",
+    "regenerate": "ساخت مجدد",
+    "regenerateConfirm": "لینک جدید بسازید؟ لینک قبلی کار نخواهد کرد.",
+    "notifications": "اعلان‌ها",
+    "muted": "خاموش",
+    "on": "روشن",
+    "members": "اعضا ({{count}})",
+    "you": "شما",
+    "createdBy": "ساخته شده توسط {{name}}",
+    "deleteGroup": "حذف گروه",
+    "leaveGroup": "خروج از گروه",
+    "deleteConfirm": "«{{name}}» حذف شود؟ قابل بازگشت نیست.",
+    "deleteForceConfirm": "گروه مانده تسویه‌نشده دارد. باز هم حذف شود?",
+    "leaveConfirm": "از «{{name}}» خارج شوید؟",
+    "settingsSaved": "تنظیمات ذخیره شد",
+    "inviteRegenerated": "لینک به‌روز شد",
+    "kick": "حذف",
+    "kickConfirm": "{{name}} از گروه حذف شود؟"
+  },
+  "addExpense": {
+    "title": "افزودن هزینه",
+    "editTitle": "ویرایش هزینه",
+    "description": "توضیحات",
+    "descriptionPlaceholder": "بابت چه چیزی؟",
+    "amount": "مبلغ",
+    "amountWithCurrency": "مبلغ ({{currency}})",
+    "paidBy": "پرداخت‌کننده",
+    "splitAmong": "تقسیم بین",
+    "perPerson": "{{amount}} به ازای هر نفر ({{count}} نفر)",
+    "submit": "افزودن هزینه",
+    "save": "ذخیره",
+    "saving": "در حال ذخیره..."
+  },
+  "settleUp": {
+    "title": "تسویه حساب",
+    "youOwe": "شما به {{name}} بدهکارید",
+    "owesYou": "{{name}} به شما بدهکار است",
+    "owes": "{{from}} به {{to}} بدهکار است",
+    "settled": "تسویه شد",
+    "note": "یادداشت (اختیاری)",
+    "notePlaceholder": "مثلاً انتقال بانکی",
+    "markAsPaid": "پرداخت شد",
+    "markAsReceived": "دریافت شد",
+    "settling": "در حال ذخیره...",
+    "notFound": "تسویه یافت نشد"
+  },
+  "account": {
+    "title": "حساب",
+    "displayName": "نام نمایشی",
+    "telegramUsername": "نام کاربری تلگرام",
+    "noUsername": "نام کاربری تنظیم نشده",
+    "edit": "ویرایش",
+    "save": "ذخیره",
+    "cancel": "لغو",
+    "nameUpdated": "نام به‌روز شد",
+    "language": "زبان"
+  },
+  "activity": {
+    "title": "فعالیت",
+    "comingSoon": "فید فعالیت به‌زودی"
+  },
+  "currencyPicker": {
+    "title": "انتخاب ارز",
+    "search": "جستجوی ارز...",
+    "noResults": "ارزی یافت نشد"
+  },
+  "loading": "در حال بارگذاری...",
+  "time": {
+    "justNow": "الان",
+    "minutesAgo": "{{count}} دقیقه پیش",
+    "hoursAgo": "{{count}} ساعت پیش",
+    "daysAgo": "{{count}} روز پیش"
+  }
+}

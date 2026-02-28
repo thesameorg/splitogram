@@ -1,0 +1,131 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Silakan buka aplikasi ini dari Telegram."
+  },
+  "tabs": {
+    "groups": "Grup",
+    "activity": "Aktivitas",
+    "account": "Akun"
+  },
+  "home": {
+    "owedToYou": "Piutang: {{amount}}",
+    "youOwe": "Utang: {{amount}}",
+    "noGroups": "Belum ada grup",
+    "createFirst": "Buat grup pertama",
+    "member_other": "{{count}} anggota"
+  },
+  "createGroup": {
+    "title": "Buat Grup",
+    "placeholder": "Nama grup",
+    "cancel": "Batal",
+    "create": "Buat",
+    "creating": "Membuat..."
+  },
+  "group": {
+    "invite": "Undang",
+    "settings": "Pengaturan",
+    "info": "Info",
+    "transactions": "Transaksi",
+    "balances": "Saldo",
+    "noTransactions": "Belum ada transaksi",
+    "allSettled": "Semua lunas!",
+    "addExpense": "+ Tambah Pengeluaran",
+    "paidBy": "Dibayar oleh {{name}}",
+    "splitAmong": "Dibagi {{count}} orang",
+    "edit": "Edit",
+    "delete": "Hapus",
+    "youOwe": "Anda berutang",
+    "owesYou": "berutang kepada Anda",
+    "owe": "berutang",
+    "owes": "berutang",
+    "settleUp": "Lunasi",
+    "markAsSettled": "Tandai Lunas",
+    "youPaid": "Anda membayar {{name}}",
+    "paidYou": "{{name}} membayar Anda",
+    "paid": "{{from}} membayar {{to}}",
+    "deleteConfirm": "Hapus pengeluaran ini? Saldo akan dihitung ulang.",
+    "member_other": "{{count}} anggota"
+  },
+  "groupSettings": {
+    "title": "Pengaturan Grup",
+    "infoTitle": "Info Grup",
+    "groupName": "Nama grup",
+    "currency": "Mata uang",
+    "save": "Simpan",
+    "saving": "Menyimpan...",
+    "inviteLink": "Tautan undangan",
+    "shareInvite": "Bagikan",
+    "regenerate": "Buat ulang",
+    "regenerateConfirm": "Buat tautan baru? Tautan lama tidak akan berfungsi.",
+    "notifications": "Notifikasi",
+    "muted": "Nonaktif",
+    "on": "Aktif",
+    "members": "Anggota ({{count}})",
+    "you": "Anda",
+    "createdBy": "Dibuat oleh {{name}}",
+    "deleteGroup": "Hapus Grup",
+    "leaveGroup": "Keluar Grup",
+    "deleteConfirm": "Hapus \"{{name}}\"? Tidak dapat dibatalkan.",
+    "deleteForceConfirm": "Grup memiliki saldo belum lunas. Hapus saja?",
+    "leaveConfirm": "Keluar dari \"{{name}}\"?",
+    "settingsSaved": "Pengaturan disimpan",
+    "inviteRegenerated": "Tautan diperbarui",
+    "kick": "Keluarkan",
+    "kickConfirm": "Keluarkan {{name}} dari grup?"
+  },
+  "addExpense": {
+    "title": "Tambah Pengeluaran",
+    "editTitle": "Edit Pengeluaran",
+    "description": "Deskripsi",
+    "descriptionPlaceholder": "Untuk apa?",
+    "amount": "Jumlah",
+    "amountWithCurrency": "Jumlah ({{currency}})",
+    "paidBy": "Dibayar oleh",
+    "splitAmong": "Dibagi",
+    "perPerson": "{{amount}} per orang ({{count}} orang)",
+    "submit": "Tambah Pengeluaran",
+    "save": "Simpan",
+    "saving": "Menyimpan..."
+  },
+  "settleUp": {
+    "title": "Lunasi",
+    "youOwe": "Anda berutang kepada {{name}}",
+    "owesYou": "{{name}} berutang kepada Anda",
+    "owes": "{{from}} berutang kepada {{to}}",
+    "settled": "Lunas",
+    "note": "Catatan (opsional)",
+    "notePlaceholder": "mis., transfer bank",
+    "markAsPaid": "Tandai Dibayar",
+    "markAsReceived": "Konfirmasi Diterima",
+    "settling": "Menyimpan...",
+    "notFound": "Pelunasan tidak ditemukan"
+  },
+  "account": {
+    "title": "Akun",
+    "displayName": "Nama tampilan",
+    "telegramUsername": "Username Telegram",
+    "noUsername": "Belum ada username",
+    "edit": "Edit",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "nameUpdated": "Nama diperbarui",
+    "language": "Bahasa"
+  },
+  "activity": {
+    "title": "Aktivitas",
+    "comingSoon": "Feed aktivitas segera hadir"
+  },
+  "currencyPicker": {
+    "title": "Pilih Mata Uang",
+    "search": "Cari mata uang...",
+    "noResults": "Mata uang tidak ditemukan"
+  },
+  "loading": "Memuat...",
+  "time": {
+    "justNow": "baru saja",
+    "minutesAgo": "{{count}}m lalu",
+    "hoursAgo": "{{count}}j lalu",
+    "daysAgo": "{{count}}h lalu"
+  }
+}

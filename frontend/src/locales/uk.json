@@ -1,0 +1,135 @@
+{
+  "app": {
+    "title": "Splitogram",
+    "openFromTelegram": "Будь ласка, відкрийте додаток з Telegram."
+  },
+  "tabs": {
+    "groups": "Групи",
+    "activity": "Активність",
+    "account": "Акаунт"
+  },
+  "home": {
+    "owedToYou": "Вам винні: {{amount}}",
+    "youOwe": "Ви винні: {{amount}}",
+    "noGroups": "Груп ще немає",
+    "createFirst": "Створіть першу групу",
+    "member_one": "{{count}} учасник",
+    "member_few": "{{count}} учасники",
+    "member_many": "{{count}} учасників"
+  },
+  "createGroup": {
+    "title": "Створити групу",
+    "placeholder": "Назва групи",
+    "cancel": "Скасувати",
+    "create": "Створити",
+    "creating": "Створення..."
+  },
+  "group": {
+    "invite": "Запросити",
+    "settings": "Налаштування",
+    "info": "Інфо",
+    "transactions": "Транзакції",
+    "balances": "Баланси",
+    "noTransactions": "Транзакцій ще немає",
+    "allSettled": "Усі борги закриті!",
+    "addExpense": "+ Додати витрату",
+    "paidBy": "Оплатив(ла) {{name}}",
+    "splitAmong": "Між {{count}}",
+    "edit": "Ред.",
+    "delete": "Видалити",
+    "youOwe": "Ви винні",
+    "owesYou": "винен(на) вам",
+    "owe": "винен(на)",
+    "owes": "винен(на)",
+    "settleUp": "Розрахуватися",
+    "markAsSettled": "Позначити оплату",
+    "youPaid": "Ви заплатили {{name}}",
+    "paidYou": "{{name}} заплатив(ла) вам",
+    "paid": "{{from}} заплатив(ла) {{to}}",
+    "deleteConfirm": "Видалити цю витрату? Баланси будуть перераховані.",
+    "member_one": "{{count}} учасник",
+    "member_few": "{{count}} учасники",
+    "member_many": "{{count}} учасників"
+  },
+  "groupSettings": {
+    "title": "Налаштування групи",
+    "infoTitle": "Інформація про групу",
+    "groupName": "Назва групи",
+    "currency": "Валюта",
+    "save": "Зберегти",
+    "saving": "Збереження...",
+    "inviteLink": "Посилання-запрошення",
+    "shareInvite": "Поділитися",
+    "regenerate": "Оновити",
+    "regenerateConfirm": "Створити нове посилання? Старе перестане працювати.",
+    "notifications": "Сповіщення",
+    "muted": "Вимкнені",
+    "on": "Увімкнені",
+    "members": "Учасники ({{count}})",
+    "you": "ви",
+    "createdBy": "Створив(ла) {{name}}",
+    "deleteGroup": "Видалити групу",
+    "leaveGroup": "Покинути групу",
+    "deleteConfirm": "Видалити «{{name}}»? Це не можна скасувати.",
+    "deleteForceConfirm": "У групі є нерозраховані борги. Видалити все одно?",
+    "leaveConfirm": "Покинути «{{name}}»?",
+    "settingsSaved": "Налаштування збережені",
+    "inviteRegenerated": "Посилання оновлено",
+    "kick": "Видалити",
+    "kickConfirm": "Видалити {{name}} з групи?"
+  },
+  "addExpense": {
+    "title": "Додати витрату",
+    "editTitle": "Редагувати витрату",
+    "description": "Опис",
+    "descriptionPlaceholder": "За що платили?",
+    "amount": "Сума",
+    "amountWithCurrency": "Сума ({{currency}})",
+    "paidBy": "Хто платив",
+    "splitAmong": "Розділити між",
+    "perPerson": "{{amount}} на людину ({{count}} осіб)",
+    "submit": "Додати витрату",
+    "save": "Зберегти",
+    "saving": "Збереження..."
+  },
+  "settleUp": {
+    "title": "Розрахунок",
+    "youOwe": "Ви винні {{name}}",
+    "owesYou": "{{name}} винен(на) вам",
+    "owes": "{{from}} винен(на) {{to}}",
+    "settled": "Оплачено",
+    "note": "Коментар (необов'язково)",
+    "notePlaceholder": "наприклад, переказ на картку",
+    "markAsPaid": "Позначити як оплачено",
+    "markAsReceived": "Підтвердити отримання",
+    "settling": "Збереження...",
+    "notFound": "Розрахунок не знайдено"
+  },
+  "account": {
+    "title": "Акаунт",
+    "displayName": "Ім'я",
+    "telegramUsername": "Ім'я користувача Telegram",
+    "noUsername": "Не задано",
+    "edit": "Змінити",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "nameUpdated": "Ім'я оновлено",
+    "language": "Мова"
+  },
+  "activity": {
+    "title": "Активність",
+    "comingSoon": "Стрічка активності скоро з'явиться"
+  },
+  "currencyPicker": {
+    "title": "Вибрати валюту",
+    "search": "Пошук валюти...",
+    "noResults": "Валюту не знайдено"
+  },
+  "loading": "Завантаження...",
+  "time": {
+    "justNow": "щойно",
+    "minutesAgo": "{{count}} хв. тому",
+    "hoursAgo": "{{count}} год. тому",
+    "daysAgo": "{{count}} дн. тому"
+  }
+}

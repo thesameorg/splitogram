@@ -180,21 +180,21 @@ All Phase 2 specs completed and archived.
   - Replaced all hardcoded colors (`bg-white`, `text-gray-500`, `bg-blue-500`, etc.) with `tg-*` tokens across all components
   - Removed all `dark:` prefixes — CSS vars handle both modes automatically
   - Removed manual `dark` class toggling and `document.body.style` from App.tsx
-  - Kept semantic green/red for balances (positive/negative amounts) as hardcoded Tailwind colors
+  - Semantic colors (positive/negative/warning) via `--app-*` CSS custom properties with light/dark variants, mapped to Tailwind `app-*` tokens. `data-theme` set from `webApp.colorScheme`.
 - **i18n (react-i18next):**
   - Installed `react-i18next` + `i18next`
   - Created `i18n.ts` config with inline JSON imports, fallback to English, dev missing key warnings
-  - 3 locale files: `en.json`, `ru.json`, `es.json` (~100 keys each)
+  - 11 locale files: en, ru, es, hi, id, fa, pt, uk, de, it, vi (~100 keys each)
   - Replaced all hardcoded English strings with `t()` calls across all pages and components
-  - CLDR plurals for Russian (one/few/many forms for member counts)
+  - CLDR plurals for Russian and Ukrainian (one/few/many), Indonesian and Vietnamese (other only)
   - `timeAgo()` utility uses i18n for time strings
 - **Language persistence (CloudStorage):**
   - On init: try CloudStorage → detect from TG user `language_code` → fallback English
   - On change: save to CloudStorage (fire-and-forget)
   - Added `CloudStorage` to Telegram WebApp type declarations
 - **Language selector on Account page:**
-  - 3-button row: English, Русский, Español
-  - Active language highlighted with `tg-button` style
+  - Tappable button showing flag + native language name, opens BottomSheet with all 11 languages
+  - Checkmark on current selection, follows CurrencyPicker pattern
   - Switching language updates all visible text immediately
 - **Phase 4 bug fixes (bundled):**
   - A1: Balance colors in Group page — red if user owes, green if owed to user, neutral otherwise
@@ -364,7 +364,7 @@ All Phase 2 specs completed and archived.
 | 2     | Splitwise Polish          | Daily-usable Splitwise clone          | Phase 1     |
 | 3     | UX Overhaul               | Stateless auth + 3-tab nav + cleanup  | Phase 2     |
 | 4     | Transactions & Accounting | Unified timeline + full currency list | Phase 3     |
-| 5     | Themes & i18n             | Dark/light + 3 languages              | Phase 3     |
+| 5     | Themes & i18n             | Dark/light + 11 languages             | Phase 3     |
 | 6     | Images & Storage          | Avatars + attachments via R2          | Phase 3     |
 | 7     | Retention & Engagement    | Activity feed + reminders             | Phase 4     |
 | 8     | Advanced Splitting        | Equal / % / manual split modes        | Phase 4     |

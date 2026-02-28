@@ -90,8 +90,8 @@ export function SettleUp() {
 
       {/* Status */}
       {isSettled && (
-        <div className="bg-green-50 p-4 rounded-xl mb-6 text-center">
-          <div className="text-green-600 font-medium text-lg">{t('settleUp.settled')}</div>
+        <div className="bg-app-positive-bg p-4 rounded-xl mb-6 text-center">
+          <div className="text-app-positive font-medium text-lg">{t('settleUp.settled')}</div>
           {settlement.comment && (
             <div className="text-sm text-tg-hint mt-1">{settlement.comment}</div>
           )}
