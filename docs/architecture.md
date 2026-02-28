@@ -69,7 +69,7 @@ See `work_docs/research/3-frontend-framework.md` for full analysis.
 
 - **Groups** — home screen, list of user's groups with balances
 - **Activity** — cross-group activity feed (all groups the user belongs to), with pagination. Empty state until Phase 7 populates it.
-- **Account** — profile (display name, Telegram avatar from `initData`), theme/language selectors (wired up in Phase 5)
+- **Account** — profile (display name, Telegram avatar from `initData`), language selector (wired up in Phase 5). No theme selector — follows Telegram's dark/light mode automatically.
 
 ---
 
@@ -117,6 +117,58 @@ Single expense creation flow with mode switcher:
 5. Save
 
 No custom ratios (covered by manual mode). No recurring expenses. No categories.
+
+---
+
+## Theming: Telegram CSS Variables (decided Phase 5)
+
+**Decision:** Follow Telegram's theme via CSS variables. No user-facing dark/light toggle.
+
+**Why:** Telegram Mini Apps already have dark/light mode controlled by the user's Telegram settings. A separate toggle is redundant and confusing. Telegram injects 15 `--tg-theme-*` CSS variables that auto-update when the user changes theme.
+
+**Implementation:** Map Telegram's CSS variables to Tailwind custom colors in `tailwind.config.js`:
+
+```js
+colors: {
+  tg: {
+    bg: 'var(--tg-theme-bg-color)',
+    text: 'var(--tg-theme-text-color)',
+    hint: 'var(--tg-theme-hint-color)',
+    link: 'var(--tg-theme-link-color)',
+    button: 'var(--tg-theme-button-color)',
+    'button-text': 'var(--tg-theme-button-text-color)',
+    'secondary-bg': 'var(--tg-theme-secondary-bg-color)',
+    accent: 'var(--tg-theme-accent-text-color)',
+    destructive: 'var(--tg-theme-destructive-text-color)',
+    subtitle: 'var(--tg-theme-subtitle-text-color)',
+    section: 'var(--tg-theme-section-bg-color)',
+    'section-header': 'var(--tg-theme-section-header-text-color)',
+    separator: 'var(--tg-theme-section-separator-color)',
+    header: 'var(--tg-theme-header-bg-color)',
+    'bottom-bar': 'var(--tg-theme-bottom-bar-bg-color)',
+  }
+}
+```
+
+Usage: `bg-tg-bg text-tg-text` — no `dark:` prefixes needed. CSS variables handle both modes automatically. Theme changes trigger `themeChanged` event; CSS vars update without manual listeners.
+
+See `work_docs/research/done/5-themes-and-persistence.md` for full analysis.
+
+---
+
+## User Preference Persistence: Telegram CloudStorage (decided Phase 5)
+
+**Decision:** Use Telegram CloudStorage for language preference. No persistence needed for theme (follows Telegram).
+
+**Why not localStorage:** Unreliable in TG WebView — iOS WKWebView can clear it between app restarts or under memory pressure. No cross-device sync.
+
+**Why CloudStorage:** Built-in Telegram API (Bot API 6.9), cloud-synced across devices, 1024 items × 4KB. No backend changes needed.
+
+**What's stored:** `lang` key only (e.g., `"ru"`, `"es"`). Theme follows Telegram automatically — no persistence.
+
+**Init flow:** Read `lang` from CloudStorage → if present, use it → otherwise detect from `initData.user.language_code` → fallback to English.
+
+**What this eliminates:** No `users.language` DB column, no preferences API endpoint, no localStorage, no conflict resolution.
 
 ---
 
@@ -181,8 +233,8 @@ Each has a dedicated file in `work_docs/research/`:
 | ------------------------------ | ----- | ----------------------------- |
 | ~~Frontend framework / UI lib~~| 3     | `3-frontend-framework.md` — **DECIDED: no library, stay with React + Tailwind** |
 | Balance integrity rules        | 4     | `balance-integrity.md`        |
-| Themes & preference persistence| 5     | `themes-and-persistence.md`   |
-| ~~i18n approach~~              | 5     | `i18n-approach.md` — **DECIDED: react-i18next** |
+| ~~Themes & preference persistence~~ | 5 | `done/5-themes-and-persistence.md` — **DECIDED: follow TG theme, CloudStorage for language** |
+| ~~i18n approach~~              | 5     | `done/5-i18n-approach.md` — **DECIDED: react-i18next** |
 | Image storage (R2)             | 6     | `image-storage-r2.md`         |
 | Exchange rates                 | 7     | `exchange-rates.md`           |
 | TON Connect & crypto           | 10    | `ton-connect-crypto.md`       |
