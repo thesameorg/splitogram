@@ -1,9 +1,13 @@
-- if user has balances in different currencies in different groups - do not convert, just show multiple currencies balance
-- add a receipt option to settlement
-- i see group agtivities, but no personal activity - where all activities that include him across all his groups are shown. maybe not done yet? it is empty for both my users, though there are transactions
-- add reports & stats section per group (placeholder tab for now)
-- together with expense split modes, add a new expense page - alike splitwise, where it shows who paid and how it is split (amounts only)
-- whe an expense is deleted, mark it with "strikethrough gray stye in feed
-- when expense is edited, show initial amont and new amount like 123.0$ -> 125.5$
-- rename "activity" to feed in both groups & user personal
-- 
+- add currency symbol to group title near members
+- add option to edit amount to settle - it can not cover whole amount, or be larger than debt.
+- show initial event in group - group created by ...
+- when a settlement is added (with or without image & comment) i should be able to see it in the same way as i can see other transactions - with little popup in the bottom, with image & such.
+- add to account:
+    - link to ToS, useragreement and so on. for now - placeholders, there will be some PDF-documents or like that. something really simple, but nice buttons on interface.
+    - add a "Feedback", that utilizes some basic mechanis. probably - just sends a tg-DM to admin (can add env), or sends user to email creation (also env)
+- Content moderation:
+    - add a button to mark an image as "inapropriate"
+    - when pressed, a dialog pops up with "what's wrong" + 3-5 standard reasons as buttons, a text field and "send" button
+    - if sent, admin receives a message in bot with claim info + image pic + link to image on R2
+    - if admin deletes image (404 on load), it should be shown as a placeholder image. or basic 404 case is fine too.
+    - so no need for special flow for this one

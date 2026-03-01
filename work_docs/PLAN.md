@@ -306,7 +306,7 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 8: Advanced Splitting
+## Phase 8: Advanced Splitting - DONE
 
 **Goal:** Handle real-world expense complexity beyond equal splits.
 
@@ -332,7 +332,7 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 9: Growth & Virality — SPECULATIVE
+## Phase 9: Growth & Virality — SKIP
 
 > **Status: not sure at all.** Evaluate based on traction and user feedback. May be reprioritized, reduced, or dropped entirely.
 
