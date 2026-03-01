@@ -10,6 +10,7 @@ import { balancesApp } from './api/balances';
 import { settlementsApp } from './api/settlements';
 import { usersApp } from './api/users';
 import { activityApp } from './api/activity';
+import { reportsApp } from './api/reports';
 import { r2App } from './api/r2';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
@@ -73,6 +74,10 @@ app.route('/api/v1/users', usersApp);
 app.use('/api/v1/activity', authMiddleware);
 app.use('/api/v1/groups/:id/activity', authMiddleware);
 app.route('/api/v1', activityApp);
+
+// Reports
+app.use('/api/v1/reports', authMiddleware);
+app.route('/api/v1/reports', reportsApp);
 
 // --- Root info ---
 app.get('/', (c) => {

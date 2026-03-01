@@ -3,11 +3,11 @@
 - show initial event in group - group created by ...
 - when a settlement is added (with or without image & comment) i should be able to see it in the same way as i can see other transactions - with little popup in the bottom, with image & such.
 - add to account:
-    - link to ToS, useragreement and so on. for now - placeholders, there will be some PDF-documents or like that. something really simple, but nice buttons on interface.
-    - add a "Feedback", that utilizes some basic mechanis. probably - just sends a tg-DM to admin (can add env), or sends user to email creation (also env)
+  - link to ToS, useragreement and so on. for now - placeholders, there will be some PDF-documents or like that. something really simple, but nice buttons on interface.
+  - add a "Feedback", that utilizes some basic mechanis. probably - just sends a tg-DM to admin (can add env), or sends user to email creation (also env)
 - Content moderation:
-    - add a button to mark an image as "inapropriate"
-    - when pressed, a dialog pops up with "what's wrong" + 3-5 standard reasons as buttons, a text field and "send" button
-    - if sent, admin receives a message in bot with claim info + image pic + link to image on R2
-    - if admin deletes image (404 on load), it should be shown as a placeholder image. or basic 404 case is fine too.
-    - so no need for special flow for this one
+  - add a button to mark an image as "inapropriate"
+  - when pressed, a dialog pops up with "what's wrong" + 3-5 standard reasons as buttons, a text field and "send" button
+  - if sent, admin receives a message in bot with claim info + image pic + link to image on R2
+  - if admin deletes image (404 on load), it should be shown as a placeholder image. or basic 404 case is fine too.
+  - so no need for special flow for this one

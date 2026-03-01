@@ -24,17 +24,17 @@ When settling on-chain via TON Connect SDK, user sees: "You owe €15.00 → ~15
 
 Tested 4 free APIs on March 2, 2026:
 
-| Criteria | open.er-api.com | fawazahmed0 (jsDelivr) | frankfurter.app | exchangerate-api.com (v6) |
-|---|---|---|---|---|
-| **API Key** | Not required | Not required | Not required | **REQUIRED** (403 without) |
-| **Currencies** | 166 | 341 (fiat + crypto) | 30 (ECB only) | N/A (blocked) |
-| **Splitogram coverage** | **137/137 (100%)** | **137/137 (100%)** | 30/137 (22%) | N/A |
-| **Base currency** | USD (configurable) | USD (lowercase keys) | EUR only | N/A |
-| **Key format** | Uppercase (`EUR`) | Lowercase (`eur`) | Uppercase | N/A |
-| **Update frequency** | Daily (~00:00 UTC) | Daily | Weekdays only (ECB) | N/A |
-| **Response size** | ~3 KB | ~7.5 KB | ~434 bytes | N/A |
-| **Rate limit** | Soft (429 resets in 20min) | Unlimited (CDN) | None documented | 1500 req/month |
-| **CORS** | Yes | Yes | Yes | N/A |
+| Criteria                | open.er-api.com            | fawazahmed0 (jsDelivr) | frankfurter.app     | exchangerate-api.com (v6)  |
+| ----------------------- | -------------------------- | ---------------------- | ------------------- | -------------------------- |
+| **API Key**             | Not required               | Not required           | Not required        | **REQUIRED** (403 without) |
+| **Currencies**          | 166                        | 341 (fiat + crypto)    | 30 (ECB only)       | N/A (blocked)              |
+| **Splitogram coverage** | **137/137 (100%)**         | **137/137 (100%)**     | 30/137 (22%)        | N/A                        |
+| **Base currency**       | USD (configurable)         | USD (lowercase keys)   | EUR only            | N/A                        |
+| **Key format**          | Uppercase (`EUR`)          | Lowercase (`eur`)      | Uppercase           | N/A                        |
+| **Update frequency**    | Daily (~00:00 UTC)         | Daily                  | Weekdays only (ECB) | N/A                        |
+| **Response size**       | ~3 KB                      | ~7.5 KB                | ~434 bytes          | N/A                        |
+| **Rate limit**          | Soft (429 resets in 20min) | Unlimited (CDN)        | None documented     | 1500 req/month             |
+| **CORS**                | Yes                        | Yes                    | Yes                 | N/A                        |
 
 ### Eliminated
 
@@ -52,20 +52,20 @@ Tested 4 free APIs on March 2, 2026:
 
 Compared rates from open.er-api, fawazahmed0, frankfurter, XE.com, X-Rates, FloatRates, Wise (March 1-2, 2026):
 
-| Currency | open.er-api | XE.com | X-Rates | FloatRates | Max divergence |
-|---|---|---|---|---|---|
-| EUR | 0.8470 | 0.8464 | 0.8468 | 0.85 | < 0.4% |
-| GBP | 0.7420 | 0.7416 | 0.7415 | 0.74 | < 0.3% |
-| THB | 31.069 | 31.081 | 31.009 | 31.05 | < 0.2% |
-| JPY | 156.04 | 156.05 | 155.48 | 155.93 | < 0.4% |
-| IDR | 16,792 | 16,778 | 16,780 | 16,801 | < 0.1% |
-| RUB | 77.01 | 77.28 | 77.26 | 77.42 | < 0.5% |
-| INR | 91.11 | 91.08 | 90.95 | 91.04 | < 0.2% |
-| KRW | 1,441 | 1,439 | 1,442 | 1,439 | < 0.2% |
-| BRL | 5.143 | 5.136 | 5.128 | 5.15 | < 0.4% |
-| VND | 26,053 | 25,620* | — | 26,051 | ~0.5%** |
+| Currency | open.er-api | XE.com   | X-Rates | FloatRates | Max divergence |
+| -------- | ----------- | -------- | ------- | ---------- | -------------- |
+| EUR      | 0.8470      | 0.8464   | 0.8468  | 0.85       | < 0.4%         |
+| GBP      | 0.7420      | 0.7416   | 0.7415  | 0.74       | < 0.3%         |
+| THB      | 31.069      | 31.081   | 31.009  | 31.05      | < 0.2%         |
+| JPY      | 156.04      | 156.05   | 155.48  | 155.93     | < 0.4%         |
+| IDR      | 16,792      | 16,778   | 16,780  | 16,801     | < 0.1%         |
+| RUB      | 77.01       | 77.28    | 77.26   | 77.42      | < 0.5%         |
+| INR      | 91.11       | 91.08    | 90.95   | 91.04      | < 0.2%         |
+| KRW      | 1,441       | 1,439    | 1,442   | 1,439      | < 0.2%         |
+| BRL      | 5.143       | 5.136    | 5.128   | 5.15       | < 0.4%         |
+| VND      | 26,053      | 25,620\* | —       | 26,051     | ~0.5%\*\*      |
 
-*XE.com VND figure appears to be a stale off-hours snapshot. Wise, FloatRates, and open.er-api all agree around 26,045-26,058.
+\*XE.com VND figure appears to be a stale off-hours snapshot. Wise, FloatRates, and open.er-api all agree around 26,045-26,058.
 
 **All sources agree within <0.5% for all tested currencies.** open.er-api rates are accurate and consistent with premium sources.
 
@@ -92,6 +92,7 @@ Compared rates from open.er-api, fawazahmed0, frankfurter, XE.com, X-Rates, Floa
 ```
 
 **Why:**
+
 - 100% coverage of all 137 Splitogram currencies
 - Uppercase keys match our `CURRENCIES` record — zero mapping needed: `rates[currencyCode]`
 - USD base out of the box — no conversion math
@@ -120,6 +121,7 @@ Dead simple approach — no KV, no in-memory caching:
 4. **Conversion math**: `amountInUSD = amountInLocal / rates[currencyCode]`. For USD groups, rate is 1 — no conversion.
 
 This means:
+
 - ~1 external API call per day (first request after midnight UTC triggers refresh)
 - Zero KV cost
 - Rates survive Worker restarts (persisted in D1)
@@ -149,6 +151,7 @@ CREATE TABLE exchange_rates (
 ### New backend service
 
 `backend/src/services/exchange-rates.ts`:
+
 - `getExchangeRates(db): Promise<{ rates: Record<string, number>, fetchedAt: number }>`
 - Reads D1, refreshes if stale (>24h), returns rates map
 - `convertToUSD(amount: number, currencyCode: string, rates: Record<string, number>): number`

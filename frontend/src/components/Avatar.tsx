@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { imageUrl } from '../utils/image';
 
 interface AvatarProps {
@@ -15,13 +16,15 @@ const SIZE_CLASSES = {
 
 export function Avatar({ avatarKey, displayName, size = 'md', emoji }: AvatarProps) {
   const sizeClass = SIZE_CLASSES[size];
+  const [imgError, setImgError] = useState(false);
 
-  if (avatarKey) {
+  if (avatarKey && !imgError) {
     return (
       <img
         src={imageUrl(avatarKey)}
         alt={displayName}
         className={`${sizeClass} rounded-full object-cover`}
+        onError={() => setImgError(true)}
       />
     );
   }

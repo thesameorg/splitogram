@@ -167,22 +167,22 @@ npm install
 
 ### State variables
 
-| Variable | Type | Description |
-|----------|------|-------------|
-| `owner` | `Address` | Your address — receives commission |
+| Variable             | Type            | Description                           |
+| -------------------- | --------------- | ------------------------------------- |
+| `owner`              | `Address`       | Your address — receives commission    |
 | `commission_percent` | `Int as uint16` | Commission in basis points (100 = 1%) |
-| `usdt_master` | `Address` | USDT Jetton Master address on TON |
-| `total_processed` | `Int as coins` | Running total of processed volume |
-| `total_commission` | `Int as coins` | Running total of earned commission |
+| `usdt_master`        | `Address`       | USDT Jetton Master address on TON     |
+| `total_processed`    | `Int as coins`  | Running total of processed volume     |
+| `total_commission`   | `Int as coins`  | Running total of earned commission    |
 
 ### Messages
 
-| Message | Direction | Description |
-|---------|-----------|-------------|
-| `TokenNotification` | Incoming | Jetton arrived, contains forward_payload with recipient |
-| `JettonTransfer` | Outgoing | Send Jettons to recipient and to owner |
-| `UpdateCommission` | Incoming | Owner updates commission rate |
-| `Withdraw` | Incoming | Owner withdraws accumulated TON (gas leftovers) |
+| Message             | Direction | Description                                             |
+| ------------------- | --------- | ------------------------------------------------------- |
+| `TokenNotification` | Incoming  | Jetton arrived, contains forward_payload with recipient |
+| `JettonTransfer`    | Outgoing  | Send Jettons to recipient and to owner                  |
+| `UpdateCommission`  | Incoming  | Owner updates commission rate                           |
+| `Withdraw`          | Incoming  | Owner withdraws accumulated TON (gas leftovers)         |
 
 ### Encoding the recipient in forward_payload
 
@@ -380,55 +380,55 @@ import { toNano } from '@ton/core';
 import { SplitBillSettlement } from '../wrappers/SplitBillSettlement';
 
 describe('SplitBillSettlement', () => {
-    let blockchain: Blockchain;
-    let contract: SandboxContract<SplitBillSettlement>;
-    let owner: SandboxContract<TreasuryContract>;
-    let userA: SandboxContract<TreasuryContract>;
-    let userB: SandboxContract<TreasuryContract>;
+  let blockchain: Blockchain;
+  let contract: SandboxContract<SplitBillSettlement>;
+  let owner: SandboxContract<TreasuryContract>;
+  let userA: SandboxContract<TreasuryContract>;
+  let userB: SandboxContract<TreasuryContract>;
 
-    beforeEach(async () => {
-        blockchain = await Blockchain.create();
-        owner = await blockchain.treasury('owner');
-        userA = await blockchain.treasury('userA');
-        userB = await blockchain.treasury('userB');
+  beforeEach(async () => {
+    blockchain = await Blockchain.create();
+    owner = await blockchain.treasury('owner');
+    userA = await blockchain.treasury('userA');
+    userB = await blockchain.treasury('userB');
 
-        // Deploy contract
-        contract = blockchain.openContract(
-            await SplitBillSettlement.fromInit(
-                owner.address,
-                100n // 1% commission in basis points
-            )
-        );
+    // Deploy contract
+    contract = blockchain.openContract(
+      await SplitBillSettlement.fromInit(
+        owner.address,
+        100n, // 1% commission in basis points
+      ),
+    );
 
-        const deployResult = await contract.send(
-            owner.getSender(),
-            { value: toNano('0.5') },
-            { $$type: 'Deploy', queryId: 0n }
-        );
-        expect(deployResult.transactions).toHaveTransaction({
-            from: owner.address,
-            to: contract.address,
-            deploy: true,
-            success: true,
-        });
+    const deployResult = await contract.send(
+      owner.getSender(),
+      { value: toNano('0.5') },
+      { $$type: 'Deploy', queryId: 0n },
+    );
+    expect(deployResult.transactions).toHaveTransaction({
+      from: owner.address,
+      to: contract.address,
+      deploy: true,
+      success: true,
     });
+  });
 
-    // Test cases to implement:
+  // Test cases to implement:
 
-    it('should deploy correctly', async () => {
-        const commission = await contract.getCommission();
-        expect(commission).toBe(100n);
-    });
+  it('should deploy correctly', async () => {
+    const commission = await contract.getCommission();
+    expect(commission).toBe(100n);
+  });
 
-    // Test: happy path settlement
-    // Test: commission calculation (1% of 100 USDT = 1 USDT)
-    // Test: minimum commission (0.1 USDT)
-    // Test: amount too small (reject if remainder <= 0)
-    // Test: unknown sender Jetton Wallet (reject)
-    // Test: owner can update commission
-    // Test: non-owner cannot update commission
-    // Test: owner can withdraw excess TON
-    // Test: invalid forward_payload (reject)
+  // Test: happy path settlement
+  // Test: commission calculation (1% of 100 USDT = 1 USDT)
+  // Test: minimum commission (0.1 USDT)
+  // Test: amount too small (reject if remainder <= 0)
+  // Test: unknown sender Jetton Wallet (reject)
+  // Test: owner can update commission
+  // Test: non-owner cannot update commission
+  // Test: owner can withdraw excess TON
+  // Test: invalid forward_payload (reject)
 });
 ```
 
@@ -440,18 +440,18 @@ npx blueprint test
 
 ### What to test thoroughly
 
-| Scenario | Expected behavior |
-|----------|-------------------|
-| Normal settlement (100 USDT, 1%) | 99 USDT → recipient, 1 USDT → owner |
-| Small amount (0.5 USDT) | Minimum commission 0.1 USDT, 0.4 USDT → recipient |
-| Too small amount (0.05 USDT) | Rejected — remainder would be ≤ 0 |
-| Unknown Jetton Wallet sender | Rejected |
-| Invalid forward_payload (no recipient) | Rejected |
-| Owner updates commission to 2% | State updated, next settlement uses 2% |
-| Non-owner tries to update commission | Rejected |
-| Commission > 10% (1000 bps) | Rejected |
-| Concurrent settlements | Each processed independently (TON is async) |
-| Bounced outgoing transfer | Funds should be recoverable (add bounce handler) |
+| Scenario                               | Expected behavior                                 |
+| -------------------------------------- | ------------------------------------------------- |
+| Normal settlement (100 USDT, 1%)       | 99 USDT → recipient, 1 USDT → owner               |
+| Small amount (0.5 USDT)                | Minimum commission 0.1 USDT, 0.4 USDT → recipient |
+| Too small amount (0.05 USDT)           | Rejected — remainder would be ≤ 0                 |
+| Unknown Jetton Wallet sender           | Rejected                                          |
+| Invalid forward_payload (no recipient) | Rejected                                          |
+| Owner updates commission to 2%         | State updated, next settlement uses 2%            |
+| Non-owner tries to update commission   | Rejected                                          |
+| Commission > 10% (1000 bps)            | Rejected                                          |
+| Concurrent settlements                 | Each processed independently (TON is async)       |
+| Bounced outgoing transfer              | Funds should be recoverable (add bounce handler)  |
 
 ---
 
@@ -521,7 +521,7 @@ import { TonConnectUIProvider, useTonConnectUI } from '@tonconnect/ui-react';
 // Wrap your app
 <TonConnectUIProvider manifestUrl="https://your-app.com/tonconnect-manifest.json">
   <App />
-</TonConnectUIProvider>
+</TonConnectUIProvider>;
 ```
 
 ### Send a settlement transaction
@@ -530,43 +530,43 @@ import { TonConnectUIProvider, useTonConnectUI } from '@tonconnect/ui-react';
 import { beginCell, Address, toNano } from '@ton/core';
 
 async function sendSettlement(
-    tonConnectUI: TonConnectUI,
-    userJettonWalletAddress: string,  // sender's USDT Jetton Wallet
-    contractAddress: string,           // SplitBill contract
-    recipientAddress: string,          // who receives the remainder
-    amountInUSDT: number               // e.g. 100.0
+  tonConnectUI: TonConnectUI,
+  userJettonWalletAddress: string, // sender's USDT Jetton Wallet
+  contractAddress: string, // SplitBill contract
+  recipientAddress: string, // who receives the remainder
+  amountInUSDT: number, // e.g. 100.0
 ) {
-    const amount = BigInt(Math.round(amountInUSDT * 1_000_000)); // 6 decimals
+  const amount = BigInt(Math.round(amountInUSDT * 1_000_000)); // 6 decimals
 
-    // Encode recipient in forward_payload
-    const forwardPayload = beginCell()
-        .storeUint(0, 32)  // op = 0 (settlement)
-        .storeAddress(Address.parse(recipientAddress))
-        .endCell();
+  // Encode recipient in forward_payload
+  const forwardPayload = beginCell()
+    .storeUint(0, 32) // op = 0 (settlement)
+    .storeAddress(Address.parse(recipientAddress))
+    .endCell();
 
-    // Build Jetton transfer body
-    const body = beginCell()
-        .storeUint(0xf8a7ea5, 32)        // op: jetton transfer
-        .storeUint(0, 64)                 // query_id
-        .storeCoins(amount)               // jetton amount
-        .storeAddress(Address.parse(contractAddress))  // destination
-        .storeAddress(Address.parse(recipientAddress))  // response_destination
-        .storeBit(false)                  // no custom_payload
-        .storeCoins(toNano('0.25'))       // forward_ton_amount (gas for contract)
-        .storeBit(true)                   // forward_payload in ref
-        .storeRef(forwardPayload)
-        .endCell();
+  // Build Jetton transfer body
+  const body = beginCell()
+    .storeUint(0xf8a7ea5, 32) // op: jetton transfer
+    .storeUint(0, 64) // query_id
+    .storeCoins(amount) // jetton amount
+    .storeAddress(Address.parse(contractAddress)) // destination
+    .storeAddress(Address.parse(recipientAddress)) // response_destination
+    .storeBit(false) // no custom_payload
+    .storeCoins(toNano('0.25')) // forward_ton_amount (gas for contract)
+    .storeBit(true) // forward_payload in ref
+    .storeRef(forwardPayload)
+    .endCell();
 
-    await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-            {
-                address: userJettonWalletAddress,
-                amount: toNano('0.35').toString(), // TON for gas
-                payload: body.toBoc().toString('base64'),
-            },
-        ],
-    });
+  await tonConnectUI.sendTransaction({
+    validUntil: Math.floor(Date.now() / 1000) + 600,
+    messages: [
+      {
+        address: userJettonWalletAddress,
+        amount: toNano('0.35').toString(), // TON for gas
+        payload: body.toBoc().toString('base64'),
+      },
+    ],
+  });
 }
 ```
 
@@ -580,8 +580,8 @@ import { JettonMaster } from '@ton/ton';
 const USDT_MASTER = Address.parse('EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs');
 
 async function getUserJettonWallet(userAddress: Address, client: TonClient): Promise<Address> {
-    const master = client.open(JettonMaster.create(USDT_MASTER));
-    return await master.getWalletAddress(userAddress);
+  const master = client.open(JettonMaster.create(USDT_MASTER));
+  return await master.getWalletAddress(userAddress);
 }
 ```
 
@@ -652,79 +652,79 @@ EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs
 
 ### TON Smart Contract Development
 
-| Resource | URL |
-|----------|-----|
-| Tact Language Docs | https://docs.tact-lang.org/ |
-| Tact by Example (Jettons) | https://tact-by-example.org/07-jetton-standard |
-| Tact DeFi Cookbook | https://github.com/tact-lang/defi-cookbook |
-| Tact Jetton Cookbook | https://docs.tact-lang.org/cookbook/jettons/ |
-| Blueprint SDK | https://github.com/ton-org/blueprint |
-| TON Sandbox (testing) | https://github.com/ton-org/sandbox |
-| TON Smart Contracts Overview | https://docs.ton.org/v3/documentation/smart-contracts/overview |
-| Setup Environment Guide | https://docs.ton.org/v3/guidelines/quick-start/developing-smart-contracts/setup-environment |
+| Resource                     | URL                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------- |
+| Tact Language Docs           | https://docs.tact-lang.org/                                                                 |
+| Tact by Example (Jettons)    | https://tact-by-example.org/07-jetton-standard                                              |
+| Tact DeFi Cookbook           | https://github.com/tact-lang/defi-cookbook                                                  |
+| Tact Jetton Cookbook         | https://docs.tact-lang.org/cookbook/jettons/                                                |
+| Blueprint SDK                | https://github.com/ton-org/blueprint                                                        |
+| TON Sandbox (testing)        | https://github.com/ton-org/sandbox                                                          |
+| TON Smart Contracts Overview | https://docs.ton.org/v3/documentation/smart-contracts/overview                              |
+| Setup Environment Guide      | https://docs.ton.org/v3/guidelines/quick-start/developing-smart-contracts/setup-environment |
 
 ### Jetton / USDT Specifics
 
-| Resource | URL |
-|----------|-----|
-| Deep Dive into USDT on TON | https://blog.ton.org/deep-dive-into-usdt-on-ton |
-| TEP-74 (Jetton Standard) | https://github.com/ton-blockchain/TEPs/blob/master/text/0074-jettons-standard.md |
-| Jetton Transfer Guide | https://docs.ton.org/v3/guidelines/ton-connect/cookbook/jetton-transfer |
-| Jetton Implementation (Tact) | https://github.com/howardpen9/jetton-implementation-in-tact |
+| Resource                     | URL                                                                              |
+| ---------------------------- | -------------------------------------------------------------------------------- |
+| Deep Dive into USDT on TON   | https://blog.ton.org/deep-dive-into-usdt-on-ton                                  |
+| TEP-74 (Jetton Standard)     | https://github.com/ton-blockchain/TEPs/blob/master/text/0074-jettons-standard.md |
+| Jetton Transfer Guide        | https://docs.ton.org/v3/guidelines/ton-connect/cookbook/jetton-transfer          |
+| Jetton Implementation (Tact) | https://github.com/howardpen9/jetton-implementation-in-tact                      |
 
 ### Security
 
-| Resource | URL |
-|----------|-----|
+| Resource                         | URL                                                                                                         |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Secure Tact Programming (CertiK) | https://www.certik.com/resources/blog/secure-smart-contract-programming-in-tact-popular-mistakes-in-the-ton |
-| TON Security Best Practices | https://docs.ton.org/v3/guidelines/smart-contracts/security/overview |
+| TON Security Best Practices      | https://docs.ton.org/v3/guidelines/smart-contracts/security/overview                                        |
 
 ### Testing & Deployment
 
-| Resource | URL |
-|----------|-----|
-| Testing Mini Apps | https://docs.ton.org/v3/guidelines/dapps/tma/guidelines/testing-apps |
-| TON Testnet Explorer | https://testnet.tonviewer.com |
-| TON Mainnet Explorer | https://tonviewer.com |
-| Testnet Faucet Bot | https://t.me/test_giver_ton_bot |
+| Resource             | URL                                                                  |
+| -------------------- | -------------------------------------------------------------------- |
+| Testing Mini Apps    | https://docs.ton.org/v3/guidelines/dapps/tma/guidelines/testing-apps |
+| TON Testnet Explorer | https://testnet.tonviewer.com                                        |
+| TON Mainnet Explorer | https://tonviewer.com                                                |
+| Testnet Faucet Bot   | https://t.me/test_giver_ton_bot                                      |
 
 ### TON Connect (Wallet Integration)
 
-| Resource | URL |
-|----------|-----|
-| TON Connect Overview | https://docs.ton.org/ecosystem/ton-connect/overview |
-| TON Connect UI React | https://github.com/nickolay-aspect/ton-connect-react |
-| Wallets List (TON Connect) | https://github.com/ton-connect/wallets-list |
+| Resource                       | URL                                                  |
+| ------------------------------ | ---------------------------------------------------- |
+| TON Connect Overview           | https://docs.ton.org/ecosystem/ton-connect/overview  |
+| TON Connect UI React           | https://github.com/nickolay-aspect/ton-connect-react |
+| Wallets List (TON Connect)     | https://github.com/ton-connect/wallets-list          |
 | Telegram Blockchain Guidelines | https://core.telegram.org/bots/blockchain-guidelines |
 
 ---
 
 ## Appendix A: Commission Economics
 
-| Settlement | Amount | Commission (1%) | Min Commission | Actual Commission | Recipient Gets |
-|------------|--------|------------------|----------------|--------------------|--------------------|
-| Small | 5 USDT | 0.05 USDT | 0.10 USDT | 0.10 USDT | 4.90 USDT |
-| Medium | 50 USDT | 0.50 USDT | 0.10 USDT | 0.50 USDT | 49.50 USDT |
-| Standard | 100 USDT | 1.00 USDT | 0.10 USDT | 1.00 USDT | 99.00 USDT |
-| Large | 500 USDT | 5.00 USDT | 0.10 USDT | 5.00 USDT | 495.00 USDT |
+| Settlement | Amount   | Commission (1%) | Min Commission | Actual Commission | Recipient Gets |
+| ---------- | -------- | --------------- | -------------- | ----------------- | -------------- |
+| Small      | 5 USDT   | 0.05 USDT       | 0.10 USDT      | 0.10 USDT         | 4.90 USDT      |
+| Medium     | 50 USDT  | 0.50 USDT       | 0.10 USDT      | 0.50 USDT         | 49.50 USDT     |
+| Standard   | 100 USDT | 1.00 USDT       | 0.10 USDT      | 1.00 USDT         | 99.00 USDT     |
+| Large      | 500 USDT | 5.00 USDT       | 0.10 USDT      | 5.00 USDT         | 495.00 USDT    |
 
 Gas costs per settlement: approximately 0.25-0.35 TON (~$0.08-0.12 at current prices), paid by the sender.
 
 ## Appendix B: Glossary
 
-| Term | Meaning |
-|------|---------|
-| **Jetton** | Fungible token standard on TON (like ERC-20 on Ethereum) |
-| **Jetton Master** | Central contract storing token metadata and minting logic |
-| **Jetton Wallet** | Per-user contract holding token balance |
-| **TON Connect** | Standard protocol for connecting wallets to dApps on TON |
-| **Blueprint** | All-in-one dev environment for TON smart contracts |
-| **Tact** | High-level language for TON smart contracts |
-| **TVM** | TON Virtual Machine — executes smart contract bytecode |
-| **Basis points (bps)** | 1/100th of a percent (100 bps = 1%) |
-| **forward_payload** | Data attached to a Jetton transfer, forwarded to the recipient |
-| **Bounce** | When a message to a contract fails, it "bounces" back to the sender |
+| Term                   | Meaning                                                             |
+| ---------------------- | ------------------------------------------------------------------- |
+| **Jetton**             | Fungible token standard on TON (like ERC-20 on Ethereum)            |
+| **Jetton Master**      | Central contract storing token metadata and minting logic           |
+| **Jetton Wallet**      | Per-user contract holding token balance                             |
+| **TON Connect**        | Standard protocol for connecting wallets to dApps on TON            |
+| **Blueprint**          | All-in-one dev environment for TON smart contracts                  |
+| **Tact**               | High-level language for TON smart contracts                         |
+| **TVM**                | TON Virtual Machine — executes smart contract bytecode              |
+| **Basis points (bps)** | 1/100th of a percent (100 bps = 1%)                                 |
+| **forward_payload**    | Data attached to a Jetton transfer, forwarded to the recipient      |
+| **Bounce**             | When a message to a contract fails, it "bounces" back to the sender |
 
 ---
 
-*Document prepared for Dmitry / Quberas — SplitBill TWA project. March 2026.*
+_Document prepared for Dmitry / Quberas — SplitBill TWA project. March 2026._

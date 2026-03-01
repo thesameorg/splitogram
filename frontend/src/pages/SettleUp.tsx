@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api, type SettlementDetail } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatAmount } from '../utils/format';
+import { getCurrency } from '../utils/currencies';
 import {
   validateImageFile,
   processReceipt,
@@ -14,6 +15,7 @@ import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { BottomSheet } from '../components/BottomSheet';
+import { ReportImage } from '../components/ReportImage';
 
 export function SettleUp() {
   const { id } = useParams<{ id: string }>();
@@ -25,10 +27,12 @@ export function SettleUp() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [comment, setComment] = useState('');
+  const [amountStr, setAmountStr] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
+  const [reportImageKey, setReportImageKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useTelegramBackButton(true);
@@ -39,6 +43,13 @@ export function SettleUp() {
       .getSettlement(settlementId)
       .then((data) => {
         setSettlement(data);
+        const currency = getCurrency(data.currency);
+        const display = data.amount / 1_000_000;
+        setAmountStr(
+          currency.decimals === 0
+            ? String(Math.round(display))
+            : display.toFixed(currency.decimals),
+        );
         setLoading(false);
       })
       .catch((err) => {
@@ -75,7 +86,15 @@ export function SettleUp() {
     setError(null);
     setSubmitting(true);
     try {
-      await api.markExternal(settlementId, comment.trim() || undefined);
+      const parsedAmount = parseFloat(amountStr);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        setError(t('settleUp.invalidAmount'));
+        setSubmitting(false);
+        return;
+      }
+      const microAmount = Math.round(parsedAmount * 1_000_000);
+      const customAmount = microAmount !== settlement!.amount ? microAmount : undefined;
+      await api.markExternal(settlementId, comment.trim() || undefined, customAmount);
       // Upload receipt if attached
       if (receiptFile) {
         const [processed, thumb] = await Promise.all([
@@ -143,6 +162,27 @@ export function SettleUp() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1 text-tg-hint">
+              {t('settleUp.amount')}
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-tg-hint">
+                {getCurrency(settlement.currency).symbol}
+              </span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={amountStr}
+                onChange={(e) => setAmountStr(e.target.value)}
+                className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
+              />
+            </div>
+            <div className="text-xs text-tg-hint mt-1">
+              {t('settleUp.debtAmount')}: {formatAmount(settlement.amount, settlement.currency)}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1 text-tg-hint">
               {t('settleUp.note')}
             </label>
             <input
@@ -207,10 +247,7 @@ export function SettleUp() {
 
       {/* Settled receipt thumbnail */}
       {isSettled && settlement.receiptThumbKey && (
-        <button
-          onClick={() => setReceiptViewKey(settlement.receiptKey)}
-          className="mt-4"
-        >
+        <button onClick={() => setReceiptViewKey(settlement.receiptKey)} className="mt-4">
           <img
             src={imageUrl(settlement.receiptThumbKey)}
             alt="Receipt"
@@ -222,9 +259,34 @@ export function SettleUp() {
       {/* Receipt viewer */}
       <BottomSheet open={!!receiptViewKey} onClose={() => setReceiptViewKey(null)} title="">
         {receiptViewKey && (
-          <img src={imageUrl(receiptViewKey)} alt="Receipt" className="w-full rounded-xl" />
+          <div>
+            <img
+              src={imageUrl(receiptViewKey)}
+              alt="Receipt"
+              className="w-full rounded-xl"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <button
+              onClick={() => {
+                setReportImageKey(receiptViewKey);
+                setReceiptViewKey(null);
+              }}
+              className="mt-3 text-xs text-tg-hint"
+            >
+              {t('report.button')}
+            </button>
+          </div>
         )}
       </BottomSheet>
+
+      {/* Report image */}
+      <ReportImage
+        imageKey={reportImageKey}
+        open={!!reportImageKey}
+        onClose={() => setReportImageKey(null)}
+      />
     </PageLayout>
   );
 }

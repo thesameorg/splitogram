@@ -36,6 +36,9 @@ export function Account() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showLangPicker, setShowLangPicker] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [sendingFeedback, setSendingFeedback] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
@@ -112,6 +115,22 @@ export function Account() {
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to remove avatar');
+    }
+  }
+
+  async function handleSendFeedback() {
+    if (!feedbackText.trim() || sendingFeedback) return;
+    setSendingFeedback(true);
+    try {
+      await api.sendFeedback(feedbackText.trim());
+      setShowFeedback(false);
+      setFeedbackText('');
+      setSuccess(t('account.feedbackSent'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send feedback');
+    } finally {
+      setSendingFeedback(false);
     }
   }
 
@@ -229,6 +248,37 @@ export function Account() {
         </button>
       </div>
 
+      {/* Legal */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.legal')}</label>
+        <div className="bg-tg-section rounded-xl border border-tg-separator divide-y divide-tg-separator">
+          <button
+            onClick={() => alert('Terms of Service — coming soon')}
+            className="w-full flex justify-between items-center p-3 text-left"
+          >
+            <span className="font-medium">{t('account.termsOfService')}</span>
+            <span className="text-tg-hint">&rsaquo;</span>
+          </button>
+          <button
+            onClick={() => alert('Privacy Policy — coming soon')}
+            className="w-full flex justify-between items-center p-3 text-left"
+          >
+            <span className="font-medium">{t('account.privacyPolicy')}</span>
+            <span className="text-tg-hint">&rsaquo;</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Feedback */}
+      <div className="mb-4">
+        <button
+          onClick={() => setShowFeedback(true)}
+          className="w-full p-3 bg-tg-section rounded-xl border border-tg-separator text-left font-medium"
+        >
+          {t('account.feedback')}
+        </button>
+      </div>
+
       {/* Language Picker Bottom Sheet */}
       <BottomSheet
         open={showLangPicker}
@@ -254,6 +304,30 @@ export function Account() {
               )}
             </button>
           ))}
+        </div>
+      </BottomSheet>
+
+      {/* Feedback Bottom Sheet */}
+      <BottomSheet
+        open={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        title={t('account.feedback')}
+      >
+        <div className="space-y-4">
+          <textarea
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+            placeholder={t('account.feedbackPlaceholder')}
+            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent resize-none h-32"
+            maxLength={2000}
+          />
+          <button
+            onClick={handleSendFeedback}
+            disabled={sendingFeedback || !feedbackText.trim()}
+            className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+          >
+            {sendingFeedback ? '...' : t('account.feedbackSend')}
+          </button>
         </div>
       </BottomSheet>
     </PageLayout>

@@ -4,10 +4,10 @@
 
 Two layers, each solving a different problem:
 
-| Layer | Tool | Purpose |
-|-------|------|---------|
-| **Catalog ranking** | `@telegram-apps/analytics` (tganalytics) | Feeds data to TG app catalog. Required for visibility/ranking. Tracks launches + TON Connect automatically. |
-| **Product analytics** | Server-side D1 events | Track actual user behavior (funnels, retention, feature usage). Own the data. Zero client weight. 100% capture rate. |
+| Layer                 | Tool                                     | Purpose                                                                                                              |
+| --------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Catalog ranking**   | `@telegram-apps/analytics` (tganalytics) | Feeds data to TG app catalog. Required for visibility/ranking. Tracks launches + TON Connect automatically.          |
+| **Product analytics** | Server-side D1 events                    | Track actual user behavior (funnels, retention, feature usage). Own the data. Zero client weight. 100% capture rate. |
 
 ### Why not Google Analytics / GTM?
 
@@ -91,10 +91,14 @@ export const analyticsEvents = sqliteTable(
   'analytics_events',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    userId: integer('user_id').notNull().references(() => users.id),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
     event: text('event').notNull(),
     properties: text('properties'), // JSON
-    createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+    createdAt: text('created_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
   },
   (table) => [
     index('analytics_events_event_idx').on(table.event),
@@ -133,26 +137,27 @@ Use inline (not `waitUntil`) — D1 writes are fast, same pattern as `logActivit
 
 Instrument in the corresponding route handlers alongside existing `logActivity()` calls:
 
-| Event | Where | Properties |
-|-------|-------|------------|
-| `app_open` | `POST /api/v1/auth` | `{ deepLink, returning: bool }` |
-| `group_created` | `POST /groups` | `{ currency, isPair }` |
-| `group_joined` | `POST /groups/:id/join` | `{ viaDeepLink: bool }` |
-| `expense_created` | `POST /groups/:id/expenses` | `{ splitMode, amount, hasReceipt, participantCount }` |
-| `expense_edited` | `PUT /groups/:id/expenses/:eid` | `{ changedFields[] }` |
-| `expense_deleted` | `DELETE /groups/:id/expenses/:eid` | `{}` |
-| `settlement_created` | `POST /groups/:id/settlements` | `{ amount }` |
-| `settlement_completed` | `POST /settlements/:id/settle` | `{ method: 'external' }` |
-| `reminder_sent` | `POST /groups/:id/reminders` | `{ debtAmount }` |
-| `avatar_uploaded` | `POST /users/me/avatar`, `POST /groups/:id/avatar` | `{ type: 'user'\|'group' }` |
-| `language_changed` | via client-side (no backend call) — skip or add dedicated endpoint | `{ from, to }` |
-| `group_settings_changed` | `PUT /groups/:id` | `{ changedFields[] }` |
+| Event                    | Where                                                              | Properties                                            |
+| ------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------- |
+| `app_open`               | `POST /api/v1/auth`                                                | `{ deepLink, returning: bool }`                       |
+| `group_created`          | `POST /groups`                                                     | `{ currency, isPair }`                                |
+| `group_joined`           | `POST /groups/:id/join`                                            | `{ viaDeepLink: bool }`                               |
+| `expense_created`        | `POST /groups/:id/expenses`                                        | `{ splitMode, amount, hasReceipt, participantCount }` |
+| `expense_edited`         | `PUT /groups/:id/expenses/:eid`                                    | `{ changedFields[] }`                                 |
+| `expense_deleted`        | `DELETE /groups/:id/expenses/:eid`                                 | `{}`                                                  |
+| `settlement_created`     | `POST /groups/:id/settlements`                                     | `{ amount }`                                          |
+| `settlement_completed`   | `POST /settlements/:id/settle`                                     | `{ method: 'external' }`                              |
+| `reminder_sent`          | `POST /groups/:id/reminders`                                       | `{ debtAmount }`                                      |
+| `avatar_uploaded`        | `POST /users/me/avatar`, `POST /groups/:id/avatar`                 | `{ type: 'user'\|'group' }`                           |
+| `language_changed`       | via client-side (no backend call) — skip or add dedicated endpoint | `{ from, to }`                                        |
+| `group_settings_changed` | `PUT /groups/:id`                                                  | `{ changedFields[] }`                                 |
 
 #### 2d. Stats endpoint: `GET /api/v1/admin/stats`
 
 Simple SQL queries over `analytics_events` for quick dashboards. Protected by a separate admin check (e.g., hardcoded telegram_id allowlist or env var `ADMIN_TELEGRAM_IDS`).
 
 Key queries to support:
+
 - DAU/WAU/MAU (distinct `user_id` by `created_at` range)
 - Event counts by type (last 7d / 30d)
 - Retention: D1/D7/D30 (users with `app_open` on day N after first `app_open`)

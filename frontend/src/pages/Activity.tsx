@@ -21,6 +21,8 @@ function getActivityText(
   const desc = meta?.description as string | undefined;
 
   switch (item.type) {
+    case 'group_created':
+      return t('activity.groupCreated', { actor });
     case 'expense_created':
       return t('activity.expenseCreated', { actor, description: desc ?? '' });
     case 'expense_edited': {
@@ -111,10 +113,10 @@ export function Activity() {
               <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
               <div className="flex-1 min-w-0">
                 <div
-                className={`text-sm ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
-              >
-                {getActivityText(item, t, currentUserId)}
-              </div>
+                  className={`text-sm ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
+                >
+                  {getActivityText(item, t, currentUserId)}
+                </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs text-tg-hint bg-tg-secondary-bg px-2 py-0.5 rounded-full truncate">
                     {item.groupName}

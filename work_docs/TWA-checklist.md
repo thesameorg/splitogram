@@ -22,7 +22,7 @@
 - [x] Mobile-first, отзывчивый дизайн — адаптация под разные размеры экранов
 - [x] Интерактивные элементы повторяют стиль и поведение нативных UI-компонентов Telegram
 - [ ] Анимации плавные — 60fps
-- [ ] Все поля ввода и изображения содержат accessibility-лейблы *(partial: img alt есть, aria-label на input/button нет)*
+- [ ] Все поля ввода и изображения содержат accessibility-лейблы _(partial: img alt есть, aria-label на input/button нет)_
 - [x] Приложение подхватывает динамические цвета темы Telegram через API (Day/Night/Custom themes)
 - [ ] Интерфейс учитывает `safeAreaInset` и `contentSafeAreaInset` (особенно в fullscreen-режиме)
 
@@ -30,7 +30,7 @@
 
 - [x] Используется `MainButton` (нижняя кнопка) вместо кастомных CTA
 - [x] Используется `BackButton` для навигации назад
-- [ ] При необходимости — `SettingsButton` в контекстном меню *(не используется — пока не нужен)*
+- [ ] При необходимости — `SettingsButton` в контекстном меню _(не используется — пока не нужен)_
 - [ ] Haptic feedback через `HapticFeedback` API для тактильной отдачи
 
 ### 2.3 Рекомендации
@@ -46,20 +46,20 @@
 
 ### 3.1 Цифровые товары — ТОЛЬКО Telegram Stars
 
-- [x] Подписки, внутриигровые валюты, доп. уровни, расширенное время игры, виртуальные предметы — оплата **исключительно** через Telegram Stars *(N/A — нет цифровых товаров)*
-- [x] НЕ использовать сторонние платёжные системы для цифровых товаров — Telegram заблокирует приложение *(N/A — нет цифровых товаров)*
-- [x] Определения "цифровых товаров" соответствуют политикам Apple (3.1.1) и Google (Payment Policies 1, 2, 4) *(N/A)*
+- [x] Подписки, внутриигровые валюты, доп. уровни, расширенное время игры, виртуальные предметы — оплата **исключительно** через Telegram Stars _(N/A — нет цифровых товаров)_
+- [x] НЕ использовать сторонние платёжные системы для цифровых товаров — Telegram заблокирует приложение _(N/A — нет цифровых товаров)_
+- [x] Определения "цифровых товаров" соответствуют политикам Apple (3.1.1) и Google (Payment Policies 1, 2, 4) _(N/A)_
 
 ### 3.2 Физические товары и услуги
 
-- [x] Для физических товаров можно использовать любых сторонних платёжных провайдеров *(N/A — нет физических товаров)*
-- [x] Поддержка Google Pay и Apple Pay через Bot Payments API *(N/A)*
+- [x] Для физических товаров можно использовать любых сторонних платёжных провайдеров _(N/A — нет физических товаров)_
+- [x] Поддержка Google Pay и Apple Pay через Bot Payments API _(N/A)_
 
 ### 3.3 Обязательные платёжные требования
 
-- [ ] Бот отвечает на команду `/paysupport` — обработка вопросов пользователей по платежам *(N/A пока нет платежей, но нужно для листинга если будут Stars)*
-- [x] Реализована возможность возврата Stars через `refundStarPayment` метод Bot API *(N/A — нет Stars)*
-- [x] Цифровые товары доставляются вовремя и как описано *(N/A — нет цифровых товаров)*
+- [ ] Бот отвечает на команду `/paysupport` — обработка вопросов пользователей по платежам _(N/A пока нет платежей, но нужно для листинга если будут Stars)_
+- [x] Реализована возможность возврата Stars через `refundStarPayment` метод Bot API _(N/A — нет Stars)_
+- [x] Цифровые товары доставляются вовремя и как описано _(N/A — нет цифровых товаров)_
 
 ### 3.4 Экономика Stars
 
@@ -71,11 +71,11 @@
 
 ## 4. Блокчейн и крипто (если применимо)
 
-- [x] Все токены и блокчейн-активы — **исключительно на TON blockchain** *(N/A пока — крипто deferred to Phase 10)*
-- [ ] Подключение кошельков — через **TON Connect SDK** *(Phase 10)*
-- [x] Другие блокчейн-протоколы допускаются **только для бриджинга** активов из внешних сетей *(N/A)*
-- [x] Новые активы, выпущенные после 21 января 2025 — только на TON *(N/A)*
-- [x] Соблюдение правил продвижения крипто в Telegram (распространяются на ботов, каналы, сообщества) *(N/A — крипто пока не промотируется)*
+- [x] Все токены и блокчейн-активы — **исключительно на TON blockchain** _(N/A пока — крипто deferred to Phase 10)_
+- [ ] Подключение кошельков — через **TON Connect SDK** _(Phase 10)_
+- [x] Другие блокчейн-протоколы допускаются **только для бриджинга** активов из внешних сетей _(N/A)_
+- [x] Новые активы, выпущенные после 21 января 2025 — только на TON _(N/A)_
+- [x] Соблюдение правил продвижения крипто в Telegram (распространяются на ботов, каналы, сообщества) _(N/A — крипто пока не промотируется)_
 
 ---
 
@@ -94,10 +94,10 @@
 
 ### 5.3 Модерация и контент
 
-- [ ] Реализована модерация пользовательского контента *(UGC минимален — описания расходов, аватарки)*
+- [ ] Реализована модерация пользовательского контента _(UGC минимален — описания расходов, аватарки)_
 - [x] Приложение НЕ представляет себя как официальный продукт Telegram
 - [x] Контент соответствует Telegram's Bot Platform Developer ToS
-- [x] Продажа цифровых товаров, которые нельзя отозвать после возврата — нежелательна *(N/A — нет продажи)*
+- [x] Продажа цифровых товаров, которые нельзя отозвать после возврата — нежелательна _(N/A — нет продажи)_
 
 ---
 
@@ -109,7 +109,7 @@
 - [x] Бот отвечает на `/start` **на английском** по умолчанию
 - [ ] Подключён **@DataChief_bot** (Telegram Mini Apps SDK аналитика) — должен показывать свежие записи
 - [ ] Есть **Terms of Use** и **Privacy Policy**
-- [x] Если крипто: только TON + TON Connect *(крипто пока нет, но план — TON only)*
+- [x] Если крипто: только TON + TON Connect _(крипто пока нет, но план — TON only)_
 - [x] Web3-интеграция **НЕ обязательна** для листинга — принимаются и некрипто-приложения
 
 ### 6.2 Подача заявки (через @app_moderation_bot)
@@ -138,9 +138,9 @@
 
 ## 7. Продвинутые фичи (по желанию)
 
-- [ ] **Fullscreen режим** — `requestFullscreen()` / `exitFullscreen()` для игр и медиа *(не нужен)*
+- [ ] **Fullscreen режим** — `requestFullscreen()` / `exitFullscreen()` для игр и медиа _(не нужен)_
 - [ ] **Home screen shortcut** — `addToHomeScreen()` для прямого доступа с рабочего стола
-- [x] **Cloud Storage** — до 1024 элементов на пользователя для хранения данных *(используется для языка)*
+- [x] **Cloud Storage** — до 1024 элементов на пользователя для хранения данных _(используется для языка)_
 - [ ] **DeviceStorage / SecureStorage** — persistent local storage на устройстве
 - [ ] **Biometric authentication** — BiometricManager API
 - [ ] **Location tracking** — LocationManager API
@@ -168,22 +168,22 @@
 
 ## 9. Ключевые ссылки
 
-| Ресурс | URL |
-|--------|-----|
-| Официальная документация Mini Apps | https://core.telegram.org/bots/webapps |
-| Bot Platform Developer ToS | https://telegram.org/tos/bot-developers |
-| ToS для Mini Apps | https://telegram.org/tos/mini-apps |
-| ToS для Telegram Stars | https://telegram.org/tos/stars |
-| Платежи в Stars (гайд) | https://core.telegram.org/bots/payments-stars |
-| Дизайн-гайдлайны TMA | https://docs.ton.org/v3/guidelines/dapps/tma/tutorials/design-guidelines |
-| Figma UI Kit | https://www.figma.com/community/file/1348989725141777736 |
-| Публикация Mini Apps | https://docs.ton.org/v3/guidelines/dapps/tma/guidelines/publishing |
-| Telegram Apps Center | https://tapps.center/ |
-| @DataChief_bot (аналитика) | https://t.me/DataChief_bot |
-| @BotFather | https://t.me/BotFather |
-| @app_moderation_bot (подача) | https://t.me/app_moderation_bot |
-| Верификация | https://blog.ton.org/telegram-verification-guide-for-ton-projects |
+| Ресурс                             | URL                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------ |
+| Официальная документация Mini Apps | https://core.telegram.org/bots/webapps                                   |
+| Bot Platform Developer ToS         | https://telegram.org/tos/bot-developers                                  |
+| ToS для Mini Apps                  | https://telegram.org/tos/mini-apps                                       |
+| ToS для Telegram Stars             | https://telegram.org/tos/stars                                           |
+| Платежи в Stars (гайд)             | https://core.telegram.org/bots/payments-stars                            |
+| Дизайн-гайдлайны TMA               | https://docs.ton.org/v3/guidelines/dapps/tma/tutorials/design-guidelines |
+| Figma UI Kit                       | https://www.figma.com/community/file/1348989725141777736                 |
+| Публикация Mini Apps               | https://docs.ton.org/v3/guidelines/dapps/tma/guidelines/publishing       |
+| Telegram Apps Center               | https://tapps.center/                                                    |
+| @DataChief_bot (аналитика)         | https://t.me/DataChief_bot                                               |
+| @BotFather                         | https://t.me/BotFather                                                   |
+| @app_moderation_bot (подача)       | https://t.me/app_moderation_bot                                          |
+| Верификация                        | https://blog.ton.org/telegram-verification-guide-for-ton-projects        |
 
 ---
 
-*Документ создан для Dmitry / Quberas. Последнее обновление: март 2026.*
+_Документ создан для Dmitry / Quberas. Последнее обновление: март 2026._

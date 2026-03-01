@@ -13,6 +13,9 @@ export interface Env {
   PAGES_URL?: string;
   DEV_AUTH_BYPASS_ENABLED?: string;
 
+  // Admin
+  ADMIN_TELEGRAM_ID?: string;
+
   // TON
   USDT_MASTER_ADDRESS?: string;
   TONAPI_KEY?: string;

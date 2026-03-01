@@ -232,6 +232,11 @@ export const api = {
   },
   deleteAvatar: () =>
     apiRequest<{ deleted: boolean }>('/api/v1/users/me/avatar', { method: 'DELETE' }),
+  sendFeedback: (message: string) =>
+    apiRequest<{ sent: boolean }>('/api/v1/users/feedback', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
 
   // Groups
   listGroups: () => apiRequest<{ groups: GroupSummary[] }>('/api/v1/groups'),
@@ -391,10 +396,10 @@ export const api = {
 
   getSettlement: (id: number) => apiRequest<SettlementDetail>(`/api/v1/settlements/${id}`),
 
-  markExternal: (id: number, comment?: string) =>
+  markExternal: (id: number, comment?: string, amount?: number) =>
     apiRequest<{ status: string; settlementId: number }>(
       `/api/v1/settlements/${id}/mark-external`,
-      { method: 'POST', body: JSON.stringify({ comment }) },
+      { method: 'POST', body: JSON.stringify({ comment, amount }) },
     ),
 
   uploadSettlementReceipt: (settlementId: number, receipt: Blob, thumbnail: Blob) => {
@@ -410,6 +415,13 @@ export const api = {
   deleteSettlementReceipt: (settlementId: number) =>
     apiRequest<{ deleted: boolean }>(`/api/v1/settlements/${settlementId}/receipt`, {
       method: 'DELETE',
+    }),
+
+  // Reports
+  reportImage: (imageKey: string, reason: string, details?: string) =>
+    apiRequest<{ reported: boolean }>('/api/v1/reports', {
+      method: 'POST',
+      body: JSON.stringify({ imageKey, reason, details }),
     }),
 
   // Activity

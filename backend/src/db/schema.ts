@@ -131,6 +131,7 @@ export const activityLog = sqliteTable(
       .references(() => users.id),
     type: text('type', {
       enum: [
+        'group_created',
         'expense_created',
         'expense_edited',
         'expense_deleted',

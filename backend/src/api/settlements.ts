@@ -491,6 +491,7 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
 // --- Mark as settled externally (either party) ---
 const markExternalSchema = z.object({
   comment: z.string().max(500).optional(),
+  amount: z.number().int().positive().optional(),
 });
 
 settlementsApp.post(
@@ -500,7 +501,7 @@ settlementsApp.post(
     const db = c.get('db');
     const session = c.get('session');
     const settlementId = parseInt(c.req.param('id'), 10);
-    const { comment } = c.req.valid('json');
+    const { comment, amount: customAmount } = c.req.valid('json');
 
     if (isNaN(settlementId)) {
       return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
@@ -541,10 +542,13 @@ settlementsApp.post(
       );
     }
 
+    const paidAmount = customAmount ?? settlement.amount;
+
     await db
       .update(settlements)
       .set({
         status: 'settled_external',
+        amount: paidAmount,
         comment: comment ?? null,
         settledBy: currentUser.id,
         updatedAt: new Date().toISOString(),
@@ -559,7 +563,7 @@ settlementsApp.post(
       settlementId,
       targetUserId:
         currentUser.id === settlement.fromUser ? settlement.toUser : settlement.fromUser,
-      amount: settlement.amount,
+      amount: paidAmount,
     });
 
     // Fire-and-forget notification
@@ -577,7 +581,7 @@ settlementsApp.post(
       sendSettlementNotification(
         notifyCtx,
         db,
-        { id: settlementId, amount: settlement.amount, status: 'settled_external', txHash: null },
+        { id: settlementId, amount: paidAmount, status: 'settled_external', txHash: null },
         settlement.fromUser,
         settlement.toUser,
         settlement.groupId,

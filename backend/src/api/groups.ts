@@ -79,6 +79,13 @@ groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
     role: 'admin',
   });
 
+  // Log activity
+  await logActivity(db, {
+    groupId: group.id,
+    actorId: user.id,
+    type: 'group_created',
+  });
+
   return c.json(
     {
       id: group.id,

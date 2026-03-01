@@ -130,7 +130,10 @@
     "markAsReceived": "Mark as Received",
     "settling": "Settling...",
     "notFound": "Settlement not found",
-    "attachReceipt": "Attach receipt"
+    "attachReceipt": "Attach receipt",
+    "amount": "Amount",
+    "debtAmount": "Debt amount",
+    "invalidAmount": "Please enter a valid amount"
   },
   "account": {
     "title": "Account",
@@ -146,13 +149,21 @@
     "addPhoto": "Add photo",
     "changePhoto": "Change photo",
     "removePhoto": "Remove",
-    "language": "Language"
+    "language": "Language",
+    "legal": "Legal",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "feedback": "Feedback",
+    "feedbackPlaceholder": "Tell us what you think or report an issue...",
+    "feedbackSend": "Send",
+    "feedbackSent": "Feedback sent, thank you!"
   },
   "activity": {
     "title": "Activity",
     "empty": "No activity yet",
     "loadMore": "Load more",
     "you": "You",
+    "groupCreated": "{{actor}} created the group",
     "expenseCreated": "{{actor}} added \"{{description}}\"",
     "expenseEdited": "{{actor}} edited \"{{description}}\"",
     "expenseEditedWithAmount": "{{actor}} edited \"{{description}}\" ({{oldAmount}} → {{newAmount}})",
@@ -164,6 +175,19 @@
   },
   "feed": {
     "title": "Feed"
+  },
+  "report": {
+    "title": "Report Image",
+    "inappropriate": "Inappropriate content",
+    "spam": "Spam",
+    "personalInfo": "Contains personal information",
+    "copyright": "Copyright violation",
+    "other": "Other",
+    "details": "Additional details (optional)",
+    "detailsPlaceholder": "Provide more context...",
+    "send": "Submit Report",
+    "sent": "Report submitted",
+    "button": "Report image"
   },
   "currencyPicker": {
     "title": "Select Currency",

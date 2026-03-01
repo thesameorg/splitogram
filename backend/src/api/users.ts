@@ -4,10 +4,12 @@ import { z } from 'zod';
 import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
+import { notify } from '../services/notifications';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
+import type { Env } from '../env';
 
-type UsersEnv = AuthContext & DBContext;
+type UsersEnv = AuthContext & DBContext & { Bindings: Env };
 const app = new Hono<UsersEnv>();
 
 // GET /api/v1/users/me — return current user profile
@@ -131,5 +133,57 @@ app.delete('/me/avatar', async (c) => {
 
   return c.json({ deleted: true });
 });
+
+// POST /api/v1/users/feedback — send feedback to admin via bot DM
+app.post(
+  '/feedback',
+  zValidator(
+    'json',
+    z.object({
+      message: z.string().min(1).max(2000),
+    }),
+  ),
+  async (c) => {
+    const db = c.get('db');
+    const session = c.get('session');
+    const { message } = c.req.valid('json');
+
+    const adminTelegramId = c.env.ADMIN_TELEGRAM_ID;
+    if (!adminTelegramId) {
+      return c.json({ sent: true }); // silently succeed if no admin configured
+    }
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.telegramId, session.telegramId))
+      .limit(1);
+
+    if (!user) {
+      return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+    }
+
+    const text = [
+      `📬 Feedback from ${user.displayName}`,
+      user.username ? `@${user.username}` : `ID: ${user.telegramId}`,
+      '',
+      message,
+    ].join('\n');
+
+    c.executionCtx.waitUntil(
+      fetch(`https://api.telegram.org/bot${c.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: parseInt(adminTelegramId, 10),
+          text,
+        }),
+        signal: AbortSignal.timeout(10000),
+      }).catch((e) => console.error('Feedback notification failed:', e)),
+    );
+
+    return c.json({ sent: true });
+  },
+);
 
 export const usersApp = app;

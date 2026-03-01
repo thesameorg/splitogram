@@ -5,6 +5,7 @@ interface ActivityEntry {
   groupId: number;
   actorId: number;
   type:
+    | 'group_created'
     | 'expense_created'
     | 'expense_edited'
     | 'expense_deleted'

@@ -96,7 +96,10 @@ export function AddExpense() {
     splitMode === 'percentage'
       ? Array.from(shares.values()).reduce((s, v) => s + (parseFloat(v) || 0), 0)
       : splitMode === 'manual'
-        ? Array.from(shares.values()).reduce((s, v) => s + Math.round((parseFloat(v) || 0) * 1_000_000), 0)
+        ? Array.from(shares.values()).reduce(
+            (s, v) => s + Math.round((parseFloat(v) || 0) * 1_000_000),
+            0,
+          )
         : 0;
   const sharesValid =
     splitMode === 'equal'
@@ -126,7 +129,7 @@ export function AddExpense() {
           : splitMode === 'manual'
             ? Array.from(selectedParticipants).map((uid) => ({
                 userId: uid,
-                value: Math.round((parseFloat(shares.get(uid) || '0')) * 1_000_000),
+                value: Math.round(parseFloat(shares.get(uid) || '0') * 1_000_000),
               }))
             : undefined;
 
@@ -393,9 +396,7 @@ export function AddExpense() {
                   inputMode="decimal"
                   placeholder="0.00"
                   value={shares.get(m.userId) || ''}
-                  onChange={(e) =>
-                    setShares((prev) => new Map(prev).set(m.userId, e.target.value))
-                  }
+                  onChange={(e) => setShares((prev) => new Map(prev).set(m.userId, e.target.value))}
                   className="w-28 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"
                 />
                 <span className="text-sm text-tg-hint w-10">{group.currency}</span>

@@ -13,6 +13,7 @@ import {
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { formatAmount } from '../utils/format';
+import { getCurrency } from '../utils/currencies';
 import { timeAgo } from '../utils/time';
 import { shareInviteLink } from '../utils/share';
 import { mergeTransactions, type TransactionItem } from '../utils/transactions';
@@ -22,6 +23,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { Avatar } from '../components/Avatar';
 import { BottomSheet } from '../components/BottomSheet';
 import { SuccessBanner } from '../components/SuccessBanner';
+import { ReportImage } from '../components/ReportImage';
 import { IconCheck, IconStats } from '../icons';
 import { getActivityText } from './Activity';
 
@@ -45,6 +47,8 @@ export function Group() {
   const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
   const [reminderSuccess, setReminderSuccess] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [selectedSettlement, setSelectedSettlement] = useState<SettlementListItem | null>(null);
+  const [reportImageKey, setReportImageKey] = useState<string | null>(null);
 
   useTelegramBackButton(true);
 
@@ -150,9 +154,10 @@ export function Group() {
     const amountColor = isFromMe ? 'text-app-negative' : 'text-app-positive';
 
     return (
-      <div
+      <button
         key={`s-${settlement.id}`}
-        className="bg-app-positive-bg p-4 rounded-xl border border-app-positive/20"
+        onClick={() => setSelectedSettlement(settlement)}
+        className="w-full text-left bg-app-positive-bg p-4 rounded-xl border border-app-positive/20"
       >
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
@@ -169,7 +174,7 @@ export function Group() {
         {settlement.comment && (
           <div className="mt-2 text-sm text-tg-hint italic">{settlement.comment}</div>
         )}
-      </div>
+      </button>
     );
   }
 
@@ -220,7 +225,8 @@ export function Group() {
             <div>
               <h1 className="text-xl font-bold">{group.name}</h1>
               <div className="text-sm text-tg-hint">
-                {t('group.member', { count: group.members.length })}
+                {t('group.member', { count: group.members.length })} &middot;{' '}
+                {getCurrency(group.currency).symbol}
               </div>
             </div>
           </div>
@@ -454,7 +460,9 @@ export function Group() {
               </div>
               {selectedExpense.splitMode && selectedExpense.splitMode !== 'equal' && (
                 <div className="text-xs text-tg-hint mt-1">
-                  {t(`addExpense.split${selectedExpense.splitMode.charAt(0).toUpperCase() + selectedExpense.splitMode.slice(1)}`)}
+                  {t(
+                    `addExpense.split${selectedExpense.splitMode.charAt(0).toUpperCase() + selectedExpense.splitMode.slice(1)}`,
+                  )}
                 </div>
               )}
             </div>
@@ -533,12 +541,83 @@ export function Group() {
         )}
       </BottomSheet>
 
+      {/* Settlement detail */}
+      <BottomSheet
+        open={!!selectedSettlement}
+        onClose={() => setSelectedSettlement(null)}
+        title={t('settleUp.title')}
+      >
+        {selectedSettlement && (
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold">
+                {formatAmount(selectedSettlement.amount, group?.currency)}
+              </div>
+              <div className="text-sm text-tg-hint mt-1">
+                {selectedSettlement.fromUserName} &rarr; {selectedSettlement.toUserName}
+              </div>
+            </div>
+
+            {selectedSettlement.comment && (
+              <div className="text-sm text-tg-hint italic text-center">
+                {selectedSettlement.comment}
+              </div>
+            )}
+
+            {selectedSettlement.receiptThumbKey && (
+              <button
+                onClick={() => {
+                  setReceiptViewKey(selectedSettlement.receiptKey);
+                  setSelectedSettlement(null);
+                }}
+                className="mx-auto block"
+              >
+                <img
+                  src={imageUrl(selectedSettlement.receiptThumbKey)}
+                  alt="Receipt"
+                  className="w-20 h-20 rounded-xl object-cover border border-tg-separator"
+                />
+              </button>
+            )}
+
+            <div className="text-xs text-tg-hint text-center">
+              {timeAgo(selectedSettlement.createdAt)}
+            </div>
+          </div>
+        )}
+      </BottomSheet>
+
       {/* Receipt viewer */}
       <BottomSheet open={!!receiptViewKey} onClose={() => setReceiptViewKey(null)} title="">
         {receiptViewKey && (
-          <img src={imageUrl(receiptViewKey)} alt="Receipt" className="w-full rounded-xl" />
+          <div>
+            <img
+              src={imageUrl(receiptViewKey)}
+              alt="Receipt"
+              className="w-full rounded-xl"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <button
+              onClick={() => {
+                setReportImageKey(receiptViewKey);
+                setReceiptViewKey(null);
+              }}
+              className="mt-3 text-xs text-tg-hint"
+            >
+              {t('report.button')}
+            </button>
+          </div>
         )}
       </BottomSheet>
+
+      {/* Report image */}
+      <ReportImage
+        imageKey={reportImageKey}
+        open={!!reportImageKey}
+        onClose={() => setReportImageKey(null)}
+      />
     </PageLayout>
   );
 }
