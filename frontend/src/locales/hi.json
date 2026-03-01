@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "समूह",
     "activity": "गतिविधि",
+    "feed": "फ़ीड",
     "account": "खाता"
   },
   "home": {
@@ -52,7 +53,10 @@
     "allMembers": "सभी सदस्य",
     "sendReminder": "रिमाइंडर भेजें",
     "reminderSent": "रिमाइंडर भेजा गया",
-    "reminderCooldown": "आप हर 24 घंटे में केवल एक बार रिमाइंडर भेज सकते हैं"
+    "reminderCooldown": "आप हर 24 घंटे में केवल एक बार रिमाइंडर भेज सकते हैं",
+    "feed": "फ़ीड",
+    "stats": "आँकड़े",
+    "statsPlaceholder": "रिपोर्ट और आँकड़े जल्द आ रहे हैं"
   },
   "groupSettings": {
     "title": "समूह सेटिंग्स",
@@ -106,7 +110,13 @@
     "saving": "सहेज रहे हैं...",
     "attachReceipt": "रसीद संलग्न करें",
     "receiptAttached": "रसीद संलग्न है",
-    "removeReceipt": "हटाएँ"
+    "removeReceipt": "हटाएँ",
+    "splitMode": "विभाजन मोड",
+    "splitEqual": "बराबर",
+    "splitPercentage": "प्रतिशत",
+    "splitManual": "मैन्युअल",
+    "totalPercent": "कुल: {{total}}%",
+    "remaining": "शेष: {{amount}}"
   },
   "settleUp": {
     "title": "हिसाब करें",
@@ -119,7 +129,8 @@
     "markAsPaid": "भुगतान किया",
     "markAsReceived": "प्राप्त हुआ",
     "settling": "सहेज रहे हैं...",
-    "notFound": "हिसाब नहीं मिला"
+    "notFound": "हिसाब नहीं मिला",
+    "attachReceipt": "रसीद संलग्न करें"
   },
   "account": {
     "title": "खाता",
@@ -144,11 +155,15 @@
     "you": "आप",
     "expenseCreated": "{{actor}} ने \"{{description}}\" जोड़ा",
     "expenseEdited": "{{actor}} ने \"{{description}}\" संपादित किया",
+    "expenseEditedWithAmount": "{{actor}} ने \"{{description}}\" संपादित किया ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} ने \"{{description}}\" हटाया",
     "settlementCompleted": "{{actor}} ने {{target}} के साथ हिसाब किया",
     "memberJoined": "{{actor}} समूह में शामिल हुए",
     "memberLeft": "{{actor}} ने समूह छोड़ दिया",
     "memberKicked": "{{actor}} ने {{target}} को हटाया"
+  },
+  "feed": {
+    "title": "फ़ीड"
   },
   "currencyPicker": {
     "title": "मुद्रा चुनें",

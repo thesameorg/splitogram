@@ -9,6 +9,7 @@ function makeExpense(overrides: Partial<Expense> = {}): Expense {
     payerName: 'Alice',
     amount: 1000000,
     description: 'Lunch',
+    splitMode: 'equal',
     receiptKey: null,
     receiptThumbKey: null,
     createdAt: '2025-01-15T12:00:00.000Z',
@@ -28,6 +29,8 @@ function makeSettlement(overrides: Partial<SettlementListItem> = {}): Settlement
     amount: 500000,
     status: 'settled_external',
     comment: null,
+    receiptKey: null,
+    receiptThumbKey: null,
     createdAt: '2025-01-15T13:00:00.000Z',
     ...overrides,
   };

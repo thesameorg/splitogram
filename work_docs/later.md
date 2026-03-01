@@ -1,1 +1,9 @@
 - if user has balances in different currencies in different groups - do not convert, just show multiple currencies balance
+- add a receipt option to settlement
+- i see group agtivities, but no personal activity - where all activities that include him across all his groups are shown. maybe not done yet? it is empty for both my users, though there are transactions
+- add reports & stats section per group (placeholder tab for now)
+- together with expense split modes, add a new expense page - alike splitwise, where it shows who paid and how it is split (amounts only)
+- whe an expense is deleted, mark it with "strikethrough gray stye in feed
+- when expense is edited, show initial amont and new amount like 123.0$ -> 125.5$
+- rename "activity" to feed in both groups & user personal
+- 

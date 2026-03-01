@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Gruppi",
     "activity": "Attività",
+    "feed": "Feed",
     "account": "Account"
   },
   "home": {
@@ -52,7 +53,10 @@
     "allMembers": "Tutti i Membri",
     "sendReminder": "Invia Promemoria",
     "reminderSent": "Promemoria inviato",
-    "reminderCooldown": "Puoi inviare un promemoria solo una volta ogni 24 ore"
+    "reminderCooldown": "Puoi inviare un promemoria solo una volta ogni 24 ore",
+    "feed": "Feed",
+    "stats": "Statistiche",
+    "statsPlaceholder": "Report e statistiche in arrivo"
   },
   "groupSettings": {
     "title": "Impostazioni Gruppo",
@@ -106,7 +110,13 @@
     "saving": "Salvataggio...",
     "attachReceipt": "Allega scontrino",
     "receiptAttached": "Scontrino allegato",
-    "removeReceipt": "Rimuovi"
+    "removeReceipt": "Rimuovi",
+    "splitMode": "Modalità divisione",
+    "splitEqual": "Uguale",
+    "splitPercentage": "Percentuale",
+    "splitManual": "Manuale",
+    "totalPercent": "Totale: {{total}}%",
+    "remaining": "Rimanente: {{amount}}"
   },
   "settleUp": {
     "title": "Salda",
@@ -119,7 +129,8 @@
     "markAsPaid": "Segna come pagato",
     "markAsReceived": "Conferma ricezione",
     "settling": "Salvataggio...",
-    "notFound": "Saldo non trovato"
+    "notFound": "Saldo non trovato",
+    "attachReceipt": "Allega scontrino"
   },
   "account": {
     "title": "Account",
@@ -144,11 +155,15 @@
     "you": "Tu",
     "expenseCreated": "{{actor}} ha aggiunto \"{{description}}\"",
     "expenseEdited": "{{actor}} ha modificato \"{{description}}\"",
+    "expenseEditedWithAmount": "{{actor}} ha modificato \"{{description}}\" ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} ha eliminato \"{{description}}\"",
     "settlementCompleted": "{{actor}} ha saldato con {{target}}",
     "memberJoined": "{{actor}} è entrato nel gruppo",
     "memberLeft": "{{actor}} ha lasciato il gruppo",
     "memberKicked": "{{actor}} ha rimosso {{target}}"
+  },
+  "feed": {
+    "title": "Feed"
   },
   "currencyPicker": {
     "title": "Seleziona Valuta",

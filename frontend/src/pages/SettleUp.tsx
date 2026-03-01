@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, type SettlementDetail } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatAmount } from '../utils/format';
+import {
+  validateImageFile,
+  processReceipt,
+  processReceiptThumbnail,
+  imageUrl,
+} from '../utils/image';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { BottomSheet } from '../components/BottomSheet';
 
 export function SettleUp() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +26,10 @@ export function SettleUp() {
   const [error, setError] = useState<string | null>(null);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useTelegramBackButton(true);
 
@@ -41,11 +52,38 @@ export function SettleUp() {
   const isSettled =
     settlement?.status === 'settled_onchain' || settlement?.status === 'settled_external';
 
+  function handleReceiptSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setReceiptFile(file);
+    setReceiptPreview(URL.createObjectURL(file));
+  }
+
+  function handleRemoveReceipt() {
+    if (receiptPreview) URL.revokeObjectURL(receiptPreview);
+    setReceiptFile(null);
+    setReceiptPreview(null);
+  }
+
   async function handleMarkSettled() {
     setError(null);
     setSubmitting(true);
     try {
       await api.markExternal(settlementId, comment.trim() || undefined);
+      // Upload receipt if attached
+      if (receiptFile) {
+        const [processed, thumb] = await Promise.all([
+          processReceipt(receiptFile),
+          processReceiptThumbnail(receiptFile),
+        ]);
+        await api.uploadSettlementReceipt(settlementId, processed.blob, thumb.blob);
+      }
       setSettlement((prev) => (prev ? { ...prev, status: 'settled_external' as const } : prev));
       setTimeout(() => navigate(-1), 1000);
     } catch (err: any) {
@@ -117,6 +155,42 @@ export function SettleUp() {
             />
           </div>
 
+          {/* Receipt attachment */}
+          <div>
+            {receiptPreview ? (
+              <div className="flex items-center gap-3 p-3 bg-tg-section rounded-xl border border-tg-separator">
+                <img
+                  src={receiptPreview}
+                  alt="Receipt"
+                  className="w-12 h-12 rounded-lg object-cover"
+                />
+                <span className="flex-1 text-sm font-medium">
+                  {t('addExpense.receiptAttached')}
+                </span>
+                <button
+                  onClick={handleRemoveReceipt}
+                  className="text-tg-destructive text-sm font-medium"
+                >
+                  {t('addExpense.removeReceipt')}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full p-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
+              >
+                {t('settleUp.attachReceipt')}
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleReceiptSelect}
+              className="hidden"
+            />
+          </div>
+
           <button
             onClick={handleMarkSettled}
             disabled={submitting}
@@ -130,6 +204,27 @@ export function SettleUp() {
           </button>
         </div>
       )}
+
+      {/* Settled receipt thumbnail */}
+      {isSettled && settlement.receiptThumbKey && (
+        <button
+          onClick={() => setReceiptViewKey(settlement.receiptKey)}
+          className="mt-4"
+        >
+          <img
+            src={imageUrl(settlement.receiptThumbKey)}
+            alt="Receipt"
+            className="w-20 h-20 rounded-xl object-cover border border-tg-separator mx-auto"
+          />
+        </button>
+      )}
+
+      {/* Receipt viewer */}
+      <BottomSheet open={!!receiptViewKey} onClose={() => setReceiptViewKey(null)} title="">
+        {receiptViewKey && (
+          <img src={imageUrl(receiptViewKey)} alt="Receipt" className="w-full rounded-xl" />
+        )}
+      </BottomSheet>
     </PageLayout>
   );
 }

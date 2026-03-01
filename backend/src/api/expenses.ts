@@ -13,19 +13,87 @@ type ExpenseEnv = AuthContext & DBContext;
 
 const expensesApp = new Hono<ExpenseEnv>();
 
-const createExpenseSchema = z.object({
-  amount: z.number().int().positive('Amount must be positive'),
-  description: z.string().min(1).max(500),
-  paidBy: z.number().int().positive().optional(), // user ID, defaults to current user
-  participantIds: z.array(z.number().int().positive()).min(2, 'At least 2 participants required'),
+const splitModes = ['equal', 'percentage', 'manual'] as const;
+
+const shareSchema = z.object({
+  userId: z.number().int().positive(),
+  value: z.number().positive(),
 });
+
+const createExpenseSchema = z
+  .object({
+    amount: z.number().int().positive('Amount must be positive'),
+    description: z.string().min(1).max(500),
+    paidBy: z.number().int().positive().optional(),
+    participantIds: z.array(z.number().int().positive()).min(2, 'At least 2 participants required'),
+    splitMode: z.enum(splitModes).default('equal'),
+    shares: z.array(shareSchema).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.splitMode === 'percentage') {
+      if (!data.shares || data.shares.length === 0) {
+        ctx.addIssue({ code: 'custom', message: 'Shares required for percentage split' });
+        return;
+      }
+      const total = data.shares.reduce((sum, s) => sum + s.value, 0);
+      if (Math.abs(total - 100) > 0.01) {
+        ctx.addIssue({ code: 'custom', message: 'Percentages must sum to 100' });
+      }
+    } else if (data.splitMode === 'manual') {
+      if (!data.shares || data.shares.length === 0) {
+        ctx.addIssue({ code: 'custom', message: 'Shares required for manual split' });
+        return;
+      }
+      const total = data.shares.reduce((sum, s) => sum + s.value, 0);
+      if (total !== data.amount) {
+        ctx.addIssue({ code: 'custom', message: 'Manual shares must sum to the total amount' });
+      }
+    }
+  });
+
+function calculateShares(
+  amount: number,
+  participantIds: number[],
+  splitMode: string,
+  shares?: Array<{ userId: number; value: number }>,
+): Array<{ userId: number; shareAmount: number }> {
+  if (splitMode === 'percentage' && shares) {
+    const result = shares.map((s) => ({
+      userId: s.userId,
+      shareAmount: Math.round((s.value / 100) * amount),
+    }));
+    // Last person absorbs rounding difference
+    const allocated = result.reduce((sum, r) => sum + r.shareAmount, 0);
+    const diff = amount - allocated;
+    if (diff !== 0 && result.length > 0) {
+      result[result.length - 1].shareAmount += diff;
+    }
+    return result;
+  }
+
+  if (splitMode === 'manual' && shares) {
+    return shares.map((s) => ({
+      userId: s.userId,
+      shareAmount: s.value,
+    }));
+  }
+
+  // Equal split (default)
+  const count = participantIds.length;
+  const baseShare = Math.floor(amount / count);
+  const remainder = amount - baseShare * count;
+  return participantIds.map((userId, idx) => ({
+    userId,
+    shareAmount: idx === 0 ? baseShare + remainder : baseShare,
+  }));
+}
 
 // --- Create expense ---
 expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
   const groupId = parseInt(c.req.param('id') ?? '', 10);
-  const { amount, description, paidBy, participantIds } = c.req.valid('json');
+  const { amount, description, paidBy, participantIds, splitMode, shares } = c.req.valid('json');
 
   if (isNaN(groupId)) {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
@@ -90,10 +158,12 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
     );
   }
 
-  // Calculate equal split (first participant absorbs remainder)
-  const count = participantIds.length;
-  const baseShare = Math.floor(amount / count);
-  const remainder = amount - baseShare * count;
+  // For percentage/manual, derive participantIds from shares
+  const effectiveParticipantIds =
+    splitMode !== 'equal' && shares ? shares.map((s) => s.userId) : participantIds;
+
+  // Calculate shares based on split mode
+  const calculatedShares = calculateShares(amount, effectiveParticipantIds, splitMode, shares);
 
   // Create expense
   const [expense] = await db
@@ -103,14 +173,15 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
       paidBy: payerId,
       amount,
       description,
+      splitMode,
     })
     .returning();
 
   // Create participant records
-  const participantValues = participantIds.map((userId, idx) => ({
+  const participantValues = calculatedShares.map((s) => ({
     expenseId: expense.id,
-    userId,
-    shareAmount: idx === 0 ? baseShare + remainder : baseShare,
+    userId: s.userId,
+    shareAmount: s.shareAmount,
   }));
 
   await db.insert(expenseParticipants).values(participantValues);
@@ -244,6 +315,7 @@ expensesApp.get('/', async (c) => {
       payerName: users.displayName,
       amount: expenses.amount,
       description: expenses.description,
+      splitMode: expenses.splitMode,
       receiptKey: expenses.receiptKey,
       receiptThumbKey: expenses.receiptThumbKey,
       createdAt: expenses.createdAt,
@@ -280,6 +352,8 @@ const editExpenseSchema = z.object({
   amount: z.number().int().positive().optional(),
   description: z.string().min(1).max(500).optional(),
   participantIds: z.array(z.number().int().positive()).min(2).optional(),
+  splitMode: z.enum(splitModes).optional(),
+  shares: z.array(shareSchema).optional(),
 });
 
 expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) => {
@@ -336,12 +410,15 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
   const newAmount = updates.amount ?? expense.amount;
   if (updates.amount !== undefined) expenseUpdates.amount = updates.amount;
 
+  const effectiveSplitMode = updates.splitMode ?? expense.splitMode;
+  if (updates.splitMode !== undefined) expenseUpdates.splitMode = updates.splitMode;
+
   if (Object.keys(expenseUpdates).length > 0) {
     await db.update(expenses).set(expenseUpdates).where(eq(expenses.id, expenseId));
   }
 
-  // Recalculate shares if participants or amount changed
-  if (updates.participantIds || updates.amount) {
+  // Recalculate shares if participants, amount, or splitMode changed
+  if (updates.participantIds || updates.amount || updates.splitMode || updates.shares) {
     const participantIds =
       updates.participantIds ??
       (
@@ -376,31 +453,36 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
       }
     }
 
-    // Recalculate equal split
-    const count = participantIds.length;
-    const baseShare = Math.floor(newAmount / count);
-    const remainder = newAmount - baseShare * count;
+    const calculatedShares = calculateShares(
+      newAmount,
+      participantIds,
+      effectiveSplitMode,
+      updates.shares,
+    );
 
     // Delete old participants and insert new
     await db.delete(expenseParticipants).where(eq(expenseParticipants.expenseId, expenseId));
 
-    const participantValues = participantIds.map((userId, idx) => ({
+    const participantValues = calculatedShares.map((s) => ({
       expenseId,
-      userId,
-      shareAmount: idx === 0 ? baseShare + remainder : baseShare,
+      userId: s.userId,
+      shareAmount: s.shareAmount,
     }));
 
     await db.insert(expenseParticipants).values(participantValues);
   }
 
-  // Log activity
+  // Log activity (store oldAmount for feed display)
   await logActivity(db, {
     groupId,
     actorId: currentUser.id,
     type: 'expense_edited',
     expenseId,
     amount: newAmount,
-    metadata: { description: updates.description ?? expense.description },
+    metadata: {
+      description: updates.description ?? expense.description,
+      oldAmount: expense.amount,
+    },
   });
 
   return c.json({ id: expenseId, updated: true });
@@ -642,4 +724,4 @@ expensesApp.delete('/:expenseId/receipt', async (c) => {
   return c.json({ deleted: true });
 });
 
-export { expensesApp };
+export { expensesApp, calculateShares };

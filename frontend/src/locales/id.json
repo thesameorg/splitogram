@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Grup",
     "activity": "Aktivitas",
+    "feed": "Feed",
     "account": "Akun"
   },
   "home": {
@@ -50,7 +51,10 @@
     "allMembers": "Semua Anggota",
     "sendReminder": "Kirim Pengingat",
     "reminderSent": "Pengingat terkirim",
-    "reminderCooldown": "Anda hanya bisa mengirim pengingat sekali setiap 24 jam"
+    "reminderCooldown": "Anda hanya bisa mengirim pengingat sekali setiap 24 jam",
+    "feed": "Feed",
+    "stats": "Statistik",
+    "statsPlaceholder": "Laporan & statistik segera hadir"
   },
   "groupSettings": {
     "title": "Pengaturan Grup",
@@ -104,7 +108,13 @@
     "saving": "Menyimpan...",
     "attachReceipt": "Lampirkan struk",
     "receiptAttached": "Struk terlampir",
-    "removeReceipt": "Hapus"
+    "removeReceipt": "Hapus",
+    "splitMode": "Mode pembagian",
+    "splitEqual": "Sama rata",
+    "splitPercentage": "Persen",
+    "splitManual": "Manual",
+    "totalPercent": "Total: {{total}}%",
+    "remaining": "Sisa: {{amount}}"
   },
   "settleUp": {
     "title": "Lunasi",
@@ -117,7 +127,8 @@
     "markAsPaid": "Tandai Dibayar",
     "markAsReceived": "Konfirmasi Diterima",
     "settling": "Menyimpan...",
-    "notFound": "Pelunasan tidak ditemukan"
+    "notFound": "Pelunasan tidak ditemukan",
+    "attachReceipt": "Lampirkan struk"
   },
   "account": {
     "title": "Akun",
@@ -142,11 +153,15 @@
     "you": "Anda",
     "expenseCreated": "{{actor}} menambahkan \"{{description}}\"",
     "expenseEdited": "{{actor}} mengedit \"{{description}}\"",
+    "expenseEditedWithAmount": "{{actor}} mengedit \"{{description}}\" ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} menghapus \"{{description}}\"",
     "settlementCompleted": "{{actor}} melunasi dengan {{target}}",
     "memberJoined": "{{actor}} bergabung ke grup",
     "memberLeft": "{{actor}} keluar dari grup",
     "memberKicked": "{{actor}} mengeluarkan {{target}}"
+  },
+  "feed": {
+    "title": "Feed"
   },
   "currencyPicker": {
     "title": "Pilih Mata Uang",

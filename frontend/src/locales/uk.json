@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Групи",
     "activity": "Активність",
+    "feed": "Стрічка",
     "account": "Акаунт"
   },
   "home": {
@@ -54,7 +55,10 @@
     "allMembers": "Усі учасники",
     "sendReminder": "Надіслати нагадування",
     "reminderSent": "Нагадування надіслано",
-    "reminderCooldown": "Нагадування можна надсилати лише раз на 24 години"
+    "reminderCooldown": "Нагадування можна надсилати лише раз на 24 години",
+    "feed": "Стрічка",
+    "stats": "Статистика",
+    "statsPlaceholder": "Звіти та статистика з'являться незабаром"
   },
   "groupSettings": {
     "title": "Налаштування групи",
@@ -108,7 +112,13 @@
     "saving": "Збереження...",
     "attachReceipt": "Прикріпити чек",
     "receiptAttached": "Чек прикріплено",
-    "removeReceipt": "Видалити"
+    "removeReceipt": "Видалити",
+    "splitMode": "Режим поділу",
+    "splitEqual": "Порівну",
+    "splitPercentage": "Відсотки",
+    "splitManual": "Вручну",
+    "totalPercent": "Разом: {{total}}%",
+    "remaining": "Залишок: {{amount}}"
   },
   "settleUp": {
     "title": "Розрахунок",
@@ -121,7 +131,8 @@
     "markAsPaid": "Позначити як оплачено",
     "markAsReceived": "Підтвердити отримання",
     "settling": "Збереження...",
-    "notFound": "Розрахунок не знайдено"
+    "notFound": "Розрахунок не знайдено",
+    "attachReceipt": "Прикріпити чек"
   },
   "account": {
     "title": "Акаунт",
@@ -146,11 +157,15 @@
     "you": "Ви",
     "expenseCreated": "{{actor}} додав(ла) «{{description}}»",
     "expenseEdited": "{{actor}} змінив(ла) «{{description}}»",
+    "expenseEditedWithAmount": "{{actor}} змінив(ла) «{{description}}» ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} видалив(ла) «{{description}}»",
     "settlementCompleted": "{{actor}} розрахувався(-лася) з {{target}}",
     "memberJoined": "{{actor}} приєднався(-лася) до групи",
     "memberLeft": "{{actor}} покинув(ла) групу",
     "memberKicked": "{{actor}} видалив(ла) {{target}}"
+  },
+  "feed": {
+    "title": "Стрічка"
   },
   "currencyPicker": {
     "title": "Вибрати валюту",

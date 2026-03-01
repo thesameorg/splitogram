@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Grupos",
     "activity": "Atividade",
+    "feed": "Feed",
     "account": "Conta"
   },
   "home": {
@@ -52,7 +53,10 @@
     "allMembers": "Todos os Membros",
     "sendReminder": "Enviar Lembrete",
     "reminderSent": "Lembrete enviado",
-    "reminderCooldown": "Você só pode enviar um lembrete a cada 24 horas"
+    "reminderCooldown": "Você só pode enviar um lembrete a cada 24 horas",
+    "feed": "Feed",
+    "stats": "Estatísticas",
+    "statsPlaceholder": "Relatórios e estatísticas em breve"
   },
   "groupSettings": {
     "title": "Configurações do Grupo",
@@ -106,7 +110,13 @@
     "saving": "Salvando...",
     "attachReceipt": "Anexar recibo",
     "receiptAttached": "Recibo anexado",
-    "removeReceipt": "Remover"
+    "removeReceipt": "Remover",
+    "splitMode": "Modo de divisão",
+    "splitEqual": "Igual",
+    "splitPercentage": "Percentual",
+    "splitManual": "Manual",
+    "totalPercent": "Total: {{total}}%",
+    "remaining": "Restante: {{amount}}"
   },
   "settleUp": {
     "title": "Acertar Contas",
@@ -119,7 +129,8 @@
     "markAsPaid": "Marcar como Pago",
     "markAsReceived": "Confirmar Recebimento",
     "settling": "Salvando...",
-    "notFound": "Acerto não encontrado"
+    "notFound": "Acerto não encontrado",
+    "attachReceipt": "Anexar recibo"
   },
   "account": {
     "title": "Conta",
@@ -144,11 +155,15 @@
     "you": "Você",
     "expenseCreated": "{{actor}} adicionou \"{{description}}\"",
     "expenseEdited": "{{actor}} editou \"{{description}}\"",
+    "expenseEditedWithAmount": "{{actor}} editou \"{{description}}\" ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} excluiu \"{{description}}\"",
     "settlementCompleted": "{{actor}} acertou com {{target}}",
     "memberJoined": "{{actor}} entrou no grupo",
     "memberLeft": "{{actor}} saiu do grupo",
     "memberKicked": "{{actor}} removeu {{target}}"
+  },
+  "feed": {
+    "title": "Feed"
   },
   "currencyPicker": {
     "title": "Selecionar Moeda",

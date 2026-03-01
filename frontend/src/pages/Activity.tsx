@@ -12,17 +12,29 @@ function getActivityText(
   item: ActivityItem,
   t: (key: string, opts?: Record<string, unknown>) => string,
   currentUserId: number | null,
+  currency?: string,
 ): string {
   const actor = item.actorId === currentUserId ? t('activity.you') : item.actorName;
   const target =
     item.targetUserId === currentUserId ? t('activity.you').toLowerCase() : item.targetUserName;
-  const desc = (item.metadata as Record<string, string> | null)?.description;
+  const meta = item.metadata as Record<string, unknown> | null;
+  const desc = meta?.description as string | undefined;
 
   switch (item.type) {
     case 'expense_created':
       return t('activity.expenseCreated', { actor, description: desc ?? '' });
-    case 'expense_edited':
+    case 'expense_edited': {
+      const oldAmount = meta?.oldAmount as number | undefined;
+      if (oldAmount != null && item.amount != null && oldAmount !== item.amount) {
+        return t('activity.expenseEditedWithAmount', {
+          actor,
+          description: desc ?? '',
+          oldAmount: formatAmount(oldAmount, currency),
+          newAmount: formatAmount(item.amount, currency),
+        });
+      }
       return t('activity.expenseEdited', { actor, description: desc ?? '' });
+    }
     case 'expense_deleted':
       return t('activity.expenseDeleted', { actor, description: desc ?? '' });
     case 'settlement_completed':
@@ -82,7 +94,7 @@ export function Activity() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">{t('activity.title')}</h1>
+      <h1 className="text-xl font-bold mb-6">{t('feed.title')}</h1>
 
       {items.length === 0 ? (
         <div className="text-center py-12">
@@ -98,7 +110,11 @@ export function Activity() {
             >
               <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
               <div className="flex-1 min-w-0">
-                <div className="text-sm">{getActivityText(item, t, currentUserId)}</div>
+                <div
+                className={`text-sm ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
+              >
+                {getActivityText(item, t, currentUserId)}
+              </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs text-tg-hint bg-tg-secondary-bg px-2 py-0.5 rounded-full truncate">
                     {item.groupName}

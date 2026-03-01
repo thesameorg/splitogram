@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { api, type GroupDetail } from '../services/api';
+import { api, type GroupDetail, type SplitMode } from '../services/api';
 import { formatAmount } from '../utils/format';
 import {
   validateImageFile,
@@ -29,6 +29,8 @@ export function AddExpense() {
   const [amountStr, setAmountStr] = useState('');
   const [paidBy, setPaidBy] = useState<number | null>(null);
   const [selectedParticipants, setSelectedParticipants] = useState<Set<number>>(new Set());
+  const [splitMode, setSplitMode] = useState<SplitMode>('equal');
+  const [shares, setShares] = useState<Map<number, string>>(new Map());
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -52,6 +54,21 @@ export function AddExpense() {
           setAmountStr((expense.amount / 1_000_000).toString());
           setPaidBy(expense.paidBy);
           setSelectedParticipants(new Set(expense.participants.map((p) => p.userId)));
+          setSplitMode(expense.splitMode ?? 'equal');
+          if (expense.splitMode === 'percentage') {
+            const m = new Map<number, string>();
+            for (const p of expense.participants) {
+              const pct = ((p.shareAmount / expense.amount) * 100).toFixed(2).replace(/\.?0+$/, '');
+              m.set(p.userId, pct);
+            }
+            setShares(m);
+          } else if (expense.splitMode === 'manual') {
+            const m = new Map<number, string>();
+            for (const p of expense.participants) {
+              m.set(p.userId, (p.shareAmount / 1_000_000).toString());
+            }
+            setShares(m);
+          }
           if (expense.receiptThumbKey) {
             setReceiptPreview(imageUrl(expense.receiptThumbKey));
             setExistingReceipt(true);
@@ -73,19 +90,53 @@ export function AddExpense() {
   const amount = parseFloat(amountStr);
   const amountMicro = isNaN(amount) ? 0 : Math.round(amount * 1_000_000);
   const perPerson = selectedParticipants.size > 0 ? amountMicro / selectedParticipants.size : 0;
+
+  // Validation for percentage/manual modes
+  const sharesTotal =
+    splitMode === 'percentage'
+      ? Array.from(shares.values()).reduce((s, v) => s + (parseFloat(v) || 0), 0)
+      : splitMode === 'manual'
+        ? Array.from(shares.values()).reduce((s, v) => s + Math.round((parseFloat(v) || 0) * 1_000_000), 0)
+        : 0;
+  const sharesValid =
+    splitMode === 'equal'
+      ? true
+      : splitMode === 'percentage'
+        ? Math.abs(sharesTotal - 100) < 0.01 && shares.size === selectedParticipants.size
+        : sharesTotal === amountMicro && shares.size === selectedParticipants.size;
+
   const canSubmit =
-    description.trim() && amountMicro > 0 && selectedParticipants.size >= 2 && paidBy !== null;
+    description.trim() &&
+    amountMicro > 0 &&
+    selectedParticipants.size >= 2 &&
+    paidBy !== null &&
+    sharesValid;
 
   const handleSubmit = useCallback(async () => {
     if (!canSubmit || submitting || paidBy === null) return;
     setSubmitting(true);
     setError(null);
     try {
+      const sharesPayload =
+        splitMode === 'percentage'
+          ? Array.from(selectedParticipants).map((uid) => ({
+              userId: uid,
+              value: parseFloat(shares.get(uid) || '0'),
+            }))
+          : splitMode === 'manual'
+            ? Array.from(selectedParticipants).map((uid) => ({
+                userId: uid,
+                value: Math.round((parseFloat(shares.get(uid) || '0')) * 1_000_000),
+              }))
+            : undefined;
+
       if (isEditMode && expenseId) {
         await api.editExpense(groupId, expenseId, {
           amount: amountMicro,
           description: description.trim(),
           participantIds: Array.from(selectedParticipants),
+          splitMode,
+          shares: sharesPayload,
         });
         // Upload receipt if new file selected in edit mode
         if (receiptFile) {
@@ -104,6 +155,8 @@ export function AddExpense() {
           description: description.trim(),
           paidBy,
           participantIds: Array.from(selectedParticipants),
+          splitMode,
+          shares: sharesPayload,
         });
         // Upload receipt after expense is created
         if (receiptFile) {
@@ -130,6 +183,8 @@ export function AddExpense() {
     amountMicro,
     description,
     selectedParticipants,
+    splitMode,
+    shares,
     receiptFile,
     navigate,
   ]);
@@ -263,6 +318,99 @@ export function AddExpense() {
         </div>
       </div>
 
+      {/* Split Mode Toggle */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2 text-tg-hint">
+          {t('addExpense.splitMode')}
+        </label>
+        <div className="flex rounded-xl border border-tg-separator overflow-hidden">
+          {(['equal', 'percentage', 'manual'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => {
+                setSplitMode(mode);
+                setShares(new Map());
+              }}
+              className={`flex-1 py-2 text-sm font-medium ${
+                splitMode === mode
+                  ? 'bg-tg-button text-tg-button-text'
+                  : 'bg-transparent text-tg-hint'
+              }`}
+            >
+              {t(`addExpense.split${mode.charAt(0).toUpperCase() + mode.slice(1)}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Per-participant inputs for percentage/manual */}
+      {splitMode === 'percentage' && selectedParticipants.size > 0 && (
+        <div className="mb-4 space-y-2">
+          {group.members
+            .filter((m) => selectedParticipants.has(m.userId))
+            .map((m) => {
+              const pctVal = parseFloat(shares.get(m.userId) || '0') || 0;
+              const calcAmount = amountMicro > 0 ? Math.round((pctVal / 100) * amountMicro) : 0;
+              return (
+                <div key={m.userId} className="flex items-center gap-2">
+                  <span className="text-sm flex-1 truncate">{m.displayName}</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0"
+                    value={shares.get(m.userId) || ''}
+                    onChange={(e) =>
+                      setShares((prev) => new Map(prev).set(m.userId, e.target.value))
+                    }
+                    className="w-20 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"
+                  />
+                  <span className="text-sm text-tg-hint w-6">%</span>
+                  {calcAmount > 0 && (
+                    <span className="text-xs text-tg-hint w-20 text-right">
+                      {formatAmount(calcAmount, group.currency)}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          <div
+            className={`text-xs text-right ${Math.abs(sharesTotal - 100) < 0.01 ? 'text-app-positive' : 'text-app-negative'}`}
+          >
+            {t('addExpense.totalPercent', { total: sharesTotal.toFixed(1) })}
+          </div>
+        </div>
+      )}
+
+      {splitMode === 'manual' && selectedParticipants.size > 0 && amountMicro > 0 && (
+        <div className="mb-4 space-y-2">
+          {group.members
+            .filter((m) => selectedParticipants.has(m.userId))
+            .map((m) => (
+              <div key={m.userId} className="flex items-center gap-2">
+                <span className="text-sm flex-1 truncate">{m.displayName}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={shares.get(m.userId) || ''}
+                  onChange={(e) =>
+                    setShares((prev) => new Map(prev).set(m.userId, e.target.value))
+                  }
+                  className="w-28 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"
+                />
+                <span className="text-sm text-tg-hint w-10">{group.currency}</span>
+              </div>
+            ))}
+          <div
+            className={`text-xs text-right ${sharesTotal === amountMicro ? 'text-app-positive' : 'text-app-negative'}`}
+          >
+            {t('addExpense.remaining', {
+              amount: formatAmount(amountMicro - sharesTotal, group.currency),
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Receipt attachment */}
       <div className="mb-4">
         {receiptPreview ? (
@@ -293,8 +441,8 @@ export function AddExpense() {
         />
       </div>
 
-      {/* Per-person amount */}
-      {selectedParticipants.size > 0 && amountMicro > 0 && (
+      {/* Per-person amount (equal mode only) */}
+      {splitMode === 'equal' && selectedParticipants.size > 0 && amountMicro > 0 && (
         <div className="text-center text-sm text-tg-hint mt-6">
           {t('addExpense.perPerson', {
             amount: formatAmount(perPerson, group.currency),

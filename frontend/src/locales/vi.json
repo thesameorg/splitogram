@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Nhóm",
     "activity": "Hoạt động",
+    "feed": "Bảng tin",
     "account": "Tài khoản"
   },
   "home": {
@@ -50,7 +51,10 @@
     "allMembers": "Tất cả Thành viên",
     "sendReminder": "Gửi Nhắc nhở",
     "reminderSent": "Đã gửi nhắc nhở",
-    "reminderCooldown": "Bạn chỉ có thể gửi nhắc nhở mỗi 24 giờ một lần"
+    "reminderCooldown": "Bạn chỉ có thể gửi nhắc nhở mỗi 24 giờ một lần",
+    "feed": "Bảng tin",
+    "stats": "Thống kê",
+    "statsPlaceholder": "Báo cáo & thống kê sắp ra mắt"
   },
   "groupSettings": {
     "title": "Cài đặt Nhóm",
@@ -104,7 +108,13 @@
     "saving": "Đang lưu...",
     "attachReceipt": "Đính kèm hóa đơn",
     "receiptAttached": "Đã đính kèm hóa đơn",
-    "removeReceipt": "Xóa"
+    "removeReceipt": "Xóa",
+    "splitMode": "Cách chia",
+    "splitEqual": "Đều nhau",
+    "splitPercentage": "Phần trăm",
+    "splitManual": "Thủ công",
+    "totalPercent": "Tổng: {{total}}%",
+    "remaining": "Còn lại: {{amount}}"
   },
   "settleUp": {
     "title": "Thanh toán",
@@ -117,7 +127,8 @@
     "markAsPaid": "Đánh dấu đã trả",
     "markAsReceived": "Xác nhận đã nhận",
     "settling": "Đang lưu...",
-    "notFound": "Không tìm thấy thanh toán"
+    "notFound": "Không tìm thấy thanh toán",
+    "attachReceipt": "Đính kèm hóa đơn"
   },
   "account": {
     "title": "Tài khoản",
@@ -142,11 +153,15 @@
     "you": "Bạn",
     "expenseCreated": "{{actor}} đã thêm \"{{description}}\"",
     "expenseEdited": "{{actor}} đã sửa \"{{description}}\"",
+    "expenseEditedWithAmount": "{{actor}} đã sửa \"{{description}}\" ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} đã xóa \"{{description}}\"",
     "settlementCompleted": "{{actor}} đã thanh toán với {{target}}",
     "memberJoined": "{{actor}} đã tham gia nhóm",
     "memberLeft": "{{actor}} đã rời nhóm",
     "memberKicked": "{{actor}} đã xóa {{target}}"
+  },
+  "feed": {
+    "title": "Bảng tin"
   },
   "currencyPicker": {
     "title": "Chọn Tiền tệ",

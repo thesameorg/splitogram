@@ -19,7 +19,7 @@ export function BottomTabs() {
 
   const tabs = [
     { path: '/', label: t('tabs.groups'), icon: <IconUsers size={22} /> },
-    { path: '/activity', label: t('tabs.activity'), icon: <IconActivity size={22} /> },
+    { path: '/activity', label: t('tabs.feed'), icon: <IconActivity size={22} /> },
     {
       path: '/account',
       label: t('tabs.account'),

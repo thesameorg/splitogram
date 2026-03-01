@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Grupos",
     "activity": "Actividad",
+    "feed": "Novedades",
     "account": "Cuenta"
   },
   "home": {
@@ -52,7 +53,10 @@
     "allMembers": "Todos los miembros",
     "sendReminder": "Enviar recordatorio",
     "reminderSent": "Recordatorio enviado",
-    "reminderCooldown": "Solo puedes enviar un recordatorio cada 24 horas"
+    "reminderCooldown": "Solo puedes enviar un recordatorio cada 24 horas",
+    "feed": "Novedades",
+    "stats": "Estadísticas",
+    "statsPlaceholder": "Informes y estadísticas próximamente"
   },
   "groupSettings": {
     "title": "Ajustes del grupo",
@@ -106,7 +110,13 @@
     "saving": "Guardando...",
     "attachReceipt": "Adjuntar recibo",
     "receiptAttached": "Recibo adjuntado",
-    "removeReceipt": "Eliminar"
+    "removeReceipt": "Eliminar",
+    "splitMode": "Modo de división",
+    "splitEqual": "Igual",
+    "splitPercentage": "Porcentaje",
+    "splitManual": "Manual",
+    "totalPercent": "Total: {{total}}%",
+    "remaining": "Restante: {{amount}}"
   },
   "settleUp": {
     "title": "Saldar deuda",
@@ -119,7 +129,8 @@
     "markAsPaid": "Marcar como pagado",
     "markAsReceived": "Confirmar recibido",
     "settling": "Guardando...",
-    "notFound": "Liquidación no encontrada"
+    "notFound": "Liquidación no encontrada",
+    "attachReceipt": "Adjuntar recibo"
   },
   "account": {
     "title": "Cuenta",
@@ -144,11 +155,15 @@
     "you": "Tú",
     "expenseCreated": "{{actor}} añadió \"{{description}}\"",
     "expenseEdited": "{{actor}} editó \"{{description}}\"",
+    "expenseEditedWithAmount": "{{actor}} editó \"{{description}}\" ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} eliminó \"{{description}}\"",
     "settlementCompleted": "{{actor}} saldó con {{target}}",
     "memberJoined": "{{actor}} se unió al grupo",
     "memberLeft": "{{actor}} salió del grupo",
     "memberKicked": "{{actor}} eliminó a {{target}}"
+  },
+  "feed": {
+    "title": "Novedades"
   },
   "currencyPicker": {
     "title": "Seleccionar moneda",

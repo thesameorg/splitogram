@@ -9,7 +9,7 @@ type ActivityEnv = AuthContext & DBContext;
 const activityApp = new Hono<ActivityEnv>();
 
 // --- Cross-group activity feed ---
-activityApp.get('/', async (c) => {
+activityApp.get('/activity', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
   const cursor = c.req.query('cursor');

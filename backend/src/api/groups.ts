@@ -594,6 +594,18 @@ groupsApp.delete('/:id', async (c) => {
         if (r.receiptKey) await safeR2Delete(c.env.IMAGES, r.receiptKey);
         if (r.receiptThumbKey) await safeR2Delete(c.env.IMAGES, r.receiptThumbKey);
       }
+      // Delete all settlement receipts for this group
+      const settlementReceipts = await db
+        .select({
+          receiptKey: settlements.receiptKey,
+          receiptThumbKey: settlements.receiptThumbKey,
+        })
+        .from(settlements)
+        .where(eq(settlements.groupId, groupId));
+      for (const r of settlementReceipts) {
+        if (r.receiptKey) await safeR2Delete(c.env.IMAGES, r.receiptKey);
+        if (r.receiptThumbKey) await safeR2Delete(c.env.IMAGES, r.receiptThumbKey);
+      }
     })(),
   );
 

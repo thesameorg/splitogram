@@ -4,3 +4,4 @@ export { IconUser } from './IconUser';
 export { IconCopy } from './IconCopy';
 export { IconCrown } from './IconCrown';
 export { IconCheck } from './IconCheck';
+export { IconStats } from './IconStats';

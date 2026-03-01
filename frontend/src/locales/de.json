@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Gruppen",
     "activity": "Aktivität",
+    "feed": "Feed",
     "account": "Konto"
   },
   "home": {
@@ -52,7 +53,10 @@
     "allMembers": "Alle Mitglieder",
     "sendReminder": "Erinnerung senden",
     "reminderSent": "Erinnerung gesendet",
-    "reminderCooldown": "Du kannst nur alle 24 Stunden eine Erinnerung senden"
+    "reminderCooldown": "Du kannst nur alle 24 Stunden eine Erinnerung senden",
+    "feed": "Feed",
+    "stats": "Statistiken",
+    "statsPlaceholder": "Berichte & Statistiken kommen bald"
   },
   "groupSettings": {
     "title": "Gruppeneinstellungen",
@@ -106,7 +110,13 @@
     "saving": "Wird gespeichert...",
     "attachReceipt": "Beleg anhängen",
     "receiptAttached": "Beleg angehängt",
-    "removeReceipt": "Entfernen"
+    "removeReceipt": "Entfernen",
+    "splitMode": "Aufteilungsmodus",
+    "splitEqual": "Gleichmäßig",
+    "splitPercentage": "Prozent",
+    "splitManual": "Manuell",
+    "totalPercent": "Gesamt: {{total}}%",
+    "remaining": "Verbleibend: {{amount}}"
   },
   "settleUp": {
     "title": "Begleichen",
@@ -119,7 +129,8 @@
     "markAsPaid": "Als bezahlt markieren",
     "markAsReceived": "Empfang bestätigen",
     "settling": "Wird gespeichert...",
-    "notFound": "Ausgleich nicht gefunden"
+    "notFound": "Ausgleich nicht gefunden",
+    "attachReceipt": "Beleg anhängen"
   },
   "account": {
     "title": "Konto",
@@ -144,11 +155,15 @@
     "you": "Du",
     "expenseCreated": "{{actor}} hat \"{{description}}\" hinzugefügt",
     "expenseEdited": "{{actor}} hat \"{{description}}\" bearbeitet",
+    "expenseEditedWithAmount": "{{actor}} hat \"{{description}}\" bearbeitet ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} hat \"{{description}}\" gelöscht",
     "settlementCompleted": "{{actor}} hat mit {{target}} abgerechnet",
     "memberJoined": "{{actor}} ist der Gruppe beigetreten",
     "memberLeft": "{{actor}} hat die Gruppe verlassen",
     "memberKicked": "{{actor}} hat {{target}} entfernt"
+  },
+  "feed": {
+    "title": "Feed"
   },
   "currencyPicker": {
     "title": "Währung wählen",

@@ -22,7 +22,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { Avatar } from '../components/Avatar';
 import { BottomSheet } from '../components/BottomSheet';
 import { SuccessBanner } from '../components/SuccessBanner';
-import { IconCheck } from '../icons';
+import { IconCheck, IconStats } from '../icons';
 import { getActivityText } from './Activity';
 
 export function Group() {
@@ -35,7 +35,7 @@ export function Group() {
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [debts, setDebts] = useState<DebtEntry[]>([]);
   const [balanceMembers, setBalanceMembers] = useState<BalanceMember[]>([]);
-  const [tab, setTab] = useState<'transactions' | 'balances' | 'activity'>('transactions');
+  const [tab, setTab] = useState<'transactions' | 'balances' | 'feed' | 'stats'>('transactions');
   const [activityItems, setActivityItems] = useState<ActivityItem[]>([]);
   const [activityCursor, setActivityCursor] = useState<string | null>(null);
   const [activityLoading, setActivityLoading] = useState(false);
@@ -44,6 +44,7 @@ export function Group() {
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
   const [reminderSuccess, setReminderSuccess] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
 
   useTelegramBackButton(true);
 
@@ -77,9 +78,9 @@ export function Group() {
     loadData();
   }, [loadData]);
 
-  // Load activity when tab is selected
+  // Load activity when feed tab is selected
   useEffect(() => {
-    if (tab !== 'activity' || activityItems.length > 0 || activityLoading || isNaN(groupId)) return;
+    if (tab !== 'feed' || activityItems.length > 0 || activityLoading || isNaN(groupId)) return;
     setActivityLoading(true);
     api
       .getGroupActivity(groupId)
@@ -173,13 +174,16 @@ export function Group() {
   }
 
   function renderExpenseCard(exp: Expense) {
-    // A3: Expense amount color — green if I paid, red if I'm a participant who didn't pay
     const isPayer = currentUserId === exp.paidBy;
     const isParticipant = exp.participants.some((p) => p.userId === currentUserId);
     const amountColor = isPayer ? 'text-app-positive' : isParticipant ? 'text-app-negative' : '';
 
     return (
-      <div key={`e-${exp.id}`} className="bg-tg-section p-4 rounded-xl border border-tg-separator">
+      <button
+        key={`e-${exp.id}`}
+        onClick={() => setSelectedExpense(exp)}
+        className="w-full text-left bg-tg-section p-4 rounded-xl border border-tg-separator"
+      >
         <div className="flex justify-between items-start">
           <div>
             <div className="font-medium">{exp.description}</div>
@@ -191,42 +195,11 @@ export function Group() {
             {formatAmount(exp.amount, group?.currency)}
           </div>
         </div>
-        {exp.receiptThumbKey && (
-          <button onClick={() => setReceiptViewKey(exp.receiptKey)} className="mt-2">
-            <img
-              src={imageUrl(exp.receiptThumbKey)}
-              alt="Receipt"
-              className="w-16 h-16 rounded-lg object-cover border border-tg-separator"
-            />
-          </button>
-        )}
-        <div className="mt-2 flex justify-between items-center">
-          <div className="text-xs text-tg-hint">
-            {t('group.splitAmong', { count: exp.participants.length })}:{' '}
-            {exp.participants.map((p) => p.displayName).join(', ')}
-          </div>
-          {(canEditExpense(exp) || canDeleteExpense(exp)) && (
-            <div className="flex gap-2 ml-2 shrink-0">
-              {canEditExpense(exp) && (
-                <button
-                  onClick={() => navigate(`/groups/${groupId}/edit-expense/${exp.id}`)}
-                  className="text-xs text-tg-link"
-                >
-                  {t('group.edit')}
-                </button>
-              )}
-              {canDeleteExpense(exp) && (
-                <button
-                  onClick={() => handleDeleteExpense(exp.id)}
-                  className="text-xs text-tg-destructive"
-                >
-                  {t('group.delete')}
-                </button>
-              )}
-            </div>
-          )}
+        <div className="mt-2 text-xs text-tg-hint">
+          {t('group.splitAmong', { count: exp.participants.length })}:{' '}
+          {exp.participants.map((p) => p.displayName).join(', ')}
         </div>
-      </div>
+      </button>
     );
   }
 
@@ -281,32 +254,17 @@ export function Group() {
 
       {/* Tabs */}
       <div className="flex border-b border-tg-separator mb-4">
-        <button
-          onClick={() => setTab('transactions')}
-          className={`flex-1 pb-2 text-sm font-medium border-b-2 ${
-            tab === 'transactions'
-              ? 'border-tg-link text-tg-link'
-              : 'border-transparent text-tg-hint'
-          }`}
-        >
-          {t('group.transactions')}
-        </button>
-        <button
-          onClick={() => setTab('balances')}
-          className={`flex-1 pb-2 text-sm font-medium border-b-2 ${
-            tab === 'balances' ? 'border-tg-link text-tg-link' : 'border-transparent text-tg-hint'
-          }`}
-        >
-          {t('group.balances')}
-        </button>
-        <button
-          onClick={() => setTab('activity')}
-          className={`flex-1 pb-2 text-sm font-medium border-b-2 ${
-            tab === 'activity' ? 'border-tg-link text-tg-link' : 'border-transparent text-tg-hint'
-          }`}
-        >
-          {t('activity.title')}
-        </button>
+        {(['transactions', 'balances', 'feed', 'stats'] as const).map((tabKey) => (
+          <button
+            key={tabKey}
+            onClick={() => setTab(tabKey)}
+            className={`flex-1 pb-2 text-sm font-medium border-b-2 ${
+              tab === tabKey ? 'border-tg-link text-tg-link' : 'border-transparent text-tg-hint'
+            }`}
+          >
+            {t(`group.${tabKey}`)}
+          </button>
+        ))}
       </div>
 
       {/* Content */}
@@ -322,7 +280,7 @@ export function Group() {
         </div>
       )}
 
-      {tab === 'activity' && (
+      {tab === 'feed' && (
         <div className="space-y-2">
           {activityLoading ? (
             <p className="text-center text-tg-hint py-8">{t('loading')}</p>
@@ -337,7 +295,11 @@ export function Group() {
                 >
                   <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm">{getActivityText(item, t, currentUserId)}</div>
+                    <div
+                      className={`text-sm ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
+                    >
+                      {getActivityText(item, t, currentUserId, group?.currency)}
+                    </div>
                     <span className="text-xs text-tg-hint">{timeAgo(item.createdAt)}</span>
                   </div>
                   {item.amount != null && item.amount > 0 && (
@@ -460,6 +422,13 @@ export function Group() {
         </div>
       )}
 
+      {tab === 'stats' && (
+        <div className="text-center py-12">
+          <IconStats size={48} className="mx-auto text-tg-hint mb-3" />
+          <p className="text-tg-hint">{t('group.statsPlaceholder')}</p>
+        </div>
+      )}
+
       {/* Add Expense FAB */}
       <button
         onClick={() => navigate(`/groups/${groupId}/add-expense`)}
@@ -467,6 +436,102 @@ export function Group() {
       >
         {t('group.addExpense')}
       </button>
+
+      {/* Expense detail */}
+      <BottomSheet
+        open={!!selectedExpense}
+        onClose={() => setSelectedExpense(null)}
+        title={selectedExpense?.description ?? ''}
+      >
+        {selectedExpense && (
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold">
+                {formatAmount(selectedExpense.amount, group?.currency)}
+              </div>
+              <div className="text-sm text-tg-hint mt-1">
+                {t('group.paidBy', { name: selectedExpense.payerName })}
+              </div>
+              {selectedExpense.splitMode && selectedExpense.splitMode !== 'equal' && (
+                <div className="text-xs text-tg-hint mt-1">
+                  {t(`addExpense.split${selectedExpense.splitMode.charAt(0).toUpperCase() + selectedExpense.splitMode.slice(1)}`)}
+                </div>
+              )}
+            </div>
+
+            {/* Per-person breakdown */}
+            <div>
+              <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mb-2">
+                {t('group.splitAmong', { count: selectedExpense.participants.length })}
+              </div>
+              <div className="space-y-1">
+                {selectedExpense.participants.map((p) => (
+                  <div
+                    key={p.userId}
+                    className="flex justify-between items-center py-1.5 px-2 rounded-lg"
+                  >
+                    <span className="text-sm">{p.displayName}</span>
+                    <span className="text-sm font-medium">
+                      {formatAmount(p.shareAmount, group?.currency)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Receipt */}
+            {selectedExpense.receiptThumbKey && (
+              <button
+                onClick={() => {
+                  setReceiptViewKey(selectedExpense.receiptKey);
+                  setSelectedExpense(null);
+                }}
+              >
+                <img
+                  src={imageUrl(selectedExpense.receiptThumbKey)}
+                  alt="Receipt"
+                  className="w-20 h-20 rounded-xl object-cover border border-tg-separator"
+                />
+              </button>
+            )}
+
+            {/* Date */}
+            <div className="text-xs text-tg-hint text-center">
+              {timeAgo(selectedExpense.createdAt)}
+            </div>
+
+            {/* Actions */}
+            {(canEditExpense(selectedExpense) || canDeleteExpense(selectedExpense)) && (
+              <div className="flex gap-3 pt-2">
+                {canEditExpense(selectedExpense) && (
+                  <button
+                    onClick={() => {
+                      const eid = selectedExpense.id;
+                      setSelectedExpense(null);
+                      navigate(`/groups/${groupId}/edit-expense/${eid}`);
+                    }}
+                    className="flex-1 py-2 rounded-xl text-sm font-medium text-tg-link border border-tg-link"
+                  >
+                    {t('group.edit')}
+                  </button>
+                )}
+                {canDeleteExpense(selectedExpense) && (
+                  <button
+                    onClick={() => {
+                      const eid = selectedExpense.id;
+                      setSelectedExpense(null);
+                      handleDeleteExpense(eid);
+                    }}
+                    className="flex-1 py-2 rounded-xl text-sm font-medium text-tg-destructive border border-tg-destructive"
+                  >
+                    {t('group.delete')}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </BottomSheet>
 
       {/* Receipt viewer */}
       <BottomSheet open={!!receiptViewKey} onClose={() => setReceiptViewKey(null)} title="">

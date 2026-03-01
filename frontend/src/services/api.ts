@@ -91,12 +91,15 @@ export interface ExpenseParticipant {
   shareAmount: number;
 }
 
+export type SplitMode = 'equal' | 'percentage' | 'manual';
+
 export interface Expense {
   id: number;
   paidBy: number;
   payerName: string;
   amount: number;
   description: string;
+  splitMode: SplitMode;
   receiptKey: string | null;
   receiptThumbKey: string | null;
   createdAt: string;
@@ -139,6 +142,8 @@ export interface Settlement {
   txHash: string | null;
   comment: string | null;
   settledBy: number | null;
+  receiptKey: string | null;
+  receiptThumbKey: string | null;
   createdAt: string;
 }
 
@@ -169,6 +174,8 @@ export interface SettlementListItem {
   amount: number;
   status: string;
   comment: string | null;
+  receiptKey: string | null;
+  receiptThumbKey: string | null;
   createdAt: string;
 }
 
@@ -307,7 +314,14 @@ export const api = {
 
   createExpense: (
     groupId: number,
-    data: { amount: number; description: string; paidBy?: number; participantIds: number[] },
+    data: {
+      amount: number;
+      description: string;
+      paidBy?: number;
+      participantIds: number[];
+      splitMode?: SplitMode;
+      shares?: Array<{ userId: number; value: number }>;
+    },
   ) =>
     apiRequest<Expense>(`/api/v1/groups/${groupId}/expenses`, {
       method: 'POST',
@@ -317,7 +331,13 @@ export const api = {
   editExpense: (
     groupId: number,
     expenseId: number,
-    data: { amount?: number; description?: string; participantIds?: number[] },
+    data: {
+      amount?: number;
+      description?: string;
+      participantIds?: number[];
+      splitMode?: SplitMode;
+      shares?: Array<{ userId: number; value: number }>;
+    },
   ) =>
     apiRequest<{ id: number; updated: boolean }>(
       `/api/v1/groups/${groupId}/expenses/${expenseId}`,
@@ -376,6 +396,21 @@ export const api = {
       `/api/v1/settlements/${id}/mark-external`,
       { method: 'POST', body: JSON.stringify({ comment }) },
     ),
+
+  uploadSettlementReceipt: (settlementId: number, receipt: Blob, thumbnail: Blob) => {
+    const formData = new FormData();
+    formData.append('receipt', receipt, 'receipt.jpg');
+    formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
+    return apiRequest<{ receiptKey: string; receiptThumbKey: string | null }>(
+      `/api/v1/settlements/${settlementId}/receipt`,
+      { method: 'POST', headers: {}, body: formData },
+    );
+  },
+
+  deleteSettlementReceipt: (settlementId: number) =>
+    apiRequest<{ deleted: boolean }>(`/api/v1/settlements/${settlementId}/receipt`, {
+      method: 'DELETE',
+    }),
 
   // Activity
   getActivity: (cursor?: string) =>

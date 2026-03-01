@@ -84,6 +84,7 @@ export const expenses = sqliteTable(
       .references(() => users.id),
     amount: integer('amount').notNull(), // micro-USDT (1 USDT = 1,000,000)
     description: text('description').notNull(),
+    splitMode: text('split_mode').notNull().default('equal'),
     receiptKey: text('receipt_key'),
     receiptThumbKey: text('receipt_thumb_key'),
     createdAt: text('created_at')
@@ -200,6 +201,8 @@ export const settlements = sqliteTable(
     txHash: text('tx_hash'),
     comment: text('comment'),
     settledBy: integer('settled_by').references(() => users.id),
+    receiptKey: text('receipt_key'),
+    receiptThumbKey: text('receipt_thumb_key'),
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

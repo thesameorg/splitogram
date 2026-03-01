@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Groups",
     "activity": "Activity",
+    "feed": "Feed",
     "account": "Account"
   },
   "home": {
@@ -52,7 +53,10 @@
     "allMembers": "All Members",
     "sendReminder": "Send Reminder",
     "reminderSent": "Reminder sent",
-    "reminderCooldown": "You can only send a reminder once every 24 hours"
+    "reminderCooldown": "You can only send a reminder once every 24 hours",
+    "feed": "Feed",
+    "stats": "Stats",
+    "statsPlaceholder": "Reports & stats coming soon"
   },
   "groupSettings": {
     "title": "Group Settings",
@@ -106,7 +110,13 @@
     "saving": "Saving...",
     "attachReceipt": "Attach receipt",
     "receiptAttached": "Receipt attached",
-    "removeReceipt": "Remove"
+    "removeReceipt": "Remove",
+    "splitMode": "Split mode",
+    "splitEqual": "Equal",
+    "splitPercentage": "Percent",
+    "splitManual": "Manual",
+    "totalPercent": "Total: {{total}}%",
+    "remaining": "Remaining: {{amount}}"
   },
   "settleUp": {
     "title": "Settle Up",
@@ -119,7 +129,8 @@
     "markAsPaid": "Mark as Paid",
     "markAsReceived": "Mark as Received",
     "settling": "Settling...",
-    "notFound": "Settlement not found"
+    "notFound": "Settlement not found",
+    "attachReceipt": "Attach receipt"
   },
   "account": {
     "title": "Account",
@@ -144,11 +155,15 @@
     "you": "You",
     "expenseCreated": "{{actor}} added \"{{description}}\"",
     "expenseEdited": "{{actor}} edited \"{{description}}\"",
+    "expenseEditedWithAmount": "{{actor}} edited \"{{description}}\" ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} deleted \"{{description}}\"",
     "settlementCompleted": "{{actor}} settled up with {{target}}",
     "memberJoined": "{{actor}} joined the group",
     "memberLeft": "{{actor}} left the group",
     "memberKicked": "{{actor}} removed {{target}}"
+  },
+  "feed": {
+    "title": "Feed"
   },
   "currencyPicker": {
     "title": "Select Currency",

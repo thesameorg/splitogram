@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "Группы",
     "activity": "Активность",
+    "feed": "Лента",
     "account": "Аккаунт"
   },
   "home": {
@@ -54,7 +55,10 @@
     "allMembers": "Все участники",
     "sendReminder": "Отправить напоминание",
     "reminderSent": "Напоминание отправлено",
-    "reminderCooldown": "Напоминание можно отправлять только раз в 24 часа"
+    "reminderCooldown": "Напоминание можно отправлять только раз в 24 часа",
+    "feed": "Лента",
+    "stats": "Статистика",
+    "statsPlaceholder": "Отчёты и статистика скоро появятся"
   },
   "groupSettings": {
     "title": "Настройки группы",
@@ -108,7 +112,13 @@
     "saving": "Сохранение...",
     "attachReceipt": "Прикрепить чек",
     "receiptAttached": "Чек прикреплён",
-    "removeReceipt": "Удалить"
+    "removeReceipt": "Удалить",
+    "splitMode": "Режим разделения",
+    "splitEqual": "Поровну",
+    "splitPercentage": "Проценты",
+    "splitManual": "Вручную",
+    "totalPercent": "Итого: {{total}}%",
+    "remaining": "Остаток: {{amount}}"
   },
   "settleUp": {
     "title": "Расчёт",
@@ -121,7 +131,8 @@
     "markAsPaid": "Отметить как оплачено",
     "markAsReceived": "Подтвердить получение",
     "settling": "Сохранение...",
-    "notFound": "Расчёт не найден"
+    "notFound": "Расчёт не найден",
+    "attachReceipt": "Прикрепить чек"
   },
   "account": {
     "title": "Аккаунт",
@@ -146,11 +157,15 @@
     "you": "Вы",
     "expenseCreated": "{{actor}} добавил(а) «{{description}}»",
     "expenseEdited": "{{actor}} изменил(а) «{{description}}»",
+    "expenseEditedWithAmount": "{{actor}} изменил(а) «{{description}}» ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} удалил(а) «{{description}}»",
     "settlementCompleted": "{{actor}} рассчитался(-лась) с {{target}}",
     "memberJoined": "{{actor}} присоединился(-лась) к группе",
     "memberLeft": "{{actor}} покинул(а) группу",
     "memberKicked": "{{actor}} удалил(а) {{target}}"
+  },
+  "feed": {
+    "title": "Лента"
   },
   "currencyPicker": {
     "title": "Выбрать валюту",

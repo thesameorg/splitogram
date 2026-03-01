@@ -7,6 +7,7 @@ import { simplifyDebts } from '../services/debt-solver';
 import { computeGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
+import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { Database } from '../db';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -180,6 +181,8 @@ settlementsApp.get('/groups/:id/settlements', async (c) => {
     amount: r.amount,
     status: r.status,
     comment: r.comment,
+    receiptKey: r.receiptKey,
+    receiptThumbKey: r.receiptThumbKey,
     createdAt: r.createdAt,
   }));
 
@@ -584,6 +587,137 @@ settlementsApp.post(
     return c.json({ status: 'settled_external', settlementId });
   },
 );
+
+// --- Upload receipt for settlement ---
+settlementsApp.post('/settlements/:id/receipt', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const settlementId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(settlementId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
+  }
+
+  const [currentUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!currentUser) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [settlement] = await db
+    .select()
+    .from(settlements)
+    .where(eq(settlements.id, settlementId))
+    .limit(1);
+
+  if (!settlement) {
+    return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
+  }
+
+  if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
+    return c.json(
+      { error: 'not_involved', detail: 'You are not involved in this settlement' },
+      403,
+    );
+  }
+
+  const body = await c.req.parseBody();
+  const receipt = body['receipt'];
+  const thumbnail = body['thumbnail'];
+
+  if (!(receipt instanceof File)) {
+    return c.json({ error: 'missing_file', detail: 'No receipt file provided' }, 400);
+  }
+
+  const validationError = validateUpload(receipt);
+  if (validationError) {
+    return c.json({ error: 'invalid_file', detail: validationError }, 400);
+  }
+
+  const receiptKey = generateR2Key('receipts', settlementId);
+  await c.env.IMAGES.put(receiptKey, await receipt.arrayBuffer(), {
+    httpMetadata: { contentType: 'image/jpeg' },
+  });
+
+  let thumbKey: string | null = null;
+  if (thumbnail instanceof File) {
+    thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
+    await c.env.IMAGES.put(thumbKey, await thumbnail.arrayBuffer(), {
+      httpMetadata: { contentType: 'image/jpeg' },
+    });
+  }
+
+  // Delete old receipt from R2 (best-effort)
+  if (settlement.receiptKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, settlement.receiptKey));
+  }
+  if (settlement.receiptThumbKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, settlement.receiptThumbKey));
+  }
+
+  await db
+    .update(settlements)
+    .set({ receiptKey, receiptThumbKey: thumbKey })
+    .where(eq(settlements.id, settlementId));
+
+  return c.json({ receiptKey, receiptThumbKey: thumbKey });
+});
+
+// --- Delete receipt from settlement ---
+settlementsApp.delete('/settlements/:id/receipt', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const settlementId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(settlementId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
+  }
+
+  const [currentUser] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!currentUser) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [settlement] = await db
+    .select()
+    .from(settlements)
+    .where(eq(settlements.id, settlementId))
+    .limit(1);
+
+  if (!settlement) {
+    return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
+  }
+
+  if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
+    return c.json(
+      { error: 'not_involved', detail: 'You are not involved in this settlement' },
+      403,
+    );
+  }
+
+  if (settlement.receiptKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, settlement.receiptKey));
+  }
+  if (settlement.receiptThumbKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, settlement.receiptThumbKey));
+  }
+
+  await db
+    .update(settlements)
+    .set({ receiptKey: null, receiptThumbKey: null })
+    .where(eq(settlements.id, settlementId));
+
+  return c.json({ deleted: true });
+});
 
 // --- Wallet endpoint ---
 const walletSchema = z.object({

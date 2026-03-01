@@ -6,6 +6,7 @@
   "tabs": {
     "groups": "گروه‌ها",
     "activity": "فعالیت",
+    "feed": "فید",
     "account": "حساب"
   },
   "home": {
@@ -52,7 +53,10 @@
     "allMembers": "همه اعضا",
     "sendReminder": "ارسال یادآوری",
     "reminderSent": "یادآوری ارسال شد",
-    "reminderCooldown": "فقط هر ۲۴ ساعت یک بار می‌توانید یادآوری بفرستید"
+    "reminderCooldown": "فقط هر ۲۴ ساعت یک بار می‌توانید یادآوری بفرستید",
+    "feed": "فید",
+    "stats": "آمار",
+    "statsPlaceholder": "گزارش‌ها و آمار به‌زودی"
   },
   "groupSettings": {
     "title": "تنظیمات گروه",
@@ -106,7 +110,13 @@
     "saving": "در حال ذخیره...",
     "attachReceipt": "پیوست رسید",
     "receiptAttached": "رسید پیوست شد",
-    "removeReceipt": "حذف"
+    "removeReceipt": "حذف",
+    "splitMode": "نحوه تقسیم",
+    "splitEqual": "مساوی",
+    "splitPercentage": "درصدی",
+    "splitManual": "دستی",
+    "totalPercent": "مجموع: {{total}}%",
+    "remaining": "باقی‌مانده: {{amount}}"
   },
   "settleUp": {
     "title": "تسویه حساب",
@@ -119,7 +129,8 @@
     "markAsPaid": "پرداخت شد",
     "markAsReceived": "دریافت شد",
     "settling": "در حال ذخیره...",
-    "notFound": "تسویه یافت نشد"
+    "notFound": "تسویه یافت نشد",
+    "attachReceipt": "پیوست رسید"
   },
   "account": {
     "title": "حساب",
@@ -144,11 +155,15 @@
     "you": "شما",
     "expenseCreated": "{{actor}} «{{description}}» را اضافه کرد",
     "expenseEdited": "{{actor}} «{{description}}» را ویرایش کرد",
+    "expenseEditedWithAmount": "{{actor}} «{{description}}» را ویرایش کرد ({{oldAmount}} → {{newAmount}})",
     "expenseDeleted": "{{actor}} «{{description}}» را حذف کرد",
     "settlementCompleted": "{{actor}} با {{target}} تسویه کرد",
     "memberJoined": "{{actor}} به گروه پیوست",
     "memberLeft": "{{actor}} گروه را ترک کرد",
     "memberKicked": "{{actor}} {{target}} را حذف کرد"
+  },
+  "feed": {
+    "title": "فید"
   },
   "currencyPicker": {
     "title": "انتخاب ارز",
