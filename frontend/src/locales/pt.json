@@ -47,7 +47,12 @@
     "paid": "{{from}} pagou {{to}}",
     "deleteConfirm": "Excluir esta despesa? Os saldos serão recalculados.",
     "member_one": "{{count}} membro",
-    "member_other": "{{count}} membros"
+    "member_other": "{{count}} membros",
+    "settledUp": "Acertado",
+    "allMembers": "Todos os Membros",
+    "sendReminder": "Enviar Lembrete",
+    "reminderSent": "Lembrete enviado",
+    "reminderCooldown": "Você só pode enviar um lembrete a cada 24 horas"
   },
   "groupSettings": {
     "title": "Configurações do Grupo",
@@ -81,7 +86,10 @@
     "removeGroupPhoto": "Remover foto",
     "emojiPicker": "Escolher emoji",
     "groupPhotoUpdated": "Foto do grupo atualizada",
-    "groupPhotoRemoved": "Foto do grupo removida"
+    "groupPhotoRemoved": "Foto do grupo removida",
+    "copyInvite": "Copiar link",
+    "linkCopied": "Link de convite copiado",
+    "currencyLocked": "A moeda não pode ser alterada após adicionar despesas"
   },
   "addExpense": {
     "title": "Adicionar Despesa",
@@ -131,7 +139,16 @@
   },
   "activity": {
     "title": "Atividade",
-    "comingSoon": "Feed de atividades em breve"
+    "empty": "Nenhuma atividade ainda",
+    "loadMore": "Carregar mais",
+    "you": "Você",
+    "expenseCreated": "{{actor}} adicionou \"{{description}}\"",
+    "expenseEdited": "{{actor}} editou \"{{description}}\"",
+    "expenseDeleted": "{{actor}} excluiu \"{{description}}\"",
+    "settlementCompleted": "{{actor}} acertou com {{target}}",
+    "memberJoined": "{{actor}} entrou no grupo",
+    "memberLeft": "{{actor}} saiu do grupo",
+    "memberKicked": "{{actor}} removeu {{target}}"
   },
   "currencyPicker": {
     "title": "Selecionar Moeda",

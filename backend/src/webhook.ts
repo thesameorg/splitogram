@@ -3,6 +3,7 @@ import { Bot, webhookCallback, Context as GrammyContext } from 'grammy';
 import { createDatabase } from './db';
 import { users, groups, groupMembers } from './db/schema';
 import { eq, and } from 'drizzle-orm';
+import { logActivity } from './services/activity';
 
 export async function handleWebhook(c: Context) {
   const botToken = c.env.TELEGRAM_BOT_TOKEN;
@@ -83,6 +84,13 @@ export async function handleWebhook(c: Context) {
         groupId: group.id,
         userId: user.id,
         role: 'member',
+      });
+
+      // Log activity
+      await logActivity(db, {
+        groupId: group.id,
+        actorId: user.id,
+        type: 'member_joined',
       });
 
       await ctx.reply(`You've joined "${group.name}"! Open the app to start splitting expenses.`, {

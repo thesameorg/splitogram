@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { expenses, expenseParticipants, groupMembers, groups, users } from '../db/schema';
 import { notify } from '../services/notifications';
+import { logActivity } from '../services/activity';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -113,6 +114,16 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   }));
 
   await db.insert(expenseParticipants).values(participantValues);
+
+  // Log activity
+  await logActivity(db, {
+    groupId,
+    actorId: currentUser.id,
+    type: 'expense_created',
+    expenseId: expense.id,
+    amount: expense.amount,
+    metadata: { description },
+  });
 
   // Fire-and-forget notification
   const notifyCtx = {
@@ -314,11 +325,8 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  if (expense.paidBy !== currentUser.id && membership.role !== 'admin') {
-    return c.json(
-      { error: 'not_authorized', detail: 'Only the expense creator or group admin can edit' },
-      403,
-    );
+  if (expense.paidBy !== currentUser.id) {
+    return c.json({ error: 'not_authorized', detail: 'Only the expense creator can edit' }, 403);
   }
 
   // Update expense fields
@@ -385,6 +393,16 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
     await db.insert(expenseParticipants).values(participantValues);
   }
 
+  // Log activity
+  await logActivity(db, {
+    groupId,
+    actorId: currentUser.id,
+    type: 'expense_edited',
+    expenseId,
+    amount: newAmount,
+    metadata: { description: updates.description ?? expense.description },
+  });
+
   return c.json({ id: expenseId, updated: true });
 });
 
@@ -444,6 +462,16 @@ expensesApp.delete('/:expenseId', async (c) => {
   if (expense.receiptThumbKey) {
     c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, expense.receiptThumbKey));
   }
+
+  // Log activity before delete (need expense data)
+  await logActivity(db, {
+    groupId,
+    actorId: currentUser.id,
+    type: 'expense_deleted',
+    expenseId,
+    amount: expense.amount,
+    metadata: { description: expense.description },
+  });
 
   // expense_participants cascade-deletes via FK onDelete: 'cascade'
   await db.delete(expenses).where(eq(expenses.id, expenseId));

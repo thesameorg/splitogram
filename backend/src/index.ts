@@ -9,6 +9,7 @@ import { expensesApp } from './api/expenses';
 import { balancesApp } from './api/balances';
 import { settlementsApp } from './api/settlements';
 import { usersApp } from './api/users';
+import { activityApp } from './api/activity';
 import { r2App } from './api/r2';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
@@ -67,6 +68,11 @@ app.route('/api/v1', settlementsApp);
 // Users
 app.use('/api/v1/users/*', authMiddleware);
 app.route('/api/v1/users', usersApp);
+
+// Activity
+app.use('/api/v1/activity', authMiddleware);
+app.use('/api/v1/groups/:id/activity', authMiddleware);
+app.route('/api/v1', activityApp);
 
 // --- Root info ---
 app.get('/', (c) => {

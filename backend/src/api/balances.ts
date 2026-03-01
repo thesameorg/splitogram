@@ -74,7 +74,27 @@ balancesApp.get('/', async (c) => {
     amount: d.amount,
   }));
 
-  return c.json({ debts: enrichedDebts });
+  // Build members array with net balances and avatars
+  const memberDetails = await db
+    .select({
+      userId: users.id,
+      displayName: users.displayName,
+      username: users.username,
+      avatarKey: users.avatarKey,
+    })
+    .from(groupMembers)
+    .innerJoin(users, eq(groupMembers.userId, users.id))
+    .where(eq(groupMembers.groupId, groupId));
+
+  const balanceMembers = memberDetails.map((m) => ({
+    userId: m.userId,
+    displayName: m.displayName,
+    username: m.username,
+    avatarKey: m.avatarKey,
+    netBalance: netBalances.get(m.userId) ?? 0,
+  }));
+
+  return c.json({ debts: enrichedDebts, members: balanceMembers });
 });
 
 // --- Get current user's balance in group ---

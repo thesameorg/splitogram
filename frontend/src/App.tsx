@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './hooks/useAuth';
 import { api, ApiError } from './services/api';
+import { UserProvider, useUser } from './contexts/UserContext';
 import { AppLayout } from './components/AppLayout';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Home } from './pages/Home';
@@ -19,6 +20,7 @@ function AppContent() {
   const navigate = useNavigate();
   const deepLinkHandled = useRef(false);
   const { t } = useTranslation();
+  const { setUser } = useUser();
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -28,6 +30,17 @@ function AppContent() {
       document.documentElement.dataset.theme = webApp.colorScheme;
     }
   }, []);
+
+  // Fetch user profile after auth to populate UserContext
+  useEffect(() => {
+    if (!auth.authenticated) return;
+    api
+      .getMe()
+      .then((profile) => {
+        setUser({ avatarKey: profile.avatarKey, displayName: profile.displayName });
+      })
+      .catch(() => {});
+  }, [auth.authenticated, setUser]);
 
   // Deep link routing: read startParam after auth succeeds
   useEffect(() => {
@@ -102,7 +115,9 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
     </BrowserRouter>
   );
 }

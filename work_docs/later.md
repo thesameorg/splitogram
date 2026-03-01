@@ -1,2 +1,1 @@
-- how do we handle case when we do have settlements in wallets (real transactions), and group admin decides to change its currency?
-  - after first expense or settlement is created, group cannot change currency?
+- if user has balances in different currencies in different groups - do not convert, just show multiple currencies balance

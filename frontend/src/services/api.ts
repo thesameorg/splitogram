@@ -81,6 +81,7 @@ export interface GroupDetail {
   createdAt: string;
   createdBy: number;
   muted: boolean;
+  hasTransactions: boolean;
   members: GroupMember[];
 }
 
@@ -112,6 +113,14 @@ export interface DebtEntry {
   from: DebtUser;
   to: DebtUser;
   amount: number;
+}
+
+export interface BalanceMember {
+  userId: number;
+  displayName: string;
+  username: string | null;
+  avatarKey: string | null;
+  netBalance: number;
 }
 
 export interface MyBalance {
@@ -160,6 +169,23 @@ export interface SettlementListItem {
   amount: number;
   status: string;
   comment: string | null;
+  createdAt: string;
+}
+
+export interface ActivityItem {
+  id: number;
+  groupId: number;
+  groupName: string;
+  actorId: number;
+  actorName: string;
+  actorAvatarKey: string | null;
+  type: string;
+  targetUserId: number | null;
+  targetUserName: string | null;
+  expenseId: number | null;
+  settlementId: number | null;
+  amount: number | null;
+  metadata: Record<string, unknown> | null;
   createdAt: string;
 }
 
@@ -319,8 +345,17 @@ export const api = {
     }),
 
   // Balances
+  // Reminders
+  sendReminder: (groupId: number, toUserId: number) =>
+    apiRequest<{ sent: boolean }>(`/api/v1/groups/${groupId}/reminders`, {
+      method: 'POST',
+      body: JSON.stringify({ toUserId }),
+    }),
+
   getBalances: (groupId: number) =>
-    apiRequest<{ debts: DebtEntry[] }>(`/api/v1/groups/${groupId}/balances`),
+    apiRequest<{ debts: DebtEntry[]; members: BalanceMember[] }>(
+      `/api/v1/groups/${groupId}/balances`,
+    ),
 
   getMyBalance: (groupId: number) => apiRequest<MyBalance>(`/api/v1/groups/${groupId}/balances/me`),
 
@@ -340,5 +375,16 @@ export const api = {
     apiRequest<{ status: string; settlementId: number }>(
       `/api/v1/settlements/${id}/mark-external`,
       { method: 'POST', body: JSON.stringify({ comment }) },
+    ),
+
+  // Activity
+  getActivity: (cursor?: string) =>
+    apiRequest<{ items: ActivityItem[]; nextCursor: string | null }>(
+      `/api/v1/activity${cursor ? `?cursor=${cursor}` : ''}`,
+    ),
+
+  getGroupActivity: (groupId: number, cursor?: string) =>
+    apiRequest<{ items: ActivityItem[]; nextCursor: string | null }>(
+      `/api/v1/groups/${groupId}/activity${cursor ? `?cursor=${cursor}` : ''}`,
     ),
 };

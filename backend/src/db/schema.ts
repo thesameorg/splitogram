@@ -117,6 +117,66 @@ export const expenseParticipants = sqliteTable(
   ],
 );
 
+// --- Activity Log ---
+export const activityLog = sqliteTable(
+  'activity_log',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    groupId: integer('group_id')
+      .notNull()
+      .references(() => groups.id),
+    actorId: integer('actor_id')
+      .notNull()
+      .references(() => users.id),
+    type: text('type', {
+      enum: [
+        'expense_created',
+        'expense_edited',
+        'expense_deleted',
+        'settlement_completed',
+        'member_joined',
+        'member_left',
+        'member_kicked',
+      ],
+    }).notNull(),
+    targetUserId: integer('target_user_id').references(() => users.id),
+    expenseId: integer('expense_id'),
+    settlementId: integer('settlement_id'),
+    amount: integer('amount'),
+    metadata: text('metadata'), // JSON
+    createdAt: text('created_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => [
+    index('activity_log_group_idx').on(table.groupId),
+    index('activity_log_created_at_idx').on(table.createdAt),
+  ],
+);
+
+// --- Debt Reminders ---
+export const debtReminders = sqliteTable(
+  'debt_reminders',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    groupId: integer('group_id')
+      .notNull()
+      .references(() => groups.id),
+    fromUserId: integer('from_user_id')
+      .notNull()
+      .references(() => users.id),
+    toUserId: integer('to_user_id')
+      .notNull()
+      .references(() => users.id),
+    lastSentAt: text('last_sent_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => [
+    uniqueIndex('debt_reminders_unique_idx').on(table.groupId, table.fromUserId, table.toUserId),
+  ],
+);
+
 // --- Settlements ---
 export const settlements = sqliteTable(
   'settlements',

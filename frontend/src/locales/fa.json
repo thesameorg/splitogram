@@ -47,7 +47,12 @@
     "paid": "{{from}} به {{to}} پرداخت کرد",
     "deleteConfirm": "این هزینه حذف شود؟ مانده‌ها دوباره محاسبه می‌شوند.",
     "member_one": "{{count}} عضو",
-    "member_other": "{{count}} عضو"
+    "member_other": "{{count}} عضو",
+    "settledUp": "تسویه شد",
+    "allMembers": "همه اعضا",
+    "sendReminder": "ارسال یادآوری",
+    "reminderSent": "یادآوری ارسال شد",
+    "reminderCooldown": "فقط هر ۲۴ ساعت یک بار می‌توانید یادآوری بفرستید"
   },
   "groupSettings": {
     "title": "تنظیمات گروه",
@@ -81,7 +86,10 @@
     "removeGroupPhoto": "حذف عکس",
     "emojiPicker": "انتخاب ایموجی",
     "groupPhotoUpdated": "عکس گروه به‌روز شد",
-    "groupPhotoRemoved": "عکس گروه حذف شد"
+    "groupPhotoRemoved": "عکس گروه حذف شد",
+    "copyInvite": "کپی لینک",
+    "linkCopied": "لینک دعوت کپی شد",
+    "currencyLocked": "پس از افزودن هزینه، ارز قابل تغییر نیست"
   },
   "addExpense": {
     "title": "افزودن هزینه",
@@ -131,7 +139,16 @@
   },
   "activity": {
     "title": "فعالیت",
-    "comingSoon": "فید فعالیت به‌زودی"
+    "empty": "هنوز فعالیتی نیست",
+    "loadMore": "بارگذاری بیشتر",
+    "you": "شما",
+    "expenseCreated": "{{actor}} «{{description}}» را اضافه کرد",
+    "expenseEdited": "{{actor}} «{{description}}» را ویرایش کرد",
+    "expenseDeleted": "{{actor}} «{{description}}» را حذف کرد",
+    "settlementCompleted": "{{actor}} با {{target}} تسویه کرد",
+    "memberJoined": "{{actor}} به گروه پیوست",
+    "memberLeft": "{{actor}} گروه را ترک کرد",
+    "memberKicked": "{{actor}} {{target}} را حذف کرد"
   },
   "currencyPicker": {
     "title": "انتخاب ارز",

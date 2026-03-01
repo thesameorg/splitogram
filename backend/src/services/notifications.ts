@@ -127,6 +127,26 @@ export const notify = {
     await Promise.allSettled(tasks);
   },
 
+  async debtReminder(
+    ctx: NotifyContext,
+    creditor: { displayName: string },
+    debtor: NotifyUser,
+    group: { id: number; name: string },
+    amount: number,
+    currency: string = 'USD',
+  ): Promise<void> {
+    if (!canNotify(debtor)) return;
+    const api = createApi(ctx);
+    const amountStr = formatAmount(amount, currency);
+    const text = `<b>${creditor.displayName}</b> is reminding you about a debt of ${amountStr} in <b>${group.name}</b>`;
+
+    const keyboard = [
+      [{ text: 'View Group', web_app: { url: `${ctx.pagesUrl}/groups/${group.id}` } }],
+    ];
+
+    await sendMessage(api, ctx, debtor.telegramId, text, keyboard);
+  },
+
   async memberJoined(
     ctx: NotifyContext,
     newMember: NotifyUser,

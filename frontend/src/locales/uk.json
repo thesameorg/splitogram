@@ -49,7 +49,12 @@
     "deleteConfirm": "Видалити цю витрату? Баланси будуть перераховані.",
     "member_one": "{{count}} учасник",
     "member_few": "{{count}} учасники",
-    "member_many": "{{count}} учасників"
+    "member_many": "{{count}} учасників",
+    "settledUp": "Розрахувалися",
+    "allMembers": "Усі учасники",
+    "sendReminder": "Надіслати нагадування",
+    "reminderSent": "Нагадування надіслано",
+    "reminderCooldown": "Нагадування можна надсилати лише раз на 24 години"
   },
   "groupSettings": {
     "title": "Налаштування групи",
@@ -83,7 +88,10 @@
     "removeGroupPhoto": "Видалити фото",
     "emojiPicker": "Оберіть емодзі",
     "groupPhotoUpdated": "Фото групи оновлено",
-    "groupPhotoRemoved": "Фото групи видалено"
+    "groupPhotoRemoved": "Фото групи видалено",
+    "copyInvite": "Копіювати посилання",
+    "linkCopied": "Посилання-запрошення скопійовано",
+    "currencyLocked": "Валюту не можна змінити після додавання витрат"
   },
   "addExpense": {
     "title": "Додати витрату",
@@ -133,7 +141,16 @@
   },
   "activity": {
     "title": "Активність",
-    "comingSoon": "Стрічка активності скоро з'явиться"
+    "empty": "Ще немає активності",
+    "loadMore": "Завантажити ще",
+    "you": "Ви",
+    "expenseCreated": "{{actor}} додав(ла) «{{description}}»",
+    "expenseEdited": "{{actor}} змінив(ла) «{{description}}»",
+    "expenseDeleted": "{{actor}} видалив(ла) «{{description}}»",
+    "settlementCompleted": "{{actor}} розрахувався(-лася) з {{target}}",
+    "memberJoined": "{{actor}} приєднався(-лася) до групи",
+    "memberLeft": "{{actor}} покинув(ла) групу",
+    "memberKicked": "{{actor}} видалив(ла) {{target}}"
   },
   "currencyPicker": {
     "title": "Вибрати валюту",

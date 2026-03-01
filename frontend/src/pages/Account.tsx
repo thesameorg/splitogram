@@ -8,6 +8,7 @@ import { SuccessBanner } from '../components/SuccessBanner';
 import { BottomSheet } from '../components/BottomSheet';
 import { Avatar } from '../components/Avatar';
 import { validateImageFile, processAvatar } from '../utils/image';
+import { useUser } from '../contexts/UserContext';
 
 const LANGUAGES = [
   { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
@@ -25,6 +26,7 @@ const LANGUAGES = [
 
 export function Account() {
   const { t, i18n } = useTranslation();
+  const { setUser: setUserContext } = useUser();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editName, setEditName] = useState('');
@@ -56,6 +58,11 @@ export function Account() {
     try {
       const result = await api.updateMe({ displayName: editName.trim() });
       setUser((prev) => (prev ? { ...prev, displayName: result.displayName } : prev));
+      setUserContext((prev) =>
+        prev
+          ? { ...prev, displayName: result.displayName }
+          : { displayName: result.displayName, avatarKey: null },
+      );
       setEditing(false);
       setSuccess(t('account.nameUpdated'));
       setTimeout(() => setSuccess(null), 2000);
@@ -84,6 +91,7 @@ export function Account() {
       const processed = await processAvatar(file);
       const result = await api.uploadAvatar(processed.blob);
       setUser((prev) => (prev ? { ...prev, avatarKey: result.avatarKey } : prev));
+      setUserContext((prev) => (prev ? { ...prev, avatarKey: result.avatarKey } : prev));
       setSuccess(t('account.avatarUpdated'));
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
@@ -99,6 +107,7 @@ export function Account() {
     try {
       await api.deleteAvatar();
       setUser((prev) => (prev ? { ...prev, avatarKey: null } : prev));
+      setUserContext((prev) => (prev ? { ...prev, avatarKey: null } : prev));
       setSuccess(t('account.avatarRemoved'));
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {

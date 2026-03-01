@@ -47,7 +47,12 @@
     "paid": "{{from}} paid {{to}}",
     "deleteConfirm": "Delete this expense? Balances will be recalculated.",
     "member_one": "{{count}} member",
-    "member_other": "{{count}} members"
+    "member_other": "{{count}} members",
+    "settledUp": "Settled up",
+    "allMembers": "All Members",
+    "sendReminder": "Send Reminder",
+    "reminderSent": "Reminder sent",
+    "reminderCooldown": "You can only send a reminder once every 24 hours"
   },
   "groupSettings": {
     "title": "Group Settings",
@@ -81,7 +86,10 @@
     "removeGroupPhoto": "Remove photo",
     "emojiPicker": "Choose emoji",
     "groupPhotoUpdated": "Group photo updated",
-    "groupPhotoRemoved": "Group photo removed"
+    "groupPhotoRemoved": "Group photo removed",
+    "copyInvite": "Copy link",
+    "linkCopied": "Invite link copied",
+    "currencyLocked": "Currency cannot be changed after expenses have been added"
   },
   "addExpense": {
     "title": "Add Expense",
@@ -131,7 +139,16 @@
   },
   "activity": {
     "title": "Activity",
-    "comingSoon": "Activity feed coming soon"
+    "empty": "No activity yet",
+    "loadMore": "Load more",
+    "you": "You",
+    "expenseCreated": "{{actor}} added \"{{description}}\"",
+    "expenseEdited": "{{actor}} edited \"{{description}}\"",
+    "expenseDeleted": "{{actor}} deleted \"{{description}}\"",
+    "settlementCompleted": "{{actor}} settled up with {{target}}",
+    "memberJoined": "{{actor}} joined the group",
+    "memberLeft": "{{actor}} left the group",
+    "memberKicked": "{{actor}} removed {{target}}"
   },
   "currencyPicker": {
     "title": "Select Currency",

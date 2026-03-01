@@ -115,9 +115,9 @@ backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
 ├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking
 ├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
-├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, r2)
+├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, r2)
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
-├── services/             # telegram-auth, notifications, debt-solver
+├── services/             # telegram-auth, notifications, debt-solver, activity
 ├── utils/                # currencies, format (shared with frontend), r2 (key gen, safe delete)
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
@@ -131,6 +131,8 @@ frontend/src/
 ├── locales/              # Translation JSON files (en, ru, es, hi, id, fa, pt, uk, de, it, vi)
 ├── services/api.ts       # Fetch wrapper with initData auth header
 ├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
+├── icons/                # SVG icon components (IconUsers, IconActivity, IconUser, IconCopy, IconCrown, IconCheck)
+├── contexts/             # UserContext (avatar/name state for BottomTabs + Account)
 ├── utils/                # currencies, format, time, share, transactions, image
 ├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker, Avatar
 └── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
@@ -187,6 +189,8 @@ Bot sends links with `start_param`. Frontend reads `window.Telegram.WebApp.initD
 - **expenses**: group_id, paid_by, amount (micro-units integer), description, receipt_key, receipt_thumb_key
 - **expense_participants**: expense_id, user_id, share_amount
 - **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, comment, settled_by
+- **activity_log**: group_id, actor_id, type (expense_created/edited/deleted, settlement_completed, member_joined/left/kicked), target_user_id, expense_id, settlement_id, amount, metadata (JSON), created_at
+- **debt_reminders**: group_id, from_user_id (creditor), to_user_id (debtor), last_sent_at (24h cooldown)
 
 Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-group. No floating point.
 
@@ -235,6 +239,6 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 
 ## Planning Docs
 
-- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-5 done, Phase 6 next)
+- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-7 done, Phase 8 next)
 - `work_docs/tech-decisions.md` — stack, architecture, key engineering principles
 - `work_docs/idea.md` — business overview and competitive landscape

@@ -6,6 +6,7 @@ import { settlements, groupMembers, users, groups } from '../db/schema';
 import { simplifyDebts } from '../services/debt-solver';
 import { computeGroupBalances } from './balances';
 import { notify } from '../services/notifications';
+import { logActivity } from '../services/activity';
 import type { Database } from '../db';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -546,6 +547,17 @@ settlementsApp.post(
         updatedAt: new Date().toISOString(),
       })
       .where(eq(settlements.id, settlementId));
+
+    // Log activity
+    await logActivity(db, {
+      groupId: settlement.groupId,
+      actorId: currentUser.id,
+      type: 'settlement_completed',
+      settlementId,
+      targetUserId:
+        currentUser.id === settlement.fromUser ? settlement.toUser : settlement.fromUser,
+      amount: settlement.amount,
+    });
 
     // Fire-and-forget notification
     const notifyCtx = {

@@ -261,28 +261,48 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 7: Retention & Engagement
+## Phase 7: Retention & Engagement + UI Fixes — DONE
 
-**Goal:** Keep users coming back. Fill the Activity tab, add reminders, improve the home screen.
+**Goal:** Keep users coming back. Fill the Activity tab, add reminders, rework balances view. Combined with UI fixes: SVG icons, permission tightening, currency lock, copy-to-clipboard, receipt display in edit mode.
 
-**Steps:**
+**What was built:**
 
-1. **Activity feed (cross-group)** — Populate the Activity tab from Phase 3. Shows all activity across all groups where the user is a member: expenses added/edited/deleted, settlements, members joined/left. Chronological, with pagination (pull-to-load-more).
-2. **Per-group activity** — Same feed filtered to a single group, accessible from within the group screen.
-3. **Debt reminders** — "Send reminder" button visible to creditors next to each debt. Sends bot DM to debtor. Cooldown (e.g., 1 per 24h per debt) to prevent spam.
-4. **Cross-group balance summary on home screen** — Show net balance across all groups. For users in groups with different currencies, convert to USD equivalent for the total. Use a simple free exchange rate API (single `fetch()` call, cached).
+- **SVG icons + UI quick fixes (Wave 1):**
+  - 6 SVG icon components in `frontend/src/icons/` (IconUsers, IconActivity, IconUser, IconCopy, IconCrown, IconCheck)
+  - UserContext for avatar/name state sharing across BottomTabs + Account
+  - BottomTabs: SVG icons replace letter placeholders, Account tab shows user avatar when available
+  - Settings button: blue for admin, gray for non-admin
+  - Removed member chips from group header (moved to Balances tab)
+  - Copy invite link button with clipboard API
+  - Replaced all Unicode symbols (crown, checkmark) with SVG icons
+- **Expense permissions + currency lock (Wave 2):**
+  - Creator-only expense edit (admin can still delete)
+  - Existing receipt shown during edit mode with remove/replace support
+  - Currency locked after first expense in a group (backend 400 + frontend disabled picker)
+  - `hasTransactions` boolean added to group detail API
+- **Balances tab rework (Wave 3):**
+  - All group members shown with net balances (sorted by |amount|), with Avatar component
+  - Settled members shown with "Settled up" label
+  - Debt cards with settle-up buttons below member list
+- **Activity log + feed (Wave 4):**
+  - `activity_log` DB table with indexes on groupId, createdAt
+  - `logActivity()` service — inline D1 writes on all mutations
+  - Instrumented: expense create/edit/delete, settlement complete, member join/leave/kick
+  - `GET /api/v1/activity` — cross-group feed with cursor-based pagination
+  - `GET /api/v1/groups/:id/activity` — per-group feed
+  - Full Activity page with avatar, localized text, group badge, timeAgo
+  - Per-group Activity tab (third tab in group view)
+- **Debt reminders (Wave 5):**
+  - `debt_reminders` DB table with unique index + 24h cooldown
+  - `POST /groups/:id/reminders` with debt graph verification via `simplifyDebts`
+  - Bot DM notification with "View Group" button
+  - Frontend: "Send Reminder" button for creditors with cooldown error handling
+- **Tests:** 17 new tests (9 activity text, 8 permissions). Total: 67 (6 backend + 61 frontend)
+- **i18n:** All new keys translated to all 11 locales
 
-**Scope boundaries:**
+**DB migrations:** 0005 (activity_log + debt_reminders tables)
 
-- No scheduled/automatic reminders — always manually triggered by creditor
-- No analytics or dashboards
-- No export
-
-**Success criteria:**
-
-- Activity tab shows meaningful cross-group feed with pagination
-- Creditors can nudge debtors via the app
-- Home screen shows a useful "you owe / you're owed" total in USD
+**Scope note:** Cross-group balance summary with exchange rates deferred — showing per-currency balances instead (no conversion needed).
 
 ---
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { api, type GroupDetail, ApiError } from '../services/api';
+import { api, ApiError, type GroupDetail } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { shareInviteLink } from '../utils/share';
@@ -13,6 +13,7 @@ import { ErrorBanner } from '../components/ErrorBanner';
 import { SuccessBanner } from '../components/SuccessBanner';
 import { Avatar } from '../components/Avatar';
 import { BottomSheet } from '../components/BottomSheet';
+import { IconCrown, IconCopy } from '../icons';
 
 const GROUP_EMOJIS = [
   '\u{1F3E0}',
@@ -96,7 +97,14 @@ export function GroupSettings() {
       setSuccess(t('groupSettings.settingsSaved'));
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
-      setError(err.message || 'Failed to save settings');
+      if (err instanceof ApiError && err.errorCode === 'currency_locked') {
+        setError(t('groupSettings.currencyLocked'));
+        // Refresh group data to get hasTransactions
+        setGroup((prev) => (prev ? { ...prev, hasTransactions: true } : prev));
+        setCurrency(group!.currency);
+      } else {
+        setError(err.message || 'Failed to save settings');
+      }
     } finally {
       setSaving(false);
     }
@@ -118,6 +126,19 @@ export function GroupSettings() {
   function handleShareInvite() {
     if (!group) return;
     shareInviteLink(group.inviteCode, group.name);
+  }
+
+  async function handleCopyInvite() {
+    if (!group) return;
+    const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME;
+    const link = `https://t.me/${botUsername}?startapp=join_${group.inviteCode}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setSuccess(t('groupSettings.linkCopied'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch {
+      setError('Failed to copy link');
+    }
   }
 
   async function handleSelectEmoji(emoji: string) {
@@ -309,8 +330,11 @@ export function GroupSettings() {
         <CurrencyButton
           value={currency}
           onClick={() => setShowCurrencyPicker(true)}
-          disabled={!isAdmin}
+          disabled={!isAdmin || !!group.hasTransactions}
         />
+        {group.hasTransactions && isAdmin && (
+          <p className="text-xs text-tg-hint mt-1">{t('groupSettings.currencyLocked')}</p>
+        )}
         <CurrencyPicker
           open={showCurrencyPicker}
           onClose={() => setShowCurrencyPicker(false)}
@@ -341,6 +365,13 @@ export function GroupSettings() {
             className="flex-1 p-3 border border-tg-link text-tg-link rounded-xl text-sm font-medium"
           >
             {t('groupSettings.shareInvite')}
+          </button>
+          <button
+            onClick={handleCopyInvite}
+            className="p-3 border border-tg-link text-tg-link rounded-xl"
+            title={t('groupSettings.copyInvite')}
+          >
+            <IconCopy size={18} />
           </button>
           {isAdmin && (
             <button
@@ -387,7 +418,7 @@ export function GroupSettings() {
               <div className="flex items-center gap-2">
                 <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
                 <span className="font-medium">{m.displayName}</span>
-                {m.role === 'admin' && <span className="text-xs text-app-warning">&#9812;</span>}
+                {m.role === 'admin' && <IconCrown size={14} className="text-app-warning" />}
                 {m.userId === currentUserId && (
                   <span className="text-xs text-tg-hint">{t('groupSettings.you')}</span>
                 )}

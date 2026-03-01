@@ -3,7 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, type GroupDetail } from '../services/api';
 import { formatAmount } from '../utils/format';
-import { validateImageFile, processReceipt, processReceiptThumbnail } from '../utils/image';
+import {
+  validateImageFile,
+  processReceipt,
+  processReceiptThumbnail,
+  imageUrl,
+} from '../utils/image';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { useTelegramMainButton } from '../hooks/useTelegramMainButton';
@@ -28,6 +33,7 @@ export function AddExpense() {
   const [error, setError] = useState<string | null>(null);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const [existingReceipt, setExistingReceipt] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useTelegramBackButton(true);
@@ -46,6 +52,10 @@ export function AddExpense() {
           setAmountStr((expense.amount / 1_000_000).toString());
           setPaidBy(expense.paidBy);
           setSelectedParticipants(new Set(expense.participants.map((p) => p.userId)));
+          if (expense.receiptThumbKey) {
+            setReceiptPreview(imageUrl(expense.receiptThumbKey));
+            setExistingReceipt(true);
+          }
         }
       });
     } else {
@@ -84,6 +94,9 @@ export function AddExpense() {
             processReceiptThumbnail(receiptFile),
           ]);
           await api.uploadReceipt(groupId, expenseId, processed.blob, thumb.blob);
+        } else if (!receiptPreview && !existingReceipt) {
+          // User removed existing receipt without adding a new one
+          await api.deleteReceipt(groupId, expenseId).catch(() => {});
         }
       } else {
         const result = await api.createExpense(groupId, {
@@ -153,6 +166,7 @@ export function AddExpense() {
     }
 
     setReceiptFile(file);
+    setExistingReceipt(false);
     // Create preview URL
     const url = URL.createObjectURL(file);
     setReceiptPreview(url);
@@ -160,10 +174,11 @@ export function AddExpense() {
 
   function handleRemoveReceipt() {
     setReceiptFile(null);
-    if (receiptPreview) {
+    if (receiptPreview && !existingReceipt) {
       URL.revokeObjectURL(receiptPreview);
-      setReceiptPreview(null);
     }
+    setReceiptPreview(null);
+    setExistingReceipt(false);
   }
 
   if (!group) return <LoadingScreen />;

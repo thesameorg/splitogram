@@ -47,7 +47,12 @@
     "paid": "{{from}} ने {{to}} को भुगतान किया",
     "deleteConfirm": "यह खर्च हटाएँ? शेष राशि पुनः गणना होगी।",
     "member_one": "{{count}} सदस्य",
-    "member_other": "{{count}} सदस्य"
+    "member_other": "{{count}} सदस्य",
+    "settledUp": "हिसाब हो गया",
+    "allMembers": "सभी सदस्य",
+    "sendReminder": "रिमाइंडर भेजें",
+    "reminderSent": "रिमाइंडर भेजा गया",
+    "reminderCooldown": "आप हर 24 घंटे में केवल एक बार रिमाइंडर भेज सकते हैं"
   },
   "groupSettings": {
     "title": "समूह सेटिंग्स",
@@ -81,7 +86,10 @@
     "removeGroupPhoto": "फ़ोटो हटाएँ",
     "emojiPicker": "इमोजी चुनें",
     "groupPhotoUpdated": "समूह फ़ोटो अपडेट हो गई",
-    "groupPhotoRemoved": "समूह फ़ोटो हटा दी गई"
+    "groupPhotoRemoved": "समूह फ़ोटो हटा दी गई",
+    "copyInvite": "लिंक कॉपी करें",
+    "linkCopied": "आमंत्रण लिंक कॉपी हो गया",
+    "currencyLocked": "खर्च जोड़ने के बाद मुद्रा नहीं बदली जा सकती"
   },
   "addExpense": {
     "title": "खर्च जोड़ें",
@@ -131,7 +139,16 @@
   },
   "activity": {
     "title": "गतिविधि",
-    "comingSoon": "गतिविधि फ़ीड जल्द आ रहा है"
+    "empty": "अभी कोई गतिविधि नहीं",
+    "loadMore": "और लोड करें",
+    "you": "आप",
+    "expenseCreated": "{{actor}} ने \"{{description}}\" जोड़ा",
+    "expenseEdited": "{{actor}} ने \"{{description}}\" संपादित किया",
+    "expenseDeleted": "{{actor}} ने \"{{description}}\" हटाया",
+    "settlementCompleted": "{{actor}} ने {{target}} के साथ हिसाब किया",
+    "memberJoined": "{{actor}} समूह में शामिल हुए",
+    "memberLeft": "{{actor}} ने समूह छोड़ दिया",
+    "memberKicked": "{{actor}} ने {{target}} को हटाया"
   },
   "currencyPicker": {
     "title": "मुद्रा चुनें",

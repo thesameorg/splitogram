@@ -47,7 +47,12 @@
     "paid": "{{from}} hat {{to}} bezahlt",
     "deleteConfirm": "Diese Ausgabe löschen? Die Salden werden neu berechnet.",
     "member_one": "{{count}} Mitglied",
-    "member_other": "{{count}} Mitglieder"
+    "member_other": "{{count}} Mitglieder",
+    "settledUp": "Beglichen",
+    "allMembers": "Alle Mitglieder",
+    "sendReminder": "Erinnerung senden",
+    "reminderSent": "Erinnerung gesendet",
+    "reminderCooldown": "Du kannst nur alle 24 Stunden eine Erinnerung senden"
   },
   "groupSettings": {
     "title": "Gruppeneinstellungen",
@@ -81,7 +86,10 @@
     "removeGroupPhoto": "Foto entfernen",
     "emojiPicker": "Emoji wählen",
     "groupPhotoUpdated": "Gruppenfoto aktualisiert",
-    "groupPhotoRemoved": "Gruppenfoto entfernt"
+    "groupPhotoRemoved": "Gruppenfoto entfernt",
+    "copyInvite": "Link kopieren",
+    "linkCopied": "Einladungslink kopiert",
+    "currencyLocked": "Die Währung kann nach dem Hinzufügen von Ausgaben nicht mehr geändert werden"
   },
   "addExpense": {
     "title": "Ausgabe hinzufügen",
@@ -131,7 +139,16 @@
   },
   "activity": {
     "title": "Aktivität",
-    "comingSoon": "Aktivitäts-Feed kommt bald"
+    "empty": "Noch keine Aktivität",
+    "loadMore": "Mehr laden",
+    "you": "Du",
+    "expenseCreated": "{{actor}} hat \"{{description}}\" hinzugefügt",
+    "expenseEdited": "{{actor}} hat \"{{description}}\" bearbeitet",
+    "expenseDeleted": "{{actor}} hat \"{{description}}\" gelöscht",
+    "settlementCompleted": "{{actor}} hat mit {{target}} abgerechnet",
+    "memberJoined": "{{actor}} ist der Gruppe beigetreten",
+    "memberLeft": "{{actor}} hat die Gruppe verlassen",
+    "memberKicked": "{{actor}} hat {{target}} entfernt"
   },
   "currencyPicker": {
     "title": "Währung wählen",

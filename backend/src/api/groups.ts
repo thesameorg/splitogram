@@ -9,10 +9,13 @@ import {
   expenses,
   expenseParticipants,
   settlements,
+  debtReminders,
 } from '../db/schema';
 import { computeGroupBalances } from './balances';
+import { simplifyDebts } from '../services/debt-solver';
 import { CURRENCY_CODES } from '../utils/currencies';
 import { notify } from '../services/notifications';
+import { logActivity } from '../services/activity';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -224,6 +227,12 @@ groupsApp.get('/:id', async (c) => {
     .innerJoin(users, eq(groupMembers.userId, users.id))
     .where(eq(groupMembers.groupId, groupId));
 
+  // Check if group has any expenses (for currency lock)
+  const [expenseCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(expenses)
+    .where(eq(expenses.groupId, groupId));
+
   return c.json({
     id: group.id,
     name: group.name,
@@ -235,6 +244,7 @@ groupsApp.get('/:id', async (c) => {
     createdAt: group.createdAt,
     createdBy: group.createdBy,
     muted: membership.muted,
+    hasTransactions: expenseCount.count > 0,
     members,
   });
 });
@@ -282,6 +292,23 @@ groupsApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
 
   if (membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can update settings' }, 403);
+  }
+
+  // Currency lock: cannot change currency after first expense
+  if (updates.currency !== undefined) {
+    const [expenseCount] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(expenses)
+      .where(eq(expenses.groupId, groupId));
+    if (expenseCount.count > 0) {
+      return c.json(
+        {
+          error: 'currency_locked',
+          detail: 'Currency cannot be changed after expenses have been added',
+        },
+        400,
+      );
+    }
   }
 
   const setValues: Record<string, any> = { updatedAt: new Date().toISOString() };
@@ -645,6 +672,13 @@ groupsApp.post('/:id/leave', async (c) => {
     );
   }
 
+  // Log activity before removing membership
+  await logActivity(db, {
+    groupId,
+    actorId: user.id,
+    type: 'member_left',
+  });
+
   await db
     .delete(groupMembers)
     .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)));
@@ -717,6 +751,14 @@ groupsApp.delete('/:id/members/:userId', async (c) => {
   if (targetBalance !== 0) {
     return c.json({ error: 'outstanding_balance', detail: 'Member has unsettled debts.' }, 400);
   }
+
+  // Log activity
+  await logActivity(db, {
+    groupId,
+    actorId: user.id,
+    type: 'member_kicked',
+    targetUserId,
+  });
 
   await db
     .delete(groupMembers)
@@ -813,6 +855,13 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
     role: 'member',
   });
 
+  // Log activity
+  await logActivity(db, {
+    groupId,
+    actorId: user.id,
+    type: 'member_joined',
+  });
+
   // Fire-and-forget notification
   const notifyCtx = {
     botToken: c.env.TELEGRAM_BOT_TOKEN,
@@ -858,6 +907,149 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
   );
 
   return c.json({ joined: true, groupId, groupName: group.name });
+});
+
+// --- Send debt reminder ---
+const reminderSchema = z.object({
+  toUserId: z.number().int().positive(),
+});
+
+groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+  const { toUserId } = c.req.valid('json');
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  // Check membership
+  const [membership] = await db
+    .select()
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  // Verify user is the creditor in the debt graph
+  const netBalances = await computeGroupBalances(db, groupId);
+  const debts = simplifyDebts(netBalances);
+  const targetDebt = debts.find((d) => d.from === toUserId && d.to === user.id);
+
+  if (!targetDebt) {
+    return c.json({ error: 'no_debt', detail: 'This user does not owe you' }, 400);
+  }
+
+  // Check 24h cooldown
+  const [existing] = await db
+    .select({ lastSentAt: debtReminders.lastSentAt })
+    .from(debtReminders)
+    .where(
+      and(
+        eq(debtReminders.groupId, groupId),
+        eq(debtReminders.fromUserId, user.id),
+        eq(debtReminders.toUserId, toUserId),
+      ),
+    )
+    .limit(1);
+
+  if (existing) {
+    const lastSent = new Date(existing.lastSentAt).getTime();
+    const cooldownMs = 24 * 60 * 60 * 1000;
+    if (Date.now() - lastSent < cooldownMs) {
+      return c.json(
+        { error: 'cooldown', detail: 'Reminder already sent in the last 24 hours' },
+        429,
+      );
+    }
+  }
+
+  // Upsert lastSentAt
+  const now = new Date().toISOString();
+  if (existing) {
+    await db
+      .update(debtReminders)
+      .set({ lastSentAt: now })
+      .where(
+        and(
+          eq(debtReminders.groupId, groupId),
+          eq(debtReminders.fromUserId, user.id),
+          eq(debtReminders.toUserId, toUserId),
+        ),
+      );
+  } else {
+    await db.insert(debtReminders).values({
+      groupId,
+      fromUserId: user.id,
+      toUserId,
+      lastSentAt: now,
+    });
+  }
+
+  // Fire-and-forget notification
+  const notifyCtx = {
+    botToken: c.env.TELEGRAM_BOT_TOKEN,
+    pagesUrl: c.env.PAGES_URL || '',
+    onBotBlocked: (telegramId: number) => {
+      db.update(users)
+        .set({ botStarted: false })
+        .where(eq(users.telegramId, telegramId))
+        .catch(() => {});
+    },
+  };
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        const [[creditor], [debtor], [group]] = await Promise.all([
+          db
+            .select({ displayName: users.displayName })
+            .from(users)
+            .where(eq(users.id, user.id))
+            .limit(1),
+          db
+            .select({
+              telegramId: users.telegramId,
+              displayName: users.displayName,
+              botStarted: users.botStarted,
+            })
+            .from(users)
+            .where(eq(users.id, toUserId))
+            .limit(1),
+          db
+            .select({ name: groups.name, currency: groups.currency })
+            .from(groups)
+            .where(eq(groups.id, groupId))
+            .limit(1),
+        ]);
+        await notify.debtReminder(
+          notifyCtx,
+          creditor,
+          debtor,
+          { id: groupId, name: group.name },
+          targetDebt.amount,
+          group.currency,
+        );
+      } catch (e) {
+        console.error('Notification failed (debt_reminder):', e);
+      }
+    })(),
+  );
+
+  return c.json({ sent: true });
 });
 
 export { groupsApp };

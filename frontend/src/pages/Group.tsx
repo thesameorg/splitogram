@@ -6,7 +6,9 @@ import {
   type GroupDetail,
   type Expense,
   type DebtEntry,
+  type BalanceMember,
   type SettlementListItem,
+  type ActivityItem,
 } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
@@ -19,6 +21,9 @@ import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { Avatar } from '../components/Avatar';
 import { BottomSheet } from '../components/BottomSheet';
+import { SuccessBanner } from '../components/SuccessBanner';
+import { IconCheck } from '../icons';
+import { getActivityText } from './Activity';
 
 export function Group() {
   const { id } = useParams<{ id: string }>();
@@ -29,11 +34,16 @@ export function Group() {
   const [group, setGroup] = useState<GroupDetail | null>(null);
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [debts, setDebts] = useState<DebtEntry[]>([]);
-  const [tab, setTab] = useState<'transactions' | 'balances'>('transactions');
+  const [balanceMembers, setBalanceMembers] = useState<BalanceMember[]>([]);
+  const [tab, setTab] = useState<'transactions' | 'balances' | 'activity'>('transactions');
+  const [activityItems, setActivityItems] = useState<ActivityItem[]>([]);
+  const [activityCursor, setActivityCursor] = useState<string | null>(null);
+  const [activityLoading, setActivityLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
+  const [reminderSuccess, setReminderSuccess] = useState(false);
 
   useTelegramBackButton(true);
 
@@ -49,6 +59,7 @@ export function Group() {
       setGroup(groupData);
       setTransactions(mergeTransactions(expensesData.expenses, settlementsData.settlements));
       setDebts(balancesData.debts);
+      setBalanceMembers(balancesData.members ?? []);
 
       const user = resolveCurrentUser(groupData.members);
       if (user) {
@@ -66,7 +77,25 @@ export function Group() {
     loadData();
   }, [loadData]);
 
-  function canModifyExpense(exp: Expense): boolean {
+  // Load activity when tab is selected
+  useEffect(() => {
+    if (tab !== 'activity' || activityItems.length > 0 || activityLoading || isNaN(groupId)) return;
+    setActivityLoading(true);
+    api
+      .getGroupActivity(groupId)
+      .then((data) => {
+        setActivityItems(data.items);
+        setActivityCursor(data.nextCursor);
+      })
+      .catch((err) => console.error('Failed to load activity:', err))
+      .finally(() => setActivityLoading(false));
+  }, [tab, groupId, activityItems.length, activityLoading]);
+
+  function canEditExpense(exp: Expense): boolean {
+    return currentUserId === exp.paidBy;
+  }
+
+  function canDeleteExpense(exp: Expense): boolean {
     return currentUserId === exp.paidBy || currentUserRole === 'admin';
   }
 
@@ -77,6 +106,20 @@ export function Group() {
       loadData();
     } catch (err) {
       console.error('Failed to delete expense:', err);
+    }
+  }
+
+  async function handleSendReminder(debt: DebtEntry) {
+    try {
+      await api.sendReminder(groupId, debt.from.userId);
+      setReminderSuccess(true);
+      setTimeout(() => setReminderSuccess(false), 2000);
+    } catch (err: any) {
+      if (err?.errorCode === 'cooldown') {
+        alert(t('group.reminderCooldown'));
+      } else {
+        console.error('Failed to send reminder:', err);
+      }
     }
   }
 
@@ -112,7 +155,7 @@ export function Group() {
       >
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
-            <span className="text-app-positive text-lg">&#10003;</span>
+            <IconCheck size={18} className="text-app-positive" />
             <div>
               <div className="font-medium text-app-positive">{label}</div>
               <div className="text-sm text-tg-hint">{timeAgo(settlement.createdAt)}</div>
@@ -162,20 +205,24 @@ export function Group() {
             {t('group.splitAmong', { count: exp.participants.length })}:{' '}
             {exp.participants.map((p) => p.displayName).join(', ')}
           </div>
-          {canModifyExpense(exp) && (
+          {(canEditExpense(exp) || canDeleteExpense(exp)) && (
             <div className="flex gap-2 ml-2 shrink-0">
-              <button
-                onClick={() => navigate(`/groups/${groupId}/edit-expense/${exp.id}`)}
-                className="text-xs text-tg-link"
-              >
-                {t('group.edit')}
-              </button>
-              <button
-                onClick={() => handleDeleteExpense(exp.id)}
-                className="text-xs text-tg-destructive"
-              >
-                {t('group.delete')}
-              </button>
+              {canEditExpense(exp) && (
+                <button
+                  onClick={() => navigate(`/groups/${groupId}/edit-expense/${exp.id}`)}
+                  className="text-xs text-tg-link"
+                >
+                  {t('group.edit')}
+                </button>
+              )}
+              {canDeleteExpense(exp) && (
+                <button
+                  onClick={() => handleDeleteExpense(exp.id)}
+                  className="text-xs text-tg-destructive"
+                >
+                  {t('group.delete')}
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -211,30 +258,26 @@ export function Group() {
             >
               {t('group.invite')}
             </button>
-            {/* A6: Show "Info" for non-admin */}
             <button
               onClick={() => navigate(`/groups/${groupId}/settings`)}
-              className="text-tg-hint text-sm font-medium px-3 py-1 border border-tg-separator rounded-lg"
+              className={`text-sm font-medium px-3 py-1 border rounded-lg ${
+                currentUserRole === 'admin'
+                  ? 'text-tg-link border-tg-link'
+                  : 'text-tg-hint border-tg-separator'
+              }`}
             >
               {currentUserRole === 'admin' ? t('group.settings') : t('group.info')}
             </button>
           </div>
         </div>
-
-        {/* Member list */}
-        <div className="flex gap-2 mt-3 flex-wrap">
-          {group.members.map((m) => (
-            <div
-              key={m.userId}
-              className="bg-tg-secondary-bg px-3 py-1 rounded-full text-sm flex items-center gap-1.5"
-            >
-              <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
-              {m.role === 'admin' && <span title="Admin">&#9812;</span>}
-              {m.displayName}
-            </div>
-          ))}
-        </div>
       </div>
+
+      {reminderSuccess && (
+        <SuccessBanner
+          message={t('group.reminderSent')}
+          onDismiss={() => setReminderSuccess(false)}
+        />
+      )}
 
       {/* Tabs */}
       <div className="flex border-b border-tg-separator mb-4">
@@ -256,10 +299,18 @@ export function Group() {
         >
           {t('group.balances')}
         </button>
+        <button
+          onClick={() => setTab('activity')}
+          className={`flex-1 pb-2 text-sm font-medium border-b-2 ${
+            tab === 'activity' ? 'border-tg-link text-tg-link' : 'border-transparent text-tg-hint'
+          }`}
+        >
+          {t('activity.title')}
+        </button>
       </div>
 
       {/* Content */}
-      {tab === 'transactions' ? (
+      {tab === 'transactions' && (
         <div className="space-y-3">
           {transactions.length === 0 ? (
             <p className="text-center text-tg-hint py-8">{t('group.noTransactions')}</p>
@@ -269,56 +320,142 @@ export function Group() {
             )
           )}
         </div>
-      ) : (
-        <div className="space-y-3">
-          {debts.length === 0 ? (
-            <p className="text-center text-tg-hint py-8">{t('group.allSettled')}</p>
-          ) : (
-            debts.map((debt, i) => {
-              // A1: Balance color based on perspective
-              const isUserFrom = currentUserId === debt.from.userId;
-              const isUserTo = currentUserId === debt.to.userId;
-              const amountColor = isUserFrom
-                ? 'text-app-negative'
-                : isUserTo
-                  ? 'text-app-positive'
-                  : 'text-tg-text';
+      )}
 
-              return (
-                <div key={i} className="bg-tg-section p-4 rounded-xl border border-tg-separator">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-medium">
-                        {isUserFrom ? 'You' : debt.from.displayName}
-                      </span>
-                      <span className="text-tg-hint">
-                        {isUserFrom ? ` ${t('group.youOwe')} ` : ` ${t('group.owes')} `}
-                      </span>
-                      <span className="font-medium">{isUserTo ? 'you' : debt.to.displayName}</span>
-                    </div>
-                    <div className={`font-medium ${amountColor}`}>
-                      {formatAmount(debt.amount, group?.currency)}
-                    </div>
+      {tab === 'activity' && (
+        <div className="space-y-2">
+          {activityLoading ? (
+            <p className="text-center text-tg-hint py-8">{t('loading')}</p>
+          ) : activityItems.length === 0 ? (
+            <p className="text-center text-tg-hint py-8">{t('activity.empty')}</p>
+          ) : (
+            <>
+              {activityItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-start gap-3 p-3 rounded-xl bg-tg-section border border-tg-separator"
+                >
+                  <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm">{getActivityText(item, t, currentUserId)}</div>
+                    <span className="text-xs text-tg-hint">{timeAgo(item.createdAt)}</span>
                   </div>
-                  {isUserFrom && (
-                    <button
-                      onClick={() => handleSettleUp(debt)}
-                      className="mt-3 w-full bg-tg-button text-tg-button-text py-2 rounded-lg text-sm font-medium"
-                    >
-                      {t('group.settleUp')}
-                    </button>
-                  )}
-                  {isUserTo && (
-                    <button
-                      onClick={() => handleSettleUp(debt)}
-                      className="mt-3 w-full text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
-                    >
-                      {t('group.markAsSettled')}
-                    </button>
+                  {item.amount != null && item.amount > 0 && (
+                    <span className="text-sm font-medium text-tg-text shrink-0">
+                      {formatAmount(item.amount, group?.currency)}
+                    </span>
                   )}
                 </div>
+              ))}
+              {activityCursor && (
+                <button
+                  onClick={async () => {
+                    const data = await api.getGroupActivity(groupId, activityCursor);
+                    setActivityItems((prev) => [...prev, ...data.items]);
+                    setActivityCursor(data.nextCursor);
+                  }}
+                  className="w-full py-3 text-sm text-tg-link font-medium"
+                >
+                  {t('activity.loadMore')}
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {tab === 'balances' && (
+        <div className="space-y-3">
+          {/* All members with net balances */}
+          <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mb-2">
+            {t('group.allMembers')}
+          </div>
+          {[...balanceMembers]
+            .sort((a, b) => Math.abs(b.netBalance) - Math.abs(a.netBalance))
+            .map((m) => {
+              const balanceColor =
+                m.netBalance > 0
+                  ? 'text-app-positive'
+                  : m.netBalance < 0
+                    ? 'text-app-negative'
+                    : 'text-tg-hint';
+              return (
+                <div
+                  key={m.userId}
+                  className="flex items-center gap-3 bg-tg-section p-3 rounded-xl border border-tg-separator"
+                >
+                  <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
+                  <span className="flex-1 font-medium">{m.displayName}</span>
+                  <span className={`text-sm font-medium ${balanceColor}`}>
+                    {m.netBalance === 0
+                      ? t('group.settledUp')
+                      : formatAmount(m.netBalance, group?.currency)}
+                  </span>
+                </div>
               );
-            })
+            })}
+
+          {/* Actionable debt cards */}
+          {debts.length > 0 && (
+            <>
+              <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mt-4 mb-2">
+                {t('group.balances')}
+              </div>
+              {debts.map((debt, i) => {
+                const isUserFrom = currentUserId === debt.from.userId;
+                const isUserTo = currentUserId === debt.to.userId;
+                const amountColor = isUserFrom
+                  ? 'text-app-negative'
+                  : isUserTo
+                    ? 'text-app-positive'
+                    : 'text-tg-text';
+
+                return (
+                  <div key={i} className="bg-tg-section p-4 rounded-xl border border-tg-separator">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="font-medium">
+                          {isUserFrom ? 'You' : debt.from.displayName}
+                        </span>
+                        <span className="text-tg-hint">
+                          {isUserFrom ? ` ${t('group.youOwe')} ` : ` ${t('group.owes')} `}
+                        </span>
+                        <span className="font-medium">
+                          {isUserTo ? 'you' : debt.to.displayName}
+                        </span>
+                      </div>
+                      <div className={`font-medium ${amountColor}`}>
+                        {formatAmount(debt.amount, group?.currency)}
+                      </div>
+                    </div>
+                    {isUserFrom && (
+                      <button
+                        onClick={() => handleSettleUp(debt)}
+                        className="mt-3 w-full bg-tg-button text-tg-button-text py-2 rounded-lg text-sm font-medium"
+                      >
+                        {t('group.settleUp')}
+                      </button>
+                    )}
+                    {isUserTo && (
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => handleSettleUp(debt)}
+                          className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
+                        >
+                          {t('group.markAsSettled')}
+                        </button>
+                        <button
+                          onClick={() => handleSendReminder(debt)}
+                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                        >
+                          {t('group.sendReminder')}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </>
           )}
         </div>
       )}

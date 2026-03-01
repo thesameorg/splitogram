@@ -45,7 +45,12 @@
     "paidYou": "{{name}} membayar Anda",
     "paid": "{{from}} membayar {{to}}",
     "deleteConfirm": "Hapus pengeluaran ini? Saldo akan dihitung ulang.",
-    "member_other": "{{count}} anggota"
+    "member_other": "{{count}} anggota",
+    "settledUp": "Sudah lunas",
+    "allMembers": "Semua Anggota",
+    "sendReminder": "Kirim Pengingat",
+    "reminderSent": "Pengingat terkirim",
+    "reminderCooldown": "Anda hanya bisa mengirim pengingat sekali setiap 24 jam"
   },
   "groupSettings": {
     "title": "Pengaturan Grup",
@@ -79,7 +84,10 @@
     "removeGroupPhoto": "Hapus foto",
     "emojiPicker": "Pilih emoji",
     "groupPhotoUpdated": "Foto grup diperbarui",
-    "groupPhotoRemoved": "Foto grup dihapus"
+    "groupPhotoRemoved": "Foto grup dihapus",
+    "copyInvite": "Salin tautan",
+    "linkCopied": "Tautan undangan disalin",
+    "currencyLocked": "Mata uang tidak bisa diubah setelah pengeluaran ditambahkan"
   },
   "addExpense": {
     "title": "Tambah Pengeluaran",
@@ -129,7 +137,16 @@
   },
   "activity": {
     "title": "Aktivitas",
-    "comingSoon": "Feed aktivitas segera hadir"
+    "empty": "Belum ada aktivitas",
+    "loadMore": "Muat lagi",
+    "you": "Anda",
+    "expenseCreated": "{{actor}} menambahkan \"{{description}}\"",
+    "expenseEdited": "{{actor}} mengedit \"{{description}}\"",
+    "expenseDeleted": "{{actor}} menghapus \"{{description}}\"",
+    "settlementCompleted": "{{actor}} melunasi dengan {{target}}",
+    "memberJoined": "{{actor}} bergabung ke grup",
+    "memberLeft": "{{actor}} keluar dari grup",
+    "memberKicked": "{{actor}} mengeluarkan {{target}}"
   },
   "currencyPicker": {
     "title": "Pilih Mata Uang",

@@ -45,7 +45,12 @@
     "paidYou": "{{name}} đã trả bạn",
     "paid": "{{from}} đã trả {{to}}",
     "deleteConfirm": "Xóa chi phí này? Số dư sẽ được tính lại.",
-    "member_other": "{{count}} thành viên"
+    "member_other": "{{count}} thành viên",
+    "settledUp": "Đã thanh toán",
+    "allMembers": "Tất cả Thành viên",
+    "sendReminder": "Gửi Nhắc nhở",
+    "reminderSent": "Đã gửi nhắc nhở",
+    "reminderCooldown": "Bạn chỉ có thể gửi nhắc nhở mỗi 24 giờ một lần"
   },
   "groupSettings": {
     "title": "Cài đặt Nhóm",
@@ -79,7 +84,10 @@
     "removeGroupPhoto": "Xóa ảnh",
     "emojiPicker": "Chọn emoji",
     "groupPhotoUpdated": "Đã cập nhật ảnh nhóm",
-    "groupPhotoRemoved": "Đã xóa ảnh nhóm"
+    "groupPhotoRemoved": "Đã xóa ảnh nhóm",
+    "copyInvite": "Sao chép liên kết",
+    "linkCopied": "Đã sao chép liên kết mời",
+    "currencyLocked": "Không thể thay đổi tiền tệ sau khi đã thêm chi phí"
   },
   "addExpense": {
     "title": "Thêm Chi phí",
@@ -129,7 +137,16 @@
   },
   "activity": {
     "title": "Hoạt động",
-    "comingSoon": "Feed hoạt động sắp có"
+    "empty": "Chưa có hoạt động nào",
+    "loadMore": "Tải thêm",
+    "you": "Bạn",
+    "expenseCreated": "{{actor}} đã thêm \"{{description}}\"",
+    "expenseEdited": "{{actor}} đã sửa \"{{description}}\"",
+    "expenseDeleted": "{{actor}} đã xóa \"{{description}}\"",
+    "settlementCompleted": "{{actor}} đã thanh toán với {{target}}",
+    "memberJoined": "{{actor}} đã tham gia nhóm",
+    "memberLeft": "{{actor}} đã rời nhóm",
+    "memberKicked": "{{actor}} đã xóa {{target}}"
   },
   "currencyPicker": {
     "title": "Chọn Tiền tệ",

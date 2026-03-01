@@ -49,7 +49,12 @@
     "deleteConfirm": "Удалить этот расход? Балансы будут пересчитаны.",
     "member_one": "{{count}} участник",
     "member_few": "{{count}} участника",
-    "member_many": "{{count}} участников"
+    "member_many": "{{count}} участников",
+    "settledUp": "Рассчитались",
+    "allMembers": "Все участники",
+    "sendReminder": "Отправить напоминание",
+    "reminderSent": "Напоминание отправлено",
+    "reminderCooldown": "Напоминание можно отправлять только раз в 24 часа"
   },
   "groupSettings": {
     "title": "Настройки группы",
@@ -83,7 +88,10 @@
     "removeGroupPhoto": "Удалить фото",
     "emojiPicker": "Выберите эмодзи",
     "groupPhotoUpdated": "Фото группы обновлено",
-    "groupPhotoRemoved": "Фото группы удалено"
+    "groupPhotoRemoved": "Фото группы удалено",
+    "copyInvite": "Копировать ссылку",
+    "linkCopied": "Ссылка-приглашение скопирована",
+    "currencyLocked": "Валюту нельзя изменить после добавления расходов"
   },
   "addExpense": {
     "title": "Добавить расход",
@@ -133,7 +141,16 @@
   },
   "activity": {
     "title": "Активность",
-    "comingSoon": "Лента активности скоро появится"
+    "empty": "Пока нет активности",
+    "loadMore": "Загрузить ещё",
+    "you": "Вы",
+    "expenseCreated": "{{actor}} добавил(а) «{{description}}»",
+    "expenseEdited": "{{actor}} изменил(а) «{{description}}»",
+    "expenseDeleted": "{{actor}} удалил(а) «{{description}}»",
+    "settlementCompleted": "{{actor}} рассчитался(-лась) с {{target}}",
+    "memberJoined": "{{actor}} присоединился(-лась) к группе",
+    "memberLeft": "{{actor}} покинул(а) группу",
+    "memberKicked": "{{actor}} удалил(а) {{target}}"
   },
   "currencyPicker": {
     "title": "Выбрать валюту",
