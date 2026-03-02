@@ -7,6 +7,17 @@ import { mockUser as devMockUser } from '../dev/mock-user';
 import { getDisplayName } from '../models/telegram-user';
 import type { Env } from '../env';
 
+const SUPPORTED_LANGS = ['en', 'ru', 'es', 'hi', 'id', 'fa', 'pt', 'uk', 'de', 'it', 'vi'];
+
+function resolveLocale(languageCode: string | undefined): string {
+  if (!languageCode) return 'en';
+  const lc = languageCode.toLowerCase();
+  if (SUPPORTED_LANGS.includes(lc)) return lc;
+  const prefix = lc.split('-')[0];
+  if (SUPPORTED_LANGS.includes(prefix)) return prefix;
+  return 'en';
+}
+
 export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Response> {
   const db = createDatabase(c.env.DB);
 
@@ -40,6 +51,7 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
         displayName: user.displayName,
         username: user.username,
       },
+      locale: 'en',
       source: 'dev_bypass',
     });
   }
@@ -73,6 +85,7 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
     const tgUser = await telegramAuth.validateInitData(initData);
 
     const displayName = getDisplayName(tgUser);
+    const locale = resolveLocale(tgUser.language_code);
 
     // Upsert user into DB
     const existing = await db.select().from(users).where(eq(users.telegramId, tgUser.id)).limit(1);
@@ -103,6 +116,7 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
         displayName: user.displayName,
         username: user.username,
       },
+      locale,
       source: 'initdata',
     });
   } catch (error) {

@@ -43,7 +43,7 @@ React + Vite               Hono + grammY + Drizzle        TONAPI (external REST,
 
 **Auth header format:** `Authorization: tma <initData>` — frontend sends this on every request. Backend validates signature, looks up user in D1, sets session context.
 
-**Login flow:** Frontend calls `POST /api/v1/auth` once on mount (upserts user into D1, returns profile). All subsequent API calls carry initData in headers — middleware validates inline.
+**Login flow:** Frontend calls `POST /api/v1/auth` once on mount (upserts user into D1, returns profile + resolved `locale`). All subsequent API calls carry initData in headers — middleware validates inline.
 
 **First-open fix:** Frontend retries auth once after 150ms delay if initData is not available on first frame (TG WebApp SDK race condition).
 
@@ -187,7 +187,7 @@ See `work_docs/research/done/5-themes-and-persistence.md` for full analysis.
 
 **What's stored:** `lang` key only (e.g., `"ru"`, `"es"`). Theme follows Telegram automatically — no persistence.
 
-**Init flow:** Read `lang` from CloudStorage → if present, use it → otherwise detect from `initData.user.language_code` → fallback to English.
+**Init flow:** Read `lang` from CloudStorage → if present, use it (user explicitly chose a language) → otherwise apply `locale` from auth response (server-side `resolveLocale()` maps TG `language_code` with prefix matching, e.g. `pt-BR` → `pt`) → fallback to English.
 
 **What this eliminates:** No `users.language` DB column, no preferences API endpoint, no localStorage, no conflict resolution.
 

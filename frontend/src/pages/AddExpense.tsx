@@ -111,7 +111,7 @@ export function AddExpense() {
   const canSubmit =
     description.trim() &&
     amountMicro > 0 &&
-    selectedParticipants.size >= 2 &&
+    selectedParticipants.size >= 1 &&
     paidBy !== null &&
     sharesValid;
 

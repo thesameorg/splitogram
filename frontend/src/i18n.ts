@@ -14,9 +14,10 @@ import vi from './locales/vi.json';
 
 const SUPPORTED_LANGS = ['en', 'ru', 'es', 'hi', 'id', 'fa', 'pt', 'uk', 'de', 'it', 'vi'] as const;
 
+// True once CloudStorage returns a saved preference (user explicitly chose a language before)
+export let hasPersistedLocale = false;
+
 function detectLanguage(): string {
-  // 1. Check Telegram CloudStorage (async — will be applied later if found)
-  // 2. Detect from Telegram user language
   const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
   if (tgLang && SUPPORTED_LANGS.includes(tgLang as any)) {
     return tgLang;
@@ -54,8 +55,11 @@ i18n.use(initReactI18next).init({
 // Async: try CloudStorage for persisted language preference
 try {
   window.Telegram?.WebApp?.CloudStorage?.getItem('lang', (_err: any, value: string | null) => {
-    if (value && SUPPORTED_LANGS.includes(value as any) && value !== i18n.language) {
-      i18n.changeLanguage(value);
+    if (value && SUPPORTED_LANGS.includes(value as any)) {
+      hasPersistedLocale = true;
+      if (value !== i18n.language) {
+        i18n.changeLanguage(value);
+      }
     }
   });
 } catch {

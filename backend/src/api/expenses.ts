@@ -25,7 +25,7 @@ const createExpenseSchema = z
     amount: z.number().int().positive('Amount must be positive'),
     description: z.string().min(1).max(500),
     paidBy: z.number().int().positive().optional(),
-    participantIds: z.array(z.number().int().positive()).min(2, 'At least 2 participants required'),
+    participantIds: z.array(z.number().int().positive()).min(1, 'At least 1 participant required'),
     splitMode: z.enum(splitModes).default('equal'),
     shares: z.array(shareSchema).optional(),
   })
@@ -351,7 +351,7 @@ expensesApp.get('/', async (c) => {
 const editExpenseSchema = z.object({
   amount: z.number().int().positive().optional(),
   description: z.string().min(1).max(500).optional(),
-  participantIds: z.array(z.number().int().positive()).min(2).optional(),
+  participantIds: z.array(z.number().int().positive()).min(1).optional(),
   splitMode: z.enum(splitModes).optional(),
   shares: z.array(shareSchema).optional(),
 });

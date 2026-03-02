@@ -213,6 +213,7 @@ export const api = {
     apiRequest<{
       authenticated: boolean;
       user: { id: number; displayName: string; username: string | null };
+      locale: string;
     }>('/api/v1/auth', { method: 'POST', body: JSON.stringify({}) }),
 
   // Users

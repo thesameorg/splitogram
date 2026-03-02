@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import i18n, { hasPersistedLocale } from '../i18n';
 import { api } from '../services/api';
 
 interface AuthState {
@@ -6,6 +7,14 @@ interface AuthState {
   loading: boolean;
   userId: number | null;
   displayName: string | null;
+}
+
+function applyLocale(locale: string) {
+  // Don't override if user previously chose a language (persisted in CloudStorage)
+  if (hasPersistedLocale) return;
+  if (locale && locale !== i18n.language) {
+    i18n.changeLanguage(locale);
+  }
 }
 
 export function useAuth(): AuthState {
@@ -25,6 +34,7 @@ export function useAuth(): AuthState {
       const result = await api.authenticate();
 
       if (result.authenticated) {
+        applyLocale(result.locale);
         setState({
           authenticated: true,
           loading: false,
@@ -41,6 +51,7 @@ export function useAuth(): AuthState {
         try {
           const result = await api.authenticate();
           if (result.authenticated) {
+            applyLocale(result.locale);
             setState({
               authenticated: true,
               loading: false,
