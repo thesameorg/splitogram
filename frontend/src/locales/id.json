@@ -14,7 +14,8 @@
     "youOwe": "Utang: {{amount}}",
     "noGroups": "Belum ada grup",
     "createFirst": "Buat grup pertama",
-    "member_other": "{{count}} anggota"
+    "member_other": "{{count}} anggota",
+    "addGroup": "+ Buat Grup"
   },
   "createGroup": {
     "title": "Buat Grup",

@@ -15,7 +15,8 @@
     "noGroups": "Nessun gruppo ancora",
     "createFirst": "Crea il tuo primo gruppo",
     "member_one": "{{count}} membro",
-    "member_other": "{{count}} membri"
+    "member_other": "{{count}} membri",
+    "addGroup": "+ Crea Gruppo"
   },
   "createGroup": {
     "title": "Crea Gruppo",

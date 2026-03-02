@@ -151,9 +151,9 @@ export function Home() {
       {groups.length > 0 && !showCreate && (
         <button
           onClick={() => setShowCreate(true)}
-          className="fixed bottom-20 right-6 bg-tg-button text-tg-button-text w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl"
+          className="fixed bottom-20 right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium"
         >
-          +
+          {t('home.addGroup')}
         </button>
       )}
 

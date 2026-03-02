@@ -15,7 +15,8 @@
     "noGroups": "अभी कोई समूह नहीं",
     "createFirst": "अपना पहला समूह बनाएँ",
     "member_one": "{{count}} सदस्य",
-    "member_other": "{{count}} सदस्य"
+    "member_other": "{{count}} सदस्य",
+    "addGroup": "+ समूह बनाएँ"
   },
   "createGroup": {
     "title": "समूह बनाएँ",

@@ -564,12 +564,14 @@ export function Group() {
       )}
 
       {/* Add Expense FAB */}
-      <button
-        onClick={() => navigate(`/groups/${groupId}/add-expense`)}
-        className="fixed bottom-20 right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium"
-      >
-        {t('group.addExpense')}
-      </button>
+      {tab === 'transactions' && (
+        <button
+          onClick={() => navigate(`/groups/${groupId}/add-expense`)}
+          className="fixed bottom-20 right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium"
+        >
+          {t('group.addExpense')}
+        </button>
+      )}
 
       {/* Expense detail */}
       <BottomSheet

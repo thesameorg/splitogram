@@ -14,7 +14,8 @@
     "youOwe": "Bạn nợ: {{amount}}",
     "noGroups": "Chưa có nhóm nào",
     "createFirst": "Tạo nhóm đầu tiên",
-    "member_other": "{{count}} thành viên"
+    "member_other": "{{count}} thành viên",
+    "addGroup": "+ Tạo Nhóm"
   },
   "createGroup": {
     "title": "Tạo Nhóm",

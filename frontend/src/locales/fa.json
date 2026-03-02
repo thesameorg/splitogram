@@ -15,7 +15,8 @@
     "noGroups": "هنوز گروهی نیست",
     "createFirst": "اولین گروه خود را بسازید",
     "member_one": "{{count}} عضو",
-    "member_other": "{{count}} عضو"
+    "member_other": "{{count}} عضو",
+    "addGroup": "+ ساخت گروه"
   },
   "createGroup": {
     "title": "ساخت گروه",

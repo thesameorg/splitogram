@@ -16,7 +16,8 @@
     "createFirst": "Створіть першу групу",
     "member_one": "{{count}} учасник",
     "member_few": "{{count}} учасники",
-    "member_many": "{{count}} учасників"
+    "member_many": "{{count}} учасників",
+    "addGroup": "+ Створити групу"
   },
   "createGroup": {
     "title": "Створити групу",
