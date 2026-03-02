@@ -142,7 +142,10 @@ app.post('/feedback', async (c) => {
   const body = await c.req.parseBody({ all: true });
   const message = typeof body['message'] === 'string' ? body['message'] : '';
   if (!message || message.length > 2000) {
-    return c.json({ error: 'invalid_message', detail: 'Message is required (max 2000 chars)' }, 400);
+    return c.json(
+      { error: 'invalid_message', detail: 'Message is required (max 2000 chars)' },
+      400,
+    );
   }
 
   const adminTelegramId = c.env.ADMIN_TELEGRAM_ID;

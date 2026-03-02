@@ -183,6 +183,7 @@ export interface ActivityItem {
   id: number;
   groupId: number;
   groupName: string;
+  currency: string;
   actorId: number;
   actorName: string;
   actorAvatarKey: string | null;

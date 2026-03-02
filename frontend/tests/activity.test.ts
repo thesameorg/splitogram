@@ -73,6 +73,7 @@ function makeItem(overrides: Partial<ActivityItem>): ActivityItem {
     id: 1,
     groupId: 1,
     groupName: 'Test Group',
+    currency: 'USD',
     actorId: 10,
     actorName: 'Alice',
     actorAvatarKey: null,

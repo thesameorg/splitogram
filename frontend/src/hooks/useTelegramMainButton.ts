@@ -59,7 +59,10 @@ export function useTelegramMainButton(options: MainButtonOptions) {
     const mainButton = window.Telegram?.WebApp?.MainButton;
     if (!mainButton || !show) return;
 
-    const handler = () => { hapticImpact('medium'); onClickRef.current(); };
+    const handler = () => {
+      hapticImpact('medium');
+      onClickRef.current();
+    };
     mainButton.onClick(handler);
     return () => {
       mainButton.offClick(handler);

@@ -124,7 +124,10 @@ export function Account() {
     if (!feedbackText.trim() || sendingFeedback) return;
     setSendingFeedback(true);
     try {
-      await api.sendFeedback(feedbackText.trim(), feedbackFiles.length > 0 ? feedbackFiles : undefined);
+      await api.sendFeedback(
+        feedbackText.trim(),
+        feedbackFiles.length > 0 ? feedbackFiles : undefined,
+      );
       setShowFeedback(false);
       setFeedbackText('');
       setFeedbackFiles([]);

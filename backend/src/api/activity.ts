@@ -69,7 +69,7 @@ activityApp.get('/activity', async (c) => {
       : [],
     allGroupIds.length > 0
       ? db
-          .select({ id: groups.id, name: groups.name })
+          .select({ id: groups.id, name: groups.name, currency: groups.currency })
           .from(groups)
           .where(inArray(groups.id, allGroupIds))
       : [],
@@ -82,6 +82,7 @@ activityApp.get('/activity', async (c) => {
     id: item.id,
     groupId: item.groupId,
     groupName: groupMap.get(item.groupId)?.name ?? 'Unknown',
+    currency: groupMap.get(item.groupId)?.currency ?? 'USD',
     actorId: item.actorId,
     actorName: userMap.get(item.actorId)?.displayName ?? 'Unknown',
     actorAvatarKey: userMap.get(item.actorId)?.avatarKey ?? null,
@@ -165,7 +166,7 @@ activityApp.get('/groups/:id/activity', async (c) => {
   const userMap = new Map(userRows.map((u) => [u.id, u]));
 
   const [group] = await db
-    .select({ name: groups.name })
+    .select({ name: groups.name, currency: groups.currency })
     .from(groups)
     .where(eq(groups.id, groupId))
     .limit(1);
@@ -174,6 +175,7 @@ activityApp.get('/groups/:id/activity', async (c) => {
     id: item.id,
     groupId: item.groupId,
     groupName: group?.name ?? 'Unknown',
+    currency: group?.currency ?? 'USD',
     actorId: item.actorId,
     actorName: userMap.get(item.actorId)?.displayName ?? 'Unknown',
     actorAvatarKey: userMap.get(item.actorId)?.avatarKey ?? null,

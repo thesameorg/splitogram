@@ -11,10 +11,10 @@
 
 Two MCP servers exist. **Install both** — they complement each other:
 
-| MCP Server | Language | Key Tools | Best For |
-|---|---|---|---|
-| [kriuchkov/ton-mcp](https://github.com/kriuchkov/ton-mcp) | TypeScript/Bun | Send transactions, check balances | Wallet ops, sending |
-| [devonmojito/ton-blockchain-mcp](https://github.com/devonmojito/ton-blockchain-mcp) | Python 3.10+ | `analyze_address`, `get_transaction_details`, `get_jetton_price` | Reading chain state |
+| MCP Server                                                                          | Language       | Key Tools                                                        | Best For            |
+| ----------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------- | ------------------- |
+| [kriuchkov/ton-mcp](https://github.com/kriuchkov/ton-mcp)                           | TypeScript/Bun | Send transactions, check balances                                | Wallet ops, sending |
+| [devonmojito/ton-blockchain-mcp](https://github.com/devonmojito/ton-blockchain-mcp) | Python 3.10+   | `analyze_address`, `get_transaction_details`, `get_jetton_price` | Reading chain state |
 
 **Setup steps:**
 
@@ -33,6 +33,7 @@ pip install -r requirements.txt   # or use uv/pipx
 ```
 
 **Get a TONAPI key** (free, needed for both):
+
 - Go to https://tonconsole.com → sign up → create project → get API key
 - Or message `@tonapibot` on Telegram
 
@@ -78,15 +79,15 @@ curl "https://testnet.tonapi.io/v2/blockchain/transactions/<TX_HASH>" -H "Author
 
 ### 0.2 Web-Based Diagnostic Tools (bookmark these)
 
-| Tool | URL | Purpose |
-|---|---|---|
-| **Tonviewer (testnet)** | https://testnet.tonviewer.com | Primary explorer — contracts, txs, jetton balances |
-| **Tonscan (testnet)** | https://testnet.tonscan.org | Alternative explorer |
-| **TON Minter (testnet)** | https://minter.ton.org?testnet=true | Deploy/manage Jettons via browser (no code) |
-| **TON Verifier** | https://verifier.ton.org | Verify contract source code on-chain |
-| **TONAPI Swagger** | https://tonapi.io/api-v2 | REST API playground |
-| **Testnet Faucet (web)** | https://faucet.tonxapi.com | Get free testnet TON |
-| **Testnet Faucet (bot)** | https://t.me/testgiver_ton_bot | Get free testnet TON via Telegram |
+| Tool                     | URL                                 | Purpose                                            |
+| ------------------------ | ----------------------------------- | -------------------------------------------------- |
+| **Tonviewer (testnet)**  | https://testnet.tonviewer.com       | Primary explorer — contracts, txs, jetton balances |
+| **Tonscan (testnet)**    | https://testnet.tonscan.org         | Alternative explorer                               |
+| **TON Minter (testnet)** | https://minter.ton.org?testnet=true | Deploy/manage Jettons via browser (no code)        |
+| **TON Verifier**         | https://verifier.ton.org            | Verify contract source code on-chain               |
+| **TONAPI Swagger**       | https://tonapi.io/api-v2            | REST API playground                                |
+| **Testnet Faucet (web)** | https://faucet.tonxapi.com          | Get free testnet TON                               |
+| **Testnet Faucet (bot)** | https://t.me/testgiver_ton_bot      | Get free testnet TON via Telegram                  |
 
 ### 0.3 Wallet Setup (3 wallets) — 🧑 MANUAL
 
@@ -113,6 +114,7 @@ You need **3 separate testnet wallets**. Use **Tonkeeper** (mobile) or **MyTonWa
 Send a message to `@testgiver_ton_bot` on Telegram with each wallet address (one at a time). You'll get ~2 TON per request. Alternatively use https://faucet.tonxapi.com.
 
 Need at least:
+
 - **Wallet A (Sender):** 5 TON (for gas during settlements)
 - **Wallet B (Receiver):** 2 TON (for gas to receive jettons)
 - **Wallet C (Fee Collector):** 2 TON (for gas)
@@ -155,6 +157,7 @@ npm install
 ```
 
 Then Claude can write a standard Jetton Tact contract, build it, and you deploy via:
+
 ```bash
 npx blueprint run --testnet --tonconnect
 ```
@@ -191,6 +194,7 @@ npm install
 ### 2.2 Write the Contract — 🤖 Claude does this
 
 Claude writes `contracts/SplitBillSettlement.tact` based on the reference in `smart-contract.md`:
+
 - Receives Jetton (tUSDT) via `TokenNotification`
 - Splits: commission → Wallet C, remainder → recipient from `forward_payload`
 - Owner can update commission rate
@@ -200,6 +204,7 @@ Claude writes `contracts/SplitBillSettlement.tact` based on the reference in `sm
 ### 2.3 Write Tests — 🤖 Claude does this
 
 Claude writes `tests/SplitBillSettlement.spec.ts` using `@ton/sandbox` (local blockchain emulator):
+
 - Deploy correctly
 - Happy path: 100 tUSDT → 99 to recipient, 1 to owner
 - Minimum commission enforcement (0.1 tUSDT)
@@ -227,6 +232,7 @@ npx blueprint build
 ### 3.1 Write Deploy Script — 🤖 Claude does this
 
 Claude writes `scripts/deploySplitBillSettlement.ts`:
+
 - Sets `owner` = Wallet C address
 - Sets `commission_bps` = 100 (1%)
 - Deploys via TON Connect
@@ -259,6 +265,7 @@ npx blueprint run deploySplitBillSettlement --testnet --tonconnect
 ### 4.1 Scenario 1: Basic Settlement (100 tUSDT, 1% commission)
 
 **What happens:**
+
 - Wallet A sends 100 tUSDT to the SplitBill contract with Wallet B as recipient
 - Contract splits: 99 tUSDT → Wallet B, 1 tUSDT → Wallet C
 
@@ -282,6 +289,7 @@ npx blueprint run testSettlement --testnet --tonconnect
 ```
 
 **Verify — 🧑 + 🤖:**
+
 1. Open https://testnet.tonviewer.com/`<CONTRACT_ADDRESS>` → check transaction history
 2. Check Wallet B's tUSDT balance: should increase by 99 tUSDT
 3. Check Wallet C's tUSDT balance: should increase by 1 tUSDT
@@ -312,19 +320,20 @@ npx blueprint run testSettlement --testnet --tonconnect
 
 ### On-Chain Verification — 🧑 MANUAL (web browsers)
 
-| Check | Tool | What to Look For |
-|---|---|---|
-| Contract deployed | testnet.tonviewer.com | Contract exists with code |
-| Contract state | testnet.tonviewer.com | `commission_bps`, `total_processed` values |
+| Check               | Tool                               | What to Look For                                                                              |
+| ------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------- |
+| Contract deployed   | testnet.tonviewer.com              | Contract exists with code                                                                     |
+| Contract state      | testnet.tonviewer.com              | `commission_bps`, `total_processed` values                                                    |
 | Settlement tx trace | testnet.tonviewer.com → tx details | See the full message chain: Jetton transfer → TokenNotification → 2 outgoing Jetton transfers |
-| Wallet A balance | testnet.tonviewer.com | tUSDT decreased by sent amount |
-| Wallet B balance | testnet.tonviewer.com | tUSDT increased by (amount - commission) |
-| Wallet C balance | testnet.tonviewer.com | tUSDT increased by commission |
-| Gas costs | testnet.tonviewer.com → tx details | How much TON each settlement costs |
+| Wallet A balance    | testnet.tonviewer.com              | tUSDT decreased by sent amount                                                                |
+| Wallet B balance    | testnet.tonviewer.com              | tUSDT increased by (amount - commission)                                                      |
+| Wallet C balance    | testnet.tonviewer.com              | tUSDT increased by commission                                                                 |
+| Gas costs           | testnet.tonviewer.com → tx details | How much TON each settlement costs                                                            |
 
 ### Programmatic Verification — 🤖 Claude does this
 
 Claude writes `scripts/verifyState.ts` that:
+
 1. Reads contract getters (commission, stats, jetton_wallet)
 2. Reads tUSDT balances of all 3 wallets via TONAPI
 3. Prints a summary table
@@ -338,24 +347,24 @@ npx blueprint run verifyState --testnet
 
 ## Summary: Who Does What
 
-| Step | Who | What |
-|---|---|---|
-| Install & configure MCP servers | 🧑 Manual (clone, install, add config) |
-| Create 3 testnet wallets | 🧑 Manual (Tonkeeper/MyTonWallet) |
-| Fund wallets with test TON | 🧑 Manual (Telegram bot / faucet) |
-| Mint test Jetton (tUSDT) | 🧑 Manual (minter.ton.org?testnet=true) |
-| Distribute tUSDT to wallets | 🧑 Manual (wallet app) |
-| Create Blueprint project | 🤖 Claude |
-| Write SplitBill Tact contract | 🤖 Claude |
-| Write Sandbox tests | 🤖 Claude |
-| Run tests locally | 🤖 Claude (runs `npx blueprint test`) |
-| Write deploy script | 🤖 Claude |
-| Deploy to testnet | 🧑 Manual (confirm tx in wallet) |
-| Write settlement test scripts | 🤖 Claude |
-| Execute test settlements | 🧑 Manual (confirm txs in wallet) |
-| Write verification script | 🤖 Claude |
-| Inspect on-chain results | 🧑 Manual (Tonviewer) + 🤖 Claude (MCP/API) |
-| Iterate on bugs | 🤖 Claude (fix) + 🧑 (redeploy confirmation) |
+| Step                            | Who                                          | What |
+| ------------------------------- | -------------------------------------------- | ---- |
+| Install & configure MCP servers | 🧑 Manual (clone, install, add config)       |
+| Create 3 testnet wallets        | 🧑 Manual (Tonkeeper/MyTonWallet)            |
+| Fund wallets with test TON      | 🧑 Manual (Telegram bot / faucet)            |
+| Mint test Jetton (tUSDT)        | 🧑 Manual (minter.ton.org?testnet=true)      |
+| Distribute tUSDT to wallets     | 🧑 Manual (wallet app)                       |
+| Create Blueprint project        | 🤖 Claude                                    |
+| Write SplitBill Tact contract   | 🤖 Claude                                    |
+| Write Sandbox tests             | 🤖 Claude                                    |
+| Run tests locally               | 🤖 Claude (runs `npx blueprint test`)        |
+| Write deploy script             | 🤖 Claude                                    |
+| Deploy to testnet               | 🧑 Manual (confirm tx in wallet)             |
+| Write settlement test scripts   | 🤖 Claude                                    |
+| Execute test settlements        | 🧑 Manual (confirm txs in wallet)            |
+| Write verification script       | 🤖 Claude                                    |
+| Inspect on-chain results        | 🧑 Manual (Tonviewer) + 🤖 Claude (MCP/API)  |
+| Iterate on bugs                 | 🤖 Claude (fix) + 🧑 (redeploy confirmation) |
 
 ---
 

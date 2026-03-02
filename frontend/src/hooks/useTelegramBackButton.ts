@@ -12,7 +12,10 @@ export function useTelegramBackButton(show: boolean = true) {
     const backButton = webApp.BackButton;
     if (show) {
       backButton.show();
-      const handler = () => { hapticImpact('light'); navigate(-1); };
+      const handler = () => {
+        hapticImpact('light');
+        navigate(-1);
+      };
       backButton.onClick(handler);
       return () => {
         backButton.offClick(handler);

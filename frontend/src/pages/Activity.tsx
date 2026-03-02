@@ -115,7 +115,7 @@ export function Activity() {
                 <div
                   className={`text-sm ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
                 >
-                  {getActivityText(item, t, currentUserId)}
+                  {getActivityText(item, t, currentUserId, item.currency)}
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs text-tg-hint bg-tg-secondary-bg px-2 py-0.5 rounded-full truncate">
@@ -126,7 +126,7 @@ export function Activity() {
               </div>
               {item.amount != null && item.amount > 0 && (
                 <span className="text-sm font-medium text-tg-text shrink-0">
-                  {formatAmount(item.amount)}
+                  {formatAmount(item.amount, item.currency)}
                 </span>
               )}
             </button>

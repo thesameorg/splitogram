@@ -60,7 +60,11 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
     const blob = await r2Object.arrayBuffer();
     const formData = new FormData();
     formData.append('chat_id', String(parseInt(adminTelegramId, 10)));
-    formData.append('photo', new Blob([blob], { type: r2Object.httpMetadata?.contentType || 'image/jpeg' }), 'reported-image.jpg');
+    formData.append(
+      'photo',
+      new Blob([blob], { type: r2Object.httpMetadata?.contentType || 'image/jpeg' }),
+      'reported-image.jpg',
+    );
     formData.append('caption', caption);
     formData.append(
       'reply_markup',
@@ -86,7 +90,9 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
     }
   };
 
-  c.executionCtx.waitUntil(sendReport().catch((e) => console.error('Report notification failed:', e)));
+  c.executionCtx.waitUntil(
+    sendReport().catch((e) => console.error('Report notification failed:', e)),
+  );
 
   return c.json({ reported: true });
 });

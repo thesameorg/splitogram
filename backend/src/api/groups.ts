@@ -10,6 +10,7 @@ import {
   expenseParticipants,
   settlements,
   debtReminders,
+  activityLog,
 } from '../db/schema';
 import { computeGroupBalances } from './balances';
 import { simplifyDebts } from '../services/debt-solver';
@@ -635,6 +636,8 @@ groupsApp.delete('/:id', async (c) => {
 
   await db.delete(expenses).where(eq(expenses.groupId, groupId));
   await db.delete(settlements).where(eq(settlements.groupId, groupId));
+  await db.delete(activityLog).where(eq(activityLog.groupId, groupId));
+  await db.delete(debtReminders).where(eq(debtReminders.groupId, groupId));
   await db.delete(groupMembers).where(eq(groupMembers.groupId, groupId));
   await db.delete(groups).where(eq(groups.id, groupId));
 
