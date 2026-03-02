@@ -5,7 +5,6 @@ import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { mockUser as devMockUser } from '../dev/mock-user';
 import { getDisplayName } from '../models/telegram-user';
-import { trackEvent } from '../services/analytics';
 import type { Env } from '../env';
 
 export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Response> {
@@ -96,8 +95,6 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
     }
 
     const [user] = await db.select().from(users).where(eq(users.telegramId, tgUser.id)).limit(1);
-
-    await trackEvent(db, user.id, 'app_open', { returning: existing.length > 0 });
 
     return c.json({
       authenticated: true,

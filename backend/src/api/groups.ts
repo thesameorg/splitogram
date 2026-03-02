@@ -16,7 +16,6 @@ import { simplifyDebts } from '../services/debt-solver';
 import { CURRENCY_CODES } from '../utils/currencies';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
-import { trackEvent } from '../services/analytics';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -85,11 +84,6 @@ groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
     groupId: group.id,
     actorId: user.id,
     type: 'group_created',
-  });
-
-  await trackEvent(db, user.id, 'group_created', {
-    currency: group.currency,
-    isPair: group.isPair,
   });
 
   return c.json(
@@ -331,11 +325,6 @@ groupsApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
 
   await db.update(groups).set(setValues).where(eq(groups.id, groupId));
 
-  const changedFields = Object.keys(updates).filter(
-    (k) => (updates as Record<string, unknown>)[k] !== undefined,
-  );
-  await trackEvent(db, user.id, 'group_settings_changed', { changedFields });
-
   const [updated] = await db.select().from(groups).where(eq(groups.id, groupId)).limit(1);
 
   return c.json({
@@ -488,8 +477,6 @@ groupsApp.post('/:id/avatar', async (c) => {
     .update(groups)
     .set({ avatarKey: key, avatarEmoji: null, updatedAt: new Date().toISOString() })
     .where(eq(groups.id, groupId));
-
-  await trackEvent(db, user.id, 'avatar_uploaded', { type: 'group' });
 
   return c.json({ avatarKey: key });
 });
@@ -894,8 +881,6 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
     type: 'member_joined',
   });
 
-  await trackEvent(db, user.id, 'group_joined', { viaDeepLink: false });
-
   // Fire-and-forget notification
   const notifyCtx = {
     botToken: c.env.TELEGRAM_BOT_TOKEN,
@@ -1033,8 +1018,6 @@ groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) =
       lastSentAt: now,
     });
   }
-
-  await trackEvent(db, user.id, 'reminder_sent', { debtAmount: targetDebt.amount });
 
   // Fire-and-forget notification
   const notifyCtx = {

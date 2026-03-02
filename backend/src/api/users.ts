@@ -5,7 +5,6 @@ import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import { notify } from '../services/notifications';
-import { trackEvent } from '../services/analytics';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 import type { Env } from '../env';
@@ -102,8 +101,6 @@ app.post('/me/avatar', async (c) => {
     .update(users)
     .set({ avatarKey: key, updatedAt: new Date().toISOString() })
     .where(eq(users.id, user.id));
-
-  await trackEvent(db, user.id, 'avatar_uploaded', { type: 'user' });
 
   return c.json({ avatarKey: key });
 });

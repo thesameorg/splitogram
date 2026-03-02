@@ -179,27 +179,6 @@ export const debtReminders = sqliteTable(
   ],
 );
 
-// --- Analytics Events ---
-export const analyticsEvents = sqliteTable(
-  'analytics_events',
-  {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    userId: integer('user_id')
-      .notNull()
-      .references(() => users.id),
-    event: text('event').notNull(),
-    properties: text('properties'), // JSON
-    createdAt: text('created_at')
-      .notNull()
-      .$defaultFn(() => new Date().toISOString()),
-  },
-  (table) => [
-    index('analytics_events_event_idx').on(table.event),
-    index('analytics_events_created_at_idx').on(table.createdAt),
-    index('analytics_events_user_idx').on(table.userId),
-  ],
-);
-
 // --- Settlements ---
 export const settlements = sqliteTable(
   'settlements',

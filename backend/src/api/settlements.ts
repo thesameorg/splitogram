@@ -7,7 +7,6 @@ import { simplifyDebts } from '../services/debt-solver';
 import { computeGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
-import { trackEvent } from '../services/analytics';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { Database } from '../db';
 import type { AuthContext } from '../middleware/auth';
@@ -106,8 +105,6 @@ settlementsApp.post(
         status: 'open',
       })
       .returning();
-
-    await trackEvent(db, currentUser.id, 'settlement_created', { amount: targetDebt.amount });
 
     return c.json({ settlement }, 201);
   },
@@ -568,8 +565,6 @@ settlementsApp.post(
         currentUser.id === settlement.fromUser ? settlement.toUser : settlement.fromUser,
       amount: paidAmount,
     });
-
-    await trackEvent(db, currentUser.id, 'settlement_completed', { method: 'external' });
 
     // Fire-and-forget notification
     const notifyCtx = {
