@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
-import { basicAuth } from 'hono/basic-auth';
-import { sql, desc, eq, count } from 'drizzle-orm';
+import { sql, desc, eq } from 'drizzle-orm';
 import { users, groups, groupMembers, expenses, settlements } from '../db/schema';
 import { removeImage } from '../services/moderation';
 import { formatAmount } from '../utils/format';
@@ -11,14 +10,32 @@ type AdminEnv = { Bindings: Env; Variables: { db: Database } };
 
 const app = new Hono<AdminEnv>();
 
-// Basic Auth middleware — skip if ADMIN_SECRET not configured
+// Manual Basic Auth — no hono/basic-auth dependency
 app.use('*', async (c, next) => {
   const secret = c.env.ADMIN_SECRET;
   if (!secret) {
-    return c.text('Admin not configured', 403);
+    return c.text('Admin not configured — set ADMIN_SECRET env var', 403);
   }
-  const auth = basicAuth({ username: 'admin', password: secret });
-  return auth(c, next);
+
+  const header = c.req.header('Authorization');
+  if (header?.startsWith('Basic ')) {
+    try {
+      const decoded = atob(header.slice(6));
+      const colon = decoded.indexOf(':');
+      if (colon !== -1) {
+        const user = decoded.slice(0, colon);
+        const pass = decoded.slice(colon + 1);
+        if (user === 'admin' && pass === secret) {
+          return next();
+        }
+      }
+    } catch {
+      // malformed base64 — fall through to 401
+    }
+  }
+
+  c.header('WWW-Authenticate', 'Basic realm="Splitogram Admin"');
+  return c.text('Unauthorized', 401);
 });
 
 function escapeHtml(s: string): string {
