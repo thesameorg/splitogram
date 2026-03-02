@@ -5,6 +5,7 @@ export {};
 interface ImportMetaEnv {
   readonly VITE_WORKER_URL: string;
   readonly VITE_TELEGRAM_BOT_USERNAME: string;
+  readonly VITE_TG_ANALYTICS_TOKEN: string;
   readonly VITE_TON_MANIFEST_URL: string;
 }
 
