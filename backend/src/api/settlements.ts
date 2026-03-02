@@ -569,6 +569,8 @@ settlementsApp.post(
       amount: paidAmount,
     });
 
+    await trackEvent(db, currentUser.id, 'settlement_completed', { method: 'external' });
+
     // Fire-and-forget notification
     const notifyCtx = {
       botToken: c.env.TELEGRAM_BOT_TOKEN,

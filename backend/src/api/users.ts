@@ -103,6 +103,8 @@ app.post('/me/avatar', async (c) => {
     .set({ avatarKey: key, updatedAt: new Date().toISOString() })
     .where(eq(users.id, user.id));
 
+  await trackEvent(db, user.id, 'avatar_uploaded', { type: 'user' });
+
   return c.json({ avatarKey: key });
 });
 
