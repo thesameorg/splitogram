@@ -9,6 +9,7 @@ import { BottomSheet } from '../components/BottomSheet';
 import { Avatar } from '../components/Avatar';
 import { validateImageFile, processAvatar } from '../utils/image';
 import { useUser } from '../contexts/UserContext';
+import { config } from '../config';
 
 const LANGUAGES = [
   { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
@@ -297,7 +298,8 @@ export function Account() {
         <div className="mb-4">
           <button
             onClick={() => {
-              const url = `${window.location.origin}/admin`;
+              const base = config.apiBaseUrl || window.location.origin;
+              const url = `${base}/admin`;
               window.Telegram?.WebApp?.openLink?.(url) ?? window.open(url, '_blank');
             }}
             className="w-full p-3 bg-tg-section rounded-xl border border-tg-separator text-left font-medium"
