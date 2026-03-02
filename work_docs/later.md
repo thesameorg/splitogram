@@ -1,9 +1,7 @@
-- feedback needs to have an "attachments" section so user can add images and files. no need to save them, just forward to admin
-- both settlements & expenses should have thumbnails visible in "transactions" screen
-- reporting for violations is unusable, as when iphone keyboard pops up, the "send" button hides, and i cannot actually send anything
-- add a ⚠️ emoji to "report" link under image
-- when report is sent to admin, it should contain the image reported a a picture
-- in report, i want bot to also send a keyboard with 2 buttons:
-  - reject: if pressed, the reporter receives a message like "admin reviewed your claim and did not find image unappropriate"
-  - remove: if pressed, the image is deleted from storage (maybe even add an "event" to feed like "image removed due to report"), and reporter gets a message with "admin reviewed, image deleted"
-- 
+All items done (batch 2):
+- ✅ feedback attachments (multipart, forward images/files to admin via bot)
+- ✅ transaction thumbnails (receipt thumbs on expense/settlement cards)
+- ✅ report BottomSheet keyboard fix (dvh + scroll wrapper)
+- ✅ ⚠️ emoji on report button (inline)
+- ✅ report sends image as photo to admin (sendPhoto with caption)
+- ✅ admin moderation via bot callback buttons (Reject/Remove inline keyboard)

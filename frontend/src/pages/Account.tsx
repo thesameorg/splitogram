@@ -38,8 +38,10 @@ export function Account() {
   const [showLangPicker, setShowLangPicker] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackFiles, setFeedbackFiles] = useState<File[]>([]);
   const [sendingFeedback, setSendingFeedback] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const feedbackFileInputRef = useRef<HTMLInputElement>(null);
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
@@ -122,9 +124,10 @@ export function Account() {
     if (!feedbackText.trim() || sendingFeedback) return;
     setSendingFeedback(true);
     try {
-      await api.sendFeedback(feedbackText.trim());
+      await api.sendFeedback(feedbackText.trim(), feedbackFiles.length > 0 ? feedbackFiles : undefined);
       setShowFeedback(false);
       setFeedbackText('');
+      setFeedbackFiles([]);
       setSuccess(t('account.feedbackSent'));
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
@@ -132,6 +135,13 @@ export function Account() {
     } finally {
       setSendingFeedback(false);
     }
+  }
+
+  function handleFeedbackFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    e.target.value = '';
+    setFeedbackFiles((prev) => [...prev, ...Array.from(files)].slice(0, 5));
   }
 
   if (loading) return <LoadingScreen />;
@@ -321,13 +331,52 @@ export function Account() {
             className="w-full p-3 border border-tg-separator rounded-xl bg-transparent resize-none h-32"
             maxLength={2000}
           />
-          <button
-            onClick={handleSendFeedback}
-            disabled={sendingFeedback || !feedbackText.trim()}
-            className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
-          >
-            {sendingFeedback ? '...' : t('account.feedbackSend')}
-          </button>
+
+          {/* Attachments */}
+          {feedbackFiles.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {feedbackFiles.map((file, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-1.5 px-2 py-1 bg-tg-section rounded-lg border border-tg-separator text-xs"
+                >
+                  <span className="truncate max-w-[120px]">{file.name}</span>
+                  <button
+                    onClick={() => setFeedbackFiles((prev) => prev.filter((_, j) => j !== i))}
+                    className="text-tg-destructive font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            {feedbackFiles.length < 5 && (
+              <button
+                onClick={() => feedbackFileInputRef.current?.click()}
+                className="px-4 py-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
+              >
+                📎
+              </button>
+            )}
+            <button
+              onClick={handleSendFeedback}
+              disabled={sendingFeedback || !feedbackText.trim()}
+              className="flex-1 bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+            >
+              {sendingFeedback ? '...' : t('account.feedbackSend')}
+            </button>
+          </div>
+          <input
+            ref={feedbackFileInputRef}
+            type="file"
+            multiple
+            accept="image/*,application/pdf,.doc,.docx,.txt"
+            onChange={handleFeedbackFileSelect}
+            className="hidden"
+          />
         </div>
       </BottomSheet>
     </PageLayout>

@@ -113,7 +113,7 @@ Root `package.json` defines `workspaces: ["backend", "frontend"]`. A single `bun
 ```
 backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
-├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking
+├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking, report moderation callbacks
 ├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
 ├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, r2)
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
@@ -170,7 +170,7 @@ app.route('/api/v1/groups', groupsApp);
 1. Mini App loads → calls `POST /api/v1/auth` to upsert user (register/update profile in D1)
 2. Every API request sends `Authorization: tma <initData>` header
 3. Auth middleware validates HMAC-SHA256 signature, looks up user in D1, sets session context
-4. Bot webhook at `POST /webhook` — grammY handles /start commands and deep links
+4. Bot webhook at `POST /webhook` — grammY handles /start commands, deep links, and report moderation callback queries
 
 ### Deep Links (Bot → Mini App)
 
@@ -223,6 +223,8 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation, auto-creates mock user from `backend/src/dev/mock-user.ts`)
 - **Theming** — Telegram `--tg-theme-*` CSS vars mapped to Tailwind `tg-*` tokens (e.g., `bg-tg-bg`, `text-tg-hint`, `bg-tg-button`). No `dark:` prefixes — CSS vars handle both modes. Fallback values in `index.css` for dev outside Telegram. Semantic colors (positive/negative/warning) use `--app-*` CSS vars with light/dark variants, mapped to Tailwind `app-*` tokens (e.g., `text-app-positive`, `bg-app-negative-bg`). `data-theme` attribute set from `webApp.colorScheme`.
 - **i18n** — `react-i18next` with 11 JSON locale files (`src/locales/{en,ru,es,hi,id,fa,pt,uk,de,it,vi}.json`). All UI strings use `t('key')`. Plurals via `t('key', { count })` (CLDR rules: one/few/many for ru/uk, other-only for id/vi). Language detected from TG user, persisted in CloudStorage, selectable on Account page via BottomSheet picker with flags.
+- **Feedback** — `POST /api/v1/users/feedback` accepts multipart FormData (message + up to 5 attachments). Text sent as bot DM, attachments forwarded as photos/documents. Fire-and-forget via `waitUntil()`.
+- **Content moderation** — `POST /api/v1/reports` sends reported image as photo to admin with inline keyboard (Reject/Remove). Bot `callback_query:data` handler in webhook.ts processes admin actions: Reject notifies reporter, Remove deletes image from R2 and notifies reporter. Both actions edit original caption and remove buttons.
 
 ## Code Style
 

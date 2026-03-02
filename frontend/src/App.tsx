@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from './hooks/useAuth';
 import { api, ApiError } from './services/api';
 import { UserProvider, useUser } from './contexts/UserContext';
+import { config } from './config';
 import { AppLayout } from './components/AppLayout';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Home } from './pages/Home';
@@ -87,7 +88,15 @@ function AppContent() {
       <div className="flex items-center justify-center min-h-screen p-4 text-center bg-tg-bg text-tg-text">
         <div>
           <h1 className="text-xl font-bold mb-2">{t('app.title')}</h1>
-          <p className="text-tg-hint">{t('app.openFromTelegram')}</p>
+          <p className="text-tg-hint mb-4">{t('app.openFromTelegram')}</p>
+          {config.telegramBotUsername && (
+            <a
+              href={`https://t.me/${config.telegramBotUsername}`}
+              className="text-tg-link font-medium"
+            >
+              @{config.telegramBotUsername}
+            </a>
+          )}
         </div>
       </div>
     );

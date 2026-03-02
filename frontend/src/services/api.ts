@@ -232,11 +232,19 @@ export const api = {
   },
   deleteAvatar: () =>
     apiRequest<{ deleted: boolean }>('/api/v1/users/me/avatar', { method: 'DELETE' }),
-  sendFeedback: (message: string) =>
-    apiRequest<{ sent: boolean }>('/api/v1/users/feedback', {
+  sendFeedback: (message: string, files?: File[]) => {
+    const formData = new FormData();
+    formData.append('message', message);
+    if (files) {
+      files.slice(0, 5).forEach((file, i) => {
+        formData.append(`attachment_${i}`, file, file.name);
+      });
+    }
+    return apiRequest<{ sent: boolean }>('/api/v1/users/feedback', {
       method: 'POST',
-      body: JSON.stringify({ message }),
-    }),
+      body: formData,
+    });
+  },
 
   // Groups
   listGroups: () => apiRequest<{ groups: GroupSummary[] }>('/api/v1/groups'),

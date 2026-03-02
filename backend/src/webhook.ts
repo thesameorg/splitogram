@@ -126,6 +126,83 @@ export async function handleWebhook(c: Context) {
     );
   });
 
+  // Report moderation: admin taps Reject or Remove
+  bot.on('callback_query:data', async (ctx: GrammyContext) => {
+    const data = ctx.callbackQuery?.data;
+    if (!data) return;
+
+    const parts = data.split('|');
+    if (parts.length !== 3) return;
+
+    const [action, reporterTgIdStr, imageKey] = parts;
+    const reporterTgId = parseInt(reporterTgIdStr, 10);
+    if (isNaN(reporterTgId)) return;
+
+    const botToken = c.env.TELEGRAM_BOT_TOKEN;
+
+    if (action === 'rj') {
+      // Reject — notify reporter, update caption
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: reporterTgId,
+          text: 'Your report has been reviewed. The image was not found to violate our guidelines.',
+        }),
+        signal: AbortSignal.timeout(10000),
+      }).catch(() => {});
+
+      const msgId = ctx.callbackQuery?.message?.message_id;
+      const chatId = ctx.callbackQuery?.message?.chat.id;
+      const oldCaption = (ctx.callbackQuery?.message as any)?.caption || '';
+      if (msgId && chatId) {
+        await fetch(`https://api.telegram.org/bot${botToken}/editMessageCaption`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            message_id: msgId,
+            caption: `${oldCaption}\n\n✅ Rejected by admin`,
+          }),
+          signal: AbortSignal.timeout(10000),
+        }).catch(() => {});
+      }
+
+      await ctx.answerCallbackQuery({ text: 'Rejected' });
+    } else if (action === 'rm') {
+      // Remove — delete from R2, notify reporter, update caption
+      await c.env.IMAGES.delete(imageKey);
+
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: reporterTgId,
+          text: 'Your report has been reviewed. The image has been removed.',
+        }),
+        signal: AbortSignal.timeout(10000),
+      }).catch(() => {});
+
+      const msgId = ctx.callbackQuery?.message?.message_id;
+      const chatId = ctx.callbackQuery?.message?.chat.id;
+      const oldCaption = (ctx.callbackQuery?.message as any)?.caption || '';
+      if (msgId && chatId) {
+        await fetch(`https://api.telegram.org/bot${botToken}/editMessageCaption`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            message_id: msgId,
+            caption: `${oldCaption}\n\n🗑 Removed by admin`,
+          }),
+          signal: AbortSignal.timeout(10000),
+        }).catch(() => {});
+      }
+
+      await ctx.answerCallbackQuery({ text: 'Removed' });
+    }
+  });
+
   bot.on('message:text', async (ctx: GrammyContext) => {
     if (ctx.message && !ctx.message.text?.startsWith('/')) {
       await ctx.reply('Use the button below to open Splitogram.', {

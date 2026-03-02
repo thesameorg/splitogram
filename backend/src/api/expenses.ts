@@ -5,6 +5,7 @@ import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { expenses, expenseParticipants, groupMembers, groups, users } from '../db/schema';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
+import { trackEvent } from '../services/analytics';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -194,6 +195,13 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
     expenseId: expense.id,
     amount: expense.amount,
     metadata: { description },
+  });
+
+  await trackEvent(db, currentUser.id, 'expense_created', {
+    splitMode,
+    amount,
+    hasReceipt: false,
+    participantCount: effectiveParticipantIds.length,
   });
 
   // Fire-and-forget notification
@@ -485,6 +493,11 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
     },
   });
 
+  const changedFields = Object.keys(updates).filter(
+    (k) => (updates as Record<string, unknown>)[k] !== undefined,
+  );
+  await trackEvent(db, currentUser.id, 'expense_edited', { changedFields });
+
   return c.json({ id: expenseId, updated: true });
 });
 
@@ -554,6 +567,8 @@ expensesApp.delete('/:expenseId', async (c) => {
     amount: expense.amount,
     metadata: { description: expense.description },
   });
+
+  await trackEvent(db, currentUser.id, 'expense_deleted', {});
 
   // expense_participants cascade-deletes via FK onDelete: 'cascade'
   await db.delete(expenses).where(eq(expenses.id, expenseId));

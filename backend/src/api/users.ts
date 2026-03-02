@@ -5,6 +5,7 @@ import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import { notify } from '../services/notifications';
+import { trackEvent } from '../services/analytics';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 import type { Env } from '../env';
@@ -134,56 +135,81 @@ app.delete('/me/avatar', async (c) => {
   return c.json({ deleted: true });
 });
 
-// POST /api/v1/users/feedback — send feedback to admin via bot DM
-app.post(
-  '/feedback',
-  zValidator(
-    'json',
-    z.object({
-      message: z.string().min(1).max(2000),
-    }),
-  ),
-  async (c) => {
-    const db = c.get('db');
-    const session = c.get('session');
-    const { message } = c.req.valid('json');
+// POST /api/v1/users/feedback — send feedback to admin via bot DM (multipart: message + attachments)
+app.post('/feedback', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
 
-    const adminTelegramId = c.env.ADMIN_TELEGRAM_ID;
-    if (!adminTelegramId) {
-      return c.json({ sent: true }); // silently succeed if no admin configured
-    }
+  const body = await c.req.parseBody({ all: true });
+  const message = typeof body['message'] === 'string' ? body['message'] : '';
+  if (!message || message.length > 2000) {
+    return c.json({ error: 'invalid_message', detail: 'Message is required (max 2000 chars)' }, 400);
+  }
 
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.telegramId, session.telegramId))
-      .limit(1);
+  const adminTelegramId = c.env.ADMIN_TELEGRAM_ID;
+  if (!adminTelegramId) {
+    return c.json({ sent: true }); // silently succeed if no admin configured
+  }
 
-    if (!user) {
-      return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-    }
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
 
-    const text = [
-      `📬 Feedback from ${user.displayName}`,
-      user.username ? `@${user.username}` : `ID: ${user.telegramId}`,
-      '',
-      message,
-    ].join('\n');
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
 
-    c.executionCtx.waitUntil(
-      fetch(`https://api.telegram.org/bot${c.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: parseInt(adminTelegramId, 10),
-          text,
-        }),
-        signal: AbortSignal.timeout(10000),
-      }).catch((e) => console.error('Feedback notification failed:', e)),
-    );
+  const text = [
+    `📬 Feedback from ${user.displayName}`,
+    user.username ? `@${user.username}` : `ID: ${user.telegramId}`,
+    '',
+    message,
+  ].join('\n');
 
-    return c.json({ sent: true });
-  },
-);
+  const chatId = parseInt(adminTelegramId, 10);
+  const botToken = c.env.TELEGRAM_BOT_TOKEN;
+
+  // Collect attachment files (attachment_0..4)
+  const attachments: File[] = [];
+  for (let i = 0; i < 5; i++) {
+    const file = body[`attachment_${i}`];
+    if (file instanceof File) attachments.push(file);
+  }
+
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        // Send text message first
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text }),
+          signal: AbortSignal.timeout(10000),
+        });
+
+        // Forward each attachment
+        for (const file of attachments) {
+          const formData = new FormData();
+          formData.append('chat_id', String(chatId));
+          const isImage = file.type.startsWith('image/');
+          const endpoint = isImage ? 'sendPhoto' : 'sendDocument';
+          formData.append(isImage ? 'photo' : 'document', file, file.name);
+
+          await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
+            method: 'POST',
+            body: formData,
+            signal: AbortSignal.timeout(30000),
+          });
+        }
+      } catch (e) {
+        console.error('Feedback notification failed:', e);
+      }
+    })(),
+  );
+
+  return c.json({ sent: true });
+});
 
 export const usersApp = app;

@@ -40,24 +40,34 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
   const pagesUrl = c.env.PAGES_URL || '';
   const imageFullUrl = `${pagesUrl}/r2/${imageKey}`;
 
-  const text = [
+  const caption = [
     `🚩 Image Report`,
     `From: ${user.displayName} (${user.username ? `@${user.username}` : `ID: ${user.telegramId}`})`,
     `Reason: ${reason}`,
     details ? `Details: ${details}` : '',
-    `Image: ${imageFullUrl}`,
     `Key: ${imageKey}`,
   ]
     .filter(Boolean)
     .join('\n');
 
+  const reporterTgId = user.telegramId;
+
   c.executionCtx.waitUntil(
-    fetch(`https://api.telegram.org/bot${c.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    fetch(`https://api.telegram.org/bot${c.env.TELEGRAM_BOT_TOKEN}/sendPhoto`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: parseInt(adminTelegramId, 10),
-        text,
+        photo: imageFullUrl,
+        caption,
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '❌ Reject', callback_data: `rj|${reporterTgId}|${imageKey}` },
+              { text: '🗑 Remove', callback_data: `rm|${reporterTgId}|${imageKey}` },
+            ],
+          ],
+        },
       }),
       signal: AbortSignal.timeout(10000),
     }).catch((e) => console.error('Report notification failed:', e)),

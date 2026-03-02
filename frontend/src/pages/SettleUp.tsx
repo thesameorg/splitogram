@@ -275,7 +275,7 @@ export function SettleUp() {
               }}
               className="mt-3 text-xs text-tg-hint"
             >
-              {t('report.button')}
+              ⚠️ {t('report.button')}
             </button>
           </div>
         )}

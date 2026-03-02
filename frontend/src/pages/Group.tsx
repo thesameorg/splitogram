@@ -167,8 +167,20 @@ export function Group() {
               <div className="text-sm text-tg-hint">{timeAgo(settlement.createdAt)}</div>
             </div>
           </div>
-          <div className={`font-medium ${amountColor}`}>
-            {formatAmount(settlement.amount, group?.currency)}
+          <div className="flex items-center gap-2">
+            {settlement.receiptThumbKey && (
+              <img
+                src={imageUrl(settlement.receiptThumbKey)}
+                alt=""
+                className="w-10 h-10 rounded-lg object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            <div className={`font-medium ${amountColor}`}>
+              {formatAmount(settlement.amount, group?.currency)}
+            </div>
           </div>
         </div>
         {settlement.comment && (
@@ -196,8 +208,20 @@ export function Group() {
               {t('group.paidBy', { name: exp.payerName })} &middot; {timeAgo(exp.createdAt)}
             </div>
           </div>
-          <div className={`font-medium ${amountColor}`}>
-            {formatAmount(exp.amount, group?.currency)}
+          <div className="flex items-center gap-2">
+            {exp.receiptThumbKey && (
+              <img
+                src={imageUrl(exp.receiptThumbKey)}
+                alt=""
+                className="w-10 h-10 rounded-lg object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            <div className={`font-medium ${amountColor}`}>
+              {formatAmount(exp.amount, group?.currency)}
+            </div>
           </div>
         </div>
         <div className="mt-2 text-xs text-tg-hint">
@@ -606,7 +630,7 @@ export function Group() {
               }}
               className="mt-3 text-xs text-tg-hint"
             >
-              {t('report.button')}
+              ⚠️ {t('report.button')}
             </button>
           </div>
         )}
