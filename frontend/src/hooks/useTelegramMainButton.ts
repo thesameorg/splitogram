@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { hapticImpact } from '../utils/haptic';
 
 interface MainButtonOptions {
   text: string;
@@ -58,7 +59,7 @@ export function useTelegramMainButton(options: MainButtonOptions) {
     const mainButton = window.Telegram?.WebApp?.MainButton;
     if (!mainButton || !show) return;
 
-    const handler = () => onClickRef.current();
+    const handler = () => { hapticImpact('medium'); onClickRef.current(); };
     mainButton.onClick(handler);
     return () => {
       mainButton.offClick(handler);

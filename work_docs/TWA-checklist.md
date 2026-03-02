@@ -11,7 +11,7 @@
 - [x] Вызывается `Telegram.WebApp.ready()` как можно раньше при загрузке — до отображения интерфейса
 - [x] Подключён `telegram-web-app.js` (через CDN или `@twa-dev/sdk` для TypeScript)
 - [x] Приложение работает корректно на Android (Chromium 119 WebView), iOS (WKWebView) и Desktop
-- [ ] На iOS добавлен `<meta name="color-scheme" content="light dark">` — иначе будет "flash of unstyled content"
+- [x] На iOS добавлен `<meta name="color-scheme" content="light dark">` — иначе будет "flash of unstyled content"
 
 ---
 
@@ -24,14 +24,14 @@
 - [ ] Анимации плавные — 60fps
 - [ ] Все поля ввода и изображения содержат accessibility-лейблы _(partial: img alt есть, aria-label на input/button нет)_
 - [x] Приложение подхватывает динамические цвета темы Telegram через API (Day/Night/Custom themes)
-- [ ] Интерфейс учитывает `safeAreaInset` и `contentSafeAreaInset` (особенно в fullscreen-режиме)
+- [x] Интерфейс учитывает `safeAreaInset` и `contentSafeAreaInset` (особенно в fullscreen-режиме)
 
 ### 2.2 Нативные элементы Telegram
 
 - [x] Используется `MainButton` (нижняя кнопка) вместо кастомных CTA
 - [x] Используется `BackButton` для навигации назад
 - [ ] При необходимости — `SettingsButton` в контекстном меню _(не используется — пока не нужен)_
-- [ ] Haptic feedback через `HapticFeedback` API для тактильной отдачи
+- [x] Haptic feedback через `HapticFeedback` API для тактильной отдачи
 
 ### 2.3 Рекомендации
 

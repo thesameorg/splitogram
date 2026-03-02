@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useUser } from '../contexts/UserContext';
 import { IconUsers, IconActivity, IconUser } from '../icons';
 import { Avatar } from './Avatar';
+import { hapticSelection } from '../utils/haptic';
 
 export function BottomTabs() {
   const location = useLocation();
@@ -32,13 +33,13 @@ export function BottomTabs() {
   ] as const;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-tg-bottom-bar border-t border-tg-separator flex z-40">
+    <div className="fixed bottom-0 left-0 right-0 bg-tg-bottom-bar border-t border-tg-separator flex z-40" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {tabs.map((tab) => {
         const active = isActive(tab.path);
         return (
           <button
             key={tab.path}
-            onClick={() => navigate(tab.path)}
+            onClick={() => { hapticSelection(); navigate(tab.path); }}
             className={`flex-1 flex flex-col items-center py-2 text-xs font-medium ${
               active ? 'text-tg-link' : 'text-tg-hint'
             }`}

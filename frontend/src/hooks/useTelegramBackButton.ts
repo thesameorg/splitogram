@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { hapticImpact } from '../utils/haptic';
 
 export function useTelegramBackButton(show: boolean = true) {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export function useTelegramBackButton(show: boolean = true) {
     const backButton = webApp.BackButton;
     if (show) {
       backButton.show();
-      const handler = () => navigate(-1);
+      const handler = () => { hapticImpact('light'); navigate(-1); };
       backButton.onClick(handler);
       return () => {
         backButton.offClick(handler);
