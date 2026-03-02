@@ -1,13 +1,9 @@
-- add currency symbol to group title near members
-- add option to edit amount to settle - it can not cover whole amount, or be larger than debt.
-- show initial event in group - group created by ...
-- when a settlement is added (with or without image & comment) i should be able to see it in the same way as i can see other transactions - with little popup in the bottom, with image & such.
-- add to account:
-  - link to ToS, useragreement and so on. for now - placeholders, there will be some PDF-documents or like that. something really simple, but nice buttons on interface.
-  - add a "Feedback", that utilizes some basic mechanis. probably - just sends a tg-DM to admin (can add env), or sends user to email creation (also env)
-- Content moderation:
-  - add a button to mark an image as "inapropriate"
-  - when pressed, a dialog pops up with "what's wrong" + 3-5 standard reasons as buttons, a text field and "send" button
-  - if sent, admin receives a message in bot with claim info + image pic + link to image on R2
-  - if admin deletes image (404 on load), it should be shown as a placeholder image. or basic 404 case is fine too.
-  - so no need for special flow for this one
+- feedback needs to have an "attachments" section so user can add images and files. no need to save them, just forward to admin
+- both settlements & expenses should have thumbnails visible in "transactions" screen
+- reporting for violations is unusable, as when iphone keyboard pops up, the "send" button hides, and i cannot actually send anything
+- add a ⚠️ emoji to "report" link under image
+- when report is sent to admin, it should contain the image reported a a picture
+- in report, i want bot to also send a keyboard with 2 buttons:
+  - reject: if pressed, the reporter receives a message like "admin reviewed your claim and did not find image unappropriate"
+  - remove: if pressed, the image is deleted from storage (maybe even add an "event" to feed like "image removed due to report"), and reporter gets a message with "admin reviewed, image deleted"
+- 
