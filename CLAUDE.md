@@ -115,7 +115,7 @@ backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
 ├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking, report moderation callbacks
 ├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
-├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, r2)
+├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, stats, r2)
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
 ├── services/             # telegram-auth, notifications, debt-solver, activity
 ├── utils/                # currencies, format (shared with frontend), r2 (key gen, safe delete)
@@ -134,7 +134,7 @@ frontend/src/
 ├── icons/                # SVG icon components (IconUsers, IconActivity, IconUser, IconCopy, IconCrown, IconCheck)
 ├── contexts/             # UserContext (avatar/name state for BottomTabs + Account)
 ├── utils/                # currencies, format, time, share, transactions, image
-├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker, Avatar
+├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker, Avatar, DonutChart, MonthSelector
 └── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
 ```
 

@@ -9,6 +9,7 @@ import {
   type BalanceMember,
   type SettlementListItem,
   type ActivityItem,
+  type GroupStats,
 } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
@@ -24,7 +25,9 @@ import { Avatar } from '../components/Avatar';
 import { BottomSheet } from '../components/BottomSheet';
 import { SuccessBanner } from '../components/SuccessBanner';
 import { ReportImage } from '../components/ReportImage';
-import { IconCheck, IconStats } from '../icons';
+import { DonutChart } from '../components/DonutChart';
+import { MonthSelector } from '../components/MonthSelector';
+import { IconCheck } from '../icons';
 import { getActivityText } from './Activity';
 
 export function Group() {
@@ -49,6 +52,9 @@ export function Group() {
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [selectedSettlement, setSelectedSettlement] = useState<SettlementListItem | null>(null);
   const [reportImageKey, setReportImageKey] = useState<string | null>(null);
+  const [stats, setStats] = useState<GroupStats | null>(null);
+  const [statsPeriod, setStatsPeriod] = useState<string>('all');
+  const [statsLoading, setStatsLoading] = useState(false);
 
   useTelegramBackButton(true);
 
@@ -95,6 +101,17 @@ export function Group() {
       .catch((err) => console.error('Failed to load activity:', err))
       .finally(() => setActivityLoading(false));
   }, [tab, groupId, activityItems.length, activityLoading]);
+
+  // Load stats when stats tab is selected or period changes
+  useEffect(() => {
+    if (tab !== 'stats' || isNaN(groupId)) return;
+    setStatsLoading(true);
+    api
+      .getGroupStats(groupId, statsPeriod)
+      .then((data) => setStats(data))
+      .catch((err) => console.error('Failed to load stats:', err))
+      .finally(() => setStatsLoading(false));
+  }, [tab, groupId, statsPeriod]);
 
   function canEditExpense(exp: Expense): boolean {
     return currentUserId === exp.paidBy;
@@ -453,9 +470,96 @@ export function Group() {
       )}
 
       {tab === 'stats' && (
-        <div className="text-center py-12">
-          <IconStats size={48} className="mx-auto text-tg-hint mb-3" />
-          <p className="text-tg-hint">{t('group.statsPlaceholder')}</p>
+        <div className="space-y-4">
+          {statsLoading ? (
+            <p className="text-center text-tg-hint py-8">{t('loading')}</p>
+          ) : !stats ? null : (
+            <>
+              {/* Donut chart */}
+              <DonutChart
+                segments={stats.memberShares.map((m) => ({
+                  label: m.displayName,
+                  value: m.share,
+                  isCurrentUser: m.userId === currentUserId,
+                }))}
+                total={stats.totalSpent}
+                currency={group?.currency ?? 'USD'}
+              />
+
+              {/* Key metrics */}
+              <div className="bg-tg-section rounded-xl border border-tg-separator p-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-tg-hint text-sm">{t('group.statsTotalSpent')}</span>
+                  <span className="font-bold text-lg">
+                    {formatAmount(stats.totalSpent, group?.currency)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-tg-hint text-sm">{t('group.statsYourShare')}</div>
+                    {stats.totalSpent > 0 && (
+                      <div className="text-xs text-tg-hint">
+                        {t('group.statsSharePercent', {
+                          percent: Math.round((stats.yourShare / stats.totalSpent) * 100),
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <span className="font-bold text-lg">
+                    {formatAmount(stats.yourShare, group?.currency)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Additional stats */}
+              <div>
+                <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mb-2">
+                  {t('group.statsAdditional')}
+                </div>
+                <div className="bg-tg-section rounded-xl border border-tg-separator divide-y divide-tg-separator">
+                  <div className="flex justify-between items-center p-4">
+                    <span className="text-sm">{t('group.statsPaidFor')}</span>
+                    <span className="text-sm font-medium">
+                      {formatAmount(stats.totalPaidFor, group?.currency)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-4">
+                    <span className="text-sm">{t('group.statsPaymentsMade')}</span>
+                    <span className="text-sm font-medium">
+                      {formatAmount(stats.paymentsMade, group?.currency)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-4">
+                    <span className="text-sm">{t('group.statsPaymentsReceived')}</span>
+                    <span className="text-sm font-medium">
+                      {formatAmount(stats.paymentsReceived, group?.currency)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-4">
+                    <span className="text-sm">{t('group.statsBalanceChange')}</span>
+                    <span
+                      className={`text-sm font-medium ${
+                        stats.balanceChange > 0
+                          ? 'text-app-positive'
+                          : stats.balanceChange < 0
+                            ? 'text-app-negative'
+                            : ''
+                      }`}
+                    >
+                      {formatAmount(stats.balanceChange, group?.currency)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Month selector */}
+              <MonthSelector
+                availableMonths={stats.availableMonths}
+                selected={statsPeriod}
+                onChange={setStatsPeriod}
+              />
+            </>
+          )}
         </div>
       )}
 

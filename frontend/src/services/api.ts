@@ -197,6 +197,17 @@ export interface ActivityItem {
   createdAt: string;
 }
 
+export interface GroupStats {
+  totalSpent: number;
+  yourShare: number;
+  totalPaidFor: number;
+  paymentsMade: number;
+  paymentsReceived: number;
+  balanceChange: number;
+  memberShares: Array<{ userId: number; displayName: string; share: number }>;
+  availableMonths: string[];
+}
+
 export interface UserProfile {
   id: number;
   telegramId: number;
@@ -426,6 +437,10 @@ export const api = {
     apiRequest<{ deleted: boolean }>(`/api/v1/settlements/${settlementId}/receipt`, {
       method: 'DELETE',
     }),
+
+  // Stats
+  getGroupStats: (groupId: number, period?: string) =>
+    apiRequest<GroupStats>(`/api/v1/groups/${groupId}/stats?period=${period ?? 'all'}`),
 
   // Reports
   reportImage: (imageKey: string, reason: string, details?: string) =>

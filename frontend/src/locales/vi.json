@@ -54,7 +54,18 @@
     "reminderCooldown": "Bạn chỉ có thể gửi nhắc nhở mỗi 24 giờ một lần",
     "feed": "Bảng tin",
     "stats": "Thống kê",
-    "statsPlaceholder": "Báo cáo & thống kê sắp ra mắt"
+    "statsPlaceholder": "Báo cáo & thống kê sắp ra mắt",
+    "statsTotal": "Tổng",
+    "statsTotalSpent": "Tổng chi tiêu",
+    "statsYourShare": "Phần của bạn",
+    "statsSharePercent": "{{percent}}% tổng chi tiêu nhóm",
+    "statsAdditional": "Thống kê thêm",
+    "statsPaidFor": "Tổng bạn đã trả",
+    "statsPaymentsMade": "Thanh toán đã thực hiện",
+    "statsPaymentsReceived": "Thanh toán đã nhận",
+    "statsBalanceChange": "Thay đổi số dư",
+    "statsAllTime": "Tất cả",
+    "statsNoData": "Chưa có chi tiêu"
   },
   "groupSettings": {
     "title": "Cài đặt Nhóm",

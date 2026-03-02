@@ -332,6 +332,20 @@ All Phase 2 specs completed and archived.
 
 ---
 
+## Stats Tab — DONE
+
+**Goal:** Replace the Stats placeholder tab with real group statistics.
+
+**What was built:**
+
+- **Backend:** `GET /api/v1/groups/:id/stats?period=all|YYYY-MM` — total spent, user's share, total paid for, payments made/received, balance change, per-member shares (for donut chart), available months. 5 parallel D1 queries with date filtering.
+- **DonutChart** — pure SVG donut (`stroke-dasharray`/`stroke-dashoffset`), current user segment highlighted, center text shows total. Zero deps.
+- **MonthSelector** — "All time" pill + `< Month YYYY >` navigation, boundary-aware arrows, i18n month names.
+- **Stats tab in Group.tsx** — lazy-loaded, refetches on period change. Donut chart → key metrics → additional stats.
+- **i18n:** 12 new stats keys in all 11 locale files.
+
+---
+
 ## Phase 9: Growth & Virality — SKIP
 
 > **Status: not sure at all.** Evaluate based on traction and user feedback. May be reprioritized, reduced, or dropped entirely.

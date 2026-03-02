@@ -56,7 +56,18 @@
     "reminderCooldown": "आप हर 24 घंटे में केवल एक बार रिमाइंडर भेज सकते हैं",
     "feed": "फ़ीड",
     "stats": "आँकड़े",
-    "statsPlaceholder": "रिपोर्ट और आँकड़े जल्द आ रहे हैं"
+    "statsPlaceholder": "रिपोर्ट और आँकड़े जल्द आ रहे हैं",
+    "statsTotal": "कुल",
+    "statsTotalSpent": "कुल खर्च",
+    "statsYourShare": "आपका हिस्सा",
+    "statsSharePercent": "समूह के कुल खर्च का {{percent}}%",
+    "statsAdditional": "अतिरिक्त आँकड़े",
+    "statsPaidFor": "आपने कुल भुगतान किया",
+    "statsPaymentsMade": "भुगतान किए गए",
+    "statsPaymentsReceived": "भुगतान प्राप्त हुए",
+    "statsBalanceChange": "बैलेंस में कुल बदलाव",
+    "statsAllTime": "सभी समय",
+    "statsNoData": "अभी तक कोई खर्च नहीं"
   },
   "groupSettings": {
     "title": "समूह सेटिंग्स",

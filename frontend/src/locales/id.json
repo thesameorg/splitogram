@@ -54,7 +54,18 @@
     "reminderCooldown": "Anda hanya bisa mengirim pengingat sekali setiap 24 jam",
     "feed": "Feed",
     "stats": "Statistik",
-    "statsPlaceholder": "Laporan & statistik segera hadir"
+    "statsPlaceholder": "Laporan & statistik segera hadir",
+    "statsTotal": "Total",
+    "statsTotalSpent": "Total pengeluaran",
+    "statsYourShare": "Bagian Anda",
+    "statsSharePercent": "{{percent}}% dari total pengeluaran grup",
+    "statsAdditional": "Statistik tambahan",
+    "statsPaidFor": "Total yang Anda bayar",
+    "statsPaymentsMade": "Pembayaran dilakukan",
+    "statsPaymentsReceived": "Pembayaran diterima",
+    "statsBalanceChange": "Total perubahan saldo",
+    "statsAllTime": "Semua waktu",
+    "statsNoData": "Belum ada pengeluaran"
   },
   "groupSettings": {
     "title": "Pengaturan Grup",

@@ -56,7 +56,18 @@
     "reminderCooldown": "You can only send a reminder once every 24 hours",
     "feed": "Feed",
     "stats": "Stats",
-    "statsPlaceholder": "Reports & stats coming soon"
+    "statsPlaceholder": "Reports & stats coming soon",
+    "statsTotal": "Total",
+    "statsTotalSpent": "Total spent",
+    "statsYourShare": "Your share",
+    "statsSharePercent": "{{percent}}% of total group spending",
+    "statsAdditional": "Additional stats",
+    "statsPaidFor": "Total you paid for",
+    "statsPaymentsMade": "Payments made",
+    "statsPaymentsReceived": "Payments received",
+    "statsBalanceChange": "Total change in balance",
+    "statsAllTime": "All time",
+    "statsNoData": "No expenses yet"
   },
   "groupSettings": {
     "title": "Group Settings",

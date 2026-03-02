@@ -56,7 +56,18 @@
     "reminderCooldown": "Puoi inviare un promemoria solo una volta ogni 24 ore",
     "feed": "Feed",
     "stats": "Statistiche",
-    "statsPlaceholder": "Report e statistiche in arrivo"
+    "statsPlaceholder": "Report e statistiche in arrivo",
+    "statsTotal": "Totale",
+    "statsTotalSpent": "Totale speso",
+    "statsYourShare": "La tua parte",
+    "statsSharePercent": "{{percent}}% della spesa totale del gruppo",
+    "statsAdditional": "Statistiche aggiuntive",
+    "statsPaidFor": "Totale pagato da te",
+    "statsPaymentsMade": "Pagamenti effettuati",
+    "statsPaymentsReceived": "Pagamenti ricevuti",
+    "statsBalanceChange": "Variazione totale del saldo",
+    "statsAllTime": "Tutto il periodo",
+    "statsNoData": "Nessuna spesa ancora"
   },
   "groupSettings": {
     "title": "Impostazioni Gruppo",

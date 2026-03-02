@@ -56,7 +56,18 @@
     "reminderCooldown": "Du kannst nur alle 24 Stunden eine Erinnerung senden",
     "feed": "Feed",
     "stats": "Statistiken",
-    "statsPlaceholder": "Berichte & Statistiken kommen bald"
+    "statsPlaceholder": "Berichte & Statistiken kommen bald",
+    "statsTotal": "Gesamt",
+    "statsTotalSpent": "Gesamt ausgegeben",
+    "statsYourShare": "Dein Anteil",
+    "statsSharePercent": "{{percent}}% der gesamten Gruppenausgaben",
+    "statsAdditional": "Weitere Statistiken",
+    "statsPaidFor": "Gesamt von dir bezahlt",
+    "statsPaymentsMade": "Zahlungen geleistet",
+    "statsPaymentsReceived": "Zahlungen erhalten",
+    "statsBalanceChange": "Gesamte Saldoänderung",
+    "statsAllTime": "Gesamtzeit",
+    "statsNoData": "Noch keine Ausgaben"
   },
   "groupSettings": {
     "title": "Gruppeneinstellungen",

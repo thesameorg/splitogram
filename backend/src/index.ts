@@ -11,6 +11,7 @@ import { settlementsApp } from './api/settlements';
 import { usersApp } from './api/users';
 import { activityApp } from './api/activity';
 import { reportsApp } from './api/reports';
+import { statsApp } from './api/stats';
 import { r2App } from './api/r2';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
@@ -61,6 +62,10 @@ app.route('/api/v1/groups/:id/expenses', expensesApp);
 // Balances (nested under groups)
 app.use('/api/v1/groups/:id/balances/*', authMiddleware);
 app.route('/api/v1/groups/:id/balances', balancesApp);
+
+// Stats (nested under groups)
+app.use('/api/v1/groups/:id/stats', authMiddleware);
+app.route('/api/v1/groups/:id/stats', statsApp);
 
 // Settlements
 app.use('/api/v1/settlements/*', authMiddleware);

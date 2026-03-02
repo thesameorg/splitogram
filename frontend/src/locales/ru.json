@@ -58,7 +58,18 @@
     "reminderCooldown": "Напоминание можно отправлять только раз в 24 часа",
     "feed": "Лента",
     "stats": "Статистика",
-    "statsPlaceholder": "Отчёты и статистика скоро появятся"
+    "statsPlaceholder": "Отчёты и статистика скоро появятся",
+    "statsTotal": "Итого",
+    "statsTotalSpent": "Всего потрачено",
+    "statsYourShare": "Ваша доля",
+    "statsSharePercent": "{{percent}}% от общих расходов группы",
+    "statsAdditional": "Дополнительно",
+    "statsPaidFor": "Вы оплатили всего",
+    "statsPaymentsMade": "Платежей отправлено",
+    "statsPaymentsReceived": "Платежей получено",
+    "statsBalanceChange": "Изменение баланса",
+    "statsAllTime": "Всё время",
+    "statsNoData": "Пока нет расходов"
   },
   "groupSettings": {
     "title": "Настройки группы",

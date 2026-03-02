@@ -56,7 +56,18 @@
     "reminderCooldown": "فقط هر ۲۴ ساعت یک بار می‌توانید یادآوری بفرستید",
     "feed": "فید",
     "stats": "آمار",
-    "statsPlaceholder": "گزارش‌ها و آمار به‌زودی"
+    "statsPlaceholder": "گزارش‌ها و آمار به‌زودی",
+    "statsTotal": "مجموع",
+    "statsTotalSpent": "مجموع هزینه‌ها",
+    "statsYourShare": "سهم شما",
+    "statsSharePercent": "{{percent}}% از کل هزینه گروه",
+    "statsAdditional": "آمار بیشتر",
+    "statsPaidFor": "مجموع پرداختی شما",
+    "statsPaymentsMade": "پرداخت‌های انجام‌شده",
+    "statsPaymentsReceived": "پرداخت‌های دریافتی",
+    "statsBalanceChange": "تغییر کل موجودی",
+    "statsAllTime": "همه زمان‌ها",
+    "statsNoData": "هنوز هزینه‌ای نیست"
   },
   "groupSettings": {
     "title": "تنظیمات گروه",

@@ -58,7 +58,18 @@
     "reminderCooldown": "Нагадування можна надсилати лише раз на 24 години",
     "feed": "Стрічка",
     "stats": "Статистика",
-    "statsPlaceholder": "Звіти та статистика з'являться незабаром"
+    "statsPlaceholder": "Звіти та статистика з'являться незабаром",
+    "statsTotal": "Загалом",
+    "statsTotalSpent": "Загальні витрати",
+    "statsYourShare": "Ваша частка",
+    "statsSharePercent": "{{percent}}% від загальних витрат групи",
+    "statsAdditional": "Додатково",
+    "statsPaidFor": "Ви оплатили всього",
+    "statsPaymentsMade": "Платежі відправлені",
+    "statsPaymentsReceived": "Платежі отримані",
+    "statsBalanceChange": "Зміна балансу",
+    "statsAllTime": "Весь час",
+    "statsNoData": "Поки немає витрат"
   },
   "groupSettings": {
     "title": "Налаштування групи",
