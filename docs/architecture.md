@@ -17,6 +17,8 @@ Living document. Updated as architectural decisions are made.
 | i18n             | react-i18next                   | CLDR plurals (Russian 3-form), interpolation, 15KB gz |
 | TON verification | TONAPI REST API (plain `fetch`) | No SDK needed on backend (deferred to Phase 10)       |
 
+**Admin dashboard:** Plain HTML at `/admin`, same Worker, `hono/basic-auth` with `ADMIN_SECRET`. External browser only (no TG `initData` available outside WebView). Bot `/stats` command for quick metrics.
+
 **Frontend framework/UI library:** Plain React + Tailwind, no component library. Decided Phase 3 — see below.
 
 ---

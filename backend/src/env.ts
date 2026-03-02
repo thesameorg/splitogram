@@ -15,6 +15,7 @@ export interface Env {
 
   // Admin
   ADMIN_TELEGRAM_ID?: string;
+  ADMIN_SECRET?: string;
 
   // TON
   USDT_MASTER_ADDRESS?: string;

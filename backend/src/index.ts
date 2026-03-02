@@ -13,6 +13,7 @@ import { activityApp } from './api/activity';
 import { reportsApp } from './api/reports';
 import { statsApp } from './api/stats';
 import { r2App } from './api/r2';
+import { adminApp } from './api/admin';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
 import type { Env } from './env';
@@ -83,6 +84,9 @@ app.route('/api/v1', activityApp);
 // Reports
 app.use('/api/v1/reports', authMiddleware);
 app.route('/api/v1/reports', reportsApp);
+
+// --- Admin dashboard (own Basic Auth) ---
+app.route('/admin', adminApp);
 
 // --- Root info ---
 app.get('/', (c) => {

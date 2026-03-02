@@ -38,10 +38,14 @@ function AppContent() {
     api
       .getMe()
       .then((profile) => {
-        setUser({ avatarKey: profile.avatarKey, displayName: profile.displayName });
+        setUser({
+          avatarKey: profile.avatarKey,
+          displayName: profile.displayName,
+          isAdmin: auth.isAdmin,
+        });
       })
       .catch(() => {});
-  }, [auth.authenticated, setUser]);
+  }, [auth.authenticated, auth.isAdmin, setUser]);
 
   // Deep link routing: read startParam after auth succeeds
   useEffect(() => {

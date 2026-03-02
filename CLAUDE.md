@@ -58,7 +58,7 @@ Full local setup: backend + frontend + bot webhook via ngrok tunnel.
 
 - Bun, ngrok, jq installed
 - `.env` file with `TELEGRAM_BOT_TOKEN`, `VITE_TELEGRAM_BOT_USERNAME`
-- `.dev.vars` file with secrets for wrangler (TELEGRAM_BOT_TOKEN, DEV_AUTH_BYPASS_ENABLED, TONAPI_KEY, USDT_MASTER_ADDRESS, PAGES_URL)
+- `.dev.vars` file with secrets for wrangler (TELEGRAM_BOT_TOKEN, DEV_AUTH_BYPASS_ENABLED, TONAPI_KEY, USDT_MASTER_ADDRESS, PAGES_URL, ADMIN_TELEGRAM_ID, ADMIN_SECRET)
 
 ### Steps
 
@@ -113,11 +113,11 @@ Root `package.json` defines `workspaces: ["backend", "frontend"]`. A single `bun
 ```
 backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
-├── webhook.ts            # grammY bot: /start, deep links, botStarted tracking, report moderation callbacks
+├── webhook.ts            # grammY bot: /start, /stats (admin), deep links, botStarted tracking, report moderation callbacks
 ├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
-├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, stats, r2)
+├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, stats, r2, admin)
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
-├── services/             # telegram-auth, notifications, debt-solver, activity
+├── services/             # telegram-auth, notifications, debt-solver, activity, moderation
 ├── utils/                # currencies, format (shared with frontend), r2 (key gen, safe delete)
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
@@ -132,7 +132,7 @@ frontend/src/
 ├── services/api.ts       # Fetch wrapper with initData auth header
 ├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
 ├── icons/                # SVG icon components (IconUsers, IconActivity, IconUser, IconCopy, IconCrown, IconCheck)
-├── contexts/             # UserContext (avatar/name state for BottomTabs + Account)
+├── contexts/             # UserContext (avatar/name/isAdmin state for BottomTabs + Account)
 ├── utils/                # currencies, format, time, share, transactions, image
 ├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker, Avatar, DonutChart, MonthSelector
 └── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
@@ -224,7 +224,9 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - **Theming** — Telegram `--tg-theme-*` CSS vars mapped to Tailwind `tg-*` tokens (e.g., `bg-tg-bg`, `text-tg-hint`, `bg-tg-button`). No `dark:` prefixes — CSS vars handle both modes. Fallback values in `index.css` for dev outside Telegram. Semantic colors (positive/negative/warning) use `--app-*` CSS vars with light/dark variants, mapped to Tailwind `app-*` tokens (e.g., `text-app-positive`, `bg-app-negative-bg`). `data-theme` attribute set from `webApp.colorScheme`.
 - **i18n** — `react-i18next` with 11 JSON locale files (`src/locales/{en,ru,es,hi,id,fa,pt,uk,de,it,vi}.json`). All UI strings use `t('key')`. Plurals via `t('key', { count })` (CLDR rules: one/few/many for ru/uk, other-only for id/vi). Locale resolved server-side from TG `language_code` during auth (prefix matching, e.g. `pt-BR` → `pt`, fallback `en`), returned in auth response, applied on frontend unless user has a persisted CloudStorage preference. Selectable on Account page via BottomSheet picker with flags.
 - **Feedback** — `POST /api/v1/users/feedback` accepts multipart FormData (message + up to 5 attachments). Text sent as bot DM, attachments forwarded as photos/documents. Fire-and-forget via `waitUntil()`.
-- **Content moderation** — `POST /api/v1/reports` sends reported image as photo to admin with inline keyboard (Reject/Remove). Bot `callback_query:data` handler in webhook.ts processes admin actions: Reject notifies reporter, Remove deletes image from R2 and notifies reporter. Both actions edit original caption and remove buttons.
+- **Content moderation** — `POST /api/v1/reports` sends reported image as photo to admin with inline keyboard (Reject/Remove). Bot `callback_query:data` handler in webhook.ts processes admin actions: Reject notifies reporter, Remove deletes image from R2 and notifies reporter. Both actions edit original caption and remove buttons. Image removal extracted to `removeImage()` in `services/moderation.ts` (shared by webhook + admin dashboard).
+- **Admin dashboard** — Plain HTML at `/admin`, served from the same Worker (no React). Protected by `hono/basic-auth` with `ADMIN_SECRET` env var (needed because the page opens in an external browser where TG `initData` is unavailable). Shows metrics (users, groups, expenses, settlements, active groups), paginated groups table, group detail with members/expenses/images, and image delete. Bot `/stats` command (admin TG ID only) provides quick metrics via DM.
+- **`isAdmin` flag** — Auth response includes `isAdmin: boolean` (compares `telegramId` to `ADMIN_TELEGRAM_ID`). Propagated through `useAuth` → `UserContext` → Account page, which shows an "Admin Dashboard" link that opens `/admin` in external browser via `WebApp.openLink()`.
 
 ## Code Style
 

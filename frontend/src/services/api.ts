@@ -225,6 +225,7 @@ export const api = {
       authenticated: boolean;
       user: { id: number; displayName: string; username: string | null };
       locale: string;
+      isAdmin?: boolean;
     }>('/api/v1/auth', { method: 'POST', body: JSON.stringify({}) }),
 
   // Users

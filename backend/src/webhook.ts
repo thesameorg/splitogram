@@ -2,8 +2,9 @@ import { Context } from 'hono';
 import { Bot, webhookCallback, Context as GrammyContext } from 'grammy';
 import { createDatabase } from './db';
 import { users, groups, groupMembers, expenses, settlements } from './db/schema';
-import { eq, and, or } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { logActivity } from './services/activity';
+import { removeImage } from './services/moderation';
 
 export async function handleWebhook(c: Context) {
   const botToken = c.env.TELEGRAM_BOT_TOKEN;
@@ -126,6 +127,42 @@ export async function handleWebhook(c: Context) {
     );
   });
 
+  // Admin /stats command
+  bot.command('stats', async (ctx: GrammyContext) => {
+    const adminTgId = c.env.ADMIN_TELEGRAM_ID;
+    if (!adminTgId || String(ctx.from?.id) !== adminTgId) return;
+
+    const db = createDatabase(c.env.DB);
+    const [{ total: userCount }] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(users);
+    const [{ total: groupCount }] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(groups);
+    const [{ total: expenseCount }] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(expenses);
+    const [{ total: settlementCount }] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(settlements);
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const [{ total: activeGroups7d }] = await db
+      .select({ total: sql<number>`count(distinct ${expenses.groupId})` })
+      .from(expenses)
+      .where(sql`${expenses.createdAt} > ${sevenDaysAgo}`);
+
+    await ctx.reply(
+      `<b>Splitogram Stats</b>\n\n` +
+        `Users: <b>${userCount}</b>\n` +
+        `Groups: <b>${groupCount}</b>\n` +
+        `Expenses: <b>${expenseCount}</b>\n` +
+        `Settlements: <b>${settlementCount}</b>\n` +
+        `Active groups (7d): <b>${activeGroups7d}</b>`,
+      { parse_mode: 'HTML' },
+    );
+  });
+
   // Report moderation: admin taps Reject or Remove
   bot.on('callback_query:data', async (ctx: GrammyContext) => {
     const data = ctx.callbackQuery?.data;
@@ -172,39 +209,7 @@ export async function handleWebhook(c: Context) {
     } else if (action === 'rm') {
       // Remove — delete from R2 + DB reference, notify reporter, update caption
       const db = createDatabase(c.env.DB);
-      await c.env.IMAGES.delete(imageKey);
-
-      // Also delete thumbnail variant if exists
-      const thumbKey = imageKey.replace('.jpg', '-thumb.jpg');
-      await c.env.IMAGES.delete(thumbKey).catch(() => {});
-
-      // Clear DB column based on key prefix
-      const [prefix, entityIdStr] = imageKey.split('/');
-      const entityId = parseInt(entityIdStr, 10);
-
-      if (!isNaN(entityId)) {
-        if (prefix === 'avatars') {
-          await db.update(users).set({ avatarKey: null }).where(eq(users.id, entityId));
-        } else if (prefix === 'groups') {
-          await db.update(groups).set({ avatarKey: null }).where(eq(groups.id, entityId));
-        } else if (prefix === 'receipts') {
-          // Could be expense or settlement — clear both
-          await db
-            .update(expenses)
-            .set({ receiptKey: null, receiptThumbKey: null })
-            .where(or(eq(expenses.receiptKey, imageKey), eq(expenses.receiptThumbKey, imageKey)));
-          await db
-            .update(settlements)
-            .set({ receiptKey: null, receiptThumbKey: null })
-            .where(
-              or(eq(settlements.receiptKey, imageKey), eq(settlements.receiptThumbKey, imageKey)),
-            );
-        } else {
-          console.warn('[moderation:rm] Unknown key prefix:', prefix);
-        }
-      } else {
-        console.warn('[moderation:rm] Could not parse entityId from key:', imageKey);
-      }
+      await removeImage(c.env.IMAGES, db, imageKey);
 
       await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',

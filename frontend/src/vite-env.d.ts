@@ -56,6 +56,7 @@ interface TelegramWebApp {
   };
   close(): void;
   expand(): void;
+  openLink(url: string, options?: { try_instant_view?: boolean }): void;
   openTelegramLink(url: string): void;
   HapticFeedback?: {
     impactOccurred(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'): void;

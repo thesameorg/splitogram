@@ -44,6 +44,8 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
       .where(eq(users.telegramId, devMockUser.id))
       .limit(1);
 
+    const isAdmin =
+      !!c.env.ADMIN_TELEGRAM_ID && String(user.telegramId) === c.env.ADMIN_TELEGRAM_ID;
     return c.json({
       authenticated: true,
       user: {
@@ -52,6 +54,7 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
         username: user.username,
       },
       locale: 'en',
+      isAdmin,
       source: 'dev_bypass',
     });
   }
@@ -109,6 +112,8 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
 
     const [user] = await db.select().from(users).where(eq(users.telegramId, tgUser.id)).limit(1);
 
+    const isAdmin =
+      !!c.env.ADMIN_TELEGRAM_ID && String(user.telegramId) === c.env.ADMIN_TELEGRAM_ID;
     return c.json({
       authenticated: true,
       user: {
@@ -117,6 +122,7 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
         username: user.username,
       },
       locale,
+      isAdmin,
       source: 'initdata',
     });
   } catch (error) {

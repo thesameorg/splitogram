@@ -3,6 +3,7 @@ import { createContext, useContext, useState, type ReactNode, type SetStateActio
 interface UserData {
   avatarKey: string | null;
   displayName: string;
+  isAdmin: boolean;
 }
 
 interface UserContextValue {

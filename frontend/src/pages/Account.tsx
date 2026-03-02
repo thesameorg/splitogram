@@ -26,7 +26,7 @@ const LANGUAGES = [
 
 export function Account() {
   const { t, i18n } = useTranslation();
-  const { setUser: setUserContext } = useUser();
+  const { user: userCtx, setUser: setUserContext } = useUser();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editName, setEditName] = useState('');
@@ -66,7 +66,7 @@ export function Account() {
       setUserContext((prev) =>
         prev
           ? { ...prev, displayName: result.displayName }
-          : { displayName: result.displayName, avatarKey: null },
+          : { displayName: result.displayName, avatarKey: null, isAdmin: false },
       );
       setEditing(false);
       setSuccess(t('account.nameUpdated'));
@@ -291,6 +291,21 @@ export function Account() {
           {t('account.feedback')}
         </button>
       </div>
+
+      {/* Admin Dashboard Link */}
+      {userCtx?.isAdmin && (
+        <div className="mb-4">
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}/admin`;
+              window.Telegram?.WebApp?.openLink?.(url) ?? window.open(url, '_blank');
+            }}
+            className="w-full p-3 bg-tg-section rounded-xl border border-tg-separator text-left font-medium"
+          >
+            Admin Dashboard
+          </button>
+        </div>
+      )}
 
       {/* Language Picker Bottom Sheet */}
       <BottomSheet
