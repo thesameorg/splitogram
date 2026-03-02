@@ -94,6 +94,7 @@ app.get('/', async (c) => {
   const page = Math.max(1, parseInt(c.req.query('page') ?? '1', 10) || 1);
   const perPage = 20;
   const offset = (page - 1) * perPage;
+  const showDeleted = c.req.query('showDeleted') === '1';
 
   const groupRows = await db
     .select({
@@ -101,10 +102,13 @@ app.get('/', async (c) => {
       name: groups.name,
       currency: groups.currency,
       createdAt: groups.createdAt,
-      memberCount: sql<number>`(select count(*) from group_members where group_id = ${groups.id})`,
-      expenseCount: sql<number>`(select count(*) from expenses where group_id = ${groups.id})`,
+      memberCount:
+        sql<number>`(select count(*) from group_members where group_members.group_id = groups.id)`,
+      expenseCount:
+        sql<number>`(select count(*) from expenses where expenses.group_id = groups.id)`,
     })
     .from(groups)
+    .where(showDeleted ? undefined : sql`(select count(*) from group_members where group_members.group_id = groups.id) > 0`)
     .orderBy(desc(groups.createdAt))
     .limit(perPage)
     .offset(offset);
@@ -132,14 +136,23 @@ app.get('/', async (c) => {
     )
     .join('');
 
+  const showDeletedParam = showDeleted ? '&showDeleted=1' : '';
+  const toggleUrl = showDeleted ? `/admin?page=1` : `/admin?page=1&showDeleted=1`;
+
   const pagination = `<div class="flex gap-4 mt-4">
-    ${page > 1 ? `<a href="/admin?page=${page - 1}" class="text-blue-600 hover:underline">&larr; Prev</a>` : ''}
+    ${page > 1 ? `<a href="/admin?page=${page - 1}${showDeletedParam}" class="text-blue-600 hover:underline">&larr; Prev</a>` : ''}
     <span class="text-gray-500">Page ${page}</span>
-    ${hasMore ? `<a href="/admin?page=${page + 1}" class="text-blue-600 hover:underline">Next &rarr;</a>` : ''}
+    ${hasMore ? `<a href="/admin?page=${page + 1}${showDeletedParam}" class="text-blue-600 hover:underline">Next &rarr;</a>` : ''}
   </div>`;
 
   const table = `
-    <h2 class="text-lg font-semibold mb-3">Groups</h2>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">Groups</h2>
+      <label class="flex items-center gap-2 text-sm cursor-pointer select-none">
+        <input type="checkbox" ${showDeleted ? 'checked' : ''} onchange="window.location.href='${toggleUrl}'" class="rounded">
+        Show deleted (0 members)
+      </label>
+    </div>
     <div class="bg-white rounded-lg border overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-gray-100">
