@@ -1,8 +1,8 @@
 import { Context } from 'hono';
 import { Bot, webhookCallback, Context as GrammyContext } from 'grammy';
 import { createDatabase } from './db';
-import { users, groups, groupMembers } from './db/schema';
-import { eq, and } from 'drizzle-orm';
+import { users, groups, groupMembers, expenses, settlements } from './db/schema';
+import { eq, and, or } from 'drizzle-orm';
 import { logActivity } from './services/activity';
 
 export async function handleWebhook(c: Context) {
@@ -170,10 +170,67 @@ export async function handleWebhook(c: Context) {
 
       await ctx.answerCallbackQuery({ text: 'Rejected' });
     } else if (action === 'rm') {
-      // Remove — delete from R2, notify reporter, update caption
-      await c.env.IMAGES.delete(imageKey);
+      // Remove — delete from R2 + DB reference, notify reporter, update caption
+      console.log('[moderation:rm] Starting removal for key:', imageKey);
 
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      const db = createDatabase(c.env.DB);
+      await c.env.IMAGES.delete(imageKey);
+      console.log('[moderation:rm] R2 delete done:', imageKey);
+
+      // Also delete thumbnail variant if exists
+      const thumbKey = imageKey.replace('.jpg', '-thumb.jpg');
+      await c.env.IMAGES.delete(thumbKey).catch(() => {});
+      console.log('[moderation:rm] R2 thumb delete done:', thumbKey);
+
+      // Clear DB column based on key prefix
+      const [prefix, entityIdStr] = imageKey.split('/');
+      const entityId = parseInt(entityIdStr, 10);
+      console.log('[moderation:rm] Parsed key — prefix:', prefix, 'entityId:', entityIdStr);
+
+      if (!isNaN(entityId)) {
+        if (prefix === 'avatars') {
+          const result = await db
+            .update(users)
+            .set({ avatarKey: null })
+            .where(eq(users.id, entityId));
+          console.log('[moderation:rm] Cleared users.avatarKey for id:', entityId, result);
+        } else if (prefix === 'groups') {
+          const result = await db
+            .update(groups)
+            .set({ avatarKey: null })
+            .where(eq(groups.id, entityId));
+          console.log('[moderation:rm] Cleared groups.avatarKey for id:', entityId, result);
+        } else if (prefix === 'receipts') {
+          // Could be expense or settlement — clear both
+          const expResult = await db
+            .update(expenses)
+            .set({ receiptKey: null, receiptThumbKey: null })
+            .where(
+              or(eq(expenses.receiptKey, imageKey), eq(expenses.receiptThumbKey, imageKey)),
+            );
+          console.log('[moderation:rm] Cleared expenses receipt for key:', imageKey, expResult);
+          const setResult = await db
+            .update(settlements)
+            .set({ receiptKey: null, receiptThumbKey: null })
+            .where(
+              or(
+                eq(settlements.receiptKey, imageKey),
+                eq(settlements.receiptThumbKey, imageKey),
+              ),
+            );
+          console.log(
+            '[moderation:rm] Cleared settlements receipt for key:',
+            imageKey,
+            setResult,
+          );
+        } else {
+          console.warn('[moderation:rm] Unknown key prefix:', prefix);
+        }
+      } else {
+        console.warn('[moderation:rm] Could not parse entityId from key:', imageKey);
+      }
+
+      const notifyRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -181,7 +238,11 @@ export async function handleWebhook(c: Context) {
           text: 'Your report has been reviewed. The image has been removed.',
         }),
         signal: AbortSignal.timeout(10000),
-      }).catch(() => {});
+      }).catch((e) => {
+        console.error('[moderation:rm] Failed to notify reporter:', e);
+        return null;
+      });
+      console.log('[moderation:rm] Reporter notify status:', notifyRes?.status);
 
       const msgId = ctx.callbackQuery?.message?.message_id;
       const chatId = ctx.callbackQuery?.message?.chat.id;
