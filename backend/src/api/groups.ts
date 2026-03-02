@@ -617,7 +617,11 @@ groupsApp.delete('/:id', async (c) => {
     })(),
   );
 
-  // Cascade delete: expense_participants → expenses → settlements → group_members → group
+  // Cascade delete: all referencing tables must be cleaned before deleting the group.
+  // activity_log and debt_reminders also have FK references to groups.id — omitting them
+  // caused the final `delete groups` to fail with a FK constraint violation, while earlier
+  // deletes (expenses, group_members) had already succeeded, leaving the group orphaned
+  // but invisible (no group_members → not listed).
   // Get expense IDs for this group
   const groupExpenses = await db
     .select({ id: expenses.id })

@@ -131,7 +131,7 @@ export function GroupSettings() {
   async function handleCopyInvite() {
     if (!group) return;
     const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME;
-    const link = `https://t.me/${botUsername}?startapp=join_${group.inviteCode}`;
+    const link = `https://t.me/${botUsername}?start=join_${group.inviteCode}`;
     try {
       await navigator.clipboard.writeText(link);
       setSuccess(t('groupSettings.linkCopied'));

@@ -8,7 +8,7 @@ export function shareInviteLink(inviteCode: string, groupName: string): void {
 
   const webApp = window.Telegram?.WebApp;
   if (webApp?.openTelegramLink) {
-    const text = encodeURIComponent(`Join "${groupName}" on Splitogram! ${link}`);
+    const text = encodeURIComponent(`Join "${groupName}" on Splitogram!`);
     webApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`);
   } else {
     navigator.clipboard.writeText(link);

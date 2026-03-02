@@ -71,11 +71,11 @@ See `work_docs/research/3-frontend-framework.md` for full analysis.
 
 ## Navigation: 3-Tab Bottom Nav (implemented Phase 3)
 
-**Tabs:** Groups | Activity | Account
+**Tabs:** Groups | Feed | Account
 
 - **Groups** (`/`) — home screen, list of user's groups with balances
-- **Activity** (`/activity`) — placeholder ("coming soon"). Populated in Phase 7.
-- **Account** (`/account`) — editable display name via `PUT /api/v1/users/me`, read-only Telegram username. Language selector wired up in Phase 5. No theme selector — follows Telegram.
+- **Feed** (`/activity`) — cross-group activity feed with cursor-based pagination. Shows expense/settlement/member events across all groups with per-group currency formatting.
+- **Account** (`/account`) — editable display name + avatar via `PUT /api/v1/users/me`, read-only Telegram username. Language selector, feedback form, ToS/Privacy links.
 
 **Layout:** `AppLayout` wraps tabbed routes (`/`, `/activity`, `/account`, `/groups/:id`) with `BottomTabs`. Inner pages (AddExpense, GroupSettings, SettleUp) render without tabs — full-screen.
 
@@ -96,12 +96,14 @@ Small reusable components extracted from pages:
 
 ## Data Model
 
-- **users**: telegram_id, username, display_name, wallet_address, bot_started
-- **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by
+- **users**: telegram_id, username, display_name, wallet_address, bot_started, avatar_key
+- **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by, avatar_key, avatar_emoji
 - **group_members**: group_id, user_id, role (admin/member), muted
-- **expenses**: group_id, paid_by, amount (micro-units integer), description
+- **expenses**: group_id, paid_by, amount (micro-units integer), description, split_mode, receipt_key, receipt_thumb_key
 - **expense_participants**: expense_id, user_id, share_amount
-- **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, comment, settled_by
+- **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, comment, settled_by, receipt_key, receipt_thumb_key
+- **activity_log**: group_id, actor_id, type (group_created/expense_created/edited/deleted, settlement_completed, member_joined/left/kicked), target_user_id, expense_id, settlement_id, amount, metadata (JSON), created_at
+- **debt_reminders**: group_id, from_user_id (creditor), to_user_id (debtor), last_sent_at (24h cooldown)
 
 Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-group. No floating point.
 
@@ -119,11 +121,9 @@ Good enough for groups under 50 people. Tested with 6 cases.
 
 ---
 
-## Currency Support (Phase 2)
+## Currency Support (Phase 2 + Phase 4)
 
-15 currencies with correct symbols and decimal handling. Shared `utils/currencies.ts` + `utils/format.ts` in both backend and frontend (identical files). Amounts stored as micro-units (1 unit = 1,000,000) regardless of currency. Zero-decimal currencies (VND, JPY, IDR) display without decimals but use the same micro-unit storage.
-
-Full currency list with search to be added in Phase 4 — see `work_docs/research/exchange-rates.md`.
+150+ currencies with correct symbols and decimal handling. Full searchable currency list via `CurrencyPicker` component. Shared `utils/currencies.ts` + `utils/format.ts` in both backend and frontend (identical files). Amounts stored as micro-units (1 unit = 1,000,000) regardless of currency. Zero-decimal currencies (VND, JPY, IDR) display without decimals but use the same micro-unit storage. Currency is locked per-group once expenses exist.
 
 ---
 
@@ -238,27 +238,30 @@ Scaffolded from `/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`.
 
 ## DB Migrations
 
-| Migration | What                                   | Phase |
-| --------- | -------------------------------------- | ----- |
-| 0000      | Initial schema                         | 1     |
-| 0001      | Settlement comment + settledBy columns | 2     |
-| 0002      | Group currency column                  | 2     |
-| 0003      | users.botStarted + group_members.muted | 2     |
+| Migration | What                                                   | Phase |
+| --------- | ------------------------------------------------------ | ----- |
+| 0000      | Initial schema                                         | 1     |
+| 0001      | Settlement comment + settledBy columns                 | 2     |
+| 0002      | Group currency column                                  | 2     |
+| 0003      | users.botStarted + group_members.muted                 | 2     |
+| 0004      | avatar_key (users, groups), avatar_emoji, receipt keys | 6     |
+| 0005      | activity_log + debt_reminders tables                   | 7     |
+| 0006      | expenses.split_mode + settlements receipt keys         | 8     |
 
 ---
 
-## Pending Research & Decisions
+## Research & Decisions
 
 Each has a dedicated file in `work_docs/research/`:
 
-| Topic                               | Phase | File                                                                                         |
-| ----------------------------------- | ----- | -------------------------------------------------------------------------------------------- |
-| ~~Frontend framework / UI lib~~     | 3     | `3-frontend-framework.md` — **DECIDED: no library, stay with React + Tailwind**              |
-| Balance integrity rules             | 4     | `balance-integrity.md`                                                                       |
-| ~~Themes & preference persistence~~ | 5     | `done/5-themes-and-persistence.md` — **DECIDED: follow TG theme, CloudStorage for language** |
-| ~~i18n approach~~                   | 5     | `done/5-i18n-approach.md` — **DECIDED: react-i18next**                                       |
-| Image storage (R2)                  | 6     | `image-storage-r2.md`                                                                        |
-| Exchange rates                      | 7     | `exchange-rates.md`                                                                          |
-| TON Connect & crypto                | 10    | `ton-connect-crypto.md`                                                                      |
-| Growth & virality                   | 9     | `growth-virality.md`                                                                         |
-| AI & monetization                   | 11    | `ai-monetization.md`                                                                         |
+| Topic                           | Phase | Status  | File                                                        |
+| ------------------------------- | ----- | ------- | ----------------------------------------------------------- |
+| Frontend framework / UI lib     | 3     | Done    | `done/3-frontend-framework.md` — no library, React+Tailwind |
+| Balance integrity rules         | 4     | Done    | `done/4-balance-integrity.md`                               |
+| Themes & preference persistence | 5     | Done    | `done/5-themes-and-persistence.md` — TG theme, CloudStorage |
+| i18n approach                   | 5     | Done    | `done/5-i18n-approach.md` — react-i18next                   |
+| Image storage (R2)              | 6     | Done    | `done/6-image-storage-r2.md`                                |
+| Exchange rates                  | 10    | Pending | `10-exchange-rates.md`                                      |
+| TON Connect & crypto            | 10    | Pending | `10-ton-connect-crypto.md`                                  |
+| Growth & virality               | 9     | Skipped | `skipped/9-growth-virality.md`                              |
+| AI & monetization               | 11    | Pending | `11-ai-monetization.md`                                     |

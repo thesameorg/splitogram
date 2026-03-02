@@ -242,5 +242,5 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 ## Planning Docs
 
 - `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-8 done, Phase 9 next)
-- `work_docs/tech-decisions.md` — stack, architecture, key engineering principles
+- `docs/architecture.md` — stack, architecture, key engineering principles
 - `work_docs/idea.md` — business overview and competitive landscape

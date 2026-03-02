@@ -4,21 +4,21 @@ Telegram Mini App for splitting group expenses with on-chain USDT settlement on 
 
 ## Stack
 
-| Layer    | Tech                                                        |
-| -------- | ----------------------------------------------------------- |
-| Runtime  | Bun                                                         |
-| Backend  | Hono (Cloudflare Worker) + grammY + Drizzle ORM + Zod       |
-| Frontend | React 19 + Vite (Cloudflare Pages) + Tailwind + TON Connect |
-| Database | Cloudflare D1 (SQLite) + KV (sessions)                      |
-| CI/CD    | GitHub Actions → Cloudflare                                 |
+| Layer    | Tech                                                  |
+| -------- | ----------------------------------------------------- |
+| Runtime  | Bun                                                   |
+| Backend  | Hono (Cloudflare Worker) + grammY + Drizzle ORM + Zod |
+| Frontend | React 19 + Vite (Cloudflare Pages) + Tailwind         |
+| Database | Cloudflare D1 (SQLite)                                |
+| Storage  | Cloudflare R2 (images)                                |
+| CI/CD    | GitHub Actions → Cloudflare                           |
 
 ## Architecture
 
 ```
 Cloudflare Pages          Cloudflare Worker              Cloudflare D1 (SQLite)
-(frontend static)    →    (API + bot webhook)      →     Cloudflare KV (sessions)
-React + Vite               Hono + grammY + Drizzle        TONAPI (external REST)
-TON Connect UI
+(frontend static)    →    (API + bot webhook)      →     Cloudflare R2 (image storage)
+React + Vite + Tailwind    Hono + grammY + Drizzle        TONAPI (external REST)
 ```
 
 ## Development
@@ -53,8 +53,9 @@ bun run dev                    # backend + frontend in parallel
 bun run test                   # all tests
 bun run test:backend           # backend tests only
 bun run test:frontend          # frontend tests only
-bun run lint                   # lint all
 bun run typecheck              # typecheck all
+bun run format                 # prettier --write .
+bun run check                  # typecheck + lint + test (all at once)
 bun run db:generate            # generate migration from schema changes
 bun run db:migrate:local       # apply migrations locally
 bun run deploy                 # manual deploy (CI handles this)
@@ -86,11 +87,11 @@ Push to `main` triggers the full deploy pipeline:
 
 ## Project status
 
-Phase 1 (Core Prototype) and Phase 2 (Splitwise Polish) done. Phase 3 (Crypto Settlement) next. See [work_docs/PLAN.md](work_docs/PLAN.md) for the full roadmap.
+Phases 1–8 done (core expenses, settlements, groups, bot, images, i18n, activity feed, advanced splitting). See [work_docs/PLAN.md](work_docs/PLAN.md) for the full roadmap.
 
 ## Docs
 
 - [CLAUDE.md](CLAUDE.md) — full architecture, conventions, and local dev setup
 - [work_docs/PLAN.md](work_docs/PLAN.md) — 10-phase roadmap
 - [work_docs/idea.md](work_docs/idea.md) — business overview and competitive landscape
-- [work_docs/tech-decisions.md](work_docs/tech-decisions.md) — stack and architecture decisions
+- [docs/architecture.md](docs/architecture.md) — stack and architecture decisions
