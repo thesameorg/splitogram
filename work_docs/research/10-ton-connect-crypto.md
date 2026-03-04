@@ -48,7 +48,7 @@ Phase 1 had a basic TON Connect integration with testnet USDT. Code exists but w
 - [ ] Measure gas variability under different network loads
 - [ ] TON/USD rate for gas estimation — use cached rate from exchange-rates service or TONAPI?
 - [ ] Track direct settlements separately (they bypass the contract's `total_processed` counter)
-- [ ] UX: silent fallback or explicit "Direct transfer (no fee)" vs "Via SplitBill (1% commission)" choice?
+- [ ] UX: silent fallback or explicit "Direct transfer (no fee)" vs "Via Splitogram (1% commission)" choice?
 
 ### Currency scope
 

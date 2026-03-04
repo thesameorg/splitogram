@@ -1,4 +1,4 @@
-# SplitBill TWA — Smart Contract Settlement Manual
+# Splitogram TWA — Smart Contract Settlement Manual
 
 > A practical guide to building, testing, and deploying a TON smart contract that handles P2P settlements with a service commission for a Splitwise-like Telegram Mini App.
 
@@ -34,7 +34,7 @@ The system consists of three layers:
                    │ signs & sends transactions
                    ▼
 ┌─────────────────────────────────────────────────┐
-│           SplitBill Settlement Contract          │
+│           Splitogram Settlement Contract          │
 │                  (on TON blockchain)             │
 │                                                  │
 │  Receives USDT → takes commission → forwards     │
@@ -133,14 +133,14 @@ User A owes User B 100 USDT. Commission: 1%.
 npm create ton@latest
 
 # Interactive prompts:
-# Project name: splitbill-contract
+# Project name: splitogram-contract
 # Template: tact-empty
 ```
 
 This generates:
 
 ```
-splitbill-contract/
+splitogram-contract/
 ├── contracts/         # .tact smart contract files
 ├── scripts/           # deploy and interaction scripts
 ├── tests/             # Jest test files
@@ -152,7 +152,7 @@ splitbill-contract/
 ### Install dependencies
 
 ```bash
-cd splitbill-contract
+cd splitogram-contract
 npm install
 ```
 
@@ -202,7 +202,7 @@ forward_payload = beginCell()
 
 ## 6. Contract Implementation (Tact)
 
-Below is a reference implementation. Place this in `contracts/SplitBillSettlement.tact`:
+Below is a reference implementation. Place this in `contracts/SplitogramSettlement.tact`:
 
 ```tact
 import "@stdlib/deploy";
@@ -234,7 +234,7 @@ message WithdrawTon {
     amount: Int as coins;
 }
 
-contract SplitBillSettlement with Deployable, Ownable {
+contract SplitogramSettlement with Deployable, Ownable {
 
     owner: Address;
     commission_bps: Int as uint16;    // basis points (100 = 1%)
@@ -372,16 +372,16 @@ struct Stats {
 
 Blueprint uses `@ton/sandbox` — a local in-process blockchain emulator. No network, no testnet, instant execution.
 
-Create `tests/SplitBillSettlement.spec.ts`:
+Create `tests/SplitogramSettlement.spec.ts`:
 
 ```typescript
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
 import { toNano } from '@ton/core';
-import { SplitBillSettlement } from '../wrappers/SplitBillSettlement';
+import { SplitogramSettlement } from '../wrappers/SplitogramSettlement';
 
-describe('SplitBillSettlement', () => {
+describe('SplitogramSettlement', () => {
   let blockchain: Blockchain;
-  let contract: SandboxContract<SplitBillSettlement>;
+  let contract: SandboxContract<SplitogramSettlement>;
   let owner: SandboxContract<TreasuryContract>;
   let userA: SandboxContract<TreasuryContract>;
   let userB: SandboxContract<TreasuryContract>;
@@ -394,7 +394,7 @@ describe('SplitBillSettlement', () => {
 
     // Deploy contract
     contract = blockchain.openContract(
-      await SplitBillSettlement.fromInit(
+      await SplitogramSettlement.fromInit(
         owner.address,
         100n, // 1% commission in basis points
       ),
@@ -508,7 +508,7 @@ Host this file at your app's URL (e.g., `https://your-app.com/tonconnect-manifes
 ```json
 {
   "url": "https://your-app.com",
-  "name": "SplitBill",
+  "name": "Splitogram",
   "iconUrl": "https://your-app.com/icon.png"
 }
 ```
@@ -532,7 +532,7 @@ import { beginCell, Address, toNano } from '@ton/core';
 async function sendSettlement(
   tonConnectUI: TonConnectUI,
   userJettonWalletAddress: string, // sender's USDT Jetton Wallet
-  contractAddress: string, // SplitBill contract
+  contractAddress: string, // Splitogram contract
   recipientAddress: string, // who receives the remainder
   amountInUSDT: number, // e.g. 100.0
 ) {
@@ -714,7 +714,7 @@ Gas costs per settlement: approximately 0.25-0.35 TON (~$0.08-0.12 at current pr
 
 ### The problem
 
-On-chain settlement via the SplitBill contract costs ~0.25-0.35 TON in gas (~$0.08-0.12). For small debts, this gas cost can be a significant percentage of the settlement amount — e.g., settling $1 with $0.10 in gas is a 10% overhead. That's unfair to the user.
+On-chain settlement via the Splitogram contract costs ~0.25-0.35 TON in gas (~$0.08-0.12). For small debts, this gas cost can be a significant percentage of the settlement amount — e.g., settling $1 with $0.10 in gas is a 10% overhead. That's unfair to the user.
 
 ### Decision: direct transfer fallback for small amounts
 
@@ -728,7 +728,7 @@ If the estimated gas cost exceeds **N%** of the settlement amount, the app shoul
 5. No commission collected on direct transfers
 
 **Contract flow (normal):**
-1. Gas ratio below threshold → route through SplitBill contract as designed
+1. Gas ratio below threshold → route through Splitogram contract as designed
 2. Contract splits: commission → owner, remainder → recipient
 3. Commission collected
 
@@ -737,7 +737,7 @@ If the estimated gas cost exceeds **N%** of the settlement amount, the app shoul
 - **Threshold value:** What % is fair? 5%? 10%? Need to profile actual gas costs on testnet to decide. At ~$0.10 gas, 5% threshold means direct transfer for settlements under ~$2, 10% threshold means under ~$1.
 - **Gas estimation accuracy:** Is 0.25-0.35 TON stable, or does it vary significantly with network load? Profile on testnet across multiple scenarios.
 - **TON price volatility:** Gas is in TON but settlement is in USDT. A TON price spike could push the gas ratio above threshold for larger amounts. Should the threshold use a cached TON/USD rate?
-- **UX:** Should the user see "Direct transfer (no fee)" vs "Via SplitBill (1% commission)"? Or just handle it silently?
+- **UX:** Should the user see "Direct transfer (no fee)" vs "Via Splitogram (1% commission)"? Or just handle it silently?
 - **Tracking:** Direct transfers bypass the contract, so `total_processed` / `total_commission` getters won't reflect them. Backend must track direct settlements separately for analytics.
 - **Verification:** Direct transfers are standard Jetton transfers — verify via TONAPI the same way, just check sender→recipient instead of sender→contract→recipient chain.
 
@@ -781,4 +781,4 @@ If TON coin settlement is added later, it's a second `receive()` handler in the 
 
 ---
 
-_Document prepared for Dmitry / Quberas — SplitBill TWA project. March 2026._
+_Document prepared for Dmitry / Quberas — Splitogram TWA project. March 2026._

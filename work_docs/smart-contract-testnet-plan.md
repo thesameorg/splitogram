@@ -1,6 +1,6 @@
 # Smart Contract Testnet Plan — Step by Step
 
-> First-time deployment of a Jetton (test USDT) + SplitBill settlement contract on TON testnet.
+> First-time deployment of a Jetton (test USDT) + Splitogram settlement contract on TON testnet.
 > Goal: deploy, mint, send test transactions between 3 wallets, inspect everything on-chain.
 
 ---
@@ -100,7 +100,7 @@ You need **3 separate testnet wallets**. Use **Tonkeeper** (mobile) or **MyTonWa
 3. Create **3 separate wallets** (use "Add Wallet" → "New Wallet") and label them:
    - **Wallet A** — "Sender" (the person paying a debt)
    - **Wallet B** — "Receiver" (the creditor receiving payment)
-   - **Wallet C** — "Fee Collector" (the SplitBill service owner, receives commission)
+   - **Wallet C** — "Fee Collector" (the Splitogram service owner, receives commission)
 4. **Write down all 3 addresses** — you'll need them throughout
 
 #### Option B: MyTonWallet (Chrome extension)
@@ -136,7 +136,7 @@ Real USDT doesn't exist on testnet. We'll mint our own "Test USDT" (tUSDT) with 
    - **Symbol:** `tUSDT`
    - **Decimals:** `6` ← critical, must match real USDT
    - **Amount to mint:** `1000000000` (= 1,000 tUSDT since 6 decimals)
-   - **Description:** `Test USDT for SplitBill testnet`
+   - **Description:** `Test USDT for Splitogram testnet`
 4. Click Deploy → confirm transaction in wallet
 5. **Save the Jetton Master address** — you'll need it everywhere
 
@@ -175,7 +175,7 @@ After minting, send tUSDT from Wallet C to other wallets:
 
 ---
 
-## Phase 2: Build & Test the SplitBill Settlement Contract
+## Phase 2: Build & Test the Splitogram Settlement Contract
 
 ### 2.1 Create Blueprint Project — 🤖 Claude does this
 
@@ -184,16 +184,16 @@ cd ~/repos/splitogram
 mkdir -p contracts
 cd contracts
 npm create ton@latest
-# Project name: splitbill-contract
+# Project name: splitogram-contract
 # Template: tact-empty
 
-cd splitbill-contract
+cd splitogram-contract
 npm install
 ```
 
 ### 2.2 Write the Contract — 🤖 Claude does this
 
-Claude writes `contracts/SplitBillSettlement.tact` based on the reference in `smart-contract.md`:
+Claude writes `contracts/SplitogramSettlement.tact` based on the reference in `smart-contract.md`:
 
 - Receives Jetton (tUSDT) via `TokenNotification`
 - Splits: commission → Wallet C, remainder → recipient from `forward_payload`
@@ -203,7 +203,7 @@ Claude writes `contracts/SplitBillSettlement.tact` based on the reference in `sm
 
 ### 2.3 Write Tests — 🤖 Claude does this
 
-Claude writes `tests/SplitBillSettlement.spec.ts` using `@ton/sandbox` (local blockchain emulator):
+Claude writes `tests/SplitogramSettlement.spec.ts` using `@ton/sandbox` (local blockchain emulator):
 
 - Deploy correctly
 - Happy path: 100 tUSDT → 99 to recipient, 1 to owner
@@ -231,7 +231,7 @@ npx blueprint build
 
 ### 3.1 Write Deploy Script — 🤖 Claude does this
 
-Claude writes `scripts/deploySplitBillSettlement.ts`:
+Claude writes `scripts/deploySplitogramSettlement.ts`:
 
 - Sets `owner` = Wallet C address
 - Sets `commission_bps` = 100 (1%)
@@ -240,7 +240,7 @@ Claude writes `scripts/deploySplitBillSettlement.ts`:
 ### 3.2 Deploy — 🧑 MANUAL (wallet confirmation required)
 
 ```bash
-npx blueprint run deploySplitBillSettlement --testnet --tonconnect
+npx blueprint run deploySplitogramSettlement --testnet --tonconnect
 ```
 
 1. A QR code / deep link appears
@@ -266,7 +266,7 @@ npx blueprint run deploySplitBillSettlement --testnet --tonconnect
 
 **What happens:**
 
-- Wallet A sends 100 tUSDT to the SplitBill contract with Wallet B as recipient
+- Wallet A sends 100 tUSDT to the Splitogram contract with Wallet B as recipient
 - Contract splits: 99 tUSDT → Wallet B, 1 tUSDT → Wallet C
 
 **How to execute — 🧑 MANUAL + 🤖 Claude writes the script**
@@ -277,7 +277,7 @@ Claude writes `scripts/testSettlement.ts`:
 // Pseudocode — Claude will write the real version
 // 1. Build Jetton transfer message:
 //    - amount: 100_000_000 (100 tUSDT)
-//    - destination: SplitBill contract
+//    - destination: Splitogram contract
 //    - forward_payload: op=0 + Wallet B address
 //    - forward_ton_amount: 0.3 TON (gas)
 // 2. Send via TON Connect (Wallet A confirms)
@@ -355,7 +355,7 @@ npx blueprint run verifyState --testnet
 | Mint test Jetton (tUSDT)        | 🧑 Manual (minter.ton.org?testnet=true)      |
 | Distribute tUSDT to wallets     | 🧑 Manual (wallet app)                       |
 | Create Blueprint project        | 🤖 Claude                                    |
-| Write SplitBill Tact contract   | 🤖 Claude                                    |
+| Write Splitogram Tact contract   | 🤖 Claude                                    |
 | Write Sandbox tests             | 🤖 Claude                                    |
 | Run tests locally               | 🤖 Claude (runs `npx blueprint test`)        |
 | Write deploy script             | 🤖 Claude                                    |
@@ -382,7 +382,7 @@ npx blueprint run verifyState --testnet
 - [ ] **1.3** Send tUSDT: 500 → Wallet A, 100 → Wallet B
 - [ ] **1.4** Verify tUSDT balances on Tonviewer
 - [ ] **2.1** Claude creates Blueprint project
-- [ ] **2.2** Claude writes SplitBill Tact contract
+- [ ] **2.2** Claude writes Splitogram Tact contract
 - [ ] **2.3** Claude writes Sandbox tests
 - [ ] **2.4** Run tests → all pass
 - [ ] **2.5** Build contract
@@ -409,7 +409,7 @@ All wallets: W5 (uninit), testnet
 Wallet file: .envs/ton_wallets.json
 
 tUSDT Jetton Master:   ___________________________________
-SplitBill Contract:    ___________________________________
+Splitogram Contract:    ___________________________________
 
 TONAPI Key:            (in .dev.vars)
 ```
