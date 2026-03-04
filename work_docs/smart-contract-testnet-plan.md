@@ -370,9 +370,9 @@ npx blueprint run verifyState --testnet
 
 ## Order of Operations (checklist)
 
-- [ ] **0.1** Get TONAPI key from tonconsole.com
-- [ ] **0.2** Clone & install TON MCP servers (or decide to use TONAPI REST fallback)
-- [ ] **0.3** Configure MCP in Claude Code settings
+- [x] **0.1** Get TONAPI key from tonconsole.com
+- [x] **0.2** Clone & install TON MCP servers (or decide to use TONAPI REST fallback) — `ton-blockchain-mcp` installed & working (mainnet only); `kriuchkov/ton-mcp` skipped. Testnet → TONAPI REST fallback.
+- [x] **0.3** Configure MCP in Claude Code settings — `ton-blockchain-mcp` configured globally
 - [ ] **0.4** Bookmark all diagnostic URLs
 - [ ] **0.5** Create 3 testnet wallets, write down addresses
 - [ ] **0.6** Fund all 3 wallets via @testgiver_ton_bot

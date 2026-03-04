@@ -11,23 +11,26 @@ allowed-tools: Bash(*), Read, Grep, Glob
 
 You are helping the user manage MCP servers. Interpret `$ARGUMENTS` to determine the action.
 
-## Configuration Files & Scopes
+## Configuration Scopes
 
 MCP servers operate at three scopes:
 
-| Scope | Flag | Config File | Who Sees It |
-|-------|------|-------------|-------------|
-| `local` | *(default)* | `~/.claude.json` | Only you, current project only |
-| `project` | `--scope project` | `.mcp.json` in project root | Everyone on the project (commit this) |
-| `user` | `--scope user` | `~/.claude.json` | Only you, all projects |
+| Scope | Flag | Where it writes | Visibility |
+|-------|------|-----------------|------------|
+| `local` | `-s local` *(default)* | `~/.claude.json` → `projects.<path>.mcpServers` | Only you, current project only |
+| `project` | `-s project` | `.mcp.json` in project root | Everyone on the project (commit this) |
+| `user` | `-s user` | `~/.claude.json` → top-level `mcpServers` | Only you, all projects |
 
-`local` and `user` both live in `~/.claude.json` but under different keys — `local` is nested under the project path, `user` is global. Project scope lives in `.mcp.json` at the project root (version-controlled).
+### Key points
 
-**Important:** `~/.claude/settings.json` does NOT load MCP servers. MCP config always goes in `~/.claude.json` or `.mcp.json`.
+- **`local`** (default) is the best choice for private, project-specific servers. Config lives in `~/.claude.json` nested under the project path — outside the repo, invisible to git, scoped to this project.
+- **`project`** writes `.mcp.json` to the repo root — meant for team-shared servers. Add to `.gitignore` if you don't want it committed.
+- **`user`** is global — server appears in every project.
+- `~/.claude/settings.json` does NOT load MCP servers.
 
 ### Config Format
 
-Both `~/.claude.json` and `.mcp.json` use the same `mcpServers` JSON structure:
+`.mcp.json` (project scope) uses this structure:
 
 ```json
 {
@@ -42,7 +45,7 @@ Both `~/.claude.json` and `.mcp.json` use the same `mcpServers` JSON structure:
 }
 ```
 
-For `~/.claude.json`, user-scope servers sit at the top level. Local-scope servers are nested under the project path:
+`~/.claude.json` holds both user and local scope:
 
 ```json
 {
@@ -57,26 +60,26 @@ For `~/.claude.json`, user-scope servers sit at the top level. Local-scope serve
 
 ### Load Order (precedence, later wins)
 
-1. User scope (`~/.claude.json` global section)
+1. User scope (`~/.claude.json` global `mcpServers`)
 2. Project scope (`.mcp.json` in project root)
-3. Local scope (`~/.claude.json` under the project path)
+3. Local scope (`~/.claude.json` under `projects.<path>.mcpServers`)
 
 ## CLI Commands
 
 ### Adding servers
 
 ```bash
-# Basic (local scope, default)
+# Local scope (default) — private, project-specific, outside repo
 claude mcp add <name> -- <command> [args...]
 
-# Project scope (shared via .mcp.json)
-claude mcp add <name> --scope project -- <command> [args...]
+# With env vars (put -e flags BEFORE --, name and command AFTER --)
+claude mcp add -e API_KEY=xxx -e OTHER=yyy -- <name> <command> [args...]
+
+# Project scope (shared via .mcp.json in repo root)
+claude mcp add -s project -- <name> <command> [args...]
 
 # User scope (all your projects)
-claude mcp add <name> --scope user -- <command> [args...]
-
-# With env vars
-claude mcp add github --scope user -e GITHUB_TOKEN=ghp_xxx -- npx -y @modelcontextprotocol/server-github
+claude mcp add -s user -- <name> <command> [args...]
 
 # Remote (SSE)
 claude mcp add --transport sse my-remote --header "Authorization: Bearer ${TOKEN}" https://api.example.com/sse
@@ -88,12 +91,21 @@ claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
 claude mcp add-json my-server '{"type":"stdio","command":"npx","args":["-y","@some/mcp-package"],"env":{"API_KEY":"abc123"}}'
 ```
 
+**Gotcha:** The `--` separator is required when using `-e` flags. Without it, the CLI misparses the server name as an env var. Correct order: `claude mcp add -e KEY=val -- name command args`.
+
+### Removing servers
+
+```bash
+claude mcp remove <name>               # remove from local scope (default)
+claude mcp remove -s project <name>    # remove from project scope
+claude mcp remove -s user <name>       # remove from user scope
+```
+
 ### Other commands
 
 ```bash
-claude mcp list                   # list all registered servers
+claude mcp list                   # list all registered servers + health check
 claude mcp get <name>             # show config for a specific server
-claude mcp remove <name>          # remove a server
 claude mcp reset-project-choices  # reset approve/deny decisions for .mcp.json servers
 ```
 
@@ -116,10 +128,11 @@ claude mcp reset-project-choices  # reset approve/deny decisions for .mcp.json s
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
 | Server shows `failed` | Binary not found or bad args | Test the command manually |
-| Server not in `/mcp` | Config in wrong file | Check `~/.claude.json` vs `.mcp.json` |
+| Server not in `/mcp` | Config in wrong file/scope | Check `~/.claude.json` vs `.mcp.json` |
 | `command not found: npx` | PATH not set | Use full path or add to `env` block |
 | Server times out | Slow init | `MCP_TIMEOUT=15000` |
-| Works locally, not in project | Scope mismatch | Use `--scope project` or check `.mcp.json` |
+| Works locally, not in project | Scope mismatch | Use `-s project` or check `.mcp.json` |
+| `claude mcp list` output empty | TTY rendering issue | Redirect: `claude mcp list > /tmp/out.txt; cat /tmp/out.txt` |
 
 ## Notable Servers
 
@@ -144,9 +157,9 @@ claude mcp reset-project-choices  # reset approve/deny decisions for .mcp.json s
 When the user invokes `/mcp`:
 
 1. **No arguments or "help"** — Show a brief summary of available actions (add, remove, list, debug, find).
-2. **"add <name>"** — Guide them through adding the server. Ask about scope if not specified. Prefer `add-json` for complex configs.
-3. **"remove <name>"** — Run `claude mcp remove <name>`.
-4. **"list"** — Run `claude mcp list`.
+2. **"add <name>"** — Guide them through adding the server. Ask about scope if not specified. Prefer `add-json` for complex configs. Default to `local` scope for private servers.
+3. **"remove <name>"** — Run `claude mcp remove <name>`. Ask about scope if needed.
+4. **"list"** — Run `claude mcp list > /tmp/mcp_list.txt 2>&1; cat /tmp/mcp_list.txt` (direct output often invisible due to TTY rendering).
 5. **"debug" or "fix"** — Walk through the debugging steps above. Read config files, check for common issues.
 6. **"find <topic>"** or "search"** — Help them find a suitable MCP server using WebSearch if needed, then help install it.
 7. **Any other query** — Use the reference above to answer their MCP-related question.
