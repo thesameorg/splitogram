@@ -710,7 +710,61 @@ EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs
 
 Gas costs per settlement: approximately 0.25-0.35 TON (~$0.08-0.12 at current prices), paid by the sender.
 
-## Appendix B: Glossary
+## Appendix B: Settlement Economics & Direct Transfer Fallback
+
+### The problem
+
+On-chain settlement via the SplitBill contract costs ~0.25-0.35 TON in gas (~$0.08-0.12). For small debts, this gas cost can be a significant percentage of the settlement amount — e.g., settling $1 with $0.10 in gas is a 10% overhead. That's unfair to the user.
+
+### Decision: direct transfer fallback for small amounts
+
+If the estimated gas cost exceeds **N%** of the settlement amount, the app should offer a **direct wallet-to-wallet USDT transfer** instead of routing through the contract. This skips the commission but also skips the gas overhead of the contract's two outgoing messages.
+
+**Direct transfer flow:**
+1. Frontend calculates: `gasCostUSD / settlementAmountUSD > threshold`
+2. If above threshold → build a standard Jetton transfer directly to the recipient (no contract)
+3. User confirms in wallet → USDT goes straight from sender to recipient
+4. Backend marks settlement as `settled_onchain` with `direct: true` flag
+5. No commission collected on direct transfers
+
+**Contract flow (normal):**
+1. Gas ratio below threshold → route through SplitBill contract as designed
+2. Contract splits: commission → owner, remainder → recipient
+3. Commission collected
+
+### Open questions (resolve during development)
+
+- **Threshold value:** What % is fair? 5%? 10%? Need to profile actual gas costs on testnet to decide. At ~$0.10 gas, 5% threshold means direct transfer for settlements under ~$2, 10% threshold means under ~$1.
+- **Gas estimation accuracy:** Is 0.25-0.35 TON stable, or does it vary significantly with network load? Profile on testnet across multiple scenarios.
+- **TON price volatility:** Gas is in TON but settlement is in USDT. A TON price spike could push the gas ratio above threshold for larger amounts. Should the threshold use a cached TON/USD rate?
+- **UX:** Should the user see "Direct transfer (no fee)" vs "Via SplitBill (1% commission)"? Or just handle it silently?
+- **Tracking:** Direct transfers bypass the contract, so `total_processed` / `total_commission` getters won't reflect them. Backend must track direct settlements separately for analytics.
+- **Verification:** Direct transfers are standard Jetton transfers — verify via TONAPI the same way, just check sender→recipient instead of sender→contract→recipient chain.
+
+### Settlement type matrix
+
+| Settlement amount | Gas ratio | Path | Commission | Gas cost |
+|---|---|---|---|---|
+| $0.50 | ~20% | Direct transfer | None | ~0.05 TON (single transfer) |
+| $1.00 | ~10% | Direct transfer | None | ~0.05 TON |
+| $5.00 | ~2% | Via contract | $0.05 (1%) | ~0.30 TON |
+| $50.00 | ~0.2% | Via contract | $0.50 (1%) | ~0.30 TON |
+| $100.00 | ~0.1% | Via contract | $1.00 (1%) | ~0.30 TON |
+
+_Note: Gas estimates are approximate. Direct transfers cost less (~0.05 TON) because they involve one Jetton transfer message instead of three (transfer + two outgoing splits). Exact values TBD during testnet profiling._
+
+### Currency scope
+
+**USDT only for Phase 10.** Rationale:
+- Debts are in fiat (USD, EUR, etc.) — USDT maps ~1:1 to USD, simple conversion
+- USDT is the dominant stablecoin on TON (~$1B+ circulating)
+- No price oracle needed (USD ≈ USDT)
+- One contract, one Jetton Wallet, minimal attack surface
+- Native TON settlement would require a price oracle and slippage handling — deferred to Phase 11
+
+If TON coin settlement is added later, it's a second `receive()` handler in the same contract (not a new contract). Multi-Jetton support would use an `accepted_jettons` map — also same contract. No need for per-Jetton contracts in any scenario.
+
+## Appendix C: Glossary
 
 | Term                   | Meaning                                                             |
 | ---------------------- | ------------------------------------------------------------------- |

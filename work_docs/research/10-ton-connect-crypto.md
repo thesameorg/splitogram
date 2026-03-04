@@ -41,13 +41,32 @@ Phase 1 had a basic TON Connect integration with testnet USDT. Code exists but w
 - [ ] Background polling for confirmation, or user-triggered "refresh"?
 - [ ] What if user closes the app mid-payment?
 
+### Settlement economics & gas threshold
+
+- [ ] Profile actual gas costs on testnet: contract settlement (3-message chain) vs direct transfer (1 message)
+- [ ] Determine threshold N% — if gas > N% of settlement amount, use direct transfer instead of contract
+- [ ] Measure gas variability under different network loads
+- [ ] TON/USD rate for gas estimation — use cached rate from exchange-rates service or TONAPI?
+- [ ] Track direct settlements separately (they bypass the contract's `total_processed` counter)
+- [ ] UX: silent fallback or explicit "Direct transfer (no fee)" vs "Via SplitBill (1% commission)" choice?
+
+### Currency scope
+
+- [ ] Confirm USDT-only for Phase 10 (no native TON, no other Jettons)
+- [ ] If TON coin settlement is ever added: needs price oracle, slippage, second `receive()` handler — same contract, no new deployment
+- [ ] Multi-Jetton: same contract with `accepted_jettons` map — evaluate demand before building
+
 ## Q&A decisions needed
 
 1. **Rate API source** — CoinGecko, Binance, or other
 2. **Conversion display** — show rate? Show USDT amount only? Show both?
 3. **Timeout for pending payments** — auto-rollback after N minutes?
 4. **Multiple wallets** — support multiple connected wallets per user, or just one at a time?
+5. **Direct transfer threshold** — what % of settlement amount makes gas "too expensive"? (5%? 10%?)
+6. **Direct transfer UX** — silent fallback or user choice?
 
 ## Decision
 
-_Deferred. Revisit when Phases 3-8 are complete._
+- **Currency:** USDT only for Phase 10. TON coin and multi-Jetton deferred to Phase 11.
+- **Economics:** Direct transfer fallback for small amounts where gas > N% of settlement. Threshold TBD after testnet gas profiling. See `smart-contract.md` Appendix B for full economics.
+- _Other decisions deferred. Revisit when ready to start Phase 10._

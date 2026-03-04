@@ -379,11 +379,17 @@ All Phase 2 specs completed and archived.
 10. Error UX: insufficient balance, tx rejected, wallet disconnected
 11. Switch to mainnet after testnet validation
 
+**Economics:**
+
+- USDT only (no TON coin — would need price oracle + slippage handling, deferred to Phase 11)
+- **Direct transfer fallback:** if gas cost > N% of settlement amount, skip the contract and do a direct wallet-to-wallet USDT transfer (no commission, lower gas). Threshold TBD during testnet gas profiling.
+- Commission: 1% via contract, 0% for direct transfers. See `smart-contract.md` Appendix B for full economics.
+- Gas profiling: measure actual costs on testnet before setting the direct-transfer threshold.
+
 **Scope boundaries:**
 
-- USDT only (no TON coin yet)
+- USDT only (no TON coin, no other Jettons)
 - No partial payments
-- No transaction fees
 - No rate guarantees — small slippage accepted
 
 **Success criteria:**
@@ -391,6 +397,7 @@ All Phase 2 specs completed and archived.
 - First real USDT settlement on-chain
 - Zero false "settled" states
 - Non-crypto users unaffected (manual settlement still works)
+- Gas costs verified on testnet, direct-transfer threshold set based on real data
 
 ---
 
