@@ -1,0 +1,154 @@
+---
+name: mcp
+description: Manage MCP (Model Context Protocol) servers for Claude Code. Use when the user asks to add, remove, debug, list, or configure MCP servers, or asks about MCP config files, scopes, or troubleshooting.
+disable-model-invocation: true
+user-invocable: true
+argument-hint: [action] [server-name]
+allowed-tools: Bash(*), Read, Grep, Glob
+---
+
+# MCP Server Management for Claude Code
+
+You are helping the user manage MCP servers. Interpret `$ARGUMENTS` to determine the action.
+
+## Configuration Files & Scopes
+
+MCP servers operate at three scopes:
+
+| Scope | Flag | Config File | Who Sees It |
+|-------|------|-------------|-------------|
+| `local` | *(default)* | `~/.claude.json` | Only you, current project only |
+| `project` | `--scope project` | `.mcp.json` in project root | Everyone on the project (commit this) |
+| `user` | `--scope user` | `~/.claude.json` | Only you, all projects |
+
+`local` and `user` both live in `~/.claude.json` but under different keys — `local` is nested under the project path, `user` is global. Project scope lives in `.mcp.json` at the project root (version-controlled).
+
+**Important:** `~/.claude/settings.json` does NOT load MCP servers. MCP config always goes in `~/.claude.json` or `.mcp.json`.
+
+### Config Format
+
+Both `~/.claude.json` and `.mcp.json` use the same `mcpServers` JSON structure:
+
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@some/mcp-package"],
+      "env": { "API_KEY": "your-key-here" }
+    }
+  }
+}
+```
+
+For `~/.claude.json`, user-scope servers sit at the top level. Local-scope servers are nested under the project path:
+
+```json
+{
+  "mcpServers": { "my-global-tool": { ... } },
+  "projects": {
+    "/path/to/project": {
+      "mcpServers": { "project-local-tool": { ... } }
+    }
+  }
+}
+```
+
+### Load Order (precedence, later wins)
+
+1. User scope (`~/.claude.json` global section)
+2. Project scope (`.mcp.json` in project root)
+3. Local scope (`~/.claude.json` under the project path)
+
+## CLI Commands
+
+### Adding servers
+
+```bash
+# Basic (local scope, default)
+claude mcp add <name> -- <command> [args...]
+
+# Project scope (shared via .mcp.json)
+claude mcp add <name> --scope project -- <command> [args...]
+
+# User scope (all your projects)
+claude mcp add <name> --scope user -- <command> [args...]
+
+# With env vars
+claude mcp add github --scope user -e GITHUB_TOKEN=ghp_xxx -- npx -y @modelcontextprotocol/server-github
+
+# Remote (SSE)
+claude mcp add --transport sse my-remote --header "Authorization: Bearer ${TOKEN}" https://api.example.com/sse
+
+# Remote (HTTP)
+claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
+
+# JSON format (preferred for complex configs)
+claude mcp add-json my-server '{"type":"stdio","command":"npx","args":["-y","@some/mcp-package"],"env":{"API_KEY":"abc123"}}'
+```
+
+### Other commands
+
+```bash
+claude mcp list                   # list all registered servers
+claude mcp get <name>             # show config for a specific server
+claude mcp remove <name>          # remove a server
+claude mcp reset-project-choices  # reset approve/deny decisions for .mcp.json servers
+```
+
+## Debugging
+
+### Step-by-step
+
+1. **Check registration:** `claude mcp list` and `claude mcp get <name>`
+2. **Check connection inside session:** run `/mcp` — shows `connected` or `failed` per server
+3. **Verbose startup:** `claude --mcp-debug`
+4. **Slow server:** `MCP_TIMEOUT=15000 claude`
+5. **Test binary directly:**
+   ```bash
+   echo '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{}},"id":1}' | npx -y @some/mcp-package
+   ```
+6. **Find stuck processes:** `ps aux | grep mcp` then `kill <pid>`
+
+### Common issues
+
+| Symptom | Likely cause | Fix |
+|---------|-------------|-----|
+| Server shows `failed` | Binary not found or bad args | Test the command manually |
+| Server not in `/mcp` | Config in wrong file | Check `~/.claude.json` vs `.mcp.json` |
+| `command not found: npx` | PATH not set | Use full path or add to `env` block |
+| Server times out | Slow init | `MCP_TIMEOUT=15000` |
+| Works locally, not in project | Scope mismatch | Use `--scope project` or check `.mcp.json` |
+
+## Notable Servers
+
+| Server | Package | What it does |
+|--------|---------|-------------|
+| context7 | `@upstash/context7-mcp` | Up-to-date library docs |
+| filesystem | `@modelcontextprotocol/server-filesystem` | Read/write local files |
+| github | `@modelcontextprotocol/server-github` | GitHub repos, PRs, issues |
+| memory | `@modelcontextprotocol/server-memory` | Persistent memory across sessions |
+| brave-search | `@modelcontextprotocol/server-brave-search` | Web search via Brave API |
+| playwright | `@playwright/mcp` | Browser automation |
+
+### Where to find more
+
+- **Official:** [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers)
+- **Smithery:** [smithery.ai](https://smithery.ai) — 2,200+ servers
+- **MCP.so:** [mcp.so](https://mcp.so) — 3,000+ servers
+- **Glama:** [glama.ai/mcp/servers](https://glama.ai/mcp/servers) — curated catalog
+
+## Instructions
+
+When the user invokes `/mcp`:
+
+1. **No arguments or "help"** — Show a brief summary of available actions (add, remove, list, debug, find).
+2. **"add <name>"** — Guide them through adding the server. Ask about scope if not specified. Prefer `add-json` for complex configs.
+3. **"remove <name>"** — Run `claude mcp remove <name>`.
+4. **"list"** — Run `claude mcp list`.
+5. **"debug" or "fix"** — Walk through the debugging steps above. Read config files, check for common issues.
+6. **"find <topic>"** or "search"** — Help them find a suitable MCP server using WebSearch if needed, then help install it.
+7. **Any other query** — Use the reference above to answer their MCP-related question.
+
+Always read the relevant config files (`~/.claude.json`, `.mcp.json`) before making changes so you understand current state. When adding servers, confirm the scope with the user if ambiguous.
