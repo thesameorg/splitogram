@@ -374,9 +374,9 @@ npx blueprint run verifyState --testnet
 - [x] **0.2** Clone & install TON MCP servers (or decide to use TONAPI REST fallback) — `ton-blockchain-mcp` installed & working (mainnet only); `kriuchkov/ton-mcp` skipped. Testnet → TONAPI REST fallback.
 - [x] **0.3** Configure MCP in Claude Code settings — `ton-blockchain-mcp` configured globally
 - [ ] **0.4** Bookmark all diagnostic URLs
-- [ ] **0.5** Create 3 testnet wallets, write down addresses
-- [ ] **0.6** Fund all 3 wallets via @testgiver_ton_bot
-- [ ] **0.7** Verify wallet balances on testnet.tonviewer.com
+- [x] **0.5** Create 3 testnet wallets (W5), addresses in `.envs/ton_wallets.json`
+- [ ] **0.6** Fund all 3 wallets via @testgiver_ton_bot — ⚠️ A has ~2 TON (need 5), B has 0.001, C has 0.002 (both need ~2 each)
+- [x] **0.7** Verify wallet balances on testnet — confirmed via `testnet.tonapi.io` REST
 - [ ] **1.1** Mint tUSDT via minter.ton.org?testnet=true (from Wallet C)
 - [ ] **1.2** Save Jetton Master address
 - [ ] **1.3** Send tUSDT: 500 → Wallet A, 100 → Wallet B
@@ -398,17 +398,20 @@ npx blueprint run verifyState --testnet
 
 ---
 
-## Useful Addresses (fill in as you go)
+## Useful Addresses
 
 ```
-Wallet A (Sender):     ___________________________________
-Wallet B (Receiver):   ___________________________________
-Wallet C (Fee Owner):  ___________________________________
+Wallet A (Sender):     0QAx3Tq4s87tAVa0e4JlJNNNIM29NlTIY7hUcWdRSSFro8v7
+Wallet B (Receiver):   0QBMsbxhNZbk4oCEYt6R_hOlm8_7-D4vooTnQxd2ArXG5yOS
+Wallet C (Fee Owner):  0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq
+
+All wallets: W5 (uninit), testnet
+Wallet file: .envs/ton_wallets.json
 
 tUSDT Jetton Master:   ___________________________________
 SplitBill Contract:    ___________________________________
 
-TONAPI Key:            ___________________________________
+TONAPI Key:            (in .dev.vars)
 ```
 
 ---
