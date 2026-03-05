@@ -558,6 +558,10 @@ _ %owner() method_id(83229) {
         if (($commission < $minCommission)) {
             $commission = $minCommission;
         }
+        int $maxCommission = 1000000;
+        if (($commission > $maxCommission)) {
+            $commission = $maxCommission;
+        }
         int $remainder = ($msg'amount - $commission);
         throw_unless(46710, ($remainder > 0));
         $self'total_processed = ($self'total_processed + $msg'amount);
@@ -593,7 +597,7 @@ _ %owner() method_id(83229) {
         var $msg'amount = in_msg~load_varuint16();
         ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun_requireOwner();
         throw_unless(61135, ($msg'amount > 0));
-        $global_send($SendParameters$_constructor_to_value_mode_body($self'owner, $msg'amount, 64, __gen_cell_cell_095190194aee611ce895c5503adf85fd864de7905746142f608d3eb2faad14e4()));
+        $global_send($SendParameters$_constructor_to_value_mode_body($self'owner, $msg'amount, 0, __gen_cell_cell_095190194aee611ce895c5503adf85fd864de7905746142f608d3eb2faad14e4()));
         $SplitogramSettlement$_contract_store(($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count));
         return ();
     }

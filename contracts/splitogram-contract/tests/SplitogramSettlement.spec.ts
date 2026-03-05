@@ -269,12 +269,29 @@ describe('SplitogramSettlement', () => {
             { $$type: 'UpdateCommission', new_commission: 200n }
         );
 
-        // Settlement with 100 USDT at 2%
-        const amount = 100_000_000n;
+        // Settlement with 30 USDT at 2% = 0.6 USDT (between min 0.1 and max 1.0)
+        const amount = 30_000_000n;
         await sendSettlement(userA, jettonWallet, amount, userB.address);
 
         const stats = await contract.getStats();
-        expect(stats.total_commission).toBe(2_000_000n); // 2 USDT
+        expect(stats.total_commission).toBe(600_000n); // 0.6 USDT
+    });
+
+    it('should cap commission at 1 USDT max', async () => {
+        const amount = 500_000_000n; // 500 USDT
+        // 1% of 500 = 5 USDT, but max cap is 1 USDT
+
+        const result = await sendSettlement(userA, jettonWallet, amount, userB.address);
+
+        expect(result.transactions).toHaveTransaction({
+            from: contract.address,
+            to: jettonWallet.address,
+            success: true,
+        });
+
+        const stats = await contract.getStats();
+        expect(stats.total_commission).toBe(1_000_000n); // 1 USDT max cap
+        expect(stats.total_processed).toBe(amount);
     });
 
     it('should accumulate stats across multiple settlements', async () => {
@@ -289,8 +306,8 @@ describe('SplitogramSettlement', () => {
 
         const stats = await contract.getStats();
         expect(stats.total_processed).toBe(350_000_000n); // 350 USDT
-        // 1% of 100 = 1 + 1% of 50 = 0.5 + 1% of 200 = 2 = 3.5 USDT = 3_500_000
-        expect(stats.total_commission).toBe(3_500_000n);
+        // 1% of 100 = 1 (=max cap) + 1% of 50 = 0.5 + 1% of 200 = 2 (capped to 1) = 2.5 USDT
+        expect(stats.total_commission).toBe(2_500_000n);
         expect(stats.settlement_count).toBe(3n);
     });
 

@@ -428,6 +428,14 @@ PROGRAM{
       }>ELSE<{
         DROP
       }>
+      1000000 PUSHINT
+      2DUP
+      GREATER
+      IF:<{
+        NIP
+      }>ELSE<{
+        DROP
+      }>
       s3 s0 PUSH2
       SUB
       46710 PUSHINT
@@ -508,7 +516,7 @@ PROGRAM{
       s7 PUSH
       0 GTINT
       THROWANYIFNOT
-      64 PUSHINT
+      0 PUSHINT
           B{b5ee9c7241010101000e00001800000000776974686472617736b566dc} B>boc PUSHREF
       s7 PUSH
       s0 s3 XCHG

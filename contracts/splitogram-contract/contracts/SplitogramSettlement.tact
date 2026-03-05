@@ -91,6 +91,12 @@ contract SplitogramSettlement with Deployable, Ownable {
             commission = minCommission;
         }
 
+        // Enforce maximum commission: 1 USDT = 1_000_000 units (6 decimals)
+        let maxCommission: Int = 1000000;
+        if (commission > maxCommission) {
+            commission = maxCommission;
+        }
+
         let remainder: Int = msg.amount - commission;
         require(remainder > 0, "Amount too small");
 
@@ -158,7 +164,7 @@ contract SplitogramSettlement with Deployable, Ownable {
         send(SendParameters{
             to: self.owner,
             value: msg.amount,
-            mode: SendRemainingValue,
+            mode: 0,
             body: "withdraw".asComment()
         });
     }

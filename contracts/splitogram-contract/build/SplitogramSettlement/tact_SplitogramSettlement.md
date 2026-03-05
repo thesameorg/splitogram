@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: SplitogramSettlement
-BoC Size: 1218 bytes
+BoC Size: 1229 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 22
