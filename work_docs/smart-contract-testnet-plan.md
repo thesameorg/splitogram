@@ -381,14 +381,14 @@ npx blueprint run verifyState --testnet
 - [x] **1.2** Save Jetton Master address → `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7`
 - [ ] **1.3** Send tUSDT: 500 → Wallet A, 100 → Wallet B
 - [ ] **1.4** Verify tUSDT balances on Tonviewer
-- [ ] **2.1** Claude creates Blueprint project
-- [ ] **2.2** Claude writes Splitogram Tact contract
-- [ ] **2.3** Claude writes Sandbox tests
-- [ ] **2.4** Run tests → all pass
-- [ ] **2.5** Build contract
-- [ ] **3.1** Claude writes deploy script
-- [ ] **3.2** Deploy to testnet (you confirm in wallet)
-- [ ] **3.3** Verify deployment on Tonviewer
+- [x] **2.1** Claude creates Blueprint project
+- [x] **2.2** Claude writes Splitogram Tact contract
+- [x] **2.3** Claude writes Sandbox tests
+- [x] **2.4** Run tests → all 16 pass
+- [x] **2.5** Build contract
+- [x] **3.1** Claude writes deploy script
+- [x] **3.2** Deploy to testnet — contract at `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV`
+- [x] **3.3** Verify deployment — confirmed active via TONAPI REST
 - [ ] **4.1** Test settlement: 100 tUSDT (A→B via contract)
 - [ ] **4.2** Verify balances: B got 99, C got 1
 - [ ] **4.3** Test small settlement: 5 tUSDT (minimum commission)
@@ -409,7 +409,7 @@ All wallets: W5 (v5r1), testnet
 Wallet file: .envs/ton_wallets.json
 
 tUSDT Jetton Master:   kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7 (testnet)
-Splitogram Contract:    ___________________________________
+Splitogram Contract:   EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV (testnet)
 
 TONAPI Key:            (in .dev.vars)
 ```

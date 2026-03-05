@@ -15,7 +15,8 @@ Living document. Updated as architectural decisions are made.
 | Validation       | Zod + `@hono/zod-validator`     | Integrated with Hono                                  |
 | Frontend         | React 19 + Vite + Tailwind      | Mature ecosystem, small reusable component primitives |
 | i18n             | react-i18next                   | CLDR plurals (Russian 3-form), interpolation, 15KB gz |
-| TON verification | TONAPI REST API (plain `fetch`) | No SDK needed on backend (deferred to Phase 10)       |
+| TON verification | TONAPI REST API (plain `fetch`) | No SDK needed on backend                              |
+| Smart contract   | Tact (Blueprint + Sandbox)      | High-level TON lang, typed, testable                  |
 
 **Admin dashboard:** Plain HTML at `/admin`, same Worker, `hono/basic-auth` with `ADMIN_SECRET`. External browser only (no TG `initData` available outside WebView). Frontend admin link uses Worker URL (`config.apiBaseUrl`) as base, not Pages origin — since Pages and Worker are separate deployments. Vite proxy includes `/admin` for local dev. Bot `/stats` command for quick metrics.
 
@@ -27,8 +28,11 @@ Living document. Updated as architectural decisions are made.
 
 ```
 Cloudflare Pages          Cloudflare Worker              Cloudflare D1 (SQLite)
-(frontend static)    →    (API + bot webhook)      →     Cloudflare R2 (images, Phase 6)
-React + Vite               Hono + grammY + Drizzle        TONAPI (external REST, Phase 10)
+(frontend static)    →    (API + bot webhook)      →     Cloudflare R2 (images)
+React + Vite               Hono + grammY + Drizzle        TONAPI (external REST)
+
+TON Blockchain
+SplitogramSettlement contract (Tact)  →  receives USDT → splits commission → forwards remainder
 ```
 
 **Why Cloudflare over GCloud:** $0 at MVP (free D1, R2, Pages), ~0ms cold starts (V8 isolates), `wrangler dev` for fast local dev. Escape hatch: same Hono code runs on a $5 VPS with Bun + Docker.
@@ -214,6 +218,34 @@ frontend/src/i18n/
 **Fallback:** Dev mode shows raw keys for missing translations. Production falls back to English.
 
 See `work_docs/research/5-i18n-approach.md` for full analysis.
+
+---
+
+## Smart Contract: SplitogramSettlement (Phase 10)
+
+**Location:** `contracts/splitogram-contract/` (Blueprint project, separate from main Bun workspace)
+
+**What it does:** Receives USDT Jetton transfers, takes a commission (1%, clamped to 0.1–1.0 USDT), forwards the remainder to the recipient. Trustless, atomic, auditable on-chain.
+
+**Flow:** User A sends USDT to contract with recipient (User B) in `forward_payload` → contract splits into two outgoing Jetton transfers (remainder → B, commission → owner).
+
+**Key addresses (testnet):**
+
+| Entity | Address |
+|---|---|
+| Contract | `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV` |
+| tUSDT Jetton Master | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
+| Owner (Wallet C) | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` |
+
+**Owner messages:** `UpdateCommission`, `WithdrawTon`, `SetJettonWallet`
+
+**Getters:** `commission()`, `stats()` (total_processed, total_commission, settlement_count), `jetton_wallet()`
+
+**Tests:** 16 sandbox tests via `@ton/sandbox` (deploy, settlement split, min/max commission, permissions, accumulation, invalid payloads)
+
+**Direct transfer fallback:** For small settlements where gas cost > N% of amount, the app will do a direct wallet-to-wallet USDT transfer instead (no commission, lower gas). Threshold TBD after testnet gas profiling.
+
+See `work_docs/smart-contract.md` for full design and `work_docs/smart-contract-testnet-plan.md` for deployment plan.
 
 ---
 

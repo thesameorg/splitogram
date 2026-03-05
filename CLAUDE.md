@@ -94,6 +94,9 @@ bun run webhook:set            # point bot webhook to tunnel
 Cloudflare Pages          Cloudflare Worker              Cloudflare D1 (SQLite)
 (frontend static)    →    (API + bot webhook)      →     Cloudflare R2 (image storage)
 React + Vite + Tailwind    Hono + grammY + Drizzle        TONAPI (external REST)
+
+TON Blockchain
+SplitogramSettlement (Tact)  →  USDT settlement with commission split
 ```
 
 - **Backend** runs as a single Cloudflare Worker handling both API routes and Telegram bot webhook
@@ -102,7 +105,8 @@ React + Vite + Tailwind    Hono + grammY + Drizzle        TONAPI (external REST)
 - **Auth** is stateless HMAC verification of Telegram `initData` per request — no sessions, no KV
 - **Frontend UI** is plain React + Tailwind + react-i18next (no component library — decided Phase 3). Theming via Telegram CSS variables mapped to `tg-*` Tailwind tokens.
 - **Image storage** is Cloudflare R2, served via Worker at `/r2/*` with immutable caching. Client-side resize/compress via Canvas API (zero deps). One bucket with `avatars/`, `groups/`, `receipts/` prefixes.
-- **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend, deferred to Phase 10)
+- **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend)
+- **Smart contract** is a Tact contract (`contracts/splitogram-contract/`) deployed on TON testnet. Receives USDT, takes 1% commission (min 0.1, max 1.0 USDT), forwards remainder to recipient. Built with Blueprint SDK, tested with `@ton/sandbox`.
 
 ### Bun Workspaces
 
@@ -136,6 +140,13 @@ frontend/src/
 ├── utils/                # currencies, format, time, share, transactions, image
 ├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker, Avatar, DonutChart, MonthSelector
 └── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
+
+contracts/splitogram-contract/    # Separate npm project (not Bun workspace)
+├── contracts/SplitogramSettlement.tact  # Settlement contract (Tact)
+├── tests/SplitogramSettlement.spec.ts   # 16 sandbox tests
+├── scripts/                             # Deploy + test scripts (Blueprint)
+├── wrappers/                            # Auto-generated TS wrappers
+└── build/                               # Compiled contract artifacts
 ```
 
 ### Hono Context Types

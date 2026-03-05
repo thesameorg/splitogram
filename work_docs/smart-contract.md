@@ -202,166 +202,20 @@ forward_payload = beginCell()
 
 ## 6. Contract Implementation (Tact)
 
-Below is a reference implementation. Place this in `contracts/SplitogramSettlement.tact`:
+The deployed contract is in `contracts/splitogram-contract/contracts/SplitogramSettlement.tact`. Key design points:
 
-```tact
-import "@stdlib/deploy";
-import "@stdlib/ownable";
+- **Commission:** configurable basis points (100 = 1%), clamped between min 0.1 USDT and max 1 USDT
+- **Jetton Wallet trust:** auto-set on first `TokenNotification`, or manually via `SetJettonWallet` (owner only). In production, verify against USDT Master's `get_wallet_address`.
+- **Gas:** 0.06 TON per outgoing Jetton transfer (two per settlement = 0.12 TON)
+- **Stats:** `total_processed`, `total_commission`, `settlement_count` — accumulated on each settlement
+- **Bounce handler:** present but no-op for testnet. Production needs refund logic.
+- **WithdrawTon:** uses mode 0 (sends exact `msg.amount` from contract balance)
 
-// Standard Jetton messages (TEP-74)
-message(0x7362d09c) TokenNotification {
-    queryId: Int as uint64;
-    amount: Int as coins;
-    from: Address;
-    forward_payload: Slice as remaining;
-}
+### Security notes
 
-message(0xf8a7ea5) TokenTransfer {
-    queryId: Int as uint64;
-    amount: Int as coins;
-    destination: Address;
-    response_destination: Address;
-    custom_payload: Cell?;
-    forward_ton_amount: Int as coins;
-    forward_payload: Slice as remaining;
-}
-
-message UpdateCommission {
-    new_commission: Int as uint16; // basis points, e.g. 100 = 1%
-}
-
-message WithdrawTon {
-    amount: Int as coins;
-}
-
-contract SplitogramSettlement with Deployable, Ownable {
-
-    owner: Address;
-    commission_bps: Int as uint16;    // basis points (100 = 1%)
-    usdt_wallet: Address?;            // this contract's USDT Jetton Wallet
-    total_processed: Int as coins;
-    total_commission: Int as coins;
-
-    init(owner: Address, commission_bps: Int) {
-        self.owner = owner;
-        self.commission_bps = commission_bps;
-        self.usdt_wallet = null;
-        self.total_processed = 0;
-        self.total_commission = 0;
-    }
-
-    // ── Receive Jetton notification ─────────────────────────────
-    receive(msg: TokenNotification) {
-
-        // Only accept from our known Jetton Wallet (set on first use)
-        // or set it on first incoming transfer
-        if (self.usdt_wallet == null) {
-            // First time: remember the Jetton Wallet address
-            // In production, verify this against the USDT Master
-            self.usdt_wallet = sender();
-        } else {
-            require(sender() == self.usdt_wallet!!, "Unknown Jetton Wallet");
-        }
-
-        // Decode forward_payload: op(32 bits) + recipient address
-        let op: Int = msg.forward_payload.loadUint(32);
-        require(op == 0, "Unknown operation");
-        let recipient: Address = msg.forward_payload.loadAddress();
-
-        // Calculate commission
-        let commission: Int = (msg.amount * self.commission_bps) / 10000;
-        if (commission < 100000) {  // minimum 0.1 USDT = 100_000 units
-            commission = 100000;
-        }
-        let remainder: Int = msg.amount - commission;
-        require(remainder > 0, "Amount too small after commission");
-
-        // Update stats
-        self.total_processed = self.total_processed + msg.amount;
-        self.total_commission = self.total_commission + commission;
-
-        // Send remainder to recipient
-        self.sendJetton(
-            recipient,
-            remainder,
-            msg.from,  // excess gas goes back to original sender
-            0
-        );
-
-        // Send commission to owner
-        self.sendJetton(
-            self.owner,
-            commission,
-            self.owner,
-            0
-        );
-    }
-
-    // ── Internal: send Jettons via our Jetton Wallet ────────────
-    fun sendJetton(to: Address, amount: Int, responseAddr: Address, queryId: Int) {
-        send(SendParameters{
-            to: self.usdt_wallet!!,
-            value: ton("0.1"),     // gas for Jetton transfer
-            mode: 0,
-            body: TokenTransfer{
-                queryId: queryId,
-                amount: amount,
-                destination: to,
-                response_destination: responseAddr,
-                custom_payload: null,
-                forward_ton_amount: 0,
-                forward_payload: emptySlice()
-            }.toCell()
-        });
-    }
-
-    // ── Owner: update commission ─────────────────────────────────
-    receive(msg: UpdateCommission) {
-        self.requireOwner();
-        require(msg.new_commission <= 1000, "Max 10%");
-        self.commission_bps = msg.new_commission;
-    }
-
-    // ── Owner: withdraw excess TON from contract ─────────────────
-    receive(msg: WithdrawTon) {
-        self.requireOwner();
-        send(SendParameters{
-            to: self.owner,
-            value: msg.amount,
-            mode: SendRemainingValue,
-            body: "withdraw".asComment()
-        });
-    }
-
-    // ── Getters ──────────────────────────────────────────────────
-    get fun commission(): Int {
-        return self.commission_bps;
-    }
-
-    get fun stats(): Stats {
-        return Stats{
-            total_processed: self.total_processed,
-            total_commission: self.total_commission
-        };
-    }
-
-    get fun jetton_wallet(): Address? {
-        return self.usdt_wallet;
-    }
-}
-
-struct Stats {
-    total_processed: Int as coins;
-    total_commission: Int as coins;
-}
-```
-
-### Important notes on this implementation
-
-- **This is a starting point, not production-ready code.** Before mainnet deployment, it needs a full audit.
-- The `usdt_wallet` is set on the first incoming Jetton transfer. In production, you should verify this address by querying the USDT Jetton Master with `get_wallet_address(my_address)` and comparing.
-- Gas values (`ton("0.1")`) are estimates. Profile actual gas consumption during testing.
-- Bounced message handling is not shown here but is critical for production — see Security Checklist.
+- **Trust-on-first-use risk:** The contract trusts whoever sends the first `TokenNotification`. Use `SetJettonWallet` to lock the trusted address before going live.
+- **Empty bounce handler:** If outgoing Jetton transfers fail, stats are already updated but no refund occurs. Production needs proper refund tracking.
+- **Gas management:** Contract needs TON for outgoing messages. Settlement sender's `forward_ton_amount` covers this, but monitor balance.
 - The contract sends two outgoing messages, so it needs enough TON balance to cover gas.
 
 ---
@@ -486,6 +340,13 @@ Test USDT already minted on testnet:
 - **Supply:** 1,000 tUSDT, held by Wallet C (`0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq`)
 - **Minted via:** https://minter.ton.org?testnet=true
 - **Tonviewer:** https://testnet.tonviewer.com/0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq?section=tokens
+
+### Step 5: Contract Deployed — DONE
+
+- **Contract address:** `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV`
+- **Deployed from:** Wallet C (owner)
+- **Commission:** 100 bps (1%), min 0.1 USDT, max 1 USDT
+- **Tonviewer:** https://testnet.tonviewer.com/EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV
 
 ### Step 5: Test the full flow
 
@@ -704,12 +565,13 @@ Testnet: kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7  (tUSDT — "test USDT
 
 ## Appendix A: Commission Economics
 
-| Settlement | Amount   | Commission (1%) | Min Commission | Actual Commission | Recipient Gets |
-| ---------- | -------- | --------------- | -------------- | ----------------- | -------------- |
-| Small      | 5 USDT   | 0.05 USDT       | 0.10 USDT      | 0.10 USDT         | 4.90 USDT      |
-| Medium     | 50 USDT  | 0.50 USDT       | 0.10 USDT      | 0.50 USDT         | 49.50 USDT     |
-| Standard   | 100 USDT | 1.00 USDT       | 0.10 USDT      | 1.00 USDT         | 99.00 USDT     |
-| Large      | 500 USDT | 5.00 USDT       | 0.10 USDT      | 5.00 USDT         | 495.00 USDT    |
+| Settlement | Amount   | Commission (1%) | Min/Max Clamp   | Actual Commission | Recipient Gets |
+| ---------- | -------- | --------------- | --------------- | ----------------- | -------------- |
+| Small      | 5 USDT   | 0.05 USDT       | min 0.10 USDT   | 0.10 USDT         | 4.90 USDT      |
+| Medium     | 50 USDT  | 0.50 USDT       | —               | 0.50 USDT         | 49.50 USDT     |
+| Standard   | 100 USDT | 1.00 USDT       | = max cap       | 1.00 USDT         | 99.00 USDT     |
+| Large      | 500 USDT | 5.00 USDT       | max 1.00 USDT   | 1.00 USDT         | 499.00 USDT    |
+| Very Large | 1000 USDT| 10.00 USDT      | max 1.00 USDT   | 1.00 USDT         | 999.00 USDT    |
 
 Gas costs per settlement: approximately 0.25-0.35 TON (~$0.08-0.12 at current prices), paid by the sender.
 

@@ -361,11 +361,23 @@ All Phase 2 specs completed and archived.
 
 ---
 
-## Phase 10: Crypto Settlement
+## Phase 10: Crypto Settlement — IN PROGRESS
 
 **Goal:** Layer on-chain USDT settlement on top of the polished product. Testnet first, then mainnet.
 
-**Steps:**
+**Progress:**
+
+- [x] **Smart contract written** — `contracts/splitogram-contract/contracts/SplitogramSettlement.tact` (Tact + Blueprint)
+- [x] **16 sandbox tests passing** — deploy, settlement, min/max commission, permissions, accumulation, invalid payloads
+- [x] **Contract deployed to testnet** — `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV`
+- [x] **Test Jetton (tUSDT) minted** — `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` (1,000 tUSDT, 6 decimals)
+- [x] **3 testnet wallets created** (W5/v5r1) — Sender, Receiver, Fee Owner
+- [x] **Security audit** — trust-on-first-use risk documented, WithdrawTon bug fixed, max 1 USDT commission cap added
+- [ ] Fund wallets A & B with test TON + distribute tUSDT
+- [ ] End-to-end settlement test on testnet
+- [ ] Verify balances and contract stats post-settlement
+
+**Remaining steps:**
 
 1. **RESEARCH: TON Connect current state** — Review TON Connect SDK, wallet compatibility (Tonkeeper, Telegram Wallet, MyTonWallet), USDT jetton on TON, TONAPI for verification. Check what changed since Phase 1 code was written.
 2. **Q&A: Conversion source & UX** — Decide rate API (CoinGecko, Binance, etc.). Decide conversion display UX ("€15.00 → ~15.82 USDT"). Single `fetch()` call, no SDK.

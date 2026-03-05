@@ -15,7 +15,7 @@ export async function run(provider: NetworkProvider) {
     const walletB = Address.parse('0QBMsbxhNZbk4oCEYt6R_hOlm8_7-D4vooTnQxd2ArXG5yOS');
 
     // The Splitogram contract address (fill in after deployment)
-    const contractAddress = Address.parse('TODO_FILL_CONTRACT_ADDRESS');
+    const contractAddress = Address.parse('EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV');
 
     // Wallet A's USDT Jetton Wallet address (find on Tonviewer → Wallet A → Jettons tab → tUSDT)
     const walletA_JettonWallet = Address.parse('TODO_FILL_WALLET_A_JETTON_WALLET');
