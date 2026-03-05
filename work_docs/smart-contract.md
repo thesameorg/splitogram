@@ -477,13 +477,15 @@ npx blueprint run --testnet
 # Scan/open with Tonkeeper → confirm the transaction
 ```
 
-### Step 4: Deploy a test Jetton
+### Step 4: Test Jetton (tUSDT) — DONE
 
-Since real USDT doesn't exist on testnet, deploy your own test Jetton with 6 decimals to simulate USDT:
+Test USDT already minted on testnet:
 
-- Use the Jetton template from `tact-by-example.org/07-jetton-standard`
-- Set decimals to 6 in metadata
-- Mint test tokens to your test wallets
+- **Jetton Master:** `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7`
+- **Name:** test USDT SPLIT (tUSDT), 6 decimals
+- **Supply:** 1,000 tUSDT, held by Wallet C (`0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq`)
+- **Minted via:** https://minter.ton.org?testnet=true
+- **Tonviewer:** https://testnet.tonviewer.com/0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq?section=tokens
 
 ### Step 5: Test the full flow
 
@@ -607,10 +609,11 @@ npx blueprint run
 # Confirm transaction in Tonkeeper (mainnet mode)
 ```
 
-### USDT Master address on mainnet
+### USDT Master addresses
 
 ```
-EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs
+Mainnet: EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs
+Testnet: kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7  (tUSDT — "test USDT SPLIT", 6 decimals)
 ```
 
 ### Post-deployment

@@ -1,0 +1,674 @@
+// automatically generated from `/stdlib/std/stdlib.fc` `/Users/dmitrykozlov/repos/splitogram/contracts/splitogram-contract/build/SplitogramSettlement/tact_SplitogramSettlement.fc` 
+PROGRAM{
+  DECLPROC __tact_store_address_opt
+  DECLPROC __tact_not_null
+  DECLPROC __tact_context_get
+  DECLPROC __tact_context_get_sender
+  DECLPROC $DeployOk$_store
+  DECLPROC $DeployOk$_store_cell
+  DECLPROC $TokenTransfer$_store
+  DECLPROC $TokenTransfer$_store_cell
+  DECLPROC $TokenTransfer$_load_bounced
+  DECLPROC $SplitogramSettlement$_store
+  DECLPROC $SplitogramSettlement$_load
+  DECLPROC $Context$_get_value
+  DECLPROC $Stats$_to_external
+  DECLPROC $SplitogramSettlement$init$_load
+  DECLPROC $SplitogramSettlement$_contract_init
+  DECLPROC $SplitogramSettlement$_contract_load
+  DECLPROC $SplitogramSettlement$_contract_store
+  DECLPROC $SendParameters$_constructor_to_value_mode_body
+  DECLPROC $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload
+  DECLPROC $SplitogramSettlement$_fun__sendJetton
+  DECLPROC $SplitogramSettlement$_fun_commission
+  DECLPROC $Stats$_constructor_total_processed_total_commission_settlement_count
+  DECLPROC $SplitogramSettlement$_fun_stats
+  DECLPROC $SplitogramSettlement$_fun_jetton_wallet
+  DECLPROC $MessageParameters$_constructor_bounce_to_value_mode_body
+  DECLPROC $SplitogramSettlement$_fun_notify
+  DECLPROC $SplitogramSettlement$_fun_requireOwner
+  DECLPROC $SplitogramSettlement$_fun_owner
+  DECLPROC $DeployOk$_constructor_queryId
+  112356 DECLMETHOD %commission
+  89570 DECLMETHOD %stats
+  117972 DECLMETHOD %jetton_wallet
+  83229 DECLMETHOD %owner
+  DECLPROC recv_internal
+  65535 DECLMETHOD __tact_selector_hack
+  DECLGLOBVAR __tact_context
+  DECLGLOBVAR __tact_context_sender
+  DECLGLOBVAR __tact_child_contract_codes
+  DECLGLOBVAR __tact_randomized
+  __tact_store_address_opt PROCINLINE:<{
+    DUP
+    ISNULL
+    IF:<{
+      DROP
+      b{00} STSLICECONST
+    }>ELSE<{
+      SWAP
+      STSLICE
+    }>
+  }>
+  __tact_not_null PROCINLINE:<{
+    DUP
+    ISNULL
+    128 THROWIF
+  }>
+  __tact_context_get PROCINLINE:<{
+    __tact_context GETGLOB
+    4 UNTUPLE
+  }>
+  __tact_context_get_sender PROCINLINE:<{
+    __tact_context_sender GETGLOB
+  }>
+  $DeployOk$_store PROCINLINE:<{
+    2952335191 PUSHINT
+    ROT
+    32 STU
+    64 STU
+  }>
+  $DeployOk$_store_cell PROCINLINE:<{
+    SWAP
+    $DeployOk$_store INLINECALLDICT
+    ENDC
+  }>
+  $TokenTransfer$_store PROCINLINE:<{
+    260734629 PUSHINT
+    s0 s8 XCHG2
+    32 STU
+    s1 s6 XCHG
+    64 STU
+    s0 s4 XCHG2
+    STVARUINT16
+    s1 s2 XCHG
+    STSLICE
+    STSLICE
+    STOPTREF
+    SWAP
+    STVARUINT16
+    STSLICE
+  }>
+  $TokenTransfer$_store_cell PROCINLINE:<{
+    7 -ROLL
+    $TokenTransfer$_store INLINECALLDICT
+    ENDC
+  }>
+  $TokenTransfer$_load_bounced PROCINLINE:<{
+    64 LDU
+    LDVARUINT16
+    -ROT
+  }>
+  $SplitogramSettlement$_store PROCINLINE:<{
+    s5 s6 XCHG2
+    STSLICE
+    s1 s3 XCHG
+    16 STU
+    SWAP
+    __tact_store_address_opt INLINECALLDICT
+    SWAP
+    STVARUINT16
+    SWAP
+    STVARUINT16
+    32 STU
+  }>
+  $SplitogramSettlement$_load PROCINLINE:<{
+    LDMSGADDR
+    16 LDU
+                b{00} SDBEGINSQ
+                IF:<{
+                  PUSHNULL
+                }>ELSE<{
+                  LDMSGADDR
+                  SWAP
+                }>
+    SWAP
+    LDVARUINT16
+    LDVARUINT16
+    32 LDU
+    6 -ROLL
+  }>
+  $Context$_get_value PROCINLINE:<{
+    s1 s3 XCHG
+    3 BLKDROP
+  }>
+  $Stats$_to_external PROCINLINE:<{
+  }>
+  $SplitogramSettlement$init$_load PROCINLINE:<{
+    LDMSGADDR
+    257 PUSHINT
+    LDIX
+    -ROT
+  }>
+  $SplitogramSettlement$_contract_init PROCINLINE:<{
+    63779 PUSHINT
+    OVER
+    1000 PUSHINT
+    LEQ
+    THROWANYIFNOT
+    PUSHNULL
+    0 PUSHINT
+    s0 s0 PUSH2
+  }>
+  $SplitogramSettlement$_contract_load PROCINLINE:<{
+    c4 PUSH
+    CTOS
+    1 LDI
+    SWAP
+    IF:<{
+      $SplitogramSettlement$_load INLINECALLDICT
+      1 6 BLKDROP2
+    }>ELSE<{
+      $SplitogramSettlement$init$_load INLINECALLDICT
+      s0 s2 XCHG
+      ENDS
+      SWAP
+      $SplitogramSettlement$_contract_init INLINECALLDICT
+    }>
+  }>
+  $SplitogramSettlement$_contract_store PROCINLINE:<{
+    NEWC
+    TRUE
+    SWAP
+    1 STI
+    6 -ROLL
+    $SplitogramSettlement$_store INLINECALLDICT
+    ENDC
+    c4 POP
+  }>
+  $SendParameters$_constructor_to_value_mode_body PROCINLINE:<{
+    2SWAP
+    PUSHNULL
+    PUSHNULL
+    s0 s0 s3 XCHG3
+    TRUE
+  }>
+  $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload PROCINLINE:<{
+  }>
+  $SplitogramSettlement$_fun__sendJetton PROCREF:<{
+    s7 PUSH
+    __tact_not_null INLINECALLDICT
+    60000000 PUSHINT
+    0 PUSHINT
+    PUSHNULL
+    OVER
+        b{} PUSHSLICE
+    s5 s8 XCHG
+    s4 s9 XCHG
+    s3 s7 XCHG
+    $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload INLINECALLDICT
+    NEWC
+    $TokenTransfer$_store_cell INLINECALLDICT
+    s2 s3 XCHG
+    $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
+        NEWC
+        b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+        1 STI               // store `bounce`
+        b{000} STSLICECONST // store bounced = false and src = addr_none
+        STSLICE             // store `to`
+        SWAP
+        STGRAMS             // store `value`
+        105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+        STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+        // → Stack state
+        // s0: Builder
+        // s1: `data`
+        // s2: `code`
+        // s3: `body`
+        // s4: `mode`
+        // Group 2: Placing the Builder after code and data, then checking those for nullability
+        s2 XCHG0
+        DUP2
+        ISNULL
+        SWAP
+        ISNULL
+        AND
+        // → Stack state
+        // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+        // s1: `code`
+        // s2: `data`
+        // s3: Builder
+        // s4: `body`
+        // s5: `mode`
+        // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+        <{
+            DROP2 // drop `data` and `code`, since either of those is null
+            b{0} STSLICECONST
+        }> PUSHCONT
+        // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+        <{
+            // _ split_depth:(Maybe (## 5))
+            //   special:(Maybe TickTock)
+            //   code:(Maybe ^Cell)
+            //   data:(Maybe ^Cell)
+            //   library:(Maybe ^Cell)
+            // = StateInit;
+            ROT                // place message Builder on top
+            b{10} STSLICECONST // store Maybe = true, Either = false
+            // Start composing inlined StateInit
+            b{00} STSLICECONST // store split_depth and special first
+            STDICT             // store code
+            STDICT             // store data
+            b{0} STSLICECONST  // store library
+        }> PUSHCONT
+        // Group 3: IFELSE that does the branching shown above
+        IFELSE
+        // → Stack state
+        // s0: Builder
+        // s1: null or StateInit
+        // s2: `body`
+        // s3: `mode`
+        // Group 4: Finalizing the message
+        STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+        ENDC
+        // → Stack state
+        // s0: Cell
+        // s1: `mode`
+        // Group 5: Sending the message, with `mode` on top
+        SWAP
+        SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
+  }>
+  $SplitogramSettlement$_fun_commission PROCREF:<{
+    s4 PUSH
+  }>
+  $Stats$_constructor_total_processed_total_commission_settlement_count PROCINLINE:<{
+  }>
+  $SplitogramSettlement$_fun_stats PROCREF:<{
+    s2 s1 s0 PUSH3
+    $Stats$_constructor_total_processed_total_commission_settlement_count INLINECALLDICT
+  }>
+  $SplitogramSettlement$_fun_jetton_wallet PROCREF:<{
+    s3 PUSH
+  }>
+  $MessageParameters$_constructor_bounce_to_value_mode_body PROCINLINE:<{
+    s3 s3 XCHG2
+    s0 s4 XCHG
+  }>
+  $SplitogramSettlement$_fun_notify PROCINLINE:<{
+    __tact_context_get_sender INLINECALLDICT
+    FALSE
+    0 PUSHINT
+    s0 s3 XCHG2
+    66 PUSHINT
+    SWAP
+    $MessageParameters$_constructor_bounce_to_value_mode_body INLINECALLDICT
+        NEWC
+        b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+        1 STI               // store `bounce`
+        b{000} STSLICECONST // store bounced = false and src = addr_none
+        STSLICE             // store `to`
+        SWAP
+        STGRAMS             // store `value`
+        106 PUSHINT         // 1 + 4 + 4 + 64 + 32 + 1
+        STZEROES
+        // → Stack state
+        // s0: Builder
+        // s1: `body`
+        // s2: `mode`
+        STDICT
+        ENDC
+        SWAP
+        SENDRAWMSG
+  }>
+  $SplitogramSettlement$_fun_requireOwner PROCREF:<{
+    __tact_context_get_sender INLINECALLDICT
+    s6 PUSH
+    SDEQ
+    132 THROWIFNOT
+  }>
+  $SplitogramSettlement$_fun_owner PROCREF:<{
+    s5 PUSH
+  }>
+  $DeployOk$_constructor_queryId PROCINLINE:<{
+  }>
+  %commission PROC:<{
+    $SplitogramSettlement$_contract_load INLINECALLDICT
+    $SplitogramSettlement$_fun_commission INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %stats PROC:<{
+    $SplitogramSettlement$_contract_load INLINECALLDICT
+    $SplitogramSettlement$_fun_stats INLINECALLDICT
+    6 3 BLKDROP2
+    $Stats$_to_external INLINECALLDICT
+  }>
+  %jetton_wallet PROC:<{
+    $SplitogramSettlement$_contract_load INLINECALLDICT
+    $SplitogramSettlement$_fun_jetton_wallet INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %owner PROC:<{
+    $SplitogramSettlement$_contract_load INLINECALLDICT
+    $SplitogramSettlement$_fun_owner INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  recv_internal PROC:<{
+    SWAP
+    CTOS
+    2 PUSHINT
+    SDSKIPFIRST
+    1 LDI
+    1 LDI
+    LDMSGADDR
+    OVER
+    s3 s4 XCHG
+    s6 s6 XCHG2
+    4 TUPLE
+    __tact_context SETGLOB
+    s0 s2 XCHG
+    __tact_context_sender SETGLOB
+    $SplitogramSettlement$_contract_load INLINECALLDICT
+    s0 s7 XCHG
+    IFJMP:<{
+      s0 s5 XCHG
+      32 PUSHINT
+      SDSKIPFIRST
+      0 PUSHINT
+      OVER
+      SBITS
+      31 GTINT
+      IF:<{
+        DROP
+        32 LDU
+        DROP
+      }>ELSE<{
+        NIP
+      }>
+      260734629 PUSHINT
+      EQUAL
+      IFJMP:<{
+        s3 s5 XCHG
+        2 3 BLKSWAP
+        $SplitogramSettlement$_contract_store INLINECALLDICT
+      }>
+      6 BLKDROP
+    }>
+    s0 s5 XCHG
+    32 LDUQ 130 THROWIFNOT
+    OVER
+    1935855772 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      64 LDU
+      LDVARUINT16
+      LDMSGADDR
+      s5 PUSH
+      ISNULL
+      IF:<{
+        s5 POP
+        __tact_context_get_sender INLINECALLDICT
+      }>ELSE<{
+        2603 PUSHINT
+        __tact_context_get_sender INLINECALLDICT
+        s7 PUSH
+        __tact_not_null INLINECALLDICT
+        SDEQ
+        THROWANYIFNOT
+        s0 s5 XCHG
+      }>
+      s0 s5 XCHG
+      32 LDU
+      27388 PUSHINT
+      s0 s2 XCHG
+      0 EQINT
+      s1 s2 XCHG
+      THROWANYIFNOT
+          LDMSGADDR
+      DROP
+      s2 s6 PUSH2
+      MUL
+      10000 PUSHINT
+      DIV
+      100000 PUSHINT
+      2DUP
+      LESS
+      IF:<{
+        NIP
+      }>ELSE<{
+        DROP
+      }>
+      s3 s0 PUSH2
+      SUB
+      46710 PUSHINT
+      OVER
+      0 GTINT
+      THROWANYIFNOT
+      s6 s4 XCHG2
+      ADD
+      s9 s5 XCPU
+      ADD
+      s0 s10 XCHG
+      INC
+      s5 s9 XCHG
+      s4 s10 XCHG
+      s1 s3 s3 XCHG3
+      s10 PUSH
+      $SplitogramSettlement$_fun__sendJetton INLINECALLDICT
+      s5 PUSH
+      s0 s8 XCHG
+      s5 s7 XCHG
+      s4 s6 XCHG
+      s3 s5 XCHG
+      s4 s3 s0 XCHG3
+      s2 s(-1) PUXC
+      $SplitogramSettlement$_fun__sendJetton INLINECALLDICT
+      $SplitogramSettlement$_contract_store INLINECALLDICT
+    }>
+    OVER
+    3101903737 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      LDMSGADDR
+      DROP
+      s4 s5 XCHG
+      s3 s4 XCHG
+      s1 s3 s6 XCHG3
+      $SplitogramSettlement$_fun_requireOwner INLINECALLDICT
+      s3 POP
+      s4 s5 XCHG
+      s3 s4 XCHG
+      ROT
+      $SplitogramSettlement$_contract_store INLINECALLDICT
+    }>
+    OVER
+    3823003889 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      16 LDU
+      DROP
+      s4 s5 XCHG
+      s3 s4 XCHG
+      s1 s3 s6 XCHG3
+      $SplitogramSettlement$_fun_requireOwner INLINECALLDICT
+      s4 POP
+      63779 PUSHINT
+      s6 PUSH
+      1000 PUSHINT
+      LEQ
+      THROWANYIFNOT
+      s4 s5 XCHG
+      3 ROLL
+      $SplitogramSettlement$_contract_store INLINECALLDICT
+    }>
+    OVER
+    4206811366 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      LDVARUINT16
+      DROP
+      s4 s5 XCHG
+      s3 s4 XCHG
+      s1 s3 s6 XCHG3
+      $SplitogramSettlement$_fun_requireOwner INLINECALLDICT
+      61135 PUSHINT
+      s7 PUSH
+      0 GTINT
+      THROWANYIFNOT
+      64 PUSHINT
+          B{b5ee9c7241010101000e00001800000000776974686472617736b566dc} B>boc PUSHREF
+      s7 PUSH
+      s0 s3 XCHG
+      s9 s9 s9 XCHG3
+      $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
+          NEWC
+          b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+          1 STI               // store `bounce`
+          b{000} STSLICECONST // store bounced = false and src = addr_none
+          STSLICE             // store `to`
+          SWAP
+          STGRAMS             // store `value`
+          105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+          STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+          // → Stack state
+          // s0: Builder
+          // s1: `data`
+          // s2: `code`
+          // s3: `body`
+          // s4: `mode`
+          // Group 2: Placing the Builder after code and data, then checking those for nullability
+          s2 XCHG0
+          DUP2
+          ISNULL
+          SWAP
+          ISNULL
+          AND
+          // → Stack state
+          // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+          // s1: `code`
+          // s2: `data`
+          // s3: Builder
+          // s4: `body`
+          // s5: `mode`
+          // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+          <{
+              DROP2 // drop `data` and `code`, since either of those is null
+              b{0} STSLICECONST
+          }> PUSHCONT
+          // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+          <{
+              // _ split_depth:(Maybe (## 5))
+              //   special:(Maybe TickTock)
+              //   code:(Maybe ^Cell)
+              //   data:(Maybe ^Cell)
+              //   library:(Maybe ^Cell)
+              // = StateInit;
+              ROT                // place message Builder on top
+              b{10} STSLICECONST // store Maybe = true, Either = false
+              // Start composing inlined StateInit
+              b{00} STSLICECONST // store split_depth and special first
+              STDICT             // store code
+              STDICT             // store data
+              b{0} STSLICECONST  // store library
+          }> PUSHCONT
+          // Group 3: IFELSE that does the branching shown above
+          IFELSE
+          // → Stack state
+          // s0: Builder
+          // s1: null or StateInit
+          // s2: `body`
+          // s3: `mode`
+          // Group 4: Finalizing the message
+          STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+          ENDC
+          // → Stack state
+          // s0: Cell
+          // s1: `mode`
+          // Group 5: Sending the message, with `mode` on top
+          SWAP
+          SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
+      5 ROLL
+      $SplitogramSettlement$_contract_store INLINECALLDICT
+    }>
+    SWAP
+    2490013878 PUSHINT
+    EQUAL
+    IFJMP:<{
+      64 LDU
+      DROP
+      $DeployOk$_constructor_queryId INLINECALLDICT
+      NEWC
+      $DeployOk$_store_cell INLINECALLDICT
+      s4 s6 XCHG
+      s3 s5 XCHG
+      s4 s3 s0 XCHG3
+      s1 s2 XCHG
+      $SplitogramSettlement$_fun_notify INLINECALLDICT
+      $SplitogramSettlement$_contract_store INLINECALLDICT
+    }>
+    7 BLKDROP
+    130 THROW
+  }>
+  __tact_selector_hack PROC:<{
+    @atend @ 1 {
+            execute current@ context@ current!
+            {
+                // The core idea of this function is to save gas by avoiding unnecessary dict jump, when recv_internal/recv_external is called
+                // We want to extract recv_internal/recv_external from the dict and select needed function
+                // not by jumping to the needed function by it's index, but by using usual IF statements.
+                }END> b> // Close previous builder, now we have a cell of previous code on top of the stack
+                <{ // Start of the new code builder
+                    SETCP0
+                    // Swap the new code builder with the previous code, now we have previous code on top of the stack
+                    swap
+                    // Transform cell to slice and load first ref from the previous code, now we have the dict on top of the stack
+                    <s ref@
+                    // Extract the recv_internal from the dict
+                    dup 0 swap @procdictkeylen idict@ { "internal shortcut error" abort } ifnot
+                    swap
+                    // Delete the recv_internal from the dict
+                    0 swap @procdictkeylen idict- drop
+                    // Delete the recv_external from the dict (it's okay if it's not there)
+                    -1 swap @procdictkeylen idict- drop
+                    // Delete the __tact_selector_hack from the dict
+                    65535 swap @procdictkeylen idict- drop
+                    // Bring the code builder from the bottom of the stack
+                    // because if recv_external extraction is optional, and the number of elements on the stack is not fixed
+                    depth 1- roll
+                    // Swap with the dict from which we extracted recv_internal and (maybe) recv_external
+                    swap
+                    // Check if the dict is empty
+                    dup null?
+                    // Store a copy of this flag in the bottom of the stack
+                    dup depth 1- -roll
+                    {
+                        // If the dict is empty, just drop it (it will be null if it's empty)
+                        drop
+                    }
+                    {
+                        // If the dict is not empty, prepare continuation to be stored in c3
+                        <{
+                            // Save this dict as first ref in this continuation, it will be pushed in runtime by DICTPUSHCONST
+                            swap @procdictkeylen DICTPUSHCONST
+                            // Jump to the needed function by it's index
+                            DICTIGETJMPZ
+                            // If such key is not found, throw 11 along with the key as an argument
+                            11 THROWARG
+                        }> PUSHCONT
+                        // Store the continuation in c3
+                        c3 POP
+                    } cond
+                    // Function id is on top of the (runtime) stack
+                    DUP IFNOTJMP:<{
+                        // place recv_internal here
+                        DROP swap @addop
+                    }>
+                    // Bring back the flag, indicating if the dict is empty or not from the bottom of the stack
+                    depth 1- roll
+                    {
+                        // If the dict is empty, throw 11
+                        11 THROWARG
+                    }
+                    {
+                        // If the dict is not empty, jump to continuation from c3
+                        c3 PUSH JMPX
+                    } cond
+                }> b>
+            } : }END>c
+            current@ context! current!
+        } does @atend !
+  }>
+}END>c

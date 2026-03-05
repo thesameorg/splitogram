@@ -1,0 +1,694 @@
+#pragma version =0.4.6;
+#pragma allow-post-modification;
+#pragma compute-asm-ltr;
+
+;; tact_SplitogramSettlement.headers.fc
+;;
+;; Header files for SplitogramSettlement
+;; NOTE: declarations are sorted for optimal order
+;;
+
+;; __tact_store_address_opt
+builder __tact_store_address_opt(builder b, slice address) inline;
+
+;; __tact_not_null
+forall X -> X __tact_not_null(X x) impure inline;
+
+;; __tact_context_get
+(int, slice, int, slice) __tact_context_get() inline;
+
+;; __tact_context_get_sender
+slice __tact_context_get_sender() inline;
+
+;; $DeployOk$_store
+builder $DeployOk$_store(builder build_0, (int) v) inline;
+
+;; $DeployOk$_store_cell
+cell $DeployOk$_store_cell((int) v, builder b) inline;
+
+;; $TokenTransfer$_store
+builder $TokenTransfer$_store(builder build_0, (int, int, slice, slice, cell, int, slice) v) inline;
+
+;; $TokenTransfer$_store_cell
+cell $TokenTransfer$_store_cell((int, int, slice, slice, cell, int, slice) v, builder b) inline;
+
+;; $TokenTransfer$_load_bounced
+(slice, ((int, int))) $TokenTransfer$_load_bounced(slice sc_0) inline;
+
+;; $SplitogramSettlement$_store
+builder $SplitogramSettlement$_store(builder build_0, (slice, int, slice, int, int, int) v) inline;
+
+;; $SplitogramSettlement$_load
+(slice, ((slice, int, slice, int, int, int))) $SplitogramSettlement$_load(slice sc_0) inline;
+
+;; $Context$_get_value
+_ $Context$_get_value((int, slice, int, slice) v) inline;
+
+;; $Stats$_to_external
+(int, int, int) $Stats$_to_external(((int, int, int)) v) inline;
+
+;; $SplitogramSettlement$init$_load
+(slice, ((slice, int))) $SplitogramSettlement$init$_load(slice sc_0) inline;
+
+;; $SplitogramSettlement$_contract_init
+(slice, int, slice, int, int, int) $SplitogramSettlement$_contract_init(slice $owner, int $commission_bps) impure inline;
+
+;; $SplitogramSettlement$_contract_load
+(slice, int, slice, int, int, int) $SplitogramSettlement$_contract_load() impure inline;
+
+;; $SplitogramSettlement$_contract_store
+() $SplitogramSettlement$_contract_store((slice, int, slice, int, int, int) v) impure inline;
+
+;; $SendParameters$_constructor_to_value_mode_body
+((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_mode_body(slice $to, int $value, int $mode, cell $body) inline;
+
+;; $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload
+((int, int, slice, slice, cell, int, slice)) $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(int $queryId, int $amount, slice $destination, slice $response_destination, cell $custom_payload, int $forward_ton_amount, slice $forward_payload) inline;
+
+;; $SplitogramSettlement$_fun__sendJetton
+((slice, int, slice, int, int, int), ()) $SplitogramSettlement$_fun__sendJetton((slice, int, slice, int, int, int) $self, slice $to, int $amount, slice $responseAddr, int $queryId) impure inline_ref;
+
+;; $SplitogramSettlement$_fun_commission
+((slice, int, slice, int, int, int), int) $SplitogramSettlement$_fun_commission((slice, int, slice, int, int, int) $self) impure inline_ref;
+
+;; $Stats$_constructor_total_processed_total_commission_settlement_count
+((int, int, int)) $Stats$_constructor_total_processed_total_commission_settlement_count(int $total_processed, int $total_commission, int $settlement_count) inline;
+
+;; $SplitogramSettlement$_fun_stats
+((slice, int, slice, int, int, int), (int, int, int)) $SplitogramSettlement$_fun_stats((slice, int, slice, int, int, int) $self) impure inline_ref;
+
+;; $SplitogramSettlement$_fun_jetton_wallet
+((slice, int, slice, int, int, int), slice) $SplitogramSettlement$_fun_jetton_wallet((slice, int, slice, int, int, int) $self) impure inline_ref;
+
+;; $MessageParameters$_constructor_bounce_to_value_mode_body
+((int, cell, int, slice, int)) $MessageParameters$_constructor_bounce_to_value_mode_body(int $bounce, slice $to, int $value, int $mode, cell $body) inline;
+
+;; $SplitogramSettlement$_fun_notify
+((slice, int, slice, int, int, int), ()) $SplitogramSettlement$_fun_notify((slice, int, slice, int, int, int) $self, cell $body) impure inline;
+
+;; $SplitogramSettlement$_fun_requireOwner
+((slice, int, slice, int, int, int), ()) $SplitogramSettlement$_fun_requireOwner((slice, int, slice, int, int, int) $self) impure inline_ref;
+
+;; $SplitogramSettlement$_fun_owner
+((slice, int, slice, int, int, int), slice) $SplitogramSettlement$_fun_owner((slice, int, slice, int, int, int) $self) impure inline_ref;
+
+;; $DeployOk$_constructor_queryId
+((int)) $DeployOk$_constructor_queryId(int $queryId) inline;
+
+
+;; tact_SplitogramSettlement.stdlib.fc
+global (int, slice, int, slice) __tact_context;
+global slice __tact_context_sender;
+global cell __tact_child_contract_codes;
+global int __tact_randomized;
+
+(slice, slice) __tact_load_address_opt(slice cs) asm """
+
+            b{00} SDBEGINSQ
+            IF:<{
+              PUSHNULL
+            }>ELSE<{
+              LDMSGADDR
+              SWAP
+            }>
+
+""";
+
+builder __tact_store_addr_none(builder b) asm "b{00} STSLICECONST";
+
+builder __tact_store_address_opt(builder b, slice address) inline {
+    if (null?(address)) {
+        return __tact_store_addr_none(b);
+    } else {
+        return b.store_slice(address);
+    }
+}
+
+forall X -> X __tact_not_null(X x) impure inline {
+    throw_if(128, null?(x)); return x;
+}
+
+(int, slice, int, slice) __tact_context_get() inline {
+    return __tact_context;
+}
+
+slice __tact_context_get_sender() inline {
+    return __tact_context_sender;
+}
+
+slice $global_emptySlice() impure asm """
+    b{} PUSHSLICE
+""";
+
+int $global_myBalance() impure asm """
+    BALANCE FIRST
+""";
+
+() $global_nativeReserve(int $amount, int $mode) impure asm """
+    RAWRESERVE
+""";
+
+() $global_message((int, cell, int, slice, int) $params) impure asm """
+    NEWC
+    b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+    1 STI               // store `bounce`
+    b{000} STSLICECONST // store bounced = false and src = addr_none
+    STSLICE             // store `to`
+    SWAP
+    STGRAMS             // store `value`
+    106 PUSHINT         // 1 + 4 + 4 + 64 + 32 + 1
+    STZEROES
+    // → Stack state
+    // s0: Builder
+    // s1: `body`
+    // s2: `mode`
+    STDICT
+    ENDC
+    SWAP
+    SENDRAWMSG
+""";
+
+() $global_send((int, cell, cell, cell, int, slice, int) $params) impure asm """
+    NEWC
+    b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+    1 STI               // store `bounce`
+    b{000} STSLICECONST // store bounced = false and src = addr_none
+    STSLICE             // store `to`
+    SWAP
+    STGRAMS             // store `value`
+    105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+    STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+    // → Stack state
+    // s0: Builder
+    // s1: `data`
+    // s2: `code`
+    // s3: `body`
+    // s4: `mode`
+
+    // Group 2: Placing the Builder after code and data, then checking those for nullability
+    s2 XCHG0
+    DUP2
+    ISNULL
+    SWAP
+    ISNULL
+    AND
+    // → Stack state
+    // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+    // s1: `code`
+    // s2: `data`
+    // s3: Builder
+    // s4: `body`
+    // s5: `mode`
+
+    // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+    <{
+        DROP2 // drop `data` and `code`, since either of those is null
+        b{0} STSLICECONST
+    }> PUSHCONT
+
+    // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+    <{
+        // _ split_depth:(Maybe (## 5))
+        //   special:(Maybe TickTock)
+        //   code:(Maybe ^Cell)
+        //   data:(Maybe ^Cell)
+        //   library:(Maybe ^Cell)
+        // = StateInit;
+        ROT                // place message Builder on top
+        b{10} STSLICECONST // store Maybe = true, Either = false
+        // Start composing inlined StateInit
+        b{00} STSLICECONST // store split_depth and special first
+        STDICT             // store code
+        STDICT             // store data
+        b{0} STSLICECONST  // store library
+    }> PUSHCONT
+
+    // Group 3: IFELSE that does the branching shown above
+    IFELSE
+    // → Stack state
+    // s0: Builder
+    // s1: null or StateInit
+    // s2: `body`
+    // s3: `mode`
+
+    // Group 4: Finalizing the message
+    STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+    ENDC
+    // → Stack state
+    // s0: Cell
+    // s1: `mode`
+
+    // Group 5: Sending the message, with `mode` on top
+    SWAP
+    SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
+""";
+
+(slice, slice) $Slice$_fun_loadAddress(slice $self) impure asm( -> 1 0) """
+    LDMSGADDR
+""";
+
+((slice, int, slice, int, int, int), ()) $SplitogramSettlement$_fun_notify((slice, int, slice, int, int, int) $self, cell $body) impure inline {
+    var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = $self;
+    slice $to = __tact_context_get_sender();
+    int $bounce = false;
+    if (false) {
+        int $balance = $global_myBalance();
+        int $balanceBeforeMessage = ($balance - $Context$_get_value(__tact_context_get()));
+        if (($balanceBeforeMessage < 0)) {
+            $global_nativeReserve(0, 0);
+            $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 130, $body));
+            return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), ());
+        }
+    }
+    $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 66, $body));
+    return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), ());
+}
+
+((slice, int, slice, int, int, int), ()) $SplitogramSettlement$_fun_requireOwner((slice, int, slice, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = $self;
+    throw_unless(132, ( equal_slices_bits(__tact_context_get_sender(), $self'owner) ));
+    return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), ());
+}
+
+((slice, int, slice, int, int, int), slice) $SplitogramSettlement$_fun_owner((slice, int, slice, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = $self;
+    var $fresh$ret_3 = $self'owner;
+    return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), $fresh$ret_3);
+}
+
+;; tact_SplitogramSettlement.constants.fc
+;; Cell CVGQGUruYRzolcVQOt+F/YZN55BXRhQvYI0+svqtFOQ=
+cell __gen_cell_cell_095190194aee611ce895c5503adf85fd864de7905746142f608d3eb2faad14e4() asm """
+    B{b5ee9c7241010101000e00001800000000776974686472617736b566dc} B>boc PUSHREF
+""";
+
+;; tact_SplitogramSettlement.storage.fc
+;;
+;; Type: Context
+;; TLB: _ bounceable:bool sender:address value:int257 raw:^slice = Context
+;;
+
+_ $Context$_get_value((int, slice, int, slice) v) inline {
+    var (v'bounceable, v'sender, v'value, v'raw) = v;
+    return v'value;
+}
+
+;;
+;; Type: SendParameters
+;; TLB: _ mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell value:int257 to:address bounce:bool = SendParameters
+;;
+
+((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_mode_body(slice $to, int $value, int $mode, cell $body) inline {
+    return ($mode, $body, null(), null(), $value, $to, true);
+}
+
+;;
+;; Type: MessageParameters
+;; TLB: _ mode:int257 body:Maybe ^cell value:int257 to:address bounce:bool = MessageParameters
+;;
+
+((int, cell, int, slice, int)) $MessageParameters$_constructor_bounce_to_value_mode_body(int $bounce, slice $to, int $value, int $mode, cell $body) inline {
+    return ($mode, $body, $value, $to, $bounce);
+}
+
+;;
+;; Type: DeployOk
+;; Header: 0xaff90f57
+;; TLB: deploy_ok#aff90f57 queryId:uint64 = DeployOk
+;;
+
+builder $DeployOk$_store(builder build_0, (int) v) inline {
+    var (v'queryId) = v;
+    build_0 = store_uint(build_0, 2952335191, 32);
+    build_0 = build_0.store_uint(v'queryId, 64);
+    return build_0;
+}
+
+cell $DeployOk$_store_cell((int) v, builder b) inline {
+    return $DeployOk$_store(b, v).end_cell();
+}
+
+((int)) $DeployOk$_constructor_queryId(int $queryId) inline {
+    return ($queryId);
+}
+
+;;
+;; Type: TokenTransfer
+;; Header: 0x0f8a7ea5
+;; TLB: token_transfer#0f8a7ea5 queryId:uint64 amount:coins destination:address response_destination:address custom_payload:Maybe ^cell forward_ton_amount:coins forward_payload:remainder<slice> = TokenTransfer
+;;
+
+builder $TokenTransfer$_store(builder build_0, (int, int, slice, slice, cell, int, slice) v) inline {
+    var (v'queryId, v'amount, v'destination, v'response_destination, v'custom_payload, v'forward_ton_amount, v'forward_payload) = v;
+    build_0 = store_uint(build_0, 260734629, 32);
+    build_0 = build_0.store_uint(v'queryId, 64);
+    build_0 = build_0.store_varuint16(v'amount);
+    build_0 = build_0.store_slice(v'destination);
+    build_0 = build_0.store_slice(v'response_destination);
+    build_0 = build_0.store_maybe_ref(v'custom_payload);
+    build_0 = build_0.store_varuint16(v'forward_ton_amount);
+    build_0 = build_0.store_slice(v'forward_payload);
+    return build_0;
+}
+
+cell $TokenTransfer$_store_cell((int, int, slice, slice, cell, int, slice) v, builder b) inline {
+    return $TokenTransfer$_store(b, v).end_cell();
+}
+
+(slice, ((int, int))) $TokenTransfer$_load_bounced(slice sc_0) inline {
+    var v'queryId = sc_0~load_uint(64);
+    var v'amount = sc_0~load_varuint16();
+    return (sc_0, (v'queryId, v'amount));
+}
+
+((int, int, slice, slice, cell, int, slice)) $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(int $queryId, int $amount, slice $destination, slice $response_destination, cell $custom_payload, int $forward_ton_amount, slice $forward_payload) inline {
+    return ($queryId, $amount, $destination, $response_destination, $custom_payload, $forward_ton_amount, $forward_payload);
+}
+
+;;
+;; Type: Stats
+;; TLB: _ total_processed:coins total_commission:coins settlement_count:uint32 = Stats
+;;
+
+(int, int, int) $Stats$_to_external(((int, int, int)) v) inline {
+    var (v'total_processed, v'total_commission, v'settlement_count) = v; 
+    return (v'total_processed, v'total_commission, v'settlement_count);
+}
+
+((int, int, int)) $Stats$_constructor_total_processed_total_commission_settlement_count(int $total_processed, int $total_commission, int $settlement_count) inline {
+    return ($total_processed, $total_commission, $settlement_count);
+}
+
+;;
+;; Type: SplitogramSettlement
+;; TLB: _ owner:address commission_bps:uint16 usdt_wallet:address total_processed:coins total_commission:coins settlement_count:uint32 = SplitogramSettlement
+;;
+
+builder $SplitogramSettlement$_store(builder build_0, (slice, int, slice, int, int, int) v) inline {
+    var (v'owner, v'commission_bps, v'usdt_wallet, v'total_processed, v'total_commission, v'settlement_count) = v;
+    build_0 = build_0.store_slice(v'owner);
+    build_0 = build_0.store_uint(v'commission_bps, 16);
+    build_0 = __tact_store_address_opt(build_0, v'usdt_wallet);
+    build_0 = build_0.store_varuint16(v'total_processed);
+    build_0 = build_0.store_varuint16(v'total_commission);
+    build_0 = build_0.store_uint(v'settlement_count, 32);
+    return build_0;
+}
+
+(slice, ((slice, int, slice, int, int, int))) $SplitogramSettlement$_load(slice sc_0) inline {
+    var v'owner = sc_0~load_msg_addr();
+    var v'commission_bps = sc_0~load_uint(16);
+    var v'usdt_wallet = sc_0~__tact_load_address_opt();
+    var v'total_processed = sc_0~load_varuint16();
+    var v'total_commission = sc_0~load_varuint16();
+    var v'settlement_count = sc_0~load_uint(32);
+    return (sc_0, (v'owner, v'commission_bps, v'usdt_wallet, v'total_processed, v'total_commission, v'settlement_count));
+}
+
+(slice, ((slice, int))) $SplitogramSettlement$init$_load(slice sc_0) inline {
+    var v'owner = sc_0~load_msg_addr();
+    var v'commission_bps = sc_0~load_int(257);
+    return (sc_0, (v'owner, v'commission_bps));
+}
+
+(slice, int, slice, int, int, int) $SplitogramSettlement$_contract_load() impure inline {
+    slice $sc = get_data().begin_parse();
+    int $loaded = $sc~load_int(1);
+    if ($loaded) {
+        return $sc~$SplitogramSettlement$_load();
+    }
+    else {
+        (slice $owner, int $commission_bps) = $sc~$SplitogramSettlement$init$_load();
+        $sc.end_parse();
+        return $SplitogramSettlement$_contract_init($owner, $commission_bps);
+    }
+}
+
+() $SplitogramSettlement$_contract_store((slice, int, slice, int, int, int) v) impure inline {
+    builder b = begin_cell();
+    b = b.store_int(true, 1);
+    b = $SplitogramSettlement$_store(b, v);
+    set_data(b.end_cell());
+}
+
+;;
+;; Contract SplitogramSettlement functions
+;;
+
+(slice, int, slice, int, int, int) $SplitogramSettlement$_contract_init(slice $owner, int $commission_bps) impure inline {
+    var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = (null(), null(), null(), null(), null(), null());
+    $self'owner = $owner;
+    throw_unless(63779, ($commission_bps <= 1000));
+    $self'commission_bps = $commission_bps;
+    $self'usdt_wallet = null();
+    $self'total_processed = 0;
+    $self'total_commission = 0;
+    $self'settlement_count = 0;
+    return ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count);
+}
+
+((slice, int, slice, int, int, int), ()) $SplitogramSettlement$_fun__sendJetton((slice, int, slice, int, int, int) $self, slice $to, int $amount, slice $responseAddr, int $queryId) impure inline_ref {
+    var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = $self;
+    $global_send($SendParameters$_constructor_to_value_mode_body(__tact_not_null($self'usdt_wallet), 60000000, 0, $TokenTransfer$_store_cell($TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload($queryId, $amount, $to, $responseAddr, null(), 0, $global_emptySlice()), begin_cell())));
+    return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), ());
+}
+
+((slice, int, slice, int, int, int), int) $SplitogramSettlement$_fun_commission((slice, int, slice, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = $self;
+    var $fresh$ret_0 = $self'commission_bps;
+    return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), $fresh$ret_0);
+}
+
+((slice, int, slice, int, int, int), (int, int, int)) $SplitogramSettlement$_fun_stats((slice, int, slice, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = $self;
+    var $fresh$ret_1 = $Stats$_constructor_total_processed_total_commission_settlement_count($self'total_processed, $self'total_commission, $self'settlement_count);
+    return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), $fresh$ret_1);
+}
+
+((slice, int, slice, int, int, int), slice) $SplitogramSettlement$_fun_jetton_wallet((slice, int, slice, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = $self;
+    var $fresh$ret_2 = $self'usdt_wallet;
+    return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), $fresh$ret_2);
+}
+
+;;
+;; Get methods of a Contract SplitogramSettlement
+;;
+
+_ %commission() method_id(112356) {
+    var self = $SplitogramSettlement$_contract_load();
+    var res = self~$SplitogramSettlement$_fun_commission();
+    return res;
+}
+
+_ %stats() method_id(89570) {
+    var self = $SplitogramSettlement$_contract_load();
+    var res = self~$SplitogramSettlement$_fun_stats();
+    return $Stats$_to_external(res);
+}
+
+_ %jetton_wallet() method_id(117972) {
+    var self = $SplitogramSettlement$_contract_load();
+    var res = self~$SplitogramSettlement$_fun_jetton_wallet();
+    return res;
+}
+
+_ %owner() method_id(83229) {
+    var self = $SplitogramSettlement$_contract_load();
+    var res = self~$SplitogramSettlement$_fun_owner();
+    return res;
+}
+
+;;
+;; Routing of a Contract SplitogramSettlement
+;;
+
+;; message opcode reader utility: only binary receivers
+;; Returns 32 bit message opcode, otherwise throws the "Invalid incoming message" exit code
+(slice, int) ~load_opcode_internal(slice s) asm( -> 1 0) "32 LDUQ 130 THROWIFNOT";
+
+() recv_internal(int msg_value, cell in_msg_cell, slice in_msg) impure {
+    
+    ;; Context
+    var cs = in_msg_cell.begin_parse();
+    cs~skip_bits(2);
+    var msg_bounceable = cs~load_int(1);
+    var msg_bounced = cs~load_int(1);
+    slice msg_sender_addr = cs~load_msg_addr();
+    __tact_context = (msg_bounceable, msg_sender_addr, msg_value, cs);
+    __tact_context_sender = msg_sender_addr;
+    
+    ;; Load contract data
+    var ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count) = $SplitogramSettlement$_contract_load();
+    
+    ;; Handle bounced messages
+    if (msg_bounced) {
+        ;; Skip 0xFFFFFFFF prefix of a bounced message
+        in_msg~skip_bits(32);
+        int op = 0;
+        if (slice_bits(in_msg) >= 32) {
+            op = in_msg~load_uint(32);
+        }
+        ;; Bounced handler for TokenTransfer message
+        if (op == 0xf8a7ea5) {
+            var ($src'queryId, $src'amount) = in_msg~$TokenTransfer$_load_bounced();
+            $SplitogramSettlement$_contract_store(($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count));
+            return ();
+        }
+        
+        return ();
+    }
+    var op = in_msg~load_opcode_internal();
+    ;; Receive TokenNotification message
+    if (op == 0x7362d09c) {
+        var $msg'queryId = in_msg~load_uint(64);
+        var $msg'amount = in_msg~load_varuint16();
+        var $msg'from = in_msg~load_msg_addr();
+        var $msg'forward_payload = in_msg;
+        if (null?($self'usdt_wallet)) {
+            $self'usdt_wallet = __tact_context_get_sender();
+        } else {
+            throw_unless(2603, ( equal_slices_bits(__tact_context_get_sender(), __tact_not_null($self'usdt_wallet)) ));
+        }
+        int $op = $msg'forward_payload~load_uint(32);
+        throw_unless(27388, ($op == 0));
+        slice $recipient = $msg'forward_payload~$Slice$_fun_loadAddress();
+        int $commission = (($msg'amount * $self'commission_bps) / 10000);
+        int $minCommission = 100000;
+        if (($commission < $minCommission)) {
+            $commission = $minCommission;
+        }
+        int $remainder = ($msg'amount - $commission);
+        throw_unless(46710, ($remainder > 0));
+        $self'total_processed = ($self'total_processed + $msg'amount);
+        $self'total_commission = ($self'total_commission + $commission);
+        $self'settlement_count = ($self'settlement_count + 1);
+        ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun__sendJetton($recipient, $remainder, $msg'from, $msg'queryId);
+        ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun__sendJetton($self'owner, $commission, $self'owner, $msg'queryId);
+        $SplitogramSettlement$_contract_store(($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count));
+        return ();
+    }
+    
+    ;; Receive SetJettonWallet message
+    if (op == 3101903737) {
+        var $msg'wallet = in_msg~load_msg_addr();
+        ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun_requireOwner();
+        $self'usdt_wallet = $msg'wallet;
+        $SplitogramSettlement$_contract_store(($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count));
+        return ();
+    }
+    
+    ;; Receive UpdateCommission message
+    if (op == 3823003889) {
+        var $msg'new_commission = in_msg~load_uint(16);
+        ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun_requireOwner();
+        throw_unless(63779, ($msg'new_commission <= 1000));
+        $self'commission_bps = $msg'new_commission;
+        $SplitogramSettlement$_contract_store(($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count));
+        return ();
+    }
+    
+    ;; Receive WithdrawTon message
+    if (op == 4206811366) {
+        var $msg'amount = in_msg~load_varuint16();
+        ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun_requireOwner();
+        throw_unless(61135, ($msg'amount > 0));
+        $global_send($SendParameters$_constructor_to_value_mode_body($self'owner, $msg'amount, 64, __gen_cell_cell_095190194aee611ce895c5503adf85fd864de7905746142f608d3eb2faad14e4()));
+        $SplitogramSettlement$_contract_store(($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count));
+        return ();
+    }
+    
+    ;; Receive Deploy message
+    if (op == 0x946a98b6) {
+        var $deploy'queryId = in_msg~load_uint(64);
+        ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun_notify($DeployOk$_store_cell($DeployOk$_constructor_queryId($deploy'queryId), begin_cell()));
+        $SplitogramSettlement$_contract_store(($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count));
+        return ();
+    }
+    
+    ;; Throw if not handled
+    throw(130);
+}
+
+
+() __tact_selector_hack_asm() impure asm """
+@atend @ 1 {
+        execute current@ context@ current!
+        {
+            // The core idea of this function is to save gas by avoiding unnecessary dict jump, when recv_internal/recv_external is called
+            // We want to extract recv_internal/recv_external from the dict and select needed function
+            // not by jumping to the needed function by it's index, but by using usual IF statements.
+
+            }END> b> // Close previous builder, now we have a cell of previous code on top of the stack
+
+            <{ // Start of the new code builder
+                SETCP0
+                // Swap the new code builder with the previous code, now we have previous code on top of the stack
+                swap
+                // Transform cell to slice and load first ref from the previous code, now we have the dict on top of the stack
+                <s ref@
+
+                // Extract the recv_internal from the dict
+                dup 0 swap @procdictkeylen idict@ { "internal shortcut error" abort } ifnot
+                swap
+
+                // Delete the recv_internal from the dict
+                0 swap @procdictkeylen idict- drop
+                // Delete the recv_external from the dict (it's okay if it's not there)
+                -1 swap @procdictkeylen idict- drop
+                // Delete the __tact_selector_hack from the dict
+                65535 swap @procdictkeylen idict- drop
+
+                // Bring the code builder from the bottom of the stack
+                // because if recv_external extraction is optional, and the number of elements on the stack is not fixed
+                depth 1- roll
+                // Swap with the dict from which we extracted recv_internal and (maybe) recv_external
+                swap
+
+                // Check if the dict is empty
+                dup null?
+                // Store a copy of this flag in the bottom of the stack
+                dup depth 1- -roll
+                {
+                    // If the dict is empty, just drop it (it will be null if it's empty)
+                    drop
+                }
+                {
+                    // If the dict is not empty, prepare continuation to be stored in c3
+                    <{
+                        // Save this dict as first ref in this continuation, it will be pushed in runtime by DICTPUSHCONST
+                        swap @procdictkeylen DICTPUSHCONST
+                        // Jump to the needed function by it's index
+                        DICTIGETJMPZ
+                        // If such key is not found, throw 11 along with the key as an argument
+                        11 THROWARG
+                    }> PUSHCONT
+                    // Store the continuation in c3
+                    c3 POP
+                } cond
+
+                // Function id is on top of the (runtime) stack
+                DUP IFNOTJMP:<{
+                    // place recv_internal here
+                    DROP swap @addop
+                }>
+
+                // Bring back the flag, indicating if the dict is empty or not from the bottom of the stack
+                depth 1- roll
+                {
+                    // If the dict is empty, throw 11
+                    11 THROWARG
+                }
+                {
+                    // If the dict is not empty, jump to continuation from c3
+                    c3 PUSH JMPX
+                } cond
+            }> b>
+        } : }END>c
+        current@ context! current!
+    } does @atend !
+""";
+
+() __tact_selector_hack() method_id(65535) {
+    return __tact_selector_hack_asm();
+}

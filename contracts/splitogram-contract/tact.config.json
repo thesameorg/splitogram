@@ -1,0 +1,12 @@
+{
+  "projects": [
+    {
+      "name": "SplitogramSettlement",
+      "path": "./contracts/SplitogramSettlement.tact",
+      "output": "./build/SplitogramSettlement",
+      "options": {
+        "debug": true
+      }
+    }
+  ]
+}
