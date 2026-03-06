@@ -127,7 +127,7 @@ contract SplitogramSettlement with Deployable, Ownable {
     fun _sendJetton(to: Address, amount: Int, responseAddr: Address, queryId: Int) {
         send(SendParameters{
             to: self.usdt_wallet!!,
-            value: ton("0.06"),         // gas for one Jetton transfer
+            value: ton("0.15"),         // gas for one Jetton transfer
             mode: 0,
             body: TokenTransfer{
                 queryId: queryId,
@@ -136,7 +136,7 @@ contract SplitogramSettlement with Deployable, Ownable {
                 response_destination: responseAddr,
                 custom_payload: null,
                 forward_ton_amount: 0,
-                forward_payload: emptySlice()
+                forward_payload: beginCell().storeUint(0, 1).asSlice() // Either bit: 0 = inline empty
             }.toCell()
         });
     }

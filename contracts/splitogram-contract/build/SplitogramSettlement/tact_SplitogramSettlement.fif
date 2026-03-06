@@ -17,6 +17,7 @@ PROGRAM{
   DECLPROC $SplitogramSettlement$_contract_init
   DECLPROC $SplitogramSettlement$_contract_load
   DECLPROC $SplitogramSettlement$_contract_store
+  DECLPROC $Builder$_fun_asSlice
   DECLPROC $SendParameters$_constructor_to_value_mode_body
   DECLPROC $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload
   DECLPROC $SplitogramSettlement$_fun__sendJetton
@@ -176,6 +177,10 @@ PROGRAM{
     ENDC
     c4 POP
   }>
+  $Builder$_fun_asSlice PROCINLINE:<{
+        ENDC
+        CTOS
+  }>
   $SendParameters$_constructor_to_value_mode_body PROCINLINE:<{
     2SWAP
     PUSHNULL
@@ -188,11 +193,14 @@ PROGRAM{
   $SplitogramSettlement$_fun__sendJetton PROCREF:<{
     s7 PUSH
     __tact_not_null INLINECALLDICT
-    60000000 PUSHINT
+    150000000 PUSHINT
     0 PUSHINT
     PUSHNULL
     OVER
-        b{} PUSHSLICE
+        NEWC
+    s1 s(-1) PUXC
+    1 STU
+    $Builder$_fun_asSlice INLINECALLDICT
     s5 s8 XCHG
     s4 s9 XCHG
     s3 s7 XCHG

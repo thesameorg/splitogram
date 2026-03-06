@@ -8,7 +8,11 @@
 - somehow when bot added to group, make dummies for all its users (if group admin decides to do so)
 - add max 1 usdt update of "charge" besides of minimum
 - check if contract has loopholes and can be exploited
-
+- add "version" to account page
+- we need to somehow differenciate if settlement recepient has a connected wallet, and what to do if not?
+    - prompt him to do so?
+    - but what about timing?
+    - 
 
 # LATER
 - add TON contract + oracle

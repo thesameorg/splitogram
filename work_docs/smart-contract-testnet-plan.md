@@ -375,22 +375,23 @@ npx blueprint run verifyState --testnet
 - [x] **0.3** Configure MCP in Claude Code settings — `ton-blockchain-mcp` configured globally
 - [ ] **0.4** Bookmark all diagnostic URLs
 - [x] **0.5** Create 3 testnet wallets (W5), addresses in `.envs/ton_wallets.json`
-- [x] **0.6** Fund wallets — Wallet C has ~1.9 TON (after minting). Wallets A & B still need funding.
+- [x] **0.6** Fund wallets — all 3 wallets funded with TON and tUSDT.
 - [x] **0.7** Verify wallet balances on testnet — confirmed via `testnet.tonapi.io` REST + tonviewer
 - [x] **1.1** Mint tUSDT via minter.ton.org?testnet=true — minted from Wallet C (W5/v5r1), 1,000,000,000 tUSDT (= 1,000 tUSDT with 6 decimals). Name: "test USDT SPLIT", symbol: tUSDT.
 - [x] **1.2** Save Jetton Master address → `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7`
-- [ ] **1.3** Send tUSDT: 500 → Wallet A, 100 → Wallet B
-- [ ] **1.4** Verify tUSDT balances on Tonviewer
+- [x] **1.3** Send tUSDT: 500 → Wallet A, 100 → Wallet B — done (Wallet A: 5000, Wallet B: 3000, Wallet C: ~999,992 tUSDT)
+- [x] **1.4** Verify tUSDT balances on Tonviewer — confirmed via TONAPI REST
 - [x] **2.1** Claude creates Blueprint project
 - [x] **2.2** Claude writes Splitogram Tact contract
 - [x] **2.3** Claude writes Sandbox tests
 - [x] **2.4** Run tests → all 16 pass
 - [x] **2.5** Build contract
 - [x] **3.1** Claude writes deploy script
-- [x] **3.2** Deploy to testnet — contract at `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV`
+- [x] **3.2** Deploy to testnet — initial contract at `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV` (v1, had bugs)
 - [x] **3.3** Verify deployment — confirmed active via TONAPI REST
-- [ ] **4.1** Test settlement: 100 tUSDT (A→B via contract)
-- [ ] **4.2** Verify balances: B got 99, C got 1
+- [x] **3.4** Bug fixes required 2 redeploys (see Testnet Debugging Log below). Final working contract: `EQB1n108XegTE8HOtg2YHxHaYi6Llh_h9bgaeEYww0IjnUK4`
+- [x] **4.1** Test settlement: 100 tUSDT (C→B via contract) — SUCCESS
+- [x] **4.2** Verify balances: B got +99 tUSDT, C got +1 tUSDT commission — confirmed via TONAPI REST
 - [ ] **4.3** Test small settlement: 5 tUSDT (minimum commission)
 - [ ] **4.4** Test multiple settlements
 - [ ] **4.5** Test owner operations (update commission, withdraw TON)
@@ -409,10 +410,66 @@ All wallets: W5 (v5r1), testnet
 Wallet file: .envs/ton_wallets.json
 
 tUSDT Jetton Master:   kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7 (testnet)
-Splitogram Contract:   EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV (testnet)
 
+Splitogram Contract v1 (BROKEN):  EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV (200 tUSDT stuck)
+Splitogram Contract v2 (BROKEN):  EQC3ITB97KJ7q1TiICbsJyheN1_qFt5ryeY2iIaar_4F5P0G (100 tUSDT stuck)
+Splitogram Contract v3 (WORKING): EQB1n108XegTE8HOtg2YHxHaYi6Llh_h9bgaeEYww0IjnUK4
+
+Jetton Wallet Addresses (tUSDT):
+  Wallet A: 0:002d244350f97a3f3f9befd979825c2b8959cf6004429199c0a9badd5847fb44
+  Wallet B: 0:b6c189a77c6212441d923485796947f0923dd06caee7b59cc286a5580d2324be
+  Wallet C: 0:c0265ce987e860efd650270bdd0da41156307c9378e8db703cdb69874584955f
+
+All addresses also saved in: .envs/testnet_addresses.json
 TONAPI Key:            (in .dev.vars)
 ```
+
+---
+
+## Testnet Debugging Log
+
+### Deploy v1 → `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV`
+
+**Issue 1: exit_code=9 (Cell underflow) on TokenNotification**
+
+The `forward_payload` in the Jetton transfer was stored as a reference cell (`storeBit(true) + storeRef(payload)`). The standard Jetton wallet passes remaining bits as-is in the `transfer_notification` — it doesn't unwrap the Either flag. So the contract received a slice with just 1 bit (the Either flag) instead of the actual payload data (op + recipient address). `loadUint(32)` failed because only 1 bit was available.
+
+**Fix:** Store `forward_payload` inline in the transfer body (no `storeBit`/`storeRef`, just append op + address after `forward_ton_amount`).
+
+**Issue 2: exit_code=708 on outgoing TokenTransfer**
+
+After fixing the payload encoding, the contract successfully processed the `TokenNotification` and sent two `TokenTransfer` messages to its Jetton Wallet. Both were rejected with exit 708.
+
+Exit 708 in the standard FunC Jetton wallet = `slice_bits(in_msg_body) >= 1` — after parsing all fields up to `forward_ton_amount`, the wallet requires at least 1 remaining bit for the `Either forward_payload` flag. The Tact contract used `forward_payload: emptySlice()` which serializes to 0 remaining bits.
+
+**Fix:** Changed `emptySlice()` to `beginCell().storeUint(0, 1).asSlice()` — adds a single `0` bit (meaning "inline empty payload").
+
+**Issue 3: Gas too low (0.06 TON per transfer)**
+
+While debugging issue 2, also increased `_sendJetton` value from `ton("0.06")` to `ton("0.15")` per outgoing transfer, and test script `forward_ton_amount` from 0.25 to 0.4 TON, total gas from 0.35 to 0.5 TON. The 0.06 amount may have been marginal.
+
+### Deploy v3 → `EQB1n108XegTE8HOtg2YHxHaYi6Llh_h9bgaeEYww0IjnUK4` (WORKING)
+
+First successful end-to-end settlement:
+- Wallet C sent 100 tUSDT to contract with Wallet B as recipient
+- Contract took 1 tUSDT commission (1%), forwarded 99 tUSDT to Wallet B
+- Contract balance: 0 tUSDT (pure pass-through, no stuck funds)
+- Full transaction trace: all nodes success=True, exit=0
+
+### Key Learnings for TON Jetton Integration
+
+1. **forward_payload must be inline** — don't use `storeBit(true) + storeRef()` for the Jetton transfer's forward_payload. Store op + data directly after `forward_ton_amount`.
+2. **TokenTransfer needs an Either bit** — the standard FunC Jetton wallet requires at least 1 bit after `forward_ton_amount` for the `Either forward_payload` flag. In Tact, use `beginCell().storeUint(0, 1).asSlice()` instead of `emptySlice()`.
+3. **Gas budget: 0.15 TON per Jetton transfer** — 0.06 TON was insufficient on testnet. Use 0.15 TON per outgoing transfer, 0.4 TON forward_ton_amount, 0.5 TON total attached.
+4. **TON contracts are immutable** — code changes require redeployment to a new address. StateInit sent to an existing address is silently ignored.
+5. **TONAPI testnet requires no auth token** — `testnet.tonapi.io` works without Bearer token (unlike mainnet).
+6. **Testnet TONAPI for verification** — `GET /v2/accounts/{addr}/jettons` for balances, `GET /v2/traces/{event_id}` for full transaction traces.
+
+### Stuck Funds (recoverable)
+
+- Contract v1 (`EQC7KPp...`): 200 tUSDT stuck (2 failed settlements)
+- Contract v2 (`EQC3ITB...`): 100 tUSDT stuck (1 failed settlement)
+- Recovery: write a script using `SetJettonWallet` + manual TokenTransfer from the contract's jetton wallet (owner operations still work on old contracts).
 
 ---
 

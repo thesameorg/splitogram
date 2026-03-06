@@ -59,6 +59,9 @@ _ $Context$_get_value((int, slice, int, slice) v) inline;
 ;; $SplitogramSettlement$_contract_store
 () $SplitogramSettlement$_contract_store((slice, int, slice, int, int, int) v) impure inline;
 
+;; $Builder$_fun_asSlice
+slice $Builder$_fun_asSlice(builder $self) impure inline;
+
 ;; $SendParameters$_constructor_to_value_mode_body
 ((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_mode_body(slice $to, int $value, int $mode, cell $body) inline;
 
@@ -136,8 +139,8 @@ slice __tact_context_get_sender() inline {
     return __tact_context_sender;
 }
 
-slice $global_emptySlice() impure asm """
-    b{} PUSHSLICE
+builder $global_beginCell() impure asm """
+    NEWC
 """;
 
 int $global_myBalance() impure asm """
@@ -242,6 +245,19 @@ int $global_myBalance() impure asm """
     SWAP
     SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
 """;
+
+cell $Builder$_fun_endCell(builder $self) impure asm """
+    ENDC
+""";
+
+slice $Cell$_fun_beginParse(cell $self) impure asm """
+    CTOS
+""";
+
+slice $Builder$_fun_asSlice(builder $self) impure inline {
+    var ($self) = $self;
+    return $Cell$_fun_beginParse($Builder$_fun_endCell($self));
+}
 
 (slice, slice) $Slice$_fun_loadAddress(slice $self) impure asm( -> 1 0) """
     LDMSGADDR
@@ -449,7 +465,7 @@ builder $SplitogramSettlement$_store(builder build_0, (slice, int, slice, int, i
 
 ((slice, int, slice, int, int, int), ()) $SplitogramSettlement$_fun__sendJetton((slice, int, slice, int, int, int) $self, slice $to, int $amount, slice $responseAddr, int $queryId) impure inline_ref {
     var (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)) = $self;
-    $global_send($SendParameters$_constructor_to_value_mode_body(__tact_not_null($self'usdt_wallet), 60000000, 0, $TokenTransfer$_store_cell($TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload($queryId, $amount, $to, $responseAddr, null(), 0, $global_emptySlice()), begin_cell())));
+    $global_send($SendParameters$_constructor_to_value_mode_body(__tact_not_null($self'usdt_wallet), 150000000, 0, $TokenTransfer$_store_cell($TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload($queryId, $amount, $to, $responseAddr, null(), 0, $Builder$_fun_asSlice(store_uint($global_beginCell(), 0, 1))), begin_cell())));
     return (($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count), ());
 }
 
