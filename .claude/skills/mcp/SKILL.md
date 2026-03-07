@@ -15,11 +15,11 @@ You are helping the user manage MCP servers. Interpret `$ARGUMENTS` to determine
 
 MCP servers operate at three scopes:
 
-| Scope | Flag | Where it writes | Visibility |
-|-------|------|-----------------|------------|
-| `local` | `-s local` *(default)* | `~/.claude.json` → `projects.<path>.mcpServers` | Only you, current project only |
-| `project` | `-s project` | `.mcp.json` in project root | Everyone on the project (commit this) |
-| `user` | `-s user` | `~/.claude.json` → top-level `mcpServers` | Only you, all projects |
+| Scope     | Flag                   | Where it writes                                 | Visibility                            |
+| --------- | ---------------------- | ----------------------------------------------- | ------------------------------------- |
+| `local`   | `-s local` _(default)_ | `~/.claude.json` → `projects.<path>.mcpServers` | Only you, current project only        |
+| `project` | `-s project`           | `.mcp.json` in project root                     | Everyone on the project (commit this) |
+| `user`    | `-s user`              | `~/.claude.json` → top-level `mcpServers`       | Only you, all projects                |
 
 ### Key points
 
@@ -125,25 +125,25 @@ claude mcp reset-project-choices  # reset approve/deny decisions for .mcp.json s
 
 ### Common issues
 
-| Symptom | Likely cause | Fix |
-|---------|-------------|-----|
-| Server shows `failed` | Binary not found or bad args | Test the command manually |
-| Server not in `/mcp` | Config in wrong file/scope | Check `~/.claude.json` vs `.mcp.json` |
-| `command not found: npx` | PATH not set | Use full path or add to `env` block |
-| Server times out | Slow init | `MCP_TIMEOUT=15000` |
-| Works locally, not in project | Scope mismatch | Use `-s project` or check `.mcp.json` |
-| `claude mcp list` output empty | TTY rendering issue | Redirect: `claude mcp list > /tmp/out.txt; cat /tmp/out.txt` |
+| Symptom                        | Likely cause                 | Fix                                                          |
+| ------------------------------ | ---------------------------- | ------------------------------------------------------------ |
+| Server shows `failed`          | Binary not found or bad args | Test the command manually                                    |
+| Server not in `/mcp`           | Config in wrong file/scope   | Check `~/.claude.json` vs `.mcp.json`                        |
+| `command not found: npx`       | PATH not set                 | Use full path or add to `env` block                          |
+| Server times out               | Slow init                    | `MCP_TIMEOUT=15000`                                          |
+| Works locally, not in project  | Scope mismatch               | Use `-s project` or check `.mcp.json`                        |
+| `claude mcp list` output empty | TTY rendering issue          | Redirect: `claude mcp list > /tmp/out.txt; cat /tmp/out.txt` |
 
 ## Notable Servers
 
-| Server | Package | What it does |
-|--------|---------|-------------|
-| context7 | `@upstash/context7-mcp` | Up-to-date library docs |
-| filesystem | `@modelcontextprotocol/server-filesystem` | Read/write local files |
-| github | `@modelcontextprotocol/server-github` | GitHub repos, PRs, issues |
-| memory | `@modelcontextprotocol/server-memory` | Persistent memory across sessions |
-| brave-search | `@modelcontextprotocol/server-brave-search` | Web search via Brave API |
-| playwright | `@playwright/mcp` | Browser automation |
+| Server       | Package                                     | What it does                      |
+| ------------ | ------------------------------------------- | --------------------------------- |
+| context7     | `@upstash/context7-mcp`                     | Up-to-date library docs           |
+| filesystem   | `@modelcontextprotocol/server-filesystem`   | Read/write local files            |
+| github       | `@modelcontextprotocol/server-github`       | GitHub repos, PRs, issues         |
+| memory       | `@modelcontextprotocol/server-memory`       | Persistent memory across sessions |
+| brave-search | `@modelcontextprotocol/server-brave-search` | Web search via Brave API          |
+| playwright   | `@playwright/mcp`                           | Browser automation                |
 
 ### Where to find more
 
@@ -161,7 +161,7 @@ When the user invokes `/mcp`:
 3. **"remove <name>"** — Run `claude mcp remove <name>`. Ask about scope if needed.
 4. **"list"** — Run `claude mcp list > /tmp/mcp_list.txt 2>&1; cat /tmp/mcp_list.txt` (direct output often invisible due to TTY rendering).
 5. **"debug" or "fix"** — Walk through the debugging steps above. Read config files, check for common issues.
-6. **"find <topic>"** or "search"** — Help them find a suitable MCP server using WebSearch if needed, then help install it.
+6. **"find <topic>"** or "search"\*\* — Help them find a suitable MCP server using WebSearch if needed, then help install it.
 7. **Any other query** — Use the reference above to answer their MCP-related question.
 
 Always read the relevant config files (`~/.claude.json`, `.mcp.json`) before making changes so you understand current state. When adding servers, confirm the scope with the user if ambiguous.

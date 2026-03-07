@@ -105,7 +105,30 @@
     "groupPhotoRemoved": "Gruppenfoto entfernt",
     "copyInvite": "Link kopieren",
     "linkCopied": "Einladungslink kopiert",
-    "currencyLocked": "Die Währung kann nach dem Hinzufügen von Ausgaben nicht mehr geändert werden"
+    "currencyLocked": "Die Währung kann nach dem Hinzufügen von Ausgaben nicht mehr geändert werden",
+    "addPlaceholder": "Platzhalter-Mitglied hinzufügen",
+    "placeholderName": "Name",
+    "placeholderNamePlaceholder": "Name eingeben...",
+    "placeholderAdd": "Hinzufügen",
+    "placeholderAdding": "Wird hinzugefügt...",
+    "placeholderAdded": "Platzhalter-Mitglied hinzugefügt",
+    "placeholderEdited": "Name aktualisiert",
+    "placeholderDeleted": "Platzhalter entfernt",
+    "placeholderDeleteConfirm": "Platzhalter \"{{name}}\" entfernen? Kann nicht rückgängig gemacht werden.",
+    "placeholderBadge": "Platzhalter",
+    "editPlaceholder": "Umbenennen",
+    "editPlaceholderTitle": "Platzhalter umbenennen",
+    "sharePlaceholderInvite": "Einladen"
+  },
+  "placeholder": {
+    "claimBanner": "Bist du eine dieser Personen?",
+    "claimButton": "Das bin ich",
+    "claimConfirmTitle": "{{name}} übernehmen?",
+    "claimConfirmBalance": "Aktueller Saldo: {{balance}}",
+    "claimConfirmBody": "Alle Ausgaben, Ausgleiche und Salden werden auf dein Konto übertragen.",
+    "claimConfirm": "Ja, das bin ich",
+    "claimCancel": "Nein",
+    "claimed": "Erfolgreich mit {{name}} zusammengeführt"
   },
   "addExpense": {
     "title": "Ausgabe hinzufügen",

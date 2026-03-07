@@ -293,7 +293,7 @@ export function AddExpense() {
         >
           {group.members.map((m) => (
             <option key={m.userId} value={m.userId}>
-              {m.displayName}
+              {m.isDummy ? `\uD83D\uDC64 ${m.displayName}` : m.displayName}
             </option>
           ))}
         </select>
@@ -315,7 +315,7 @@ export function AddExpense() {
                   : 'bg-transparent text-tg-hint border-tg-separator'
               }`}
             >
-              {m.displayName}
+              {m.isDummy ? `\uD83D\uDC64 ${m.displayName}` : m.displayName}
             </button>
           ))}
         </div>

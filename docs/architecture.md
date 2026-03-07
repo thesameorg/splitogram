@@ -102,7 +102,7 @@ Small reusable components extracted from pages:
 
 ## Data Model
 
-- **users**: telegram_id, username, display_name, wallet_address, bot_started, avatar_key
+- **users**: telegram_id, username, display_name, wallet_address, bot_started, avatar_key, is_dummy
 - **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by, avatar_key, avatar_emoji
 - **group_members**: group_id, user_id, role (admin/member), muted
 - **expenses**: group_id, paid_by, amount (micro-units integer), description, split_mode, receipt_key, receipt_thumb_key
@@ -231,11 +231,11 @@ See `work_docs/research/5-i18n-approach.md` for full analysis.
 
 **Key addresses (testnet):**
 
-| Entity | Address |
-|---|---|
-| Contract | `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV` |
+| Entity              | Address                                            |
+| ------------------- | -------------------------------------------------- |
+| Contract            | `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV` |
 | tUSDT Jetton Master | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
-| Owner (Wallet C) | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` |
+| Owner (Wallet C)    | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` |
 
 **Owner messages:** `UpdateCommission`, `WithdrawTon`, `SetJettonWallet`
 
@@ -281,6 +281,7 @@ Scaffolded from `/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`.
 | 0004      | avatar_key (users, groups), avatar_emoji, receipt keys | 6     |
 | 0005      | activity_log + debt_reminders tables                   | 7     |
 | 0006      | expenses.split_mode + settlements receipt keys         | 8     |
+| 0007      | users.is_dummy column                                  | —     |
 
 ---
 

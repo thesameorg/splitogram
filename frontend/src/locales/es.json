@@ -105,7 +105,30 @@
     "groupPhotoRemoved": "Foto del grupo eliminada",
     "copyInvite": "Copiar enlace",
     "linkCopied": "Enlace de invitación copiado",
-    "currencyLocked": "La moneda no se puede cambiar después de añadir gastos"
+    "currencyLocked": "La moneda no se puede cambiar después de añadir gastos",
+    "addPlaceholder": "Añadir miembro temporal",
+    "placeholderName": "Nombre",
+    "placeholderNamePlaceholder": "Introduce un nombre...",
+    "placeholderAdd": "Añadir",
+    "placeholderAdding": "Añadiendo...",
+    "placeholderAdded": "Miembro temporal añadido",
+    "placeholderEdited": "Nombre actualizado",
+    "placeholderDeleted": "Miembro temporal eliminado",
+    "placeholderDeleteConfirm": "¿Eliminar al temporal \"{{name}}\"? No se puede deshacer.",
+    "placeholderBadge": "temporal",
+    "editPlaceholder": "Renombrar",
+    "editPlaceholderTitle": "Renombrar temporal",
+    "sharePlaceholderInvite": "Invitar"
+  },
+  "placeholder": {
+    "claimBanner": "¿Eres una de estas personas?",
+    "claimButton": "Soy yo",
+    "claimConfirmTitle": "¿Tomar el lugar de {{name}}?",
+    "claimConfirmBalance": "Saldo actual: {{balance}}",
+    "claimConfirmBody": "Todos los gastos, liquidaciones y saldos se transferirán a tu cuenta.",
+    "claimConfirm": "Sí, soy yo",
+    "claimCancel": "No",
+    "claimed": "Fusionado con {{name}} correctamente"
   },
   "addExpense": {
     "title": "Añadir gasto",

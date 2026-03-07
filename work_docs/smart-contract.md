@@ -223,12 +223,12 @@ The deployed contract is in `contracts/splitogram-contract/contracts/SplitogramS
 
 Measured on testnet (contract v3, 3 settlements + 3 owner ops):
 
-| Transaction | Total Fee (TON) | Fee (USDT @ 1.31) | Message Chain |
-|---|---|---|---|
-| Settlement (any amount) | ~0.0346 | ~$0.045 | 11 messages |
-| UpdateCommission | ~0.0042 | ~$0.005 | 2 messages |
-| WithdrawTon | ~0.0053 | ~$0.007 | 3 messages |
-| Deploy | ~0.0119 | ~$0.016 | 3 messages |
+| Transaction             | Total Fee (TON) | Fee (USDT @ 1.31) | Message Chain |
+| ----------------------- | --------------- | ----------------- | ------------- |
+| Settlement (any amount) | ~0.0346         | ~$0.045           | 11 messages   |
+| UpdateCommission        | ~0.0042         | ~$0.005           | 2 messages    |
+| WithdrawTon             | ~0.0053         | ~$0.007           | 3 messages    |
+| Deploy                  | ~0.0119         | ~$0.016           | 3 messages    |
 
 Settlement gas is constant regardless of USDT amount (5, 100, or 500 tUSDT all cost ~0.0346 TON). The sender attaches 0.5 TON and receives ~0.33-0.34 TON back as excess.
 
@@ -579,13 +579,13 @@ Testnet: kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7  (tUSDT — "test USDT
 
 ## Appendix A: Commission Economics
 
-| Settlement | Amount   | Commission (1%) | Min/Max Clamp   | Actual Commission | Recipient Gets |
-| ---------- | -------- | --------------- | --------------- | ----------------- | -------------- |
-| Small      | 5 USDT   | 0.05 USDT       | min 0.10 USDT   | 0.10 USDT         | 4.90 USDT      |
-| Medium     | 50 USDT  | 0.50 USDT       | —               | 0.50 USDT         | 49.50 USDT     |
-| Standard   | 100 USDT | 1.00 USDT       | = max cap       | 1.00 USDT         | 99.00 USDT     |
-| Large      | 500 USDT | 5.00 USDT       | max 1.00 USDT   | 1.00 USDT         | 499.00 USDT    |
-| Very Large | 1000 USDT| 10.00 USDT      | max 1.00 USDT   | 1.00 USDT         | 999.00 USDT    |
+| Settlement | Amount    | Commission (1%) | Min/Max Clamp | Actual Commission | Recipient Gets |
+| ---------- | --------- | --------------- | ------------- | ----------------- | -------------- |
+| Small      | 5 USDT    | 0.05 USDT       | min 0.10 USDT | 0.10 USDT         | 4.90 USDT      |
+| Medium     | 50 USDT   | 0.50 USDT       | —             | 0.50 USDT         | 49.50 USDT     |
+| Standard   | 100 USDT  | 1.00 USDT       | = max cap     | 1.00 USDT         | 99.00 USDT     |
+| Large      | 500 USDT  | 5.00 USDT       | max 1.00 USDT | 1.00 USDT         | 499.00 USDT    |
+| Very Large | 1000 USDT | 10.00 USDT      | max 1.00 USDT | 1.00 USDT         | 999.00 USDT    |
 
 Gas costs per settlement: approximately 0.25-0.35 TON (~$0.08-0.12 at current prices), paid by the sender.
 
@@ -600,6 +600,7 @@ On-chain settlement via the Splitogram contract costs ~0.25-0.35 TON in gas (~$0
 If the estimated gas cost exceeds **N%** of the settlement amount, the app should offer a **direct wallet-to-wallet USDT transfer** instead of routing through the contract. This skips the commission but also skips the gas overhead of the contract's two outgoing messages.
 
 **Direct transfer flow:**
+
 1. Frontend calculates: `gasCostUSD / settlementAmountUSD > threshold`
 2. If above threshold → build a standard Jetton transfer directly to the recipient (no contract)
 3. User confirms in wallet → USDT goes straight from sender to recipient
@@ -607,6 +608,7 @@ If the estimated gas cost exceeds **N%** of the settlement amount, the app shoul
 5. No commission collected on direct transfers
 
 **Contract flow (normal):**
+
 1. Gas ratio below threshold → route through Splitogram contract as designed
 2. Contract splits: commission → owner, remainder → recipient
 3. Commission collected
@@ -622,19 +624,20 @@ If the estimated gas cost exceeds **N%** of the settlement amount, the app shoul
 
 ### Settlement type matrix
 
-| Settlement amount | Gas ratio | Path | Commission | Gas cost |
-|---|---|---|---|---|
-| $0.50 | ~20% | Direct transfer | None | ~0.05 TON (single transfer) |
-| $1.00 | ~10% | Direct transfer | None | ~0.05 TON |
-| $5.00 | ~2% | Via contract | $0.05 (1%) | ~0.30 TON |
-| $50.00 | ~0.2% | Via contract | $0.50 (1%) | ~0.30 TON |
-| $100.00 | ~0.1% | Via contract | $1.00 (1%) | ~0.30 TON |
+| Settlement amount | Gas ratio | Path            | Commission | Gas cost                    |
+| ----------------- | --------- | --------------- | ---------- | --------------------------- |
+| $0.50             | ~20%      | Direct transfer | None       | ~0.05 TON (single transfer) |
+| $1.00             | ~10%      | Direct transfer | None       | ~0.05 TON                   |
+| $5.00             | ~2%       | Via contract    | $0.05 (1%) | ~0.30 TON                   |
+| $50.00            | ~0.2%     | Via contract    | $0.50 (1%) | ~0.30 TON                   |
+| $100.00           | ~0.1%     | Via contract    | $1.00 (1%) | ~0.30 TON                   |
 
 _Note: Gas estimates are approximate. Direct transfers cost less (~0.05 TON) because they involve one Jetton transfer message instead of three (transfer + two outgoing splits). Exact values TBD during testnet profiling._
 
 ### Currency scope
 
 **USDT only for Phase 10.** Rationale:
+
 - Debts are in fiat (USD, EUR, etc.) — USDT maps ~1:1 to USD, simple conversion
 - USDT is the dominant stablecoin on TON (~$1B+ circulating)
 - No price oracle needed (USD ≈ USDT)

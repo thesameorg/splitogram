@@ -102,13 +102,15 @@ app.get('/', async (c) => {
       name: groups.name,
       currency: groups.currency,
       createdAt: groups.createdAt,
-      memberCount:
-        sql<number>`(select count(*) from group_members where group_members.group_id = groups.id)`,
-      expenseCount:
-        sql<number>`(select count(*) from expenses where expenses.group_id = groups.id)`,
+      memberCount: sql<number>`(select count(*) from group_members where group_members.group_id = groups.id)`,
+      expenseCount: sql<number>`(select count(*) from expenses where expenses.group_id = groups.id)`,
     })
     .from(groups)
-    .where(showDeleted ? undefined : sql`(select count(*) from group_members where group_members.group_id = groups.id) > 0`)
+    .where(
+      showDeleted
+        ? undefined
+        : sql`(select count(*) from group_members where group_members.group_id = groups.id) > 0`,
+    )
     .orderBy(desc(groups.createdAt))
     .limit(perPage)
     .offset(offset);

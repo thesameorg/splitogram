@@ -103,7 +103,30 @@
     "groupPhotoRemoved": "Đã xóa ảnh nhóm",
     "copyInvite": "Sao chép liên kết",
     "linkCopied": "Đã sao chép liên kết mời",
-    "currencyLocked": "Không thể thay đổi tiền tệ sau khi đã thêm chi phí"
+    "currencyLocked": "Không thể thay đổi tiền tệ sau khi đã thêm chi phí",
+    "addPlaceholder": "Thêm thành viên tạm",
+    "placeholderName": "Tên",
+    "placeholderNamePlaceholder": "Nhập tên...",
+    "placeholderAdd": "Thêm",
+    "placeholderAdding": "Đang thêm...",
+    "placeholderAdded": "Đã thêm thành viên tạm",
+    "placeholderEdited": "Đã cập nhật tên",
+    "placeholderDeleted": "Đã xóa thành viên tạm",
+    "placeholderDeleteConfirm": "Xóa thành viên tạm \"{{name}}\"? Không thể hoàn tác.",
+    "placeholderBadge": "tạm",
+    "editPlaceholder": "Đổi tên",
+    "editPlaceholderTitle": "Đổi tên thành viên tạm",
+    "sharePlaceholderInvite": "Mời"
+  },
+  "placeholder": {
+    "claimBanner": "Bạn là một trong những người này?",
+    "claimButton": "Đó là tôi",
+    "claimConfirmTitle": "Nhận tài khoản của {{name}}?",
+    "claimConfirmBalance": "Số dư hiện tại: {{balance}}",
+    "claimConfirmBody": "Tất cả chi phí, thanh toán và số dư sẽ được chuyển sang tài khoản của bạn.",
+    "claimConfirm": "Đúng, đó là tôi",
+    "claimCancel": "Không",
+    "claimed": "Đã hợp nhất thành công với {{name}}"
   },
   "addExpense": {
     "title": "Thêm Chi phí",

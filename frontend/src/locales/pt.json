@@ -105,7 +105,30 @@
     "groupPhotoRemoved": "Foto do grupo removida",
     "copyInvite": "Copiar link",
     "linkCopied": "Link de convite copiado",
-    "currencyLocked": "A moeda não pode ser alterada após adicionar despesas"
+    "currencyLocked": "A moeda não pode ser alterada após adicionar despesas",
+    "addPlaceholder": "Adicionar Membro Temporário",
+    "placeholderName": "Nome",
+    "placeholderNamePlaceholder": "Digite o nome...",
+    "placeholderAdd": "Adicionar",
+    "placeholderAdding": "Adicionando...",
+    "placeholderAdded": "Membro temporário adicionado",
+    "placeholderEdited": "Nome atualizado",
+    "placeholderDeleted": "Membro temporário removido",
+    "placeholderDeleteConfirm": "Remover o temporário \"{{name}}\"? Não pode ser desfeito.",
+    "placeholderBadge": "temporário",
+    "editPlaceholder": "Renomear",
+    "editPlaceholderTitle": "Renomear Temporário",
+    "sharePlaceholderInvite": "Convidar"
+  },
+  "placeholder": {
+    "claimBanner": "Você é uma dessas pessoas?",
+    "claimButton": "Sou eu",
+    "claimConfirmTitle": "Assumir a conta de {{name}}?",
+    "claimConfirmBalance": "Saldo atual: {{balance}}",
+    "claimConfirmBody": "Todas as despesas, acertos e saldos serão transferidos para sua conta.",
+    "claimConfirm": "Sim, sou eu",
+    "claimCancel": "Não",
+    "claimed": "Mesclado com {{name}} com sucesso"
   },
   "addExpense": {
     "title": "Adicionar Despesa",

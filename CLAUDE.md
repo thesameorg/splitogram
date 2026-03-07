@@ -194,7 +194,7 @@ Bot sends links with `start_param`. Frontend reads `window.Telegram.WebApp.initD
 
 ### Data Model
 
-- **users**: telegram_id, username, display_name, wallet_address, bot_started, avatar_key
+- **users**: telegram_id, username, display_name, wallet_address, bot_started, avatar_key, is_dummy
 - **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by, avatar_key, avatar_emoji
 - **group_members**: group_id, user_id, role (admin/member), muted
 - **expenses**: group_id, paid_by, amount (micro-units integer), description, receipt_key, receipt_thumb_key
@@ -238,6 +238,8 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - **Content moderation** — `POST /api/v1/reports` sends reported image as photo to admin with inline keyboard (Reject/Remove). Bot `callback_query:data` handler in webhook.ts processes admin actions: Reject notifies reporter, Remove deletes image from R2 and notifies reporter. Both actions edit original caption and remove buttons. Image removal extracted to `removeImage()` in `services/moderation.ts` (shared by webhook + admin dashboard).
 - **Admin dashboard** — Plain HTML at `/admin`, served from the Worker (no React). Protected by `hono/basic-auth` with `ADMIN_SECRET` env var (needed because the page opens in an external browser where TG `initData` is unavailable). Shows metrics (users, groups, expenses, settlements, active groups), paginated groups table, group detail with members/expenses/images, and image delete. Bot `/stats` command (admin TG ID only) provides quick metrics via DM. Frontend link uses `config.apiBaseUrl` (Worker URL) as base — not `window.location.origin` (Pages domain) — so the browser hits the Worker directly. Vite proxy includes `/admin` for local dev.
 - **`isAdmin` flag** — Auth response includes `isAdmin: boolean` (compares `telegramId` to `ADMIN_TELEGRAM_ID`). Propagated through `useAuth` → `UserContext` → Account page, which shows an "Admin Dashboard" link that opens `/admin` in external browser via `WebApp.openLink()`.
+- **Placeholder members** — "dummy" users for people not on the app. `users.is_dummy = true` with negative `telegramId` (real TG IDs are always positive, keeps unique constraint). Admin-only creation via `POST /groups/:id/placeholders` in GroupSettings. Placeholders participate fully in expenses and manual settlements (no on-chain). Shown with 👤 badge in member lists, payer dropdown, participant chips. Admin can rename (`PUT`) or delete (`DELETE`, zero balance required). Real users can claim a placeholder via `POST /groups/:id/claim-placeholder` — merges all FK references (expenses.paid_by, expense_participants, settlements, activity_log) from dummy to real user, deletes dummy. Claim UI: banner on Group page ("Are you one of these people?") with balance preview before confirming.
+- **Versioning** — Git commit hash injected at build time via Vite `define` (`__APP_VERSION__`). Displayed as subtle `v{hash}` footer on Account page.
 
 ## Code Style
 

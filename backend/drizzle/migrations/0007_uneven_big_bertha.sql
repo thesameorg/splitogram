@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `is_dummy` integer DEFAULT false NOT NULL;

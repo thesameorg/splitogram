@@ -11,6 +11,8 @@ import { validateImageFile, processAvatar } from '../utils/image';
 import { useUser } from '../contexts/UserContext';
 import { config } from '../config';
 
+declare const __APP_VERSION__: string;
+
 const LANGUAGES = [
   { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
   { code: 'ru', flag: '\u{1F1F7}\u{1F1FA}', name: 'Русский' },
@@ -308,6 +310,9 @@ export function Account() {
           </button>
         </div>
       )}
+
+      {/* Version */}
+      <div className="text-center text-xs text-tg-hint/50 mt-6 mb-2">v{__APP_VERSION__}</div>
 
       {/* Language Picker Bottom Sheet */}
       <BottomSheet

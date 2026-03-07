@@ -70,7 +70,13 @@ export function useAuth(): AuthState {
       }
     }
 
-    setState({ authenticated: false, loading: false, userId: null, displayName: null, isAdmin: false });
+    setState({
+      authenticated: false,
+      loading: false,
+      userId: null,
+      displayName: null,
+      isAdmin: false,
+    });
   }
 
   return state;

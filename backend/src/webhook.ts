@@ -133,12 +133,8 @@ export async function handleWebhook(c: Context) {
     if (!adminTgId || String(ctx.from?.id) !== adminTgId) return;
 
     const db = createDatabase(c.env.DB);
-    const [{ total: userCount }] = await db
-      .select({ total: sql<number>`count(*)` })
-      .from(users);
-    const [{ total: groupCount }] = await db
-      .select({ total: sql<number>`count(*)` })
-      .from(groups);
+    const [{ total: userCount }] = await db.select({ total: sql<number>`count(*)` }).from(users);
+    const [{ total: groupCount }] = await db.select({ total: sql<number>`count(*)` }).from(groups);
     const [{ total: expenseCount }] = await db
       .select({ total: sql<number>`count(*)` })
       .from(expenses);

@@ -346,6 +346,28 @@ All Phase 2 specs completed and archived.
 
 ---
 
+## Placeholder Members & Versioning — DONE
+
+**Goal:** Support groups with members who aren't on the app, and add build versioning.
+
+**What was built:**
+
+- **Placeholder members ("dummies"):**
+  - Schema: `users.is_dummy` boolean column (migration 0007). Dummies use negative `telegramId` values (real TG IDs are always positive) to maintain the unique constraint.
+  - Admin-only creation in GroupSettings via `POST /groups/:id/placeholders`. Enter a name → creates a dummy user + adds to group.
+  - Placeholders participate fully in expenses (payer + participant) and manual settlements. Shown with 👤 badge throughout the UI.
+  - Admin can rename (`PUT /groups/:id/placeholders/:userId`) or delete (`DELETE`, zero balance required) placeholders.
+  - Claim flow: real user joins group via invite link → Group page shows banner "Are you one of these people?" with placeholder names → tap → confirm dialog shows current balance → merge. `POST /groups/:id/claim-placeholder` transfers all FK references (expenses.paid_by, expense_participants, settlements, activity_log) from dummy to real user, deletes dummy.
+  - "Invite" button on each placeholder shares the group invite link.
+  - i18n: 21 new keys across all 11 locales.
+- **Versioning:**
+  - Git commit short hash injected at build time via Vite `define` (`__APP_VERSION__`).
+  - Displayed as subtle `v{hash}` footer on Account page. Shows `"dev"` in local development.
+
+**DB migrations:** 0007 (users.is_dummy)
+
+---
+
 ## Phase 9: Growth & Virality — SKIP
 
 > **Status: not sure at all.** Evaluate based on traction and user feedback. May be reprioritized, reduced, or dropped entirely.
@@ -444,6 +466,7 @@ All Phase 2 specs completed and archived.
 | 6     | Images & Storage          | Avatars + attachments via R2          | Phase 3     |
 | 7     | Retention & Engagement    | Activity feed + reminders             | Phase 4     |
 | 8     | Advanced Splitting        | Equal / % / manual split modes        | Phase 4     |
+| —     | Placeholders & Versioning | Dummy members + build version         | Phase 7     |
 | 9     | Growth & Virality         | _Speculative — evaluate later_        | Phase 7     |
 | 10    | Crypto Settlement         | On-chain USDT (mainnet)               | Phase 4     |
 | 11    | AI & Monetization         | _Speculative — evaluate later_        | Phase 8, 10 |

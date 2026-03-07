@@ -107,7 +107,30 @@
     "groupPhotoRemoved": "Фото группы удалено",
     "copyInvite": "Копировать ссылку",
     "linkCopied": "Ссылка-приглашение скопирована",
-    "currencyLocked": "Валюту нельзя изменить после добавления расходов"
+    "currencyLocked": "Валюту нельзя изменить после добавления расходов",
+    "addPlaceholder": "Добавить участника-заглушку",
+    "placeholderName": "Имя",
+    "placeholderNamePlaceholder": "Введите имя...",
+    "placeholderAdd": "Добавить",
+    "placeholderAdding": "Добавление...",
+    "placeholderAdded": "Участник-заглушка добавлен",
+    "placeholderEdited": "Имя обновлено",
+    "placeholderDeleted": "Заглушка удалена",
+    "placeholderDeleteConfirm": "Удалить заглушку «{{name}}»? Это нельзя отменить.",
+    "placeholderBadge": "заглушка",
+    "editPlaceholder": "Переименовать",
+    "editPlaceholderTitle": "Переименовать заглушку",
+    "sharePlaceholderInvite": "Пригласить"
+  },
+  "placeholder": {
+    "claimBanner": "Вы один из этих людей?",
+    "claimButton": "Это я",
+    "claimConfirmTitle": "Забрать аккаунт {{name}}?",
+    "claimConfirmBalance": "Текущий баланс: {{balance}}",
+    "claimConfirmBody": "Все расходы, расчёты и балансы будут перенесены на ваш аккаунт.",
+    "claimConfirm": "Да, это я",
+    "claimCancel": "Нет",
+    "claimed": "Успешно объединено с {{name}}"
   },
   "addExpense": {
     "title": "Добавить расход",

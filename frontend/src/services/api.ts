@@ -66,6 +66,7 @@ export interface GroupMember {
   displayName: string;
   walletAddress: string | null;
   avatarKey: string | null;
+  isDummy: boolean;
   role: string;
   joinedAt: string;
 }
@@ -459,5 +460,30 @@ export const api = {
   getGroupActivity: (groupId: number, cursor?: string) =>
     apiRequest<{ items: ActivityItem[]; nextCursor: string | null }>(
       `/api/v1/groups/${groupId}/activity${cursor ? `?cursor=${cursor}` : ''}`,
+    ),
+
+  // Placeholders
+  createPlaceholder: (groupId: number, name: string) =>
+    apiRequest<{ userId: number; displayName: string; isDummy: boolean }>(
+      `/api/v1/groups/${groupId}/placeholders`,
+      { method: 'POST', body: JSON.stringify({ name }) },
+    ),
+
+  editPlaceholder: (groupId: number, userId: number, name: string) =>
+    apiRequest<{ userId: number; displayName: string }>(
+      `/api/v1/groups/${groupId}/placeholders/${userId}`,
+      { method: 'PUT', body: JSON.stringify({ name }) },
+    ),
+
+  deletePlaceholder: (groupId: number, userId: number) =>
+    apiRequest<{ deleted: boolean; userId: number }>(
+      `/api/v1/groups/${groupId}/placeholders/${userId}`,
+      { method: 'DELETE' },
+    ),
+
+  claimPlaceholder: (groupId: number, dummyUserId: number) =>
+    apiRequest<{ claimed: boolean; dummyUserId: number; dummyName: string }>(
+      `/api/v1/groups/${groupId}/claim-placeholder`,
+      { method: 'POST', body: JSON.stringify({ dummyUserId }) },
     ),
 };

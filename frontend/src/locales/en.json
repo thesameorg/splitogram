@@ -105,7 +105,30 @@
     "groupPhotoRemoved": "Group photo removed",
     "copyInvite": "Copy link",
     "linkCopied": "Invite link copied",
-    "currencyLocked": "Currency cannot be changed after expenses have been added"
+    "currencyLocked": "Currency cannot be changed after expenses have been added",
+    "addPlaceholder": "Add Placeholder Member",
+    "placeholderName": "Name",
+    "placeholderNamePlaceholder": "Enter name...",
+    "placeholderAdd": "Add",
+    "placeholderAdding": "Adding...",
+    "placeholderAdded": "Placeholder member added",
+    "placeholderEdited": "Name updated",
+    "placeholderDeleted": "Placeholder removed",
+    "placeholderDeleteConfirm": "Remove placeholder \"{{name}}\"? This cannot be undone.",
+    "placeholderBadge": "placeholder",
+    "editPlaceholder": "Rename",
+    "editPlaceholderTitle": "Rename Placeholder",
+    "sharePlaceholderInvite": "Invite"
+  },
+  "placeholder": {
+    "claimBanner": "Are you one of these people?",
+    "claimButton": "That's me",
+    "claimConfirmTitle": "Take over {{name}}?",
+    "claimConfirmBalance": "Current balance: {{balance}}",
+    "claimConfirmBody": "All expenses, settlements, and balances will be transferred to your account.",
+    "claimConfirm": "Yes, that's me",
+    "claimCancel": "No",
+    "claimed": "Successfully merged with {{name}}"
   },
   "addExpense": {
     "title": "Add Expense",

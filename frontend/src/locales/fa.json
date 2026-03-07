@@ -105,7 +105,30 @@
     "groupPhotoRemoved": "عکس گروه حذف شد",
     "copyInvite": "کپی لینک",
     "linkCopied": "لینک دعوت کپی شد",
-    "currencyLocked": "پس از افزودن هزینه، ارز قابل تغییر نیست"
+    "currencyLocked": "پس از افزودن هزینه، ارز قابل تغییر نیست",
+    "addPlaceholder": "افزودن عضو موقت",
+    "placeholderName": "نام",
+    "placeholderNamePlaceholder": "نام را وارد کنید...",
+    "placeholderAdd": "افزودن",
+    "placeholderAdding": "در حال افزودن...",
+    "placeholderAdded": "عضو موقت اضافه شد",
+    "placeholderEdited": "نام به‌روز شد",
+    "placeholderDeleted": "عضو موقت حذف شد",
+    "placeholderDeleteConfirm": "عضو موقت «{{name}}» حذف شود؟ قابل بازگشت نیست.",
+    "placeholderBadge": "موقت",
+    "editPlaceholder": "تغییر نام",
+    "editPlaceholderTitle": "تغییر نام عضو موقت",
+    "sharePlaceholderInvite": "دعوت"
+  },
+  "placeholder": {
+    "claimBanner": "آیا شما یکی از این افراد هستید؟",
+    "claimButton": "این منم",
+    "claimConfirmTitle": "حساب {{name}} را بگیرید؟",
+    "claimConfirmBalance": "موجودی فعلی: {{balance}}",
+    "claimConfirmBody": "تمام هزینه‌ها، تسویه‌ها و مانده‌ها به حساب شما منتقل می‌شود.",
+    "claimConfirm": "بله، این منم",
+    "claimCancel": "خیر",
+    "claimed": "با موفقیت با {{name}} ادغام شد"
   },
   "addExpense": {
     "title": "افزودن هزینه",

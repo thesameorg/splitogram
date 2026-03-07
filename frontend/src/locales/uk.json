@@ -107,7 +107,30 @@
     "groupPhotoRemoved": "Фото групи видалено",
     "copyInvite": "Копіювати посилання",
     "linkCopied": "Посилання-запрошення скопійовано",
-    "currencyLocked": "Валюту не можна змінити після додавання витрат"
+    "currencyLocked": "Валюту не можна змінити після додавання витрат",
+    "addPlaceholder": "Додати тимчасового учасника",
+    "placeholderName": "Ім'я",
+    "placeholderNamePlaceholder": "Введіть ім'я...",
+    "placeholderAdd": "Додати",
+    "placeholderAdding": "Додавання...",
+    "placeholderAdded": "Тимчасового учасника додано",
+    "placeholderEdited": "Ім'я оновлено",
+    "placeholderDeleted": "Тимчасового учасника видалено",
+    "placeholderDeleteConfirm": "Видалити тимчасового учасника «{{name}}»? Це не можна скасувати.",
+    "placeholderBadge": "тимчасовий",
+    "editPlaceholder": "Перейменувати",
+    "editPlaceholderTitle": "Перейменувати тимчасового учасника",
+    "sharePlaceholderInvite": "Запросити"
+  },
+  "placeholder": {
+    "claimBanner": "Ви одна з цих людей?",
+    "claimButton": "Це я",
+    "claimConfirmTitle": "Забрати акаунт {{name}}?",
+    "claimConfirmBalance": "Поточний баланс: {{balance}}",
+    "claimConfirmBody": "Усі витрати, розрахунки та баланси будуть перенесені на ваш акаунт.",
+    "claimConfirm": "Так, це я",
+    "claimCancel": "Ні",
+    "claimed": "Успішно об'єднано з {{name}}"
   },
   "addExpense": {
     "title": "Додати витрату",

@@ -57,6 +57,14 @@ export function GroupSettings() {
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showAddPlaceholder, setShowAddPlaceholder] = useState(false);
+  const [placeholderName, setPlaceholderName] = useState('');
+  const [addingPlaceholder, setAddingPlaceholder] = useState(false);
+  const [editingPlaceholder, setEditingPlaceholder] = useState<{
+    userId: number;
+    name: string;
+  } | null>(null);
+  const [editPlaceholderName, setEditPlaceholderName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useTelegramBackButton(true);
@@ -243,6 +251,84 @@ export function GroupSettings() {
     }
   }
 
+  async function handleAddPlaceholder() {
+    if (!placeholderName.trim() || addingPlaceholder) return;
+    setAddingPlaceholder(true);
+    setError(null);
+    try {
+      const result = await api.createPlaceholder(groupId, placeholderName.trim());
+      setGroup((prev) =>
+        prev
+          ? {
+              ...prev,
+              members: [
+                ...prev.members,
+                {
+                  userId: result.userId,
+                  telegramId: 0,
+                  username: null,
+                  displayName: result.displayName,
+                  walletAddress: null,
+                  avatarKey: null,
+                  isDummy: true,
+                  role: 'member',
+                  joinedAt: new Date().toISOString(),
+                },
+              ],
+            }
+          : prev,
+      );
+      setPlaceholderName('');
+      setShowAddPlaceholder(false);
+      setSuccess(t('groupSettings.placeholderAdded'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to add placeholder');
+    } finally {
+      setAddingPlaceholder(false);
+    }
+  }
+
+  async function handleEditPlaceholder() {
+    if (!editingPlaceholder || !editPlaceholderName.trim()) return;
+    setError(null);
+    try {
+      await api.editPlaceholder(groupId, editingPlaceholder.userId, editPlaceholderName.trim());
+      setGroup((prev) =>
+        prev
+          ? {
+              ...prev,
+              members: prev.members.map((m) =>
+                m.userId === editingPlaceholder.userId
+                  ? { ...m, displayName: editPlaceholderName.trim() }
+                  : m,
+              ),
+            }
+          : prev,
+      );
+      setEditingPlaceholder(null);
+      setSuccess(t('groupSettings.placeholderEdited'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to rename placeholder');
+    }
+  }
+
+  async function handleDeletePlaceholder(userId: number, displayName: string) {
+    if (!confirm(t('groupSettings.placeholderDeleteConfirm', { name: displayName }))) return;
+    setError(null);
+    try {
+      await api.deletePlaceholder(groupId, userId);
+      setGroup((prev) =>
+        prev ? { ...prev, members: prev.members.filter((m) => m.userId !== userId) } : prev,
+      );
+      setSuccess(t('groupSettings.placeholderDeleted'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove placeholder');
+    }
+  }
+
   if (loading || !group) return <LoadingScreen />;
 
   const creator = group.members.find((m) => m.role === 'admin');
@@ -418,6 +504,11 @@ export function GroupSettings() {
               <div className="flex items-center gap-2">
                 <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
                 <span className="font-medium">{m.displayName}</span>
+                {m.isDummy && (
+                  <span className="text-xs bg-tg-hint/15 text-tg-hint px-1.5 py-0.5 rounded">
+                    {'\uD83D\uDC64'} {t('groupSettings.placeholderBadge')}
+                  </span>
+                )}
                 {m.role === 'admin' && <IconCrown size={14} className="text-app-warning" />}
                 {m.userId === currentUserId && (
                   <span className="text-xs text-tg-hint">{t('groupSettings.you')}</span>
@@ -425,7 +516,30 @@ export function GroupSettings() {
               </div>
               <div className="flex items-center gap-2">
                 {m.username && <span className="text-sm text-tg-hint">@{m.username}</span>}
-                {isAdmin && m.role !== 'admin' && m.userId !== currentUserId && (
+                {isAdmin && m.isDummy && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setEditingPlaceholder({ userId: m.userId, name: m.displayName });
+                        setEditPlaceholderName(m.displayName);
+                      }}
+                      className="text-tg-link text-xs"
+                    >
+                      {t('groupSettings.editPlaceholder')}
+                    </button>
+                    <button onClick={() => handleShareInvite()} className="text-tg-link text-xs">
+                      {t('groupSettings.sharePlaceholderInvite')}
+                    </button>
+                    <button
+                      onClick={() => handleDeletePlaceholder(m.userId, m.displayName)}
+                      className="text-tg-destructive text-sm"
+                      title={t('groupSettings.kick')}
+                    >
+                      &#10005;
+                    </button>
+                  </>
+                )}
+                {isAdmin && !m.isDummy && m.role !== 'admin' && m.userId !== currentUserId && (
                   <button
                     onClick={() => handleKickMember(m.userId, m.displayName)}
                     className="text-tg-destructive text-sm ml-2"
@@ -438,6 +552,16 @@ export function GroupSettings() {
             </div>
           ))}
         </div>
+
+        {/* Add Placeholder button (admin only) */}
+        {isAdmin && (
+          <button
+            onClick={() => setShowAddPlaceholder(true)}
+            className="mt-3 w-full p-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint font-medium"
+          >
+            {t('groupSettings.addPlaceholder')}
+          </button>
+        )}
       </div>
 
       {/* Created by */}
@@ -484,6 +608,62 @@ export function GroupSettings() {
               {emoji}
             </button>
           ))}
+        </div>
+      </BottomSheet>
+
+      {/* Add Placeholder */}
+      <BottomSheet
+        open={showAddPlaceholder}
+        onClose={() => {
+          setShowAddPlaceholder(false);
+          setPlaceholderName('');
+        }}
+        title={t('groupSettings.addPlaceholder')}
+      >
+        <div className="space-y-4">
+          <input
+            type="text"
+            value={placeholderName}
+            onChange={(e) => setPlaceholderName(e.target.value)}
+            placeholder={t('groupSettings.placeholderNamePlaceholder')}
+            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+            autoFocus
+            maxLength={64}
+          />
+          <button
+            onClick={handleAddPlaceholder}
+            disabled={addingPlaceholder || !placeholderName.trim()}
+            className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+          >
+            {addingPlaceholder
+              ? t('groupSettings.placeholderAdding')
+              : t('groupSettings.placeholderAdd')}
+          </button>
+        </div>
+      </BottomSheet>
+
+      {/* Edit Placeholder Name */}
+      <BottomSheet
+        open={!!editingPlaceholder}
+        onClose={() => setEditingPlaceholder(null)}
+        title={t('groupSettings.editPlaceholderTitle')}
+      >
+        <div className="space-y-4">
+          <input
+            type="text"
+            value={editPlaceholderName}
+            onChange={(e) => setEditPlaceholderName(e.target.value)}
+            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+            autoFocus
+            maxLength={64}
+          />
+          <button
+            onClick={handleEditPlaceholder}
+            disabled={!editPlaceholderName.trim()}
+            className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+          >
+            {t('account.save')}
+          </button>
         </div>
       </BottomSheet>
     </PageLayout>

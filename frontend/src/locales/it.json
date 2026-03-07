@@ -105,7 +105,30 @@
     "groupPhotoRemoved": "Foto del gruppo rimossa",
     "copyInvite": "Copia link",
     "linkCopied": "Link di invito copiato",
-    "currencyLocked": "La valuta non può essere cambiata dopo aver aggiunto spese"
+    "currencyLocked": "La valuta non può essere cambiata dopo aver aggiunto spese",
+    "addPlaceholder": "Aggiungi membro segnaposto",
+    "placeholderName": "Nome",
+    "placeholderNamePlaceholder": "Inserisci il nome...",
+    "placeholderAdd": "Aggiungi",
+    "placeholderAdding": "Aggiunta...",
+    "placeholderAdded": "Membro segnaposto aggiunto",
+    "placeholderEdited": "Nome aggiornato",
+    "placeholderDeleted": "Segnaposto rimosso",
+    "placeholderDeleteConfirm": "Rimuovere il segnaposto \"{{name}}\"? Non può essere annullato.",
+    "placeholderBadge": "segnaposto",
+    "editPlaceholder": "Rinomina",
+    "editPlaceholderTitle": "Rinomina segnaposto",
+    "sharePlaceholderInvite": "Invita"
+  },
+  "placeholder": {
+    "claimBanner": "Sei una di queste persone?",
+    "claimButton": "Sono io",
+    "claimConfirmTitle": "Prendere il posto di {{name}}?",
+    "claimConfirmBalance": "Saldo attuale: {{balance}}",
+    "claimConfirmBody": "Tutte le spese, i saldi e le liquidazioni verranno trasferiti al tuo account.",
+    "claimConfirm": "Sì, sono io",
+    "claimCancel": "No",
+    "claimed": "Unito con successo a {{name}}"
   },
   "addExpense": {
     "title": "Aggiungi Spesa",

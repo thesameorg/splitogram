@@ -105,7 +105,30 @@
     "groupPhotoRemoved": "समूह फ़ोटो हटा दी गई",
     "copyInvite": "लिंक कॉपी करें",
     "linkCopied": "आमंत्रण लिंक कॉपी हो गया",
-    "currencyLocked": "खर्च जोड़ने के बाद मुद्रा नहीं बदली जा सकती"
+    "currencyLocked": "खर्च जोड़ने के बाद मुद्रा नहीं बदली जा सकती",
+    "addPlaceholder": "प्लेसहोल्डर सदस्य जोड़ें",
+    "placeholderName": "नाम",
+    "placeholderNamePlaceholder": "नाम दर्ज करें...",
+    "placeholderAdd": "जोड़ें",
+    "placeholderAdding": "जोड़ रहे हैं...",
+    "placeholderAdded": "प्लेसहोल्डर सदस्य जोड़ा गया",
+    "placeholderEdited": "नाम अपडेट हो गया",
+    "placeholderDeleted": "प्लेसहोल्डर हटाया गया",
+    "placeholderDeleteConfirm": "प्लेसहोल्डर \"{{name}}\" हटाएँ? यह पूर्ववत नहीं किया जा सकता।",
+    "placeholderBadge": "प्लेसहोल्डर",
+    "editPlaceholder": "नाम बदलें",
+    "editPlaceholderTitle": "प्लेसहोल्डर का नाम बदलें",
+    "sharePlaceholderInvite": "आमंत्रित करें"
+  },
+  "placeholder": {
+    "claimBanner": "क्या आप इनमें से कोई हैं?",
+    "claimButton": "यह मैं हूँ",
+    "claimConfirmTitle": "{{name}} का अकाउंट लें?",
+    "claimConfirmBalance": "वर्तमान शेष: {{balance}}",
+    "claimConfirmBody": "सभी खर्च, हिसाब और शेष राशि आपके अकाउंट में स्थानांतरित हो जाएँगे।",
+    "claimConfirm": "हाँ, यह मैं हूँ",
+    "claimCancel": "नहीं",
+    "claimed": "{{name}} के साथ सफलतापूर्वक जोड़ा गया"
   },
   "addExpense": {
     "title": "खर्च जोड़ें",

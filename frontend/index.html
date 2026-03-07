@@ -10,12 +10,14 @@
       async
       src="https://tganalytics.xyz/index.js"
       onload="
-        Promise.resolve().then(function() {
-          return window.telegramAnalytics.init({
-            token: '%VITE_TG_ANALYTICS_TOKEN%',
-            appName: 'splitogram',
-          });
-        }).catch(function() {});
+        Promise.resolve()
+          .then(function () {
+            return window.telegramAnalytics.init({
+              token: '%VITE_TG_ANALYTICS_TOKEN%',
+              appName: 'splitogram',
+            });
+          })
+          .catch(function () {})
       "
     ></script>
   </head>

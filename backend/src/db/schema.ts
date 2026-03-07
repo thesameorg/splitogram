@@ -14,6 +14,7 @@ export const users = sqliteTable(
       .$defaultFn(() => new Date().toISOString()),
     botStarted: integer('bot_started', { mode: 'boolean' }).notNull().default(false),
     avatarKey: text('avatar_key'),
+    isDummy: integer('is_dummy', { mode: 'boolean' }).notNull().default(false),
     updatedAt: text('updated_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

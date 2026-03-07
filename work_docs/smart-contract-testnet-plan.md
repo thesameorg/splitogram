@@ -355,7 +355,7 @@ npx blueprint run verifyState --testnet
 | Mint test Jetton (tUSDT)        | 🧑 Manual (minter.ton.org?testnet=true)      |
 | Distribute tUSDT to wallets     | 🧑 Manual (wallet app)                       |
 | Create Blueprint project        | 🤖 Claude                                    |
-| Write Splitogram Tact contract   | 🤖 Claude                                    |
+| Write Splitogram Tact contract  | 🤖 Claude                                    |
 | Write Sandbox tests             | 🤖 Claude                                    |
 | Run tests locally               | 🤖 Claude (runs `npx blueprint test`)        |
 | Write deploy script             | 🤖 Claude                                    |
@@ -453,6 +453,7 @@ While debugging issue 2, also increased `_sendJetton` value from `ton("0.06")` t
 ### Deploy v3 → `EQB1n108XegTE8HOtg2YHxHaYi6Llh_h9bgaeEYww0IjnUK4` (WORKING)
 
 First successful end-to-end settlement:
+
 - Wallet C sent 100 tUSDT to contract with Wallet B as recipient
 - Contract took 1 tUSDT commission (1%), forwarded 99 tUSDT to Wallet B
 - Contract balance: 0 tUSDT (pure pass-through, no stuck funds)
@@ -460,29 +461,29 @@ First successful end-to-end settlement:
 
 ### Full Testnet Validation Results (v3)
 
-| Test | Amount | Expected Commission | Actual | Status |
-|---|---|---|---|---|
-| Standard settlement | 100 tUSDT | 1.0 (1%) | 1.0 | ✅ |
-| Min commission clamp | 5 tUSDT | 0.1 (min, not 0.05) | 0.1 | ✅ |
-| Max commission clamp | 500 tUSDT | 1.0 (max, not 5.0) | 1.0 | ✅ |
-| Stats accumulation | 3 settlements | 605 total / 2.1 commission / count=3 | exact match | ✅ |
-| UpdateCommission | 100→200→100 bps | verified at each step | correct | ✅ |
-| WithdrawTon | 0.1 TON | contract sends TON to owner | confirmed | ✅ |
+| Test                 | Amount          | Expected Commission                  | Actual      | Status |
+| -------------------- | --------------- | ------------------------------------ | ----------- | ------ |
+| Standard settlement  | 100 tUSDT       | 1.0 (1%)                             | 1.0         | ✅     |
+| Min commission clamp | 5 tUSDT         | 0.1 (min, not 0.05)                  | 0.1         | ✅     |
+| Max commission clamp | 500 tUSDT       | 1.0 (max, not 5.0)                   | 1.0         | ✅     |
+| Stats accumulation   | 3 settlements   | 605 total / 2.1 commission / count=3 | exact match | ✅     |
+| UpdateCommission     | 100→200→100 bps | verified at each step                | correct     | ✅     |
+| WithdrawTon          | 0.1 TON         | contract sends TON to owner          | confirmed   | ✅     |
 
 ### Gas Fee Analysis (all testnet transactions)
 
 TON price at time of analysis: **1.31 USDT/TON** (mainnet).
 
-| Transaction | Total Fee (TON) | Fee (USDT) | Messages in Chain |
-|---|---|---|---|
-| Deploy contract | 0.0119 | $0.016 | 3 |
-| Settlement: 100 tUSDT | 0.0346 | $0.045 | 11 |
-| Settlement: 5 tUSDT | 0.0347 | $0.045 | 11 |
-| Settlement: 500 tUSDT | 0.0346 | $0.045 | 11 |
-| UpdateCommission (→200) | 0.0042 | $0.005 | 2 |
-| UpdateCommission (→100) | 0.0042 | $0.005 | 2 |
-| WithdrawTon (0.1 TON) | 0.0053 | $0.007 | 3 |
-| **Total (all 7 txs)** | **0.1295** | **$0.170** | — |
+| Transaction             | Total Fee (TON) | Fee (USDT) | Messages in Chain |
+| ----------------------- | --------------- | ---------- | ----------------- |
+| Deploy contract         | 0.0119          | $0.016     | 3                 |
+| Settlement: 100 tUSDT   | 0.0346          | $0.045     | 11                |
+| Settlement: 5 tUSDT     | 0.0347          | $0.045     | 11                |
+| Settlement: 500 tUSDT   | 0.0346          | $0.045     | 11                |
+| UpdateCommission (→200) | 0.0042          | $0.005     | 2                 |
+| UpdateCommission (→100) | 0.0042          | $0.005     | 2                 |
+| WithdrawTon (0.1 TON)   | 0.0053          | $0.007     | 3                 |
+| **Total (all 7 txs)**   | **0.1295**      | **$0.170** | —                 |
 
 **Key finding:** Settlement gas is **constant at ~0.035 TON (~$0.045)** regardless of USDT amount. The 11-message chain is: external → sender wallet → sender jetton wallet → contract jetton wallet → contract → 2× (contract jetton wallet → recipient/owner jetton wallet → excess return). Sender attaches 0.5 TON and receives ~0.33 TON back as excess.
 
@@ -509,6 +510,7 @@ After completing testnet validation, the contract was updated to production-read
 4. **17 sandbox tests** — added test for "jetton wallet not configured" rejection (was 16, now 17).
 
 **Deployment procedure for mainnet:**
+
 1. Update `owner` address to mainnet wallet
 2. Build and deploy with `npx blueprint run --tonconnect` (mainnet mode)
 3. Call `SetJettonWallet` with the contract's USDT Jetton Wallet address (query USDT Master `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` → `get_wallet_address(contract_address)`)

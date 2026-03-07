@@ -27,6 +27,7 @@ import { SuccessBanner } from '../components/SuccessBanner';
 import { ReportImage } from '../components/ReportImage';
 import { DonutChart } from '../components/DonutChart';
 import { MonthSelector } from '../components/MonthSelector';
+import { ErrorBanner } from '../components/ErrorBanner';
 import { IconCheck } from '../icons';
 import { getActivityText } from './Activity';
 
@@ -55,6 +56,8 @@ export function Group() {
   const [stats, setStats] = useState<GroupStats | null>(null);
   const [statsPeriod, setStatsPeriod] = useState<string>('all');
   const [statsLoading, setStatsLoading] = useState(false);
+  const [claimDismissed, setClaimDismissed] = useState(false);
+  const [claimError, setClaimError] = useState<string | null>(null);
 
   useTelegramBackButton(true);
 
@@ -151,6 +154,28 @@ export function Group() {
       navigate(`/settle/${result.settlement.id}`);
     } catch (err) {
       console.error('Failed to create settlement:', err);
+    }
+  }
+
+  async function handleClaimPlaceholder(dummyUserId: number, dummyName: string) {
+    // Build balance description
+    const dummyBalance = balanceMembers.find((m) => m.userId === dummyUserId);
+    const balanceStr = dummyBalance
+      ? formatAmount(dummyBalance.netBalance, group?.currency)
+      : formatAmount(0, group?.currency);
+
+    const msg = `${t('placeholder.claimConfirmTitle', { name: dummyName })}\n\n${t('placeholder.claimConfirmBalance', { balance: balanceStr })}\n\n${t('placeholder.claimConfirmBody')}`;
+    if (!confirm(msg)) return;
+
+    setClaimError(null);
+    try {
+      const result = await api.claimPlaceholder(groupId, dummyUserId);
+      setReminderSuccess(false);
+      // Reload all data
+      loadData();
+      alert(t('placeholder.claimed', { name: result.dummyName }));
+    } catch (err: any) {
+      setClaimError(err.message || 'Failed to claim placeholder');
     }
   }
 
@@ -299,6 +324,35 @@ export function Group() {
         />
       )}
 
+      {claimError && <ErrorBanner message={claimError} onDismiss={() => setClaimError(null)} />}
+
+      {/* Claim placeholder banner */}
+      {!claimDismissed &&
+        group.members.some((m) => m.isDummy) &&
+        !group.members.find((m) => m.userId === currentUserId)?.isDummy && (
+          <div className="mb-4 bg-tg-section border border-tg-separator rounded-xl p-3">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">{t('placeholder.claimBanner')}</span>
+              <button onClick={() => setClaimDismissed(true)} className="text-tg-hint text-sm">
+                &#10005;
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {group.members
+                .filter((m) => m.isDummy)
+                .map((m) => (
+                  <button
+                    key={m.userId}
+                    onClick={() => handleClaimPlaceholder(m.userId, m.displayName)}
+                    className="px-3 py-1.5 bg-tg-button/10 text-tg-link rounded-lg text-sm font-medium"
+                  >
+                    {'\uD83D\uDC64'} {m.displayName} &mdash; {t('placeholder.claimButton')}
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
+
       {/* Tabs */}
       <div className="flex border-b border-tg-separator mb-4">
         {(['transactions', 'balances', 'feed', 'stats'] as const).map((tabKey) => (
@@ -394,7 +448,11 @@ export function Group() {
                   className="flex items-center gap-3 bg-tg-section p-3 rounded-xl border border-tg-separator"
                 >
                   <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
-                  <span className="flex-1 font-medium">{m.displayName}</span>
+                  <span className="flex-1 font-medium">
+                    {group.members.find((gm) => gm.userId === m.userId)?.isDummy
+                      ? `\uD83D\uDC64 ${m.displayName}`
+                      : m.displayName}
+                  </span>
                   <span className={`text-sm font-medium ${balanceColor}`}>
                     {m.netBalance === 0
                       ? t('group.settledUp')

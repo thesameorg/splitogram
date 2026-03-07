@@ -228,6 +228,7 @@ groupsApp.get('/:id', async (c) => {
       displayName: users.displayName,
       walletAddress: users.walletAddress,
       avatarKey: users.avatarKey,
+      isDummy: users.isDummy,
       role: groupMembers.role,
       joinedAt: groupMembers.joinedAt,
     })
@@ -1076,6 +1077,337 @@ groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) =
   );
 
   return c.json({ sent: true });
+});
+
+// --- Create placeholder member (admin only) ---
+const createPlaceholderSchema = z.object({
+  name: z.string().min(1).max(64),
+});
+
+groupsApp.post('/:id/placeholders', zValidator('json', createPlaceholderSchema), async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+  const { name } = c.req.valid('json');
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  // Admin only
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership || membership.role !== 'admin') {
+    return c.json(
+      { error: 'not_admin', detail: 'Only group admins can add placeholder members' },
+      403,
+    );
+  }
+
+  // Generate unique negative telegramId for dummy
+  const fakeTelegramId = -(Date.now() * 1000 + Math.floor(Math.random() * 1000));
+
+  const [dummyUser] = await db
+    .insert(users)
+    .values({
+      telegramId: fakeTelegramId,
+      displayName: name,
+      isDummy: true,
+    })
+    .returning();
+
+  await db.insert(groupMembers).values({
+    groupId,
+    userId: dummyUser.id,
+    role: 'member',
+  });
+
+  return c.json(
+    {
+      userId: dummyUser.id,
+      displayName: dummyUser.displayName,
+      isDummy: true,
+    },
+    201,
+  );
+});
+
+// --- Edit placeholder name (admin only) ---
+const editPlaceholderSchema = z.object({
+  name: z.string().min(1).max(64),
+});
+
+groupsApp.put('/:id/placeholders/:userId', zValidator('json', editPlaceholderSchema), async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+  const targetUserId = parseInt(c.req.param('userId'), 10);
+  const { name } = c.req.valid('json');
+
+  if (isNaN(groupId) || isNaN(targetUserId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership || membership.role !== 'admin') {
+    return c.json({ error: 'not_admin', detail: 'Only group admins can edit placeholders' }, 403);
+  }
+
+  // Verify target is a dummy in this group
+  const [target] = await db
+    .select({ isDummy: users.isDummy })
+    .from(users)
+    .innerJoin(groupMembers, eq(groupMembers.userId, users.id))
+    .where(
+      and(eq(users.id, targetUserId), eq(users.isDummy, true), eq(groupMembers.groupId, groupId)),
+    )
+    .limit(1);
+
+  if (!target) {
+    return c.json(
+      { error: 'not_placeholder', detail: 'User is not a placeholder in this group' },
+      404,
+    );
+  }
+
+  await db
+    .update(users)
+    .set({ displayName: name, updatedAt: new Date().toISOString() })
+    .where(eq(users.id, targetUserId));
+
+  return c.json({ userId: targetUserId, displayName: name });
+});
+
+// --- Delete placeholder (admin only, zero balance required) ---
+groupsApp.delete('/:id/placeholders/:userId', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+  const targetUserId = parseInt(c.req.param('userId'), 10);
+
+  if (isNaN(groupId) || isNaN(targetUserId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!membership || membership.role !== 'admin') {
+    return c.json({ error: 'not_admin', detail: 'Only group admins can remove placeholders' }, 403);
+  }
+
+  // Verify target is a dummy in this group
+  const [target] = await db
+    .select({ isDummy: users.isDummy })
+    .from(users)
+    .innerJoin(groupMembers, eq(groupMembers.userId, users.id))
+    .where(
+      and(eq(users.id, targetUserId), eq(users.isDummy, true), eq(groupMembers.groupId, groupId)),
+    )
+    .limit(1);
+
+  if (!target) {
+    return c.json(
+      { error: 'not_placeholder', detail: 'User is not a placeholder in this group' },
+      404,
+    );
+  }
+
+  // Check balance
+  const netBalances = await computeGroupBalances(db, groupId);
+  const balance = netBalances.get(targetUserId) ?? 0;
+  if (balance !== 0) {
+    return c.json(
+      { error: 'outstanding_balance', detail: 'Placeholder has unsettled debts.' },
+      400,
+    );
+  }
+
+  // Remove membership and dummy user
+  await db
+    .delete(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, targetUserId)));
+  await db.delete(users).where(eq(users.id, targetUserId));
+
+  return c.json({ deleted: true, userId: targetUserId });
+});
+
+// --- Claim placeholder (real user takes over a dummy's data) ---
+const claimPlaceholderSchema = z.object({
+  dummyUserId: z.number().int().positive(),
+});
+
+groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSchema), async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+  const { dummyUserId } = c.req.valid('json');
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.telegramId, session.telegramId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  // Verify caller is a member of this group
+  const [callerMembership] = await db
+    .select()
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .limit(1);
+
+  if (!callerMembership) {
+    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
+  }
+
+  // Verify target is a dummy in this group
+  const [dummy] = await db
+    .select({ id: users.id, isDummy: users.isDummy, displayName: users.displayName })
+    .from(users)
+    .innerJoin(groupMembers, eq(groupMembers.userId, users.id))
+    .where(
+      and(eq(users.id, dummyUserId), eq(users.isDummy, true), eq(groupMembers.groupId, groupId)),
+    )
+    .limit(1);
+
+  if (!dummy) {
+    return c.json(
+      { error: 'not_placeholder', detail: 'User is not a placeholder in this group' },
+      404,
+    );
+  }
+
+  // Transfer all references from dummy to real user within this group
+  // 1. expenses.paid_by (group-scoped)
+  await db
+    .update(expenses)
+    .set({ paidBy: user.id })
+    .where(and(eq(expenses.groupId, groupId), eq(expenses.paidBy, dummyUserId)));
+
+  // 2. expense_participants (join through expenses for group scope)
+  const groupExpenseIds = await db
+    .select({ id: expenses.id })
+    .from(expenses)
+    .where(eq(expenses.groupId, groupId));
+
+  if (groupExpenseIds.length > 0) {
+    const expIds = groupExpenseIds.map((e) => e.id);
+    // Delete any existing participant rows for real user in these expenses (avoid unique constraint)
+    await db.delete(expenseParticipants).where(
+      and(
+        sql`${expenseParticipants.expenseId} IN (${sql.join(
+          expIds.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+        eq(expenseParticipants.userId, user.id),
+      ),
+    );
+    // Transfer dummy's participant rows to real user
+    await db
+      .update(expenseParticipants)
+      .set({ userId: user.id })
+      .where(
+        and(
+          sql`${expenseParticipants.expenseId} IN (${sql.join(
+            expIds.map((id) => sql`${id}`),
+            sql`, `,
+          )})`,
+          eq(expenseParticipants.userId, dummyUserId),
+        ),
+      );
+  }
+
+  // 3. settlements (group-scoped)
+  await db
+    .update(settlements)
+    .set({ fromUser: user.id })
+    .where(and(eq(settlements.groupId, groupId), eq(settlements.fromUser, dummyUserId)));
+  await db
+    .update(settlements)
+    .set({ toUser: user.id })
+    .where(and(eq(settlements.groupId, groupId), eq(settlements.toUser, dummyUserId)));
+  await db
+    .update(settlements)
+    .set({ settledBy: user.id })
+    .where(and(eq(settlements.groupId, groupId), eq(settlements.settledBy, dummyUserId)));
+
+  // 4. activity_log (group-scoped)
+  await db
+    .update(activityLog)
+    .set({ actorId: user.id })
+    .where(and(eq(activityLog.groupId, groupId), eq(activityLog.actorId, dummyUserId)));
+  await db
+    .update(activityLog)
+    .set({ targetUserId: user.id })
+    .where(and(eq(activityLog.groupId, groupId), eq(activityLog.targetUserId, dummyUserId)));
+
+  // 5. debt_reminders (group-scoped)
+  await db
+    .delete(debtReminders)
+    .where(
+      and(
+        eq(debtReminders.groupId, groupId),
+        sql`(${debtReminders.fromUserId} = ${dummyUserId} OR ${debtReminders.toUserId} = ${dummyUserId})`,
+      ),
+    );
+
+  // 6. Remove dummy's membership and delete dummy user
+  await db
+    .delete(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, dummyUserId)));
+  await db.delete(users).where(eq(users.id, dummyUserId));
+
+  return c.json({ claimed: true, dummyUserId, dummyName: dummy.displayName });
 });
 
 export { groupsApp };

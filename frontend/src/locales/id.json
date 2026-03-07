@@ -103,7 +103,30 @@
     "groupPhotoRemoved": "Foto grup dihapus",
     "copyInvite": "Salin tautan",
     "linkCopied": "Tautan undangan disalin",
-    "currencyLocked": "Mata uang tidak bisa diubah setelah pengeluaran ditambahkan"
+    "currencyLocked": "Mata uang tidak bisa diubah setelah pengeluaran ditambahkan",
+    "addPlaceholder": "Tambah Anggota Sementara",
+    "placeholderName": "Nama",
+    "placeholderNamePlaceholder": "Masukkan nama...",
+    "placeholderAdd": "Tambah",
+    "placeholderAdding": "Menambahkan...",
+    "placeholderAdded": "Anggota sementara ditambahkan",
+    "placeholderEdited": "Nama diperbarui",
+    "placeholderDeleted": "Anggota sementara dihapus",
+    "placeholderDeleteConfirm": "Hapus anggota sementara \"{{name}}\"? Tidak dapat dibatalkan.",
+    "placeholderBadge": "sementara",
+    "editPlaceholder": "Ganti nama",
+    "editPlaceholderTitle": "Ganti Nama Sementara",
+    "sharePlaceholderInvite": "Undang"
+  },
+  "placeholder": {
+    "claimBanner": "Apakah Anda salah satu dari orang-orang ini?",
+    "claimButton": "Itu saya",
+    "claimConfirmTitle": "Ambil alih {{name}}?",
+    "claimConfirmBalance": "Saldo saat ini: {{balance}}",
+    "claimConfirmBody": "Semua pengeluaran, pelunasan, dan saldo akan ditransfer ke akun Anda.",
+    "claimConfirm": "Ya, itu saya",
+    "claimCancel": "Tidak",
+    "claimed": "Berhasil digabungkan dengan {{name}}"
   },
   "addExpense": {
     "title": "Tambah Pengeluaran",
