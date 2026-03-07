@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: SplitogramSettlement
-BoC Size: 1235 bytes
+BoC Size: 1237 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 22
@@ -147,6 +147,7 @@ No arguments
 * 138: Not a basechain address
 * 2603: Unknown Jetton wallet
 * 27388: Unknown operation
+* 32101: Jetton wallet not configured
 * 46710: Amount too small
 * 61135: Amount must be positive
 * 63779: Max 10%

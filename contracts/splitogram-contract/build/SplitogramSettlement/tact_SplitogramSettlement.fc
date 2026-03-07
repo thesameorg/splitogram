@@ -561,22 +561,17 @@ _ %owner() method_id(83229) {
         var $msg'amount = in_msg~load_varuint16();
         var $msg'from = in_msg~load_msg_addr();
         var $msg'forward_payload = in_msg;
-        if (null?($self'usdt_wallet)) {
-            $self'usdt_wallet = __tact_context_get_sender();
-        } else {
-            throw_unless(2603, ( equal_slices_bits(__tact_context_get_sender(), __tact_not_null($self'usdt_wallet)) ));
-        }
+        throw_unless(32101, (~ null?($self'usdt_wallet)));
+        throw_unless(2603, ( equal_slices_bits(__tact_context_get_sender(), __tact_not_null($self'usdt_wallet)) ));
         int $op = $msg'forward_payload~load_uint(32);
         throw_unless(27388, ($op == 0));
         slice $recipient = $msg'forward_payload~$Slice$_fun_loadAddress();
         int $commission = (($msg'amount * $self'commission_bps) / 10000);
-        int $minCommission = 100000;
-        if (($commission < $minCommission)) {
-            $commission = $minCommission;
+        if (($commission < 100000)) {
+            $commission = 100000;
         }
-        int $maxCommission = 1000000;
-        if (($commission > $maxCommission)) {
-            $commission = $maxCommission;
+        if (($commission > 1000000)) {
+            $commission = 1000000;
         }
         int $remainder = ($msg'amount - $commission);
         throw_unless(46710, ($remainder > 0));

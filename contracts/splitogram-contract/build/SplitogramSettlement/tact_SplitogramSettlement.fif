@@ -401,21 +401,17 @@ PROGRAM{
       64 LDU
       LDVARUINT16
       LDMSGADDR
-      s5 PUSH
+      32101 PUSHINT
+      s6 PUSH
       ISNULL
-      IF:<{
-        s5 POP
-        __tact_context_get_sender INLINECALLDICT
-      }>ELSE<{
-        2603 PUSHINT
-        __tact_context_get_sender INLINECALLDICT
-        s7 PUSH
-        __tact_not_null INLINECALLDICT
-        SDEQ
-        THROWANYIFNOT
-        s0 s5 XCHG
-      }>
-      s0 s5 XCHG
+      NOT
+      THROWANYIFNOT
+      2603 PUSHINT
+      __tact_context_get_sender INLINECALLDICT
+      s7 PUSH
+      __tact_not_null INLINECALLDICT
+      SDEQ
+      THROWANYIFNOT
       32 LDU
       27388 PUSHINT
       s0 s2 XCHG
@@ -428,21 +424,19 @@ PROGRAM{
       MUL
       10000 PUSHINT
       DIV
+      DUP
       100000 PUSHINT
-      2DUP
       LESS
       IF:<{
-        NIP
-      }>ELSE<{
         DROP
+        100000 PUSHINT
       }>
+      DUP
       1000000 PUSHINT
-      2DUP
       GREATER
       IF:<{
-        NIP
-      }>ELSE<{
         DROP
+        1000000 PUSHINT
       }>
       s3 s0 PUSH2
       SUB
