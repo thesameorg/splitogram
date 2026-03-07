@@ -392,10 +392,11 @@ npx blueprint run verifyState --testnet
 - [x] **3.4** Bug fixes required 2 redeploys (see Testnet Debugging Log below). Final working contract: `EQB1n108XegTE8HOtg2YHxHaYi6Llh_h9bgaeEYww0IjnUK4`
 - [x] **4.1** Test settlement: 100 tUSDT (C→B via contract) — SUCCESS
 - [x] **4.2** Verify balances: B got +99 tUSDT, C got +1 tUSDT commission — confirmed via TONAPI REST
-- [ ] **4.3** Test small settlement: 5 tUSDT (minimum commission)
-- [ ] **4.4** Test multiple settlements
-- [ ] **4.5** Test owner operations (update commission, withdraw TON)
-- [ ] **5.1** Full verification via script + manual Tonviewer inspection
+- [x] **4.3** Test min commission: 5 tUSDT → 0.1 tUSDT commission (min clamp), 4.9 tUSDT to recipient — confirmed
+- [x] **4.3b** Test max commission: 500 tUSDT → 1.0 tUSDT commission (max clamp), 499.0 tUSDT to recipient — confirmed
+- [x] **4.4** Test multiple settlements — 3 settlements accumulated: 605 USDT processed, 2.1 USDT commission, count=3
+- [x] **4.5** Test owner operations — UpdateCommission (100→200→100 bps) + WithdrawTon (0.1 TON) — all confirmed
+- [x] **5.1** Full verification via verifyState script — all getters correct
 
 ---
 
@@ -413,7 +414,8 @@ tUSDT Jetton Master:   kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7 (testnet
 
 Splitogram Contract v1 (BROKEN):  EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV (200 tUSDT stuck)
 Splitogram Contract v2 (BROKEN):  EQC3ITB97KJ7q1TiICbsJyheN1_qFt5ryeY2iIaar_4F5P0G (100 tUSDT stuck)
-Splitogram Contract v3 (WORKING): EQB1n108XegTE8HOtg2YHxHaYi6Llh_h9bgaeEYww0IjnUK4
+Splitogram Contract v3 (OLD):     EQB1n108XegTE8HOtg2YHxHaYi6Llh_h9bgaeEYww0IjnUK4
+Splitogram Contract v4 (CURRENT): EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu
 
 Jetton Wallet Addresses (tUSDT):
   Wallet A: 0:002d244350f97a3f3f9befd979825c2b8959cf6004429199c0a9badd5847fb44
@@ -456,6 +458,36 @@ First successful end-to-end settlement:
 - Contract balance: 0 tUSDT (pure pass-through, no stuck funds)
 - Full transaction trace: all nodes success=True, exit=0
 
+### Full Testnet Validation Results (v3)
+
+| Test | Amount | Expected Commission | Actual | Status |
+|---|---|---|---|---|
+| Standard settlement | 100 tUSDT | 1.0 (1%) | 1.0 | ✅ |
+| Min commission clamp | 5 tUSDT | 0.1 (min, not 0.05) | 0.1 | ✅ |
+| Max commission clamp | 500 tUSDT | 1.0 (max, not 5.0) | 1.0 | ✅ |
+| Stats accumulation | 3 settlements | 605 total / 2.1 commission / count=3 | exact match | ✅ |
+| UpdateCommission | 100→200→100 bps | verified at each step | correct | ✅ |
+| WithdrawTon | 0.1 TON | contract sends TON to owner | confirmed | ✅ |
+
+### Gas Fee Analysis (all testnet transactions)
+
+TON price at time of analysis: **1.31 USDT/TON** (mainnet).
+
+| Transaction | Total Fee (TON) | Fee (USDT) | Messages in Chain |
+|---|---|---|---|
+| Deploy contract | 0.0119 | $0.016 | 3 |
+| Settlement: 100 tUSDT | 0.0346 | $0.045 | 11 |
+| Settlement: 5 tUSDT | 0.0347 | $0.045 | 11 |
+| Settlement: 500 tUSDT | 0.0346 | $0.045 | 11 |
+| UpdateCommission (→200) | 0.0042 | $0.005 | 2 |
+| UpdateCommission (→100) | 0.0042 | $0.005 | 2 |
+| WithdrawTon (0.1 TON) | 0.0053 | $0.007 | 3 |
+| **Total (all 7 txs)** | **0.1295** | **$0.170** | — |
+
+**Key finding:** Settlement gas is **constant at ~0.035 TON (~$0.045)** regardless of USDT amount. The 11-message chain is: external → sender wallet → sender jetton wallet → contract jetton wallet → contract → 2× (contract jetton wallet → recipient/owner jetton wallet → excess return). Sender attaches 0.5 TON and receives ~0.33 TON back as excess.
+
+**Implication for direct transfer fallback:** A direct wallet-to-wallet Jetton transfer costs ~0.007 TON (~$0.009) — about 5× cheaper than a contract settlement. The breakeven point where settlement gas exceeds the commission earned: at 0.1 USDT min commission, gas is $0.045, so the platform loses money on settlements under ~$4.5 USDT.
+
 ### Key Learnings for TON Jetton Integration
 
 1. **forward_payload must be inline** — don't use `storeBit(true) + storeRef()` for the Jetton transfer's forward_payload. Store op + data directly after `forward_ton_amount`.
@@ -464,6 +496,23 @@ First successful end-to-end settlement:
 4. **TON contracts are immutable** — code changes require redeployment to a new address. StateInit sent to an existing address is silently ignored.
 5. **TONAPI testnet requires no auth token** — `testnet.tonapi.io` works without Bearer token (unlike mainnet).
 6. **Testnet TONAPI for verification** — `GET /v2/accounts/{addr}/jettons` for balances, `GET /v2/traces/{event_id}` for full transaction traces.
+7. **Settlement gas is constant** — ~0.035 TON regardless of USDT amount. The message chain has 11 hops. Actual fees are determined by compute + storage + forward, not by transfer amount.
+8. **Excess gas returns to sender** — sender attaches 0.5 TON, gets ~0.33 TON back. Net cost ~0.035 TON per settlement.
+
+### Contract v4 (Final) — Changes from v3
+
+After completing testnet validation, the contract was updated to production-ready form:
+
+1. **Removed trust-on-first-use** — contract now requires `SetJettonWallet` to be called before accepting any settlements. Rejects `TokenNotification` if `usdt_wallet` is null. Prevents attackers from claiming the trusted slot with a fake jetton wallet.
+2. **Extracted constants** — `MIN_COMMISSION`, `MAX_COMMISSION`, `MAX_BPS`, `GAS_PER_TRANSFER` as top-level constants for clarity and maintainability.
+3. **Clarified bounce handler** — documented that bounced tokens stay in the contract's jetton wallet for manual owner recovery. No automatic refund (avoids complexity and potential exploits).
+4. **17 sandbox tests** — added test for "jetton wallet not configured" rejection (was 16, now 17).
+
+**Deployment procedure for mainnet:**
+1. Update `owner` address to mainnet wallet
+2. Build and deploy with `npx blueprint run --tonconnect` (mainnet mode)
+3. Call `SetJettonWallet` with the contract's USDT Jetton Wallet address (query USDT Master `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` → `get_wallet_address(contract_address)`)
+4. Verify with a small settlement before announcing
 
 ### Stuck Funds (recoverable)
 

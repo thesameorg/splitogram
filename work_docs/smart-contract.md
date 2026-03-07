@@ -205,18 +205,32 @@ forward_payload = beginCell()
 The deployed contract is in `contracts/splitogram-contract/contracts/SplitogramSettlement.tact`. Key design points:
 
 - **Commission:** configurable basis points (100 = 1%), clamped between min 0.1 USDT and max 1 USDT
-- **Jetton Wallet trust:** auto-set on first `TokenNotification`, or manually via `SetJettonWallet` (owner only). In production, verify against USDT Master's `get_wallet_address`.
-- **Gas:** 0.06 TON per outgoing Jetton transfer (two per settlement = 0.12 TON)
+- **Jetton Wallet trust:** must be set via `SetJettonWallet` (owner only) before the contract accepts any settlements. No trust-on-first-use — contract rejects `TokenNotification` if `usdt_wallet` is null.
+- **Gas:** 0.15 TON per outgoing Jetton transfer (two per settlement = 0.30 TON). Sender attaches 0.5 TON total (0.4 forward_ton_amount + overhead). Excess returns to sender.
 - **Stats:** `total_processed`, `total_commission`, `settlement_count` — accumulated on each settlement
-- **Bounce handler:** present but no-op for testnet. Production needs refund logic.
+- **Bounce handler:** present — bounced jettons stay in the contract's jetton wallet for owner to recover manually. Stats are already incremented (treat as exception).
 - **WithdrawTon:** uses mode 0 (sends exact `msg.amount` from contract balance)
+- **Constants:** `MIN_COMMISSION` (100,000 = 0.1 USDT), `MAX_COMMISSION` (1,000,000 = 1.0 USDT), `MAX_BPS` (1,000 = 10%), `GAS_PER_TRANSFER` (150,000,000 = 0.15 TON)
 
 ### Security notes
 
-- **Trust-on-first-use risk:** The contract trusts whoever sends the first `TokenNotification`. Use `SetJettonWallet` to lock the trusted address before going live.
-- **Empty bounce handler:** If outgoing Jetton transfers fail, stats are already updated but no refund occurs. Production needs proper refund tracking.
-- **Gas management:** Contract needs TON for outgoing messages. Settlement sender's `forward_ton_amount` covers this, but monitor balance.
-- The contract sends two outgoing messages, so it needs enough TON balance to cover gas.
+- **No trust-on-first-use:** Owner must call `SetJettonWallet` with the correct USDT Jetton Wallet address before going live. Query USDT Master's `get_wallet_address(contract_address)` to get the right address.
+- **Bounce handler:** If outgoing Jetton transfers fail, stats are already updated but no automatic refund occurs. Bounced tokens stay in the contract's jetton wallet. Owner monitors and resolves manually.
+- **Gas management:** Contract needs TON for outgoing messages. Settlement sender's `forward_ton_amount` covers this (0.4 TON), but monitor balance.
+- The contract sends two outgoing messages per settlement.
+
+### Testnet Gas Profiling
+
+Measured on testnet (contract v3, 3 settlements + 3 owner ops):
+
+| Transaction | Total Fee (TON) | Fee (USDT @ 1.31) | Message Chain |
+|---|---|---|---|
+| Settlement (any amount) | ~0.0346 | ~$0.045 | 11 messages |
+| UpdateCommission | ~0.0042 | ~$0.005 | 2 messages |
+| WithdrawTon | ~0.0053 | ~$0.007 | 3 messages |
+| Deploy | ~0.0119 | ~$0.016 | 3 messages |
+
+Settlement gas is constant regardless of USDT amount (5, 100, or 500 tUSDT all cost ~0.0346 TON). The sender attaches 0.5 TON and receives ~0.33-0.34 TON back as excess.
 
 ---
 
