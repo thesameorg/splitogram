@@ -165,6 +165,17 @@ export interface SettlementDetail extends Settlement {
   };
 }
 
+export interface SettlementTxParams {
+  settlementId: number;
+  amount: number; // micro-USDT
+  recipientAddress: string;
+  contractAddress: string;
+  senderJettonWallet: string;
+  usdtMasterAddress: string;
+  gasAttach: string; // nanoTON
+  forwardTonAmount: string; // nanoTON
+}
+
 export interface SettlementListItem {
   id: number;
   groupId: number;
@@ -439,6 +450,25 @@ export const api = {
     apiRequest<{ deleted: boolean }>(`/api/v1/settlements/${settlementId}/receipt`, {
       method: 'DELETE',
     }),
+
+  getSettlementTx: (id: number, senderAddress: string) =>
+    apiRequest<SettlementTxParams>(`/api/v1/settlements/${id}/tx?senderAddress=${senderAddress}`),
+
+  verifySettlement: (id: number, boc: string) =>
+    apiRequest<{ status: string; detail?: string; settlementId: number }>(
+      `/api/v1/settlements/${id}/verify`,
+      { method: 'POST', body: JSON.stringify({ boc }) },
+    ),
+
+  // Wallet
+  setWallet: (address: string) =>
+    apiRequest<{ walletAddress: string }>('/api/v1/users/me/wallet', {
+      method: 'PUT',
+      body: JSON.stringify({ address }),
+    }),
+
+  deleteWallet: () =>
+    apiRequest<{ walletAddress: null }>('/api/v1/users/me/wallet', { method: 'DELETE' }),
 
   // Stats
   getGroupStats: (groupId: number, period?: string) =>

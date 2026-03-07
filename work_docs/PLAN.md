@@ -387,51 +387,58 @@ All Phase 2 specs completed and archived.
 
 **Goal:** Layer on-chain USDT settlement on top of the polished product. Testnet first, then mainnet.
 
-**Progress:**
+### Done: Smart Contract & Testnet Validation
 
-- [x] **Smart contract written** — `contracts/splitogram-contract/contracts/SplitogramSettlement.tact` (Tact + Blueprint)
-- [x] **16 sandbox tests passing** — deploy, settlement, min/max commission, permissions, accumulation, invalid payloads
-- [x] **Contract deployed to testnet** — `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV`
-- [x] **Test Jetton (tUSDT) minted** — `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` (1,000 tUSDT, 6 decimals)
-- [x] **3 testnet wallets created** (W5/v5r1) — Sender, Receiver, Fee Owner
-- [x] **Security audit** — trust-on-first-use risk documented, WithdrawTon bug fixed, max 1 USDT commission cap added
-- [ ] Fund wallets A & B with test TON + distribute tUSDT
-- [ ] End-to-end settlement test on testnet
-- [ ] Verify balances and contract stats post-settlement
+- [x] **Smart contract** — `contracts/splitogram-contract/contracts/SplitogramSettlement.tact` (Tact + Blueprint). Commission: 1% (100 bps), min 0.1 USDT, max 1.0 USDT. Owner-only `SetJettonWallet` required before settlements.
+- [x] **17 sandbox tests** — deploy, settlement, min/max commission, permissions, accumulation, invalid payloads, unconfigured rejection
+- [x] **Contract v4 deployed to testnet** — `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu`
+- [x] **tUSDT minted** — `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` (1,000 tUSDT, 6 decimals)
+- [x] **3 testnet wallets** (W5/v5r1) — funded with TON + tUSDT
+- [x] **3 end-to-end settlements on testnet** — 100/5/500 tUSDT, all commission clamps verified, stats accumulation correct
+- [x] **Owner operations tested** — UpdateCommission, WithdrawTon
+- [x] **Gas profiled** — settlement = ~0.035 TON (~$0.045), constant regardless of amount. Sender attaches 0.5 TON, gets ~0.33 back.
 
-**Remaining steps:**
+**Key testnet learnings:**
 
-1. **RESEARCH: TON Connect current state** — Review TON Connect SDK, wallet compatibility (Tonkeeper, Telegram Wallet, MyTonWallet), USDT jetton on TON, TONAPI for verification. Check what changed since Phase 1 code was written.
-2. **Q&A: Conversion source & UX** — Decide rate API (CoinGecko, Binance, etc.). Decide conversion display UX ("€15.00 → ~15.82 USDT"). Single `fetch()` call, no SDK.
-3. Re-enable TON Connect wallet integration (Phase 1 code exists, needs refresh)
-4. Wallet management: connect, disconnect, see address
-5. "Pay with TON wallet" alongside "Mark as settled" on settle screen
-6. Currency → USDT conversion at settlement time (informational rate, no locking)
-7. Testnet USDT transfer + on-chain verification via TONAPI
-8. Payment state machine: `open → payment_pending → settled_onchain` with rollback
-9. "Refresh status" button for stuck `payment_pending` states
-10. Error UX: insufficient balance, tx rejected, wallet disconnected
-11. Switch to mainnet after testnet validation
+- `forward_payload` must be inline (not ref) in Jetton transfer
+- `TokenTransfer` needs `Either` bit — use `beginCell().storeUint(0, 1).asSlice()`
+- Gas: 0.15 TON per outgoing Jetton transfer, 0.4 TON forward_ton_amount, 0.5 TON total attached
+- TONAPI testnet: no auth token needed
+- See `work_docs/smart-contract-testnet-plan.md` for full debugging log + addresses
+
+### Next: Frontend Wallet Integration (Testnet)
+
+See `work_docs/phase-10-wallet-integration.md` for detailed implementation plan.
+
+**Steps:**
+
+1. [x] TON Connect setup — install SDK, manifest, TonConnectUIProvider, wallet on Account page
+2. [ ] Backend env + tx endpoint — `SETTLEMENT_CONTRACT_ADDRESS`, update `/settlements/:id/tx`
+3. [ ] Backend verification — proper TONAPI trace verification with polling
+4. [ ] Frontend settlement flow — "Pay with USDT" on SettleUp page, pre-flight checks, send, poll
+5. [ ] Error handling + i18n — all failure scenarios, 11 locales
+6. [ ] Testnet e2e test — real settlement through the full UI flow
 
 **Economics:**
 
-- USDT only (no TON coin — would need price oracle + slippage handling, deferred to Phase 11)
-- **Direct transfer fallback:** if gas cost > N% of settlement amount, skip the contract and do a direct wallet-to-wallet USDT transfer (no commission, lower gas). Threshold TBD during testnet gas profiling.
-- Commission: 1% via contract, 0% for direct transfers. See `smart-contract.md` Appendix B for full economics.
-- Gas profiling: measure actual costs on testnet before setting the direct-transfer threshold.
+- USDT only (no TON coin — would need price oracle, deferred)
+- All settlements via contract (1% commission). Direct transfer fallback deferred to mainnet optimization.
+- Gas: ~0.035 TON per settlement (~$0.045), paid by sender
+- Currency conversion: informational only (no locking). Rate API TBD (CoinGecko/Binance, single fetch).
 
 **Scope boundaries:**
 
-- USDT only (no TON coin, no other Jettons)
+- USDT only, no TON coin, no other Jettons
 - No partial payments
-- No rate guarantees — small slippage accepted
+- No rate guarantees — informational conversion only
+- Testnet only — mainnet switch is a separate step after validation
 
 **Success criteria:**
 
-- First real USDT settlement on-chain
+- Full settlement through UI → on-chain → verified → status updated
 - Zero false "settled" states
 - Non-crypto users unaffected (manual settlement still works)
-- Gas costs verified on testnet, direct-transfer threshold set based on real data
+- All error paths handled (no wallet, no balance, tx rejected, timeout)
 
 ---
 

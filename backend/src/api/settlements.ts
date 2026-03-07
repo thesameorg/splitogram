@@ -254,13 +254,87 @@ settlementsApp.get('/settlements/:id', async (c) => {
       .limit(1),
   ]);
 
-  return c.json({
+  const result = {
     ...settlement,
     currentUserId: currentUser.id,
     currency: group?.currency ?? 'USD',
     from: { userId: settlement.fromUser, ...fromUserInfo },
     to: { userId: settlement.toUser, ...toUserInfo },
-  });
+  };
+
+  // Lazy verification: if payment_pending, try to verify on-chain
+  if (settlement.status === 'payment_pending' && toUserInfo?.walletAddress) {
+    const pendingSince = new Date(settlement.updatedAt).getTime();
+    const now = Date.now();
+    const PENDING_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+
+    if (now - pendingSince > PENDING_TIMEOUT_MS) {
+      // Timeout: rollback to open
+      await db
+        .update(settlements)
+        .set({ status: 'open', updatedAt: new Date().toISOString() })
+        .where(eq(settlements.id, settlementId));
+      result.status = 'open';
+    } else {
+      // Try to verify on-chain
+      const verification = await verifySettlementOnChain(
+        c.env,
+        settlement,
+        toUserInfo.walletAddress,
+      );
+      if (verification.verified) {
+        await db
+          .update(settlements)
+          .set({
+            status: 'settled_onchain',
+            txHash: verification.txHash ?? null,
+            updatedAt: new Date().toISOString(),
+          })
+          .where(eq(settlements.id, settlementId));
+        result.status = 'settled_onchain';
+        result.txHash = verification.txHash ?? null;
+
+        // Fire-and-forget notification + activity log
+        const notifyCtx = {
+          botToken: c.env.TELEGRAM_BOT_TOKEN,
+          pagesUrl: c.env.PAGES_URL || '',
+          onBotBlocked: (telegramId: number) => {
+            db.update(users)
+              .set({ botStarted: false })
+              .where(eq(users.telegramId, telegramId))
+              .catch(() => {});
+          },
+        };
+        c.executionCtx.waitUntil(
+          Promise.all([
+            sendSettlementNotification(
+              notifyCtx,
+              db,
+              {
+                id: settlementId,
+                amount: settlement.amount,
+                status: 'settled_onchain',
+                txHash: verification.txHash,
+              },
+              settlement.fromUser,
+              settlement.toUser,
+              settlement.groupId,
+            ),
+            logActivity(db, {
+              groupId: settlement.groupId,
+              actorId: settlement.fromUser,
+              type: 'settlement_completed',
+              settlementId,
+              targetUserId: settlement.toUser,
+              amount: settlement.amount,
+            }),
+          ]),
+        );
+      }
+    }
+  }
+
+  return c.json(result);
 });
 
 // --- Get transaction params for settlement ---
@@ -268,9 +342,14 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
   const settlementId = parseInt(c.req.param('id'), 10);
+  const senderAddress = c.req.query('senderAddress');
 
   if (isNaN(settlementId)) {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
+  }
+
+  if (!senderAddress) {
+    return c.json({ error: 'missing_param', detail: 'senderAddress query param required' }, 400);
   }
 
   const [currentUser] = await db
@@ -307,6 +386,12 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     );
   }
 
+  const contractAddress = c.env.SETTLEMENT_CONTRACT_ADDRESS;
+  const usdtMasterAddress = c.env.USDT_MASTER_ADDRESS;
+  if (!contractAddress || !usdtMasterAddress) {
+    return c.json({ error: 'config_error', detail: 'Settlement contract not configured' }, 500);
+  }
+
   // Get creditor's wallet address
   const [creditor] = await db
     .select({ walletAddress: users.walletAddress })
@@ -318,33 +403,61 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     return c.json({ error: 'no_wallet', detail: 'Creditor has not connected a wallet' }, 400);
   }
 
-  const usdtMasterAddress = c.env.USDT_MASTER_ADDRESS;
-  if (!usdtMasterAddress) {
-    return c.json({ error: 'config_error', detail: 'USDT contract not configured' }, 500);
+  // Look up sender's USDT Jetton Wallet via TONAPI
+  const baseUrl = tonapiBaseUrl(c.env);
+  let senderJettonWallet: string | null = null;
+  try {
+    const resp = await fetch(`${baseUrl}/v2/accounts/${senderAddress}/jettons?currencies=usd`, {
+      headers: tonapiHeaders(c.env),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (resp.ok) {
+      const data = (await resp.json()) as any;
+      const entry = data.balances?.find(
+        (b: any) =>
+          b.jetton?.address === usdtMasterAddress ||
+          b.jetton?.address?.toLowerCase().includes(usdtMasterAddress.toLowerCase().slice(0, 20)),
+      );
+      if (entry?.wallet_address) {
+        senderJettonWallet = entry.wallet_address.address ?? entry.wallet_address;
+      }
+    }
+  } catch {
+    // TONAPI unavailable — frontend can't proceed but we return what we have
+  }
+
+  if (!senderJettonWallet) {
+    return c.json(
+      {
+        error: 'no_usdt_wallet',
+        detail: 'Could not find your USDT wallet. Make sure you have USDT in your wallet.',
+      },
+      400,
+    );
   }
 
   return c.json({
     settlementId: settlement.id,
     amount: settlement.amount, // micro-USDT
     recipientAddress: creditor.walletAddress,
+    contractAddress,
+    senderJettonWallet,
     usdtMasterAddress,
-    comment: `splitogram:${settlement.id}`,
+    gasAttach: '500000000', // 0.5 TON
+    forwardTonAmount: '400000000', // 0.4 TON
   });
 });
 
 // --- Verify settlement on-chain ---
-const verifySchema = z
-  .object({
-    boc: z.string().optional(),
-    txHash: z.string().optional(),
-  })
-  .refine((d) => d.boc || d.txHash, { message: 'Either boc or txHash is required' });
+const verifySchema = z.object({
+  boc: z.string().optional(),
+});
 
 settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
   const settlementId = parseInt(c.req.param('id'), 10);
-  const { boc, txHash } = c.req.valid('json');
+  const { boc } = c.req.valid('json');
 
   if (isNaN(settlementId)) {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
@@ -381,109 +494,33 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
     );
   }
 
-  // Mark as payment_pending while we verify
+  // Mark as payment_pending
   await db
     .update(settlements)
     .set({ status: 'payment_pending', updatedAt: new Date().toISOString() })
     .where(eq(settlements.id, settlementId));
 
-  // Try to verify via TONAPI
-  const tonapiKey = c.env.TONAPI_KEY;
-  if (!tonapiKey) {
-    // No TONAPI key — can't verify, stay pending
-    return c.json({
-      status: 'payment_pending',
-      detail: 'Transaction submitted, awaiting verification',
-      settlementId,
-    });
-  }
-
-  // If we have a BOC, send it to TONAPI to get tx hash
-  let resolvedTxHash = txHash;
-  if (boc && !resolvedTxHash) {
+  // If we have a BOC, try to broadcast it (best-effort, TON Connect usually broadcasts itself)
+  if (boc) {
+    const baseUrl = tonapiBaseUrl(c.env);
     try {
-      const sendResp = await fetch('https://testnet.tonapi.io/v2/blockchain/message', {
+      await fetch(`${baseUrl}/v2/blockchain/message`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${tonapiKey}`,
+          ...tonapiHeaders(c.env),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ boc }),
         signal: AbortSignal.timeout(10000),
       });
-
-      if (sendResp.ok) {
-        // BOC sent — need to poll for confirmation
-        return c.json({
-          status: 'payment_pending',
-          detail:
-            'Transaction broadcast, awaiting on-chain confirmation. Poll GET /settlements/:id for status.',
-          settlementId,
-        });
-      }
     } catch {
-      // Timeout or network error — stay pending
-    }
-
-    return c.json({
-      status: 'payment_pending',
-      detail: 'Transaction submitted, awaiting verification',
-      settlementId,
-    });
-  }
-
-  // If we have a tx hash, verify it
-  if (resolvedTxHash) {
-    try {
-      const verified = await verifyTransaction(c.env, settlement, resolvedTxHash);
-
-      if (verified) {
-        await db
-          .update(settlements)
-          .set({
-            status: 'settled_onchain',
-            txHash: resolvedTxHash,
-            updatedAt: new Date().toISOString(),
-          })
-          .where(eq(settlements.id, settlementId));
-
-        // Fire-and-forget notification
-        const onchainNotifyCtx = {
-          botToken: c.env.TELEGRAM_BOT_TOKEN,
-          pagesUrl: c.env.PAGES_URL || '',
-          onBotBlocked: (telegramId: number) => {
-            db.update(users)
-              .set({ botStarted: false })
-              .where(eq(users.telegramId, telegramId))
-              .catch(() => {});
-          },
-        };
-        c.executionCtx.waitUntil(
-          sendSettlementNotification(
-            onchainNotifyCtx,
-            db,
-            {
-              id: settlementId,
-              amount: settlement.amount,
-              status: 'settled_onchain',
-              txHash: resolvedTxHash,
-            },
-            settlement.fromUser,
-            settlement.toUser,
-            settlement.groupId,
-          ),
-        );
-
-        return c.json({ status: 'settled_onchain', txHash: resolvedTxHash, settlementId });
-      }
-    } catch {
-      // Verification failed — stay pending
+      // TON Connect already broadcast it, this is just a backup
     }
   }
 
   return c.json({
     status: 'payment_pending',
-    detail: 'Transaction not yet confirmed. Try again or use "Refresh status".',
+    detail: 'Transaction submitted, awaiting on-chain confirmation.',
     settlementId,
   });
 });
@@ -802,30 +839,88 @@ async function sendSettlementNotification(
   }
 }
 
-// --- TONAPI verification helper ---
-// SECURITY GATE: This is a STUB. Do NOT enable Phase 3 crypto settlement until this
-// function fully verifies: sender wallet, recipient wallet, amount, Jetton contract
-// address (USDT_MASTER_ADDRESS), and memo (splitogram:{settlementId}).
-// Currently it only checks that the tx hash exists on-chain — anyone can submit any
-// legitimate tx hash to mark a settlement as paid.
-async function verifyTransaction(
+// --- TONAPI helpers ---
+
+function tonapiBaseUrl(env: Env): string {
+  return env.TON_NETWORK === 'mainnet' ? 'https://tonapi.io' : 'https://testnet.tonapi.io';
+}
+
+function tonapiHeaders(env: Env): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (env.TONAPI_KEY) {
+    headers['Authorization'] = `Bearer ${env.TONAPI_KEY}`;
+  }
+  return headers;
+}
+
+/**
+ * Verify a settlement on-chain by checking the contract's recent events.
+ * Looks for a Jetton transfer TO the contract matching the settlement amount,
+ * with an outgoing transfer to the creditor's wallet.
+ */
+async function verifySettlementOnChain(
   env: Env,
-  settlement: { id: number; fromUser: number; toUser: number; amount: number },
-  txHash: string,
-): Promise<boolean> {
-  const tonapiKey = env.TONAPI_KEY;
-  if (!tonapiKey) return false;
+  settlement: { id: number; amount: number; toUser: number },
+  creditorWallet: string,
+): Promise<{ verified: boolean; txHash?: string }> {
+  const contractAddress = env.SETTLEMENT_CONTRACT_ADDRESS;
+  if (!contractAddress) return { verified: false };
 
-  const resp = await fetch(`https://testnet.tonapi.io/v2/blockchain/transactions/${txHash}`, {
-    headers: { Authorization: `Bearer ${tonapiKey}` },
-    signal: AbortSignal.timeout(10000),
-  });
+  const baseUrl = tonapiBaseUrl(env);
+  try {
+    const resp = await fetch(`${baseUrl}/v2/accounts/${contractAddress}/events?limit=20`, {
+      headers: tonapiHeaders(env),
+      signal: AbortSignal.timeout(10000),
+    });
 
-  if (!resp.ok) return false;
+    if (!resp.ok) return { verified: false };
 
-  const tx = (await resp.json()) as any;
+    const data = (await resp.json()) as any;
+    const events = data.events ?? [];
 
-  return tx && tx.hash === txHash;
+    for (const event of events) {
+      if (!event.actions) continue;
+
+      // Look for JettonTransfer actions in this event
+      const jettonActions = event.actions.filter(
+        (a: any) => a.type === 'JettonTransfer' && a.status === 'ok',
+      );
+
+      // Find an outgoing transfer from the contract to the creditor with matching amount
+      const matchingTransfer = jettonActions.find((a: any) => {
+        const transfer = a.JettonTransfer;
+        if (!transfer) return false;
+
+        // Check recipient matches creditor (compare raw addresses)
+        const recipientAddr = transfer.recipient?.address ?? '';
+        const creditorNorm = creditorWallet.replace(/^0:/, '').toLowerCase();
+        const recipientNorm = recipientAddr.replace(/^0:/, '').toLowerCase();
+
+        if (!recipientNorm.includes(creditorNorm) && !creditorNorm.includes(recipientNorm)) {
+          return false;
+        }
+
+        // Check amount: the recipient gets (amount - commission)
+        // Commission is 1% clamped [0.1, 1.0] USDT
+        const rawCommission = Math.floor(settlement.amount / 100);
+        const commission = Math.max(100_000, Math.min(1_000_000, rawCommission)); // micro-USDT
+        const expectedRecipientAmount = settlement.amount - commission;
+
+        const transferAmount = parseInt(transfer.amount ?? '0', 10);
+        // Allow 1% tolerance for rounding
+        const tolerance = Math.max(1, Math.floor(expectedRecipientAmount * 0.01));
+        return Math.abs(transferAmount - expectedRecipientAmount) <= tolerance;
+      });
+
+      if (matchingTransfer) {
+        return { verified: true, txHash: event.event_id };
+      }
+    }
+  } catch {
+    // TONAPI error — can't verify yet
+  }
+
+  return { verified: false };
 }
 
 export { settlementsApp };

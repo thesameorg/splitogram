@@ -19,6 +19,8 @@ export interface Env {
 
   // TON
   USDT_MASTER_ADDRESS?: string;
+  SETTLEMENT_CONTRACT_ADDRESS?: string;
+  TON_NETWORK?: string; // 'testnet' | 'mainnet'
   TONAPI_KEY?: string;
 }
 

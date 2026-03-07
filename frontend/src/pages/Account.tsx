@@ -8,6 +8,8 @@ import { SuccessBanner } from '../components/SuccessBanner';
 import { BottomSheet } from '../components/BottomSheet';
 import { Avatar } from '../components/Avatar';
 import { validateImageFile, processAvatar } from '../utils/image';
+import { truncateAddress } from '../utils/ton';
+import { useTonWallet } from '../hooks/useTonWallet';
 import { useUser } from '../contexts/UserContext';
 import { config } from '../config';
 
@@ -45,6 +47,8 @@ export function Account() {
   const [sendingFeedback, setSendingFeedback] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const feedbackFileInputRef = useRef<HTMLInputElement>(null);
+
+  const { connected: walletConnected, friendlyAddress, openModal, disconnect } = useTonWallet();
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
@@ -262,6 +266,33 @@ export function Account() {
           </span>
           <span className="text-tg-hint">&#9662;</span>
         </button>
+      </div>
+
+      {/* TON Wallet */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.wallet')}</label>
+        {walletConnected ? (
+          <div className="flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator">
+            <div>
+              <span className="font-medium">{truncateAddress(friendlyAddress)}</span>
+              {config.tonNetwork === 'testnet' && (
+                <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-app-warning-bg text-app-warning">
+                  testnet
+                </span>
+              )}
+            </div>
+            <button onClick={disconnect} className="text-tg-destructive text-sm font-medium">
+              {t('account.disconnectWallet')}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={openModal}
+            className="w-full p-3 bg-tg-button text-tg-button-text rounded-xl font-medium"
+          >
+            {t('account.connectWallet')}
+          </button>
+        )}
       </div>
 
       {/* Legal */}

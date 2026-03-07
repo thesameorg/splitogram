@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { api, type SettlementDetail } from '../services/api';
+import { api, type SettlementDetail, type SettlementTxParams } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
+import { useTonWallet } from '../hooks/useTonWallet';
 import { formatAmount } from '../utils/format';
 import { getCurrency } from '../utils/currencies';
+import { buildSettlementBody, truncateAddress } from '../utils/ton';
 import {
   validateImageFile,
   processReceipt,
@@ -16,6 +18,8 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { BottomSheet } from '../components/BottomSheet';
 import { ReportImage } from '../components/ReportImage';
+
+type CryptoState = 'idle' | 'preflight' | 'confirm' | 'sending' | 'polling' | 'success' | 'error';
 
 export function SettleUp() {
   const { id } = useParams<{ id: string }>();
@@ -35,7 +39,28 @@ export function SettleUp() {
   const [reportImageKey, setReportImageKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Crypto settlement state
+  const [cryptoState, setCryptoState] = useState<CryptoState>('idle');
+  const [cryptoError, setCryptoError] = useState<string | null>(null);
+  const [txParams, setTxParams] = useState<SettlementTxParams | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const {
+    connected: walletConnected,
+    rawAddress,
+    friendlyAddress,
+    tonConnectUI,
+    openModal,
+  } = useTonWallet();
+
   useTelegramBackButton(true);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (isNaN(settlementId)) return;
@@ -62,6 +87,7 @@ export function SettleUp() {
   const isCreditor = settlement?.currentUserId === settlement?.toUser;
   const isSettled =
     settlement?.status === 'settled_onchain' || settlement?.status === 'settled_external';
+  const isPending = settlement?.status === 'payment_pending';
 
   function handleReceiptSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -95,7 +121,6 @@ export function SettleUp() {
       const microAmount = Math.round(parsedAmount * 1_000_000);
       const customAmount = microAmount !== settlement!.amount ? microAmount : undefined;
       await api.markExternal(settlementId, comment.trim() || undefined, customAmount);
-      // Upload receipt if attached
       if (receiptFile) {
         const [processed, thumb] = await Promise.all([
           processReceipt(receiptFile),
@@ -112,6 +137,134 @@ export function SettleUp() {
     }
   }
 
+  // --- Crypto settlement flow ---
+
+  async function handlePayWithUsdt() {
+    setCryptoError(null);
+
+    if (!walletConnected || !rawAddress) {
+      openModal();
+      return;
+    }
+
+    setCryptoState('preflight');
+    try {
+      const params = await api.getSettlementTx(settlementId, rawAddress);
+      setTxParams(params);
+      setCryptoState('confirm');
+    } catch (err: any) {
+      const code = err.errorCode;
+      if (code === 'no_wallet') {
+        setCryptoError(
+          t('settlement.creditorNoWallet', { name: settlement?.to?.displayName ?? '' }),
+        );
+      } else if (code === 'no_usdt_wallet') {
+        setCryptoError(
+          t('settlement.insufficientUsdt', {
+            balance: '0',
+            required: formatUsdtAmount(settlement!.amount),
+          }),
+        );
+      } else {
+        setCryptoError(err.message || 'Failed to prepare transaction');
+      }
+      setCryptoState('error');
+    }
+  }
+
+  async function handleConfirmPayment() {
+    if (!txParams) return;
+
+    setCryptoState('sending');
+    setCryptoError(null);
+
+    try {
+      const payload = buildSettlementBody(txParams);
+
+      const result = await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        messages: [
+          {
+            address: txParams.senderJettonWallet,
+            amount: txParams.gasAttach,
+            payload,
+          },
+        ],
+      });
+
+      // Transaction sent — notify backend and start polling
+      try {
+        await api.verifySettlement(settlementId, result.boc);
+      } catch {
+        // Backend may fail to receive, but tx is already on-chain
+      }
+
+      setSettlement((prev) => (prev ? { ...prev, status: 'payment_pending' } : prev));
+      startPolling();
+    } catch (err: any) {
+      // TON Connect throws when user rejects or timeout
+      const message = err?.message ?? '';
+      if (message.includes('reject') || message.includes('cancel') || message.includes('denied')) {
+        setCryptoError(t('settlement.declined'));
+      } else if (message.includes('timeout')) {
+        setCryptoError(t('settlement.walletTimeout'));
+      } else {
+        setCryptoError(t('settlement.declined'));
+      }
+      setCryptoState('error');
+    }
+  }
+
+  const startPolling = useCallback(() => {
+    setCryptoState('polling');
+    let elapsed = 0;
+    const POLL_INTERVAL = 3000;
+    const MAX_POLL = 90000; // 90 seconds
+
+    pollingRef.current = setInterval(async () => {
+      elapsed += POLL_INTERVAL;
+      try {
+        const data = await api.getSettlement(settlementId);
+        setSettlement(data);
+
+        if (data.status === 'settled_onchain') {
+          if (pollingRef.current) clearInterval(pollingRef.current);
+          setCryptoState('success');
+          setTimeout(() => navigate(-1), 2000);
+        } else if (data.status === 'open') {
+          // Rolled back
+          if (pollingRef.current) clearInterval(pollingRef.current);
+          setCryptoError(t('settlement.txFailed'));
+          setCryptoState('error');
+        } else if (elapsed >= MAX_POLL) {
+          if (pollingRef.current) clearInterval(pollingRef.current);
+          setCryptoError(t('settlement.txPending'));
+          setCryptoState('error');
+        }
+      } catch {
+        // Network error during poll — keep trying
+        if (elapsed >= MAX_POLL) {
+          if (pollingRef.current) clearInterval(pollingRef.current);
+          setCryptoError(t('settlement.txPending'));
+          setCryptoState('error');
+        }
+      }
+    }, POLL_INTERVAL);
+  }, [settlementId, navigate, t]);
+
+  // If page loads with payment_pending, start polling
+  useEffect(() => {
+    if (isPending && cryptoState === 'idle') {
+      startPolling();
+    }
+  }, [isPending, cryptoState, startPolling]);
+
+  function handleRetry() {
+    setCryptoState('idle');
+    setCryptoError(null);
+    setTxParams(null);
+  }
+
   if (loading) return <LoadingScreen />;
 
   if (!settlement) {
@@ -123,6 +276,10 @@ export function SettleUp() {
       </PageLayout>
     );
   }
+
+  const usdtAmount = formatUsdtAmount(settlement.amount);
+  const commission = formatUsdtCommission(settlement.amount);
+  const netAmount = formatUsdtAmount(settlement.amount - calculateCommission(settlement.amount));
 
   return (
     <PageLayout>
@@ -145,10 +302,13 @@ export function SettleUp() {
         </div>
       </div>
 
-      {/* Status */}
+      {/* Settled status */}
       {isSettled && (
         <div className="bg-app-positive-bg p-4 rounded-xl mb-6 text-center">
           <div className="text-app-positive font-medium text-lg">{t('settleUp.settled')}</div>
+          {settlement.status === 'settled_onchain' && settlement.txHash && (
+            <div className="text-xs text-tg-hint mt-1">TX: {settlement.txHash.slice(0, 16)}...</div>
+          )}
           {settlement.comment && (
             <div className="text-sm text-tg-hint mt-1">{settlement.comment}</div>
           )}
@@ -157,92 +317,119 @@ export function SettleUp() {
 
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
-      {/* Actions */}
-      {!isSettled && (isDebtor || isCreditor) && (
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1 text-tg-hint">
-              {t('settleUp.amount')}
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-tg-hint">
-                {getCurrency(settlement.currency).symbol}
-              </span>
+      {/* Crypto settlement section — debtor only, not settled */}
+      {!isSettled && isDebtor && (
+        <div className="mb-6">
+          <CryptoSettlementUI
+            state={cryptoState}
+            error={cryptoError}
+            walletConnected={walletConnected}
+            friendlyAddress={friendlyAddress}
+            usdtAmount={usdtAmount}
+            netAmount={netAmount}
+            commission={commission}
+            recipientName={settlement.to?.displayName ?? ''}
+            onPay={handlePayWithUsdt}
+            onConfirm={handleConfirmPayment}
+            onRetry={handleRetry}
+            t={t}
+          />
+        </div>
+      )}
+
+      {/* Manual settlement section */}
+      {!isSettled && (isDebtor || isCreditor) && cryptoState === 'idle' && (
+        <>
+          {isDebtor && (
+            <div className="text-center text-sm text-tg-hint mb-4">
+              {t('settlement.orSettleManually')}
+            </div>
+          )}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1 text-tg-hint">
+                {t('settleUp.amount')}
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-tg-hint">
+                  {getCurrency(settlement.currency).symbol}
+                </span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={amountStr}
+                  onChange={(e) => setAmountStr(e.target.value)}
+                  className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
+                />
+              </div>
+              <div className="text-xs text-tg-hint mt-1">
+                {t('settleUp.debtAmount')}: {formatAmount(settlement.amount, settlement.currency)}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1 text-tg-hint">
+                {t('settleUp.note')}
+              </label>
               <input
                 type="text"
-                inputMode="decimal"
-                value={amountStr}
-                onChange={(e) => setAmountStr(e.target.value)}
-                className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
+                placeholder={t('settleUp.notePlaceholder')}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+                maxLength={500}
               />
             </div>
-            <div className="text-xs text-tg-hint mt-1">
-              {t('settleUp.debtAmount')}: {formatAmount(settlement.amount, settlement.currency)}
-            </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1 text-tg-hint">
-              {t('settleUp.note')}
-            </label>
-            <input
-              type="text"
-              placeholder={t('settleUp.notePlaceholder')}
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
-              maxLength={500}
-            />
-          </div>
-
-          {/* Receipt attachment */}
-          <div>
-            {receiptPreview ? (
-              <div className="flex items-center gap-3 p-3 bg-tg-section rounded-xl border border-tg-separator">
-                <img
-                  src={receiptPreview}
-                  alt="Receipt"
-                  className="w-12 h-12 rounded-lg object-cover"
-                />
-                <span className="flex-1 text-sm font-medium">
-                  {t('addExpense.receiptAttached')}
-                </span>
+            {/* Receipt attachment */}
+            <div>
+              {receiptPreview ? (
+                <div className="flex items-center gap-3 p-3 bg-tg-section rounded-xl border border-tg-separator">
+                  <img
+                    src={receiptPreview}
+                    alt="Receipt"
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                  <span className="flex-1 text-sm font-medium">
+                    {t('addExpense.receiptAttached')}
+                  </span>
+                  <button
+                    onClick={handleRemoveReceipt}
+                    className="text-tg-destructive text-sm font-medium"
+                  >
+                    {t('addExpense.removeReceipt')}
+                  </button>
+                </div>
+              ) : (
                 <button
-                  onClick={handleRemoveReceipt}
-                  className="text-tg-destructive text-sm font-medium"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full p-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
                 >
-                  {t('addExpense.removeReceipt')}
+                  {t('settleUp.attachReceipt')}
                 </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full p-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
-              >
-                {t('settleUp.attachReceipt')}
-              </button>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleReceiptSelect}
-              className="hidden"
-            />
-          </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleReceiptSelect}
+                className="hidden"
+              />
+            </div>
 
-          <button
-            onClick={handleMarkSettled}
-            disabled={submitting}
-            className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium disabled:opacity-50"
-          >
-            {submitting
-              ? t('settleUp.settling')
-              : isDebtor
-                ? t('settleUp.markAsPaid')
-                : t('settleUp.markAsReceived')}
-          </button>
-        </div>
+            <button
+              onClick={handleMarkSettled}
+              disabled={submitting}
+              className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium disabled:opacity-50"
+            >
+              {submitting
+                ? t('settleUp.settling')
+                : isDebtor
+                  ? t('settleUp.markAsPaid')
+                  : t('settleUp.markAsReceived')}
+            </button>
+          </div>
+        </>
       )}
 
       {/* Settled receipt thumbnail */}
@@ -289,4 +476,141 @@ export function SettleUp() {
       />
     </PageLayout>
   );
+}
+
+// --- Crypto Settlement UI Component ---
+
+function CryptoSettlementUI({
+  state,
+  error,
+  walletConnected,
+  friendlyAddress,
+  usdtAmount,
+  netAmount,
+  commission,
+  recipientName,
+  onPay,
+  onConfirm,
+  onRetry,
+  t,
+}: {
+  state: CryptoState;
+  error: string | null;
+  walletConnected: boolean;
+  friendlyAddress: string;
+  usdtAmount: string;
+  netAmount: string;
+  commission: string;
+  recipientName: string;
+  onPay: () => void;
+  onConfirm: () => void;
+  onRetry: () => void;
+  t: (key: string, opts?: Record<string, string>) => string;
+}) {
+  if (state === 'success') {
+    return (
+      <div className="bg-app-positive-bg p-6 rounded-2xl text-center">
+        <div className="text-4xl mb-2">&#10003;</div>
+        <div className="text-app-positive font-medium text-lg">{t('settlement.confirmed')}</div>
+      </div>
+    );
+  }
+
+  if (state === 'polling') {
+    return (
+      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
+        <div className="w-8 h-8 border-3 border-tg-button border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <div className="font-medium">{t('settlement.confirming')}</div>
+      </div>
+    );
+  }
+
+  if (state === 'sending') {
+    return (
+      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
+        <div className="w-8 h-8 border-3 border-tg-button border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <div className="font-medium">{t('settlement.waitingWallet')}</div>
+      </div>
+    );
+  }
+
+  if (state === 'confirm') {
+    return (
+      <div className="bg-tg-section p-4 rounded-2xl border border-tg-separator space-y-3">
+        <div className="font-medium">{t('settlement.confirmTitle')}</div>
+        <p className="text-sm text-tg-hint">
+          {t('settlement.confirmBody', {
+            amount: usdtAmount,
+            recipient: recipientName,
+            netAmount,
+            commission,
+          })}
+        </p>
+        <div className="text-xs text-tg-hint">{t('settlement.gasNote')}</div>
+        <button
+          onClick={onConfirm}
+          className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium"
+        >
+          {t('settlement.confirmButton')}
+        </button>
+      </div>
+    );
+  }
+
+  if (state === 'error' && error) {
+    return (
+      <div className="space-y-3">
+        <div className="bg-app-negative-bg p-4 rounded-xl">
+          <div className="text-app-negative text-sm">{error}</div>
+        </div>
+        <button
+          onClick={onRetry}
+          className="w-full border border-tg-separator py-3 rounded-xl font-medium text-sm"
+        >
+          {t('settlement.tryAgain')}
+        </button>
+      </div>
+    );
+  }
+
+  if (state === 'preflight') {
+    return (
+      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
+        <div className="w-6 h-6 border-2 border-tg-button border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <div className="text-sm text-tg-hint">{t('loading')}</div>
+      </div>
+    );
+  }
+
+  // idle state
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={onPay}
+        className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium"
+      >
+        {walletConnected ? t('settlement.payWithUsdt') : t('account.connectWallet')}
+      </button>
+      {walletConnected && (
+        <div className="text-center text-xs text-tg-hint">
+          {truncateAddress(friendlyAddress)} &middot; {t('settlement.gasNote')}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- USDT formatting helpers ---
+
+function calculateCommission(microAmount: number): number {
+  const raw = Math.floor(microAmount / 100); // 1%
+  return Math.max(100_000, Math.min(1_000_000, raw)); // clamp [0.1, 1.0] USDT
+}
+
+function formatUsdtAmount(microAmount: number): string {
+  return (microAmount / 1_000_000).toFixed(2);
+}
+
+function formatUsdtCommission(microAmount: number): string {
+  return formatUsdtAmount(calculateCommission(microAmount));
 }

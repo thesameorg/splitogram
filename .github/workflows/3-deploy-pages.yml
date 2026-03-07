@@ -52,6 +52,7 @@ jobs:
           VITE_WORKER_URL: ${{ vars.WORKER_URL }}
           VITE_TELEGRAM_BOT_USERNAME: ${{ vars.TELEGRAM_BOT_USERNAME }}
           VITE_TG_ANALYTICS_TOKEN: ${{ vars.TG_ANALYTICS_TOKEN }}
+          VITE_TON_NETWORK: ${{ vars.TON_NETWORK || 'testnet' }}
 
       - name: Deploy to Cloudflare Pages
         id: deploy-pages

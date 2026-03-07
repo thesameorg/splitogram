@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { useAuth } from './hooks/useAuth';
 import { api, ApiError } from './services/api';
 import { UserProvider, useUser } from './contexts/UserContext';
@@ -127,11 +128,13 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <UserProvider>
-        <AppContent />
-      </UserProvider>
-    </BrowserRouter>
+    <TonConnectUIProvider manifestUrl={config.tonConnectManifestUrl}>
+      <BrowserRouter>
+        <UserProvider>
+          <AppContent />
+        </UserProvider>
+      </BrowserRouter>
+    </TonConnectUIProvider>
   );
 }
 

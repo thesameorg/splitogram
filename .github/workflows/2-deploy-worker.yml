@@ -47,6 +47,7 @@ jobs:
           echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | bunx wrangler secret put TELEGRAM_BOT_TOKEN || true
           echo "${{ secrets.ADMIN_TELEGRAM_ID }}" | bunx wrangler secret put ADMIN_TELEGRAM_ID || true
           echo "${{ secrets.ADMIN_SECRET }}" | bunx wrangler secret put ADMIN_SECRET || true
+          echo "${{ secrets.TONAPI_KEY }}" | bunx wrangler secret put TONAPI_KEY || true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
