@@ -1,14 +1,8 @@
 # Now
 
-- ~~add "dummy" users so they can be added to the group later~~ — **DONE** as "placeholder members". Admin creates in GroupSettings, 👤 badge, full expense/settlement participation. Real users can claim placeholders (banner on Group page with balance preview). See CLAUDE.md.
 - somehow when bot added to group, make dummies for all its users (if group admin decides to do so)
-- add max 1 usdt update of "charge" besides of minimum
-- ~~add "version" to account page~~ — **DONE**. Git commit hash via Vite `define`, shown as `v{hash}` footer on Account page.
-
 - we need to somehow differenciate if settlement recepient has a connected wallet, and what to do if not?
   - prompt him to do so?
-
-# LATER
 
 - when settiling:
   - we need to clearly and directly explain what is going on.

@@ -1401,11 +1401,20 @@ groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSche
       ),
     );
 
-  // 6. Remove dummy's membership and delete dummy user
+  // 6. Remove dummy's membership
   await db
     .delete(groupMembers)
     .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, dummyUserId)));
-  await db.delete(users).where(eq(users.id, dummyUserId));
+
+  // 7. Delete dummy user only if no other group memberships remain
+  const [remainingMemberships] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(groupMembers)
+    .where(eq(groupMembers.userId, dummyUserId));
+
+  if (remainingMemberships.count === 0) {
+    await db.delete(users).where(eq(users.id, dummyUserId));
+  }
 
   return c.json({ claimed: true, dummyUserId, dummyName: dummy.displayName });
 });

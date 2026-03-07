@@ -56,7 +56,7 @@ export function Group() {
   const [stats, setStats] = useState<GroupStats | null>(null);
   const [statsPeriod, setStatsPeriod] = useState<string>('all');
   const [statsLoading, setStatsLoading] = useState(false);
-  const [claimDismissed, setClaimDismissed] = useState(false);
+  const [showClaimPrompt, setShowClaimPrompt] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
 
   useTelegramBackButton(true);
@@ -116,6 +116,16 @@ export function Group() {
       .finally(() => setStatsLoading(false));
   }, [tab, groupId, statsPeriod]);
 
+  // Show claim prompt once when group has placeholders and user is not a placeholder
+  useEffect(() => {
+    if (!group || !currentUserId) return;
+    const hasDummies = group.members.some((m) => m.isDummy);
+    const iAmDummy = group.members.find((m) => m.userId === currentUserId)?.isDummy;
+    if (hasDummies && !iAmDummy) {
+      setShowClaimPrompt(true);
+    }
+  }, [group, currentUserId]);
+
   function canEditExpense(exp: Expense): boolean {
     return currentUserId === exp.paidBy;
   }
@@ -158,7 +168,6 @@ export function Group() {
   }
 
   async function handleClaimPlaceholder(dummyUserId: number, dummyName: string) {
-    // Build balance description
     const dummyBalance = balanceMembers.find((m) => m.userId === dummyUserId);
     const balanceStr = dummyBalance
       ? formatAmount(dummyBalance.netBalance, group?.currency)
@@ -170,8 +179,7 @@ export function Group() {
     setClaimError(null);
     try {
       const result = await api.claimPlaceholder(groupId, dummyUserId);
-      setReminderSuccess(false);
-      // Reload all data
+      setShowClaimPrompt(false);
       loadData();
       alert(t('placeholder.claimed', { name: result.dummyName }));
     } catch (err: any) {
@@ -326,33 +334,6 @@ export function Group() {
 
       {claimError && <ErrorBanner message={claimError} onDismiss={() => setClaimError(null)} />}
 
-      {/* Claim placeholder banner */}
-      {!claimDismissed &&
-        group.members.some((m) => m.isDummy) &&
-        !group.members.find((m) => m.userId === currentUserId)?.isDummy && (
-          <div className="mb-4 bg-tg-section border border-tg-separator rounded-xl p-3">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">{t('placeholder.claimBanner')}</span>
-              <button onClick={() => setClaimDismissed(true)} className="text-tg-hint text-sm">
-                &#10005;
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {group.members
-                .filter((m) => m.isDummy)
-                .map((m) => (
-                  <button
-                    key={m.userId}
-                    onClick={() => handleClaimPlaceholder(m.userId, m.displayName)}
-                    className="px-3 py-1.5 bg-tg-button/10 text-tg-link rounded-lg text-sm font-medium"
-                  >
-                    {'\uD83D\uDC64'} {m.displayName} &mdash; {t('placeholder.claimButton')}
-                  </button>
-                ))}
-            </div>
-          </div>
-        )}
-
       {/* Tabs */}
       <div className="flex border-b border-tg-separator mb-4">
         {(['transactions', 'balances', 'feed', 'stats'] as const).map((tabKey) => (
@@ -458,6 +439,14 @@ export function Group() {
                       ? t('group.settledUp')
                       : formatAmount(m.netBalance, group?.currency)}
                   </span>
+                  {group.members.find((gm) => gm.userId === m.userId)?.isDummy && (
+                    <button
+                      onClick={() => handleClaimPlaceholder(m.userId, m.displayName)}
+                      className="text-xs text-tg-link font-medium ml-1 shrink-0"
+                    >
+                      {t('placeholder.claimButton')}
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -806,6 +795,46 @@ export function Group() {
         open={!!reportImageKey}
         onClose={() => setReportImageKey(null)}
       />
+
+      {/* Claim placeholder prompt */}
+      <BottomSheet
+        open={showClaimPrompt}
+        onClose={() => setShowClaimPrompt(false)}
+        title={t('placeholder.claimBanner')}
+      >
+        <div className="space-y-3">
+          {group.members
+            .filter((m) => m.isDummy)
+            .map((m) => {
+              const bal = balanceMembers.find((bm) => bm.userId === m.userId);
+              const balStr = bal
+                ? formatAmount(bal.netBalance, group?.currency)
+                : formatAmount(0, group?.currency);
+              return (
+                <button
+                  key={m.userId}
+                  onClick={() => {
+                    setShowClaimPrompt(false);
+                    handleClaimPlaceholder(m.userId, m.displayName);
+                  }}
+                  className="w-full flex items-center justify-between p-3 bg-tg-section rounded-xl border border-tg-separator"
+                >
+                  <div className="flex items-center gap-2">
+                    <span>{'\uD83D\uDC64'}</span>
+                    <span className="font-medium">{m.displayName}</span>
+                  </div>
+                  <span className="text-sm text-tg-hint">{balStr}</span>
+                </button>
+              );
+            })}
+          <button
+            onClick={() => setShowClaimPrompt(false)}
+            className="w-full py-3 text-sm text-tg-hint font-medium"
+          >
+            {t('placeholder.claimCancel')}
+          </button>
+        </div>
+      </BottomSheet>
     </PageLayout>
   );
 }
