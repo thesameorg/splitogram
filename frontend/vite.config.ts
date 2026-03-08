@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { execSync } from 'child_process';
 
 function getGitHash(): string {
@@ -11,7 +12,13 @@ function getGitHash(): string {
 }
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    nodePolyfills({
+      include: ['buffer'],
+      globals: { Buffer: true },
+    }),
+  ],
   envDir: '../',
   server: {
     port: 5173,

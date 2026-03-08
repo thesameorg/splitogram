@@ -15,11 +15,13 @@
     "@ton/core": "^0.63.1",
     "@ton/ton": "^16.2.2",
     "@tonconnect/ui-react": "^2.4.2",
+    "buffer": "^6.0.3",
     "i18next": "^25.8.13",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-i18next": "^16.5.4",
-    "react-router-dom": "^7.9.3"
+    "react-router-dom": "^7.9.3",
+    "vite-plugin-node-polyfills": "^0.25.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
