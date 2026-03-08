@@ -198,7 +198,7 @@
     "insufficientUsdt": "Недостатньо USDT. У вас {{balance}}, потрібно {{required}}.",
     "insufficientTon": "Недостатньо TON для газу. Потрібно ~0.5 TON.",
     "confirmTitle": "Підтвердження платежу",
-    "confirmBody": "Ви надсилаєте {{amount}} USDT на контракт Splitogram. {{recipient}} отримає {{netAmount}} USDT. Комісія: {{commission}} USDT (1%).",
+    "confirmBody": "{{recipient}} отримає {{amount}} USDT. Ви заплатите {{totalPayment}} USDT (включаючи комісію {{commission}} USDT).",
     "confirmButton": "Підтвердити платіж",
     "waitingWallet": "Очікування підтвердження в гаманці...",
     "confirming": "Підтвердження в блокчейні...",

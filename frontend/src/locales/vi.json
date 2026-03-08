@@ -194,7 +194,7 @@
     "insufficientUsdt": "Không đủ USDT. Bạn có {{balance}}, cần {{required}}.",
     "insufficientTon": "Không đủ TON cho phí gas. Bạn cần ~0.5 TON.",
     "confirmTitle": "Xác nhận Thanh toán",
-    "confirmBody": "Bạn đang gửi {{amount}} USDT đến hợp đồng thanh toán Splitogram. {{recipient}} sẽ nhận {{netAmount}} USDT. Hoa hồng: {{commission}} USDT (1%).",
+    "confirmBody": "{{recipient}} sẽ nhận {{amount}} USDT. Bạn thanh toán {{totalPayment}} USDT (bao gồm phí {{commission}} USDT).",
     "confirmButton": "Xác nhận Thanh toán",
     "waitingWallet": "Đang chờ xác nhận từ ví...",
     "confirming": "Đang xác nhận trên blockchain...",

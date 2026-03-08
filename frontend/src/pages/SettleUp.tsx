@@ -183,6 +183,7 @@ export function SettleUp() {
 
       const result = await tonConnectUI.sendTransaction({
         validUntil: Math.floor(Date.now() / 1000) + 300,
+        network: txParams.network as any,
         messages: [
           {
             address: txParams.senderJettonWallet,
@@ -203,13 +204,14 @@ export function SettleUp() {
       startPolling();
     } catch (err: any) {
       // TON Connect throws when user rejects or timeout
-      const message = err?.message ?? '';
+      const message = err?.message ?? String(err);
+      console.error('sendTransaction error:', message, err);
       if (message.includes('reject') || message.includes('cancel') || message.includes('denied')) {
         setCryptoError(t('settlement.declined'));
       } else if (message.includes('timeout')) {
         setCryptoError(t('settlement.walletTimeout'));
       } else {
-        setCryptoError(t('settlement.declined'));
+        setCryptoError(message || t('settlement.declined'));
       }
       setCryptoState('error');
     }
@@ -277,9 +279,13 @@ export function SettleUp() {
     );
   }
 
-  const usdtAmount = formatUsdtAmount(settlement.amount);
-  const commission = formatUsdtCommission(settlement.amount);
-  const netAmount = formatUsdtAmount(settlement.amount - calculateCommission(settlement.amount));
+  const usdtAmount = formatUsdtAmount(settlement.amount); // debt amount
+  const commission = txParams
+    ? formatUsdtAmount(txParams.commission)
+    : formatUsdtCommission(settlement.amount);
+  const totalPayment = txParams
+    ? formatUsdtAmount(txParams.totalAmount)
+    : formatUsdtAmount(settlement.amount + calculateCommission(settlement.amount));
 
   return (
     <PageLayout>
@@ -326,7 +332,7 @@ export function SettleUp() {
             walletConnected={walletConnected}
             friendlyAddress={friendlyAddress}
             usdtAmount={usdtAmount}
-            netAmount={netAmount}
+            totalPayment={totalPayment}
             commission={commission}
             recipientName={settlement.to?.displayName ?? ''}
             onPay={handlePayWithUsdt}
@@ -486,7 +492,7 @@ function CryptoSettlementUI({
   walletConnected,
   friendlyAddress,
   usdtAmount,
-  netAmount,
+  totalPayment,
   commission,
   recipientName,
   onPay,
@@ -499,7 +505,7 @@ function CryptoSettlementUI({
   walletConnected: boolean;
   friendlyAddress: string;
   usdtAmount: string;
-  netAmount: string;
+  totalPayment: string;
   commission: string;
   recipientName: string;
   onPay: () => void;
@@ -542,7 +548,7 @@ function CryptoSettlementUI({
           {t('settlement.confirmBody', {
             amount: usdtAmount,
             recipient: recipientName,
-            netAmount,
+            totalPayment,
             commission,
           })}
         </p>

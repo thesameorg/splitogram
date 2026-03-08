@@ -167,13 +167,16 @@ export interface SettlementDetail extends Settlement {
 
 export interface SettlementTxParams {
   settlementId: number;
-  amount: number; // micro-USDT
+  amount: number; // micro-USDT (debt amount)
+  totalAmount: number; // micro-USDT (debt + commission — what payer sends)
+  commission: number; // micro-USDT
   recipientAddress: string;
   contractAddress: string;
   senderJettonWallet: string;
   usdtMasterAddress: string;
   gasAttach: string; // nanoTON
   forwardTonAmount: string; // nanoTON
+  network: string; // CHAIN.TESTNET ("-3") or CHAIN.MAINNET ("-239")
 }
 
 export interface SettlementListItem {

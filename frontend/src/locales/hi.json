@@ -196,7 +196,7 @@
     "insufficientUsdt": "पर्याप्त USDT नहीं है। आपके पास {{balance}} है, {{required}} चाहिए।",
     "insufficientTon": "गैस के लिए पर्याप्त TON नहीं है। ~0.5 TON चाहिए।",
     "confirmTitle": "भुगतान की पुष्टि करें",
-    "confirmBody": "आप Splitogram सेटलमेंट कॉन्ट्रैक्ट को {{amount}} USDT भेज रहे हैं। {{recipient}} को {{netAmount}} USDT मिलेगा। कमीशन: {{commission}} USDT (1%)।",
+    "confirmBody": "{{recipient}} को {{amount}} USDT मिलेगा। आप {{totalPayment}} USDT भुगतान करेंगे ({{commission}} USDT कमीशन सहित)।",
     "confirmButton": "भुगतान की पुष्टि करें",
     "waitingWallet": "वॉलेट से पुष्टि की प्रतीक्षा...",
     "confirming": "ब्लॉकचेन पर पुष्टि हो रही है...",

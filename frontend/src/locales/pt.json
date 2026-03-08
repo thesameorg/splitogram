@@ -196,7 +196,7 @@
     "insufficientUsdt": "USDT insuficiente. Você tem {{balance}}, precisa de {{required}}.",
     "insufficientTon": "TON insuficiente para gas. Você precisa de ~0.5 TON.",
     "confirmTitle": "Confirmar Pagamento",
-    "confirmBody": "Você está enviando {{amount}} USDT para o contrato de liquidação Splitogram. {{recipient}} receberá {{netAmount}} USDT. Comissão: {{commission}} USDT (1%).",
+    "confirmBody": "{{recipient}} receberá {{amount}} USDT. Você pagará {{totalPayment}} USDT (inclui comissão de {{commission}} USDT).",
     "confirmButton": "Confirmar Pagamento",
     "waitingWallet": "Aguardando confirmação da carteira...",
     "confirming": "Confirmando na blockchain...",

@@ -194,7 +194,7 @@
     "insufficientUsdt": "USDT tidak cukup. Anda memiliki {{balance}}, butuh {{required}}.",
     "insufficientTon": "TON tidak cukup untuk gas. Anda butuh ~0.5 TON.",
     "confirmTitle": "Konfirmasi Pembayaran",
-    "confirmBody": "Anda mengirim {{amount}} USDT ke kontrak penyelesaian Splitogram. {{recipient}} akan menerima {{netAmount}} USDT. Komisi: {{commission}} USDT (1%).",
+    "confirmBody": "{{recipient}} akan menerima {{amount}} USDT. Anda membayar {{totalPayment}} USDT (termasuk komisi {{commission}} USDT).",
     "confirmButton": "Konfirmasi Pembayaran",
     "waitingWallet": "Menunggu konfirmasi dompet...",
     "confirming": "Mengonfirmasi di blockchain...",

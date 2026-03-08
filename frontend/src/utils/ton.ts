@@ -7,13 +7,15 @@ import type { SettlementTxParams } from '../services/api';
  * The message is sent TO the sender's USDT Jetton Wallet, which transfers tokens
  * to the settlement contract. The contract splits: commission to owner, remainder to recipient.
  *
+ * The total amount sent = debt + commission, so the recipient receives the full debt amount.
+ *
  * forward_payload is stored inline (not as ref) — validated on testnet.
  */
 export function buildSettlementBody(params: SettlementTxParams): string {
   const body = beginCell()
     .storeUint(0xf8a7ea5, 32) // op: jetton_transfer
     .storeUint(0, 64) // query_id
-    .storeCoins(BigInt(params.amount)) // jetton amount (micro-USDT)
+    .storeCoins(BigInt(params.totalAmount)) // jetton amount = debt + commission
     .storeAddress(Address.parse(params.contractAddress)) // destination: settlement contract
     .storeAddress(Address.parse(params.contractAddress)) // response_destination: excess gas back
     .storeBit(false) // no custom_payload

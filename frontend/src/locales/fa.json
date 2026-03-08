@@ -196,7 +196,7 @@
     "insufficientUsdt": "USDT کافی نیست. شما {{balance}} دارید، {{required}} لازم است.",
     "insufficientTon": "TON کافی برای گس نیست. حدود ~0.5 TON نیاز دارید.",
     "confirmTitle": "تأیید پرداخت",
-    "confirmBody": "شما {{amount}} USDT به قرارداد تسویه Splitogram ارسال می‌کنید. {{recipient}} مبلغ {{netAmount}} USDT دریافت خواهد کرد. کارمزد: {{commission}} USDT (1%).",
+    "confirmBody": "{{recipient}} مبلغ {{amount}} USDT دریافت خواهد کرد. شما {{totalPayment}} USDT پرداخت می‌کنید (شامل {{commission}} USDT کارمزد).",
     "confirmButton": "تأیید پرداخت",
     "waitingWallet": "در انتظار تأیید کیف پول...",
     "confirming": "در حال تأیید در بلاکچین...",
