@@ -760,36 +760,6 @@ settlementsApp.delete('/settlements/:id/receipt', async (c) => {
   return c.json({ deleted: true });
 });
 
-// --- Wallet endpoint ---
-const walletSchema = z.object({
-  address: z.string().min(1),
-});
-
-settlementsApp.put('/users/me/wallet', zValidator('json', walletSchema), async (c) => {
-  const db = c.get('db');
-  const session = c.get('session');
-  const { address } = c.req.valid('json');
-
-  await db
-    .update(users)
-    .set({ walletAddress: address, updatedAt: new Date().toISOString() })
-    .where(eq(users.telegramId, session.telegramId));
-
-  return c.json({ walletAddress: address });
-});
-
-settlementsApp.delete('/users/me/wallet', async (c) => {
-  const db = c.get('db');
-  const session = c.get('session');
-
-  await db
-    .update(users)
-    .set({ walletAddress: null, updatedAt: new Date().toISOString() })
-    .where(eq(users.telegramId, session.telegramId));
-
-  return c.json({ walletAddress: null });
-});
-
 // --- Settlement notification helper ---
 async function sendSettlementNotification(
   notifyCtx: { botToken: string; pagesUrl: string; onBotBlocked?: (telegramId: number) => void },

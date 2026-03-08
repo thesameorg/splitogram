@@ -214,4 +214,35 @@ app.post('/feedback', async (c) => {
   return c.json({ sent: true });
 });
 
+// PUT /api/v1/users/me/wallet — set wallet address
+const walletSchema = z.object({
+  address: z.string().min(1),
+});
+
+app.put('/me/wallet', zValidator('json', walletSchema), async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const { address } = c.req.valid('json');
+
+  await db
+    .update(users)
+    .set({ walletAddress: address, updatedAt: new Date().toISOString() })
+    .where(eq(users.telegramId, session.telegramId));
+
+  return c.json({ walletAddress: address });
+});
+
+// DELETE /api/v1/users/me/wallet — disconnect wallet
+app.delete('/me/wallet', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+
+  await db
+    .update(users)
+    .set({ walletAddress: null, updatedAt: new Date().toISOString() })
+    .where(eq(users.telegramId, session.telegramId));
+
+  return c.json({ walletAddress: null });
+});
+
 export const usersApp = app;
