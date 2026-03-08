@@ -187,6 +187,7 @@
     "wallet": "TON Гаманець",
     "connectWallet": "Підключити гаманець",
     "disconnectWallet": "Відключити",
+    "confirmDisconnectWallet": "Від'єднати гаманець TON?",
     "walletConnected": "Гаманець підключено"
   },
   "settlement": {

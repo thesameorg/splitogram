@@ -183,6 +183,7 @@
     "wallet": "Ví TON",
     "connectWallet": "Kết nối ví",
     "disconnectWallet": "Ngắt kết nối",
+    "confirmDisconnectWallet": "Ngắt kết nối ví TON của bạn?",
     "walletConnected": "Ví đã kết nối"
   },
   "settlement": {

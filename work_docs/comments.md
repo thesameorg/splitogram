@@ -1,3 +1,6 @@
+- when disconnecting wallet, there should be a confirmation
+-
+
 # Now
 
 - somehow when bot added to group, make dummies for all its users (if group admin decides to do so)

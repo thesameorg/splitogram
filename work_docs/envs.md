@@ -6,13 +6,13 @@ Where each TON-related variable lives, what it does, and what to set.
 
 ## Overview
 
-| Variable | Secret? | Where it lives | Testnet value |
-|---|---|---|---|
-| `TONAPI_KEY` | Yes | `.dev.vars`, GH secret, wrangler secret | From [tonconsole.com](https://tonconsole.com) |
-| `TON_NETWORK` | No | `.dev.vars`, `wrangler.toml [vars]`, GH var | `testnet` |
-| `USDT_MASTER_ADDRESS` | No | `.dev.vars`, `wrangler.toml [vars]` | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
-| `SETTLEMENT_CONTRACT_ADDRESS` | No | `.dev.vars`, `wrangler.toml [vars]` | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` |
-| `VITE_TON_NETWORK` | No | `.env`, GH var (Pages build) | `testnet` |
+| Variable                      | Secret? | Where it lives                              | Testnet value                                      |
+| ----------------------------- | ------- | ------------------------------------------- | -------------------------------------------------- |
+| `TONAPI_KEY`                  | Yes     | `.dev.vars`, GH secret, wrangler secret     | From [tonconsole.com](https://tonconsole.com)      |
+| `TON_NETWORK`                 | No      | `.dev.vars`, `wrangler.toml [vars]`, GH var | `testnet`                                          |
+| `USDT_MASTER_ADDRESS`         | No      | `.dev.vars`, `wrangler.toml [vars]`         | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
+| `SETTLEMENT_CONTRACT_ADDRESS` | No      | `.dev.vars`, `wrangler.toml [vars]`         | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` |
+| `VITE_TON_NETWORK`            | No      | `.env`, GH var (Pages build)                | `testnet`                                          |
 
 ---
 
@@ -21,12 +21,14 @@ Where each TON-related variable lives, what it does, and what to set.
 ### `TONAPI_KEY` — Secret
 
 API key for [TONAPI](https://tonapi.io) REST API. Used to:
+
 - Look up sender's USDT Jetton Wallet address (`GET /settlements/:id/tx`)
 - Verify settlements on-chain (`GET /settlements/:id` lazy verification)
 
 **Get one:** [tonconsole.com](https://tonconsole.com) -> sign up -> create project -> API key.
 
 **Where to set:**
+
 - Local: `.dev.vars` (already there)
 - Production: GitHub repo Settings -> Secrets -> Actions -> `TONAPI_KEY`
 - CI deploys it via `wrangler secret put TONAPI_KEY` (in `2-deploy-worker.yml`)
@@ -36,10 +38,12 @@ Note: testnet TONAPI works without auth, but mainnet requires a key. Set it in b
 ### `TON_NETWORK` — Var
 
 Switches between testnet and mainnet TONAPI base URLs:
+
 - `testnet` -> `https://testnet.tonapi.io`
 - `mainnet` -> `https://tonapi.io`
 
 **Where to set:**
+
 - Local: `.dev.vars`
 - Production: `wrangler.toml` `[vars]` section (committed to repo)
 - Optionally as GH variable `TON_NETWORK` if you want to override without a code change
@@ -48,12 +52,13 @@ Switches between testnet and mainnet TONAPI base URLs:
 
 The Jetton Master contract address for USDT (or tUSDT on testnet). Used to identify which Jetton is USDT when looking up wallet balances via TONAPI.
 
-| Network | Address |
-|---|---|
+| Network         | Address                                            |
+| --------------- | -------------------------------------------------- |
 | Testnet (tUSDT) | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
-| Mainnet (USDT) | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
+| Mainnet (USDT)  | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
 
 **Where to set:**
+
 - Local: `.dev.vars`
 - Production: `wrangler.toml` `[vars]` section
 
@@ -63,12 +68,13 @@ This is a public on-chain address — not a secret.
 
 The deployed Splitogram settlement smart contract. Receives USDT, takes 1% commission (min 0.1, max 1.0 USDT), forwards remainder to recipient.
 
-| Network | Address | Notes |
-|---|---|---|
-| Testnet v4 | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` | Current, validated |
-| Mainnet | TBD | Deploy with mainnet owner wallet |
+| Network    | Address                                            | Notes                            |
+| ---------- | -------------------------------------------------- | -------------------------------- |
+| Testnet v4 | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` | Current, validated               |
+| Mainnet    | TBD                                                | Deploy with mainnet owner wallet |
 
 **Where to set:**
+
 - Local: `.dev.vars`
 - Production: `wrangler.toml` `[vars]` section
 
@@ -81,15 +87,17 @@ This is a public on-chain address — not a secret.
 ### `VITE_TON_NETWORK` — Var
 
 Controls:
+
 - Testnet badge display on Account page wallet section
 - Could be used for future frontend TONAPI calls
 
-| Value | Effect |
-|---|---|
+| Value     | Effect                                       |
+| --------- | -------------------------------------------- |
 | `testnet` | Shows "testnet" badge next to wallet address |
-| `mainnet` | No badge |
+| `mainnet` | No badge                                     |
 
 **Where to set:**
+
 - Local: `.env`
 - Production: GH variable `TON_NETWORK` -> flows into Pages build as `VITE_TON_NETWORK` (see `3-deploy-pages.yml`)
 - Falls back to `testnet` if not set
@@ -123,11 +131,11 @@ No code changes needed. Just config.
 
 ## File Reference
 
-| File | What's in it |
-|---|---|
-| `.dev.vars` | Local dev overrides for wrangler (all backend vars + secrets) |
-| `.env` | Local dev vars for frontend (Vite) + shared |
-| `.env.example` | Template with all vars documented |
-| `wrangler.toml` `[vars]` | Production non-secret vars (committed) |
-| `2-deploy-worker.yml` | Deploys secrets via `wrangler secret put` |
-| `3-deploy-pages.yml` | Passes `VITE_*` vars to frontend build |
+| File                     | What's in it                                                  |
+| ------------------------ | ------------------------------------------------------------- |
+| `.dev.vars`              | Local dev overrides for wrangler (all backend vars + secrets) |
+| `.env`                   | Local dev vars for frontend (Vite) + shared                   |
+| `.env.example`           | Template with all vars documented                             |
+| `wrangler.toml` `[vars]` | Production non-secret vars (committed)                        |
+| `2-deploy-worker.yml`    | Deploys secrets via `wrangler secret put`                     |
+| `3-deploy-pages.yml`     | Passes `VITE_*` vars to frontend build                        |

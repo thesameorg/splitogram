@@ -195,6 +195,7 @@
     "wallet": "TON Wallet",
     "connectWallet": "Connect Wallet",
     "disconnectWallet": "Disconnect",
+    "confirmDisconnectWallet": "Disconnect your TON wallet?",
     "walletConnected": "Wallet connected"
   },
   "settlement": {

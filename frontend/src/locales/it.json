@@ -185,6 +185,7 @@
     "wallet": "Portafoglio TON",
     "connectWallet": "Collega portafoglio",
     "disconnectWallet": "Scollega",
+    "confirmDisconnectWallet": "Scollegare il portafoglio TON?",
     "walletConnected": "Portafoglio collegato"
   },
   "settlement": {

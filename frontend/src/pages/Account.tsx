@@ -281,7 +281,14 @@ export function Account() {
                 </span>
               )}
             </div>
-            <button onClick={disconnect} className="text-tg-destructive text-sm font-medium">
+            <button
+              onClick={() => {
+                if (window.confirm(t('account.confirmDisconnectWallet'))) {
+                  disconnect();
+                }
+              }}
+              className="text-tg-destructive text-sm font-medium"
+            >
               {t('account.disconnectWallet')}
             </button>
           </div>

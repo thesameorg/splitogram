@@ -187,6 +187,7 @@
     "wallet": "TON Кошелёк",
     "connectWallet": "Подключить кошелёк",
     "disconnectWallet": "Отключить",
+    "confirmDisconnectWallet": "Отключить кошелёк TON?",
     "walletConnected": "Кошелёк подключён"
   },
   "settlement": {

@@ -17,7 +17,12 @@ export function useTonWallet() {
   useEffect(() => {
     if (rawAddress && rawAddress !== prevAddress.current) {
       prevAddress.current = rawAddress;
-      api.setWallet(rawAddress).catch(() => {});
+      api.setWallet(rawAddress).catch(() => {
+        // Retry once after 2s (auth may not be ready on initial restore)
+        setTimeout(() => {
+          api.setWallet(rawAddress).catch(() => {});
+        }, 2000);
+      });
     } else if (!rawAddress && prevAddress.current) {
       prevAddress.current = null;
       api.deleteWallet().catch(() => {});

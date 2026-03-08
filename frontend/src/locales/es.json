@@ -185,6 +185,7 @@
     "wallet": "Monedero TON",
     "connectWallet": "Conectar monedero",
     "disconnectWallet": "Desconectar",
+    "confirmDisconnectWallet": "¿Desconectar tu billetera TON?",
     "walletConnected": "Monedero conectado"
   },
   "settlement": {

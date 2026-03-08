@@ -185,6 +185,7 @@
     "wallet": "کیف پول TON",
     "connectWallet": "اتصال کیف پول",
     "disconnectWallet": "قطع اتصال",
+    "confirmDisconnectWallet": "کیف پول TON خود را قطع کنید؟",
     "walletConnected": "کیف پول متصل شد"
   },
   "settlement": {

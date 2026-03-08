@@ -183,6 +183,7 @@
     "wallet": "Dompet TON",
     "connectWallet": "Hubungkan dompet",
     "disconnectWallet": "Putuskan",
+    "confirmDisconnectWallet": "Putuskan dompet TON Anda?",
     "walletConnected": "Dompet terhubung"
   },
   "settlement": {

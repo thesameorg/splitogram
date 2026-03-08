@@ -185,6 +185,7 @@
     "wallet": "Carteira TON",
     "connectWallet": "Conectar carteira",
     "disconnectWallet": "Desconectar",
+    "confirmDisconnectWallet": "Desconectar sua carteira TON?",
     "walletConnected": "Carteira conectada"
   },
   "settlement": {

@@ -185,6 +185,7 @@
     "wallet": "TON Wallet",
     "connectWallet": "Wallet verbinden",
     "disconnectWallet": "Trennen",
+    "confirmDisconnectWallet": "TON-Wallet trennen?",
     "walletConnected": "Wallet verbunden"
   },
   "settlement": {

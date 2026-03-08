@@ -185,6 +185,7 @@
     "wallet": "TON वॉलेट",
     "connectWallet": "वॉलेट कनेक्ट करें",
     "disconnectWallet": "डिस्कनेक्ट करें",
+    "confirmDisconnectWallet": "अपना TON वॉलेट डिस्कनेक्ट करें?",
     "walletConnected": "वॉलेट कनेक्ट हो गया"
   },
   "settlement": {
