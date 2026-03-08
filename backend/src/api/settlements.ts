@@ -405,6 +405,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
 
   // Look up sender's USDT Jetton Wallet via TONAPI
   const baseUrl = tonapiBaseUrl(c.env);
+  const usdtMasterRaw = friendlyToRaw(usdtMasterAddress);
   let senderJettonWallet: string | null = null;
   try {
     const resp = await fetch(`${baseUrl}/v2/accounts/${senderAddress}/jettons?currencies=usd`, {
@@ -413,11 +414,16 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     });
     if (resp.ok) {
       const data = (await resp.json()) as any;
-      const entry = data.balances?.find(
-        (b: any) =>
-          b.jetton?.address === usdtMasterAddress ||
-          b.jetton?.address?.toLowerCase().includes(usdtMasterAddress.toLowerCase().slice(0, 20)),
-      );
+      const entry = data.balances?.find((b: any) => {
+        const addr = b.jetton?.address;
+        if (!addr) return false;
+        // TONAPI returns raw format (0:hex), config may be friendly (base64url)
+        return (
+          addr === usdtMasterAddress ||
+          addr === usdtMasterRaw ||
+          (usdtMasterRaw && addr.toLowerCase() === usdtMasterRaw.toLowerCase())
+        );
+      });
       if (entry?.wallet_address) {
         senderJettonWallet = entry.wallet_address.address ?? entry.wallet_address;
       }
@@ -806,6 +812,26 @@ async function sendSettlementNotification(
     );
   } catch (e) {
     console.error('Notification failed (settlement_completed):', e);
+  }
+}
+
+// --- TON address helpers ---
+
+/** Convert a user-friendly TON address (base64/base64url) to raw format (wc:hex) */
+function friendlyToRaw(friendly: string): string | null {
+  try {
+    // Normalize base64url → base64
+    let b64 = friendly.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4 !== 0) b64 += '=';
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    if (bytes.length !== 36) return null; // 1 flag + 1 wc + 32 hash + 2 crc
+    const workchain = bytes[1] === 0xff ? -1 : bytes[1];
+    const hash = Array.from(bytes.slice(2, 34))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    return `${workchain}:${hash}`;
+  } catch {
+    return null;
   }
 }
 
