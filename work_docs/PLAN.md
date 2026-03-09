@@ -406,39 +406,51 @@ All Phase 2 specs completed and archived.
 - TONAPI testnet: no auth token needed
 - See `work_docs/smart-contract-testnet-plan.md` for full debugging log + addresses
 
-### Next: Frontend Wallet Integration (Testnet)
+### Done: Frontend Wallet Integration (Testnet)
 
 See `work_docs/phase-10-wallet-integration.md` for detailed implementation plan.
 
 **Steps:**
 
 1. [x] TON Connect setup — install SDK, manifest, TonConnectUIProvider, wallet on Account page
-2. [ ] Backend env + tx endpoint — `SETTLEMENT_CONTRACT_ADDRESS`, update `/settlements/:id/tx`
-3. [ ] Backend verification — proper TONAPI trace verification with polling
-4. [ ] Frontend settlement flow — "Pay with USDT" on SettleUp page, pre-flight checks, send, poll
-5. [ ] Error handling + i18n — all failure scenarios, 11 locales
-6. [ ] Testnet e2e test — real settlement through the full UI flow
+2. [x] Backend env + tx endpoint — `SETTLEMENT_CONTRACT_ADDRESS`, `USDT_MASTER_ADDRESS`, `TONAPI_KEY`, `TON_NETWORK` in env.ts. `GET /settlements/:id/tx` returns transaction params for TON Connect.
+3. [x] Backend verification — `POST /settlements/:id/verify` sets `payment_pending`, lazy on-chain verification via TONAPI events on `GET /settlements/:id`.
+4. [x] Frontend settlement flow — "Pay with USDT" button on SettleUp page, 6-state machine (idle → preflight → confirm → sending → polling → success), polls every 3s up to 90s.
+5. [x] Error handling + i18n — 20+ settlement i18n keys in all 11 locales. Error states: no wallet, creditor no wallet, insufficient USDT/TON, tx declined, timeout.
+6. [x] Exchange rate service — `backend/src/services/exchange-rates.ts` with D1 cache (24h TTL), dual API fallback (open.er-api.com + jsdelivr). `convertToMicroUsdt()` for non-USD groups.
+7. [x] DB migrations — 0008 (exchange_rates table), 0009 (settlements.usdtAmount + commission columns)
+8. [x] Notifications — settlement notifications include `explorerUrl` (tonviewer links) for on-chain settlements. Activity log stores `txHash` + `explorerUrl` in metadata.
+9. [ ] Testnet e2e test through full UI flow (manual testing done, no automated e2e)
+
+**What remains (~10%):**
+
+- TON Connect manifest URL config (needed for production)
+- Gas estimation (currently fixed 0.5 TON — works but not optimal)
+- TONAPI downtime UI feedback (i18n key exists but not wired to UI)
+- Webhook-based auto-update (currently polling only — works but adds latency)
+- Mainnet switch (env var change, no code changes needed)
 
 **Economics:**
 
 - USDT only (no TON coin — would need price oracle, deferred)
-- All settlements via contract (1% commission). Direct transfer fallback deferred to mainnet optimization.
-- Gas: ~0.035 TON per settlement (~$0.045), paid by sender
-- Currency conversion: informational only (no locking). Rate API TBD (CoinGecko/Binance, single fetch).
+- All settlements via contract (1% commission, clamped 0.1–1.0 USDT). Direct transfer fallback deferred to mainnet optimization.
+- Gas: ~0.035 TON per settlement (~$0.045), paid by sender. Fixed 0.5 TON attached, ~0.33 TON refunded.
+- Currency conversion: open.er-api.com with D1 cache. USD ≈ USDT (stablecoin, ~1:1). Non-USD groups convert via cached rates.
 
 **Scope boundaries:**
 
 - USDT only, no TON coin, no other Jettons
 - No partial payments
 - No rate guarantees — informational conversion only
-- Testnet only — mainnet switch is a separate step after validation
+- Testnet validated — mainnet switch is env var change after final review
 
 **Success criteria:**
 
-- Full settlement through UI → on-chain → verified → status updated
-- Zero false "settled" states
-- Non-crypto users unaffected (manual settlement still works)
-- All error paths handled (no wallet, no balance, tx rejected, timeout)
+- [x] Full settlement through UI → on-chain → verified → status updated
+- [x] Zero false "settled" states (lazy verification prevents premature confirmation)
+- [x] Non-crypto users unaffected (manual settlement still works, "or settle manually" UI)
+- [x] Core error paths handled (no wallet, no balance, tx rejected, timeout)
+- [ ] Mainnet deployment and production validation
 
 ---
 

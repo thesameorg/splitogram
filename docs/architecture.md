@@ -110,8 +110,9 @@ Small reusable components extracted from pages:
 - **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, comment, settled_by, receipt_key, receipt_thumb_key
 - **activity_log**: group_id, actor_id, type (group_created/expense_created/edited/deleted, settlement_completed, member_joined/left/kicked), target_user_id, expense_id, settlement_id, amount, metadata (JSON), created_at
 - **debt_reminders**: group_id, from_user_id (creditor), to_user_id (debtor), last_sent_at (24h cooldown)
+- **exchange_rates**: id (singleton row), base ('USD'), rates (JSON), fetched_at (unix timestamp, 24h TTL)
 
-Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-group. No floating point.
+Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-group. No floating point. Settlements store `usdtAmount` and `commission` (micro-units) for on-chain settlements.
 
 ---
 
@@ -233,17 +234,23 @@ See `work_docs/research/5-i18n-approach.md` for full analysis.
 
 | Entity              | Address                                            |
 | ------------------- | -------------------------------------------------- |
-| Contract            | `EQC7KPpOr-FJgcvA9mw7kIWF9FLAiWapBc74QH1Kx2kFY5nV` |
+| Contract (v4)       | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` |
 | tUSDT Jetton Master | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
 | Owner (Wallet C)    | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` |
+
+**Mainnet USDT Master:** `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs`
 
 **Owner messages:** `UpdateCommission`, `WithdrawTon`, `SetJettonWallet`
 
 **Getters:** `commission()`, `stats()` (total_processed, total_commission, settlement_count), `jetton_wallet()`
 
-**Tests:** 16 sandbox tests via `@ton/sandbox` (deploy, settlement split, min/max commission, permissions, accumulation, invalid payloads)
+**Tests:** 17 sandbox tests via `@ton/sandbox` (deploy, settlement split, min/max commission, permissions, accumulation, invalid payloads, unconfigured rejection)
 
-**Direct transfer fallback:** For small settlements where gas cost > N% of amount, the app will do a direct wallet-to-wallet USDT transfer instead (no commission, lower gas). Threshold TBD after testnet gas profiling.
+**Direct transfer fallback:** For small settlements where gas cost > N% of amount, the app will do a direct wallet-to-wallet USDT transfer instead (no commission, lower gas). Deferred to mainnet optimization.
+
+**Exchange rate service:** `backend/src/services/exchange-rates.ts` — fetches from open.er-api.com (with jsdelivr fallback), caches in D1 `exchange_rates` table (24h TTL). Used by `/settlements/:id/tx` to convert non-USD group currencies to USDT amounts.
+
+**Frontend integration:** TON Connect UI provider in App.tsx. `useTonWallet()` hook syncs wallet address to backend. SettleUp page has 6-state machine (idle → preflight → confirm → sending → polling → success). `frontend/src/utils/ton.ts` builds Jetton transfer message body.
 
 See `work_docs/smart-contract.md` for full design and `work_docs/smart-contract-testnet-plan.md` for deployment plan.
 
@@ -282,6 +289,8 @@ Scaffolded from `/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`.
 | 0005      | activity_log + debt_reminders tables                   | 7     |
 | 0006      | expenses.split_mode + settlements receipt keys         | 8     |
 | 0007      | users.is_dummy column                                  | —     |
+| 0008      | exchange_rates table                                   | 10    |
+| 0009      | settlements.usdtAmount + commission columns            | 10    |
 
 ---
 
@@ -289,14 +298,14 @@ Scaffolded from `/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`.
 
 Each has a dedicated file in `work_docs/research/`:
 
-| Topic                           | Phase | Status  | File                                                        |
-| ------------------------------- | ----- | ------- | ----------------------------------------------------------- |
-| Frontend framework / UI lib     | 3     | Done    | `done/3-frontend-framework.md` — no library, React+Tailwind |
-| Balance integrity rules         | 4     | Done    | `done/4-balance-integrity.md`                               |
-| Themes & preference persistence | 5     | Done    | `done/5-themes-and-persistence.md` — TG theme, CloudStorage |
-| i18n approach                   | 5     | Done    | `done/5-i18n-approach.md` — react-i18next                   |
-| Image storage (R2)              | 6     | Done    | `done/6-image-storage-r2.md`                                |
-| Exchange rates                  | 10    | Pending | `10-exchange-rates.md`                                      |
-| TON Connect & crypto            | 10    | Pending | `10-ton-connect-crypto.md`                                  |
-| Growth & virality               | 9     | Skipped | `skipped/9-growth-virality.md`                              |
-| AI & monetization               | 11    | Pending | `11-ai-monetization.md`                                     |
+| Topic                           | Phase | Status      | File                                                        |
+| ------------------------------- | ----- | ----------- | ----------------------------------------------------------- |
+| Frontend framework / UI lib     | 3     | Done        | `done/3-frontend-framework.md` — no library, React+Tailwind |
+| Balance integrity rules         | 4     | Done        | `done/4-balance-integrity.md`                               |
+| Themes & preference persistence | 5     | Done        | `done/5-themes-and-persistence.md` — TG theme, CloudStorage |
+| i18n approach                   | 5     | Done        | `done/5-i18n-approach.md` — react-i18next                   |
+| Image storage (R2)              | 6     | Done        | `done/6-image-storage-r2.md`                                |
+| Exchange rates                  | 10    | Implemented | `10-exchange-rates.md` — open.er-api.com + D1 cache         |
+| TON Connect & crypto            | 10    | Implemented | `10-ton-connect-crypto.md` — testnet working                |
+| Growth & virality               | 9     | Skipped     | `skipped/9-growth-virality.md`                              |
+| AI & monetization               | 11    | Pending     | `11-ai-monetization.md`                                     |
