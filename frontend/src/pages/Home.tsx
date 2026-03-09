@@ -126,22 +126,26 @@ export function Home() {
               </div>
             ))}
             {totalUsd && (totalUsd.totalOwed > 0 || totalUsd.totalOwe > 0) && (
-              <div className="w-full flex gap-2 pt-1 border-t border-tg-separator">
-                {totalUsd.totalOwed > 0 && (
-                  <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
-                    <span className="text-app-positive font-medium text-xs">
-                      ≈ +{formatAmount(totalUsd.totalOwed, 'USD')}
-                    </span>
-                  </div>
-                )}
-                {totalUsd.totalOwe > 0 && (
-                  <div className="bg-app-negative-bg px-3 py-2 rounded-lg">
-                    <span className="text-app-negative font-medium text-xs">
-                      ≈ -{formatAmount(totalUsd.totalOwe, 'USD')}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <>
+                <span className="text-tg-separator self-center text-lg">|</span>
+                <div className="flex gap-2 items-center">
+                  <span className="text-tg-hint text-xs">≈</span>
+                  {totalUsd.totalOwed > 0 && (
+                    <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
+                      <span className="text-app-positive font-bold">
+                        +{formatAmount(totalUsd.totalOwed, 'USD')}
+                      </span>
+                    </div>
+                  )}
+                  {totalUsd.totalOwe > 0 && (
+                    <div className="bg-app-negative-bg px-3 py-2 rounded-lg">
+                      <span className="text-app-negative font-bold">
+                        -{formatAmount(totalUsd.totalOwe, 'USD')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         )}
