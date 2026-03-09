@@ -112,14 +112,14 @@ export function Home() {
                 {bal.owed > 0 && (
                   <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
                     <span className="text-app-positive font-medium">
-                      {t('home.owedToYou', { amount: formatAmount(bal.owed, currency) })}
+                      +{formatAmount(bal.owed, currency)}
                     </span>
                   </div>
                 )}
                 {bal.owe > 0 && (
                   <div className="bg-app-negative-bg px-3 py-2 rounded-lg">
                     <span className="text-app-negative font-medium">
-                      {t('home.youOwe', { amount: formatAmount(bal.owe, currency) })}
+                      -{formatAmount(bal.owe, currency)}
                     </span>
                   </div>
                 )}
@@ -130,14 +130,14 @@ export function Home() {
                 {totalUsd.totalOwed > 0 && (
                   <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
                     <span className="text-app-positive font-medium text-xs">
-                      ≈ {t('home.owedToYou', { amount: formatAmount(totalUsd.totalOwed, 'USD') })}
+                      ≈ +{formatAmount(totalUsd.totalOwed, 'USD')}
                     </span>
                   </div>
                 )}
                 {totalUsd.totalOwe > 0 && (
                   <div className="bg-app-negative-bg px-3 py-2 rounded-lg">
                     <span className="text-app-negative font-medium text-xs">
-                      ≈ {t('home.youOwe', { amount: formatAmount(totalUsd.totalOwe, 'USD') })}
+                      ≈ -{formatAmount(totalUsd.totalOwe, 'USD')}
                     </span>
                   </div>
                 )}
