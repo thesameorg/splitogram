@@ -189,7 +189,12 @@
     "connectWallet": "Conectar monedero",
     "disconnectWallet": "Desconectar",
     "confirmDisconnectWallet": "¿Desconectar tu billetera TON?",
-    "walletConnected": "Monedero conectado"
+    "walletConnected": "Monedero conectado",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteWarning": "Tu cuenta se eliminará permanentemente. Los datos en los grupos se conservarán como miembro marcador, pero tu perfil, monedero y avatar serán eliminados. No se puede deshacer.",
+    "deleteConfirmFirst": "SÍ, ESTOY SEGURO",
+    "deleteFinalWarning": "Esta es tu última oportunidad. Tu cuenta se eliminará permanentemente. ¿Estás completamente seguro?",
+    "deleteConfirmFinal": "SÍ, ESTOY SEGURO — ELIMINAR"
   },
   "settlement": {
     "payWithUsdt": "Pagar con USDT en TON",

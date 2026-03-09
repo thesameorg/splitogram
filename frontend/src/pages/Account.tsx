@@ -45,6 +45,9 @@ export function Account() {
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackFiles, setFeedbackFiles] = useState<File[]>([]);
   const [sendingFeedback, setSendingFeedback] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmStep, setDeleteConfirmStep] = useState(0); // 0 = not started, 1 = first confirm, 2 = deleting
+  const [deleting, setDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const feedbackFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -152,6 +155,26 @@ export function Account() {
     if (!files) return;
     e.target.value = '';
     setFeedbackFiles((prev) => [...prev, ...Array.from(files)].slice(0, 5));
+  }
+
+  async function handleDeleteAccount() {
+    if (deleting) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await api.deleteAccount();
+      // Close the mini app or reload to force re-auth (user is gone)
+      if (window.Telegram?.WebApp?.close) {
+        window.Telegram.WebApp.close();
+      } else {
+        window.location.reload();
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete account');
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+      setDeleteConfirmStep(0);
+    }
   }
 
   if (loading) return <LoadingScreen />;
@@ -373,8 +396,21 @@ export function Account() {
         </div>
       )}
 
+      {/* Delete Account */}
+      <div className="mb-4 mt-8">
+        <button
+          onClick={() => {
+            setShowDeleteConfirm(true);
+            setDeleteConfirmStep(0);
+          }}
+          className="w-full p-3 rounded-xl border border-tg-destructive/30 text-tg-destructive text-sm font-medium"
+        >
+          {t('account.deleteAccount')}
+        </button>
+      </div>
+
       {/* Version */}
-      <div className="text-center text-xs text-tg-hint/50 mt-6 mb-2">v{__APP_VERSION__}</div>
+      <div className="text-center text-xs text-tg-hint/50 mt-2 mb-2">v{__APP_VERSION__}</div>
 
       {/* Language Picker Bottom Sheet */}
       <BottomSheet
@@ -401,6 +437,57 @@ export function Account() {
               )}
             </button>
           ))}
+        </div>
+      </BottomSheet>
+
+      {/* Delete Account Confirmation Bottom Sheet */}
+      <BottomSheet
+        open={showDeleteConfirm}
+        onClose={() => {
+          if (!deleting) {
+            setShowDeleteConfirm(false);
+            setDeleteConfirmStep(0);
+          }
+        }}
+        title={t('account.deleteAccount')}
+      >
+        <div className="space-y-4">
+          {deleteConfirmStep === 0 && (
+            <>
+              <p className="text-sm text-tg-hint">{t('account.deleteWarning')}</p>
+              <button
+                onClick={() => setDeleteConfirmStep(1)}
+                className="w-full py-3 rounded-xl bg-tg-destructive text-white font-medium"
+              >
+                {t('account.deleteConfirmFirst')}
+              </button>
+            </>
+          )}
+          {deleteConfirmStep === 1 && (
+            <>
+              <p className="text-sm text-tg-destructive font-medium">
+                {t('account.deleteFinalWarning')}
+              </p>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="w-full py-3 rounded-xl bg-tg-destructive text-white font-medium disabled:opacity-50"
+              >
+                {deleting ? '...' : t('account.deleteConfirmFinal')}
+              </button>
+            </>
+          )}
+          {!deleting && (
+            <button
+              onClick={() => {
+                setShowDeleteConfirm(false);
+                setDeleteConfirmStep(0);
+              }}
+              className="w-full py-3 rounded-xl border border-tg-separator font-medium"
+            >
+              {t('account.cancel')}
+            </button>
+          )}
         </div>
       </BottomSheet>
 

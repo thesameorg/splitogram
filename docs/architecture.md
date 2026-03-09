@@ -282,20 +282,20 @@ Scaffolded from `/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`.
 
 ## DB Migrations
 
-| Migration | What                                                   | Phase |
-| --------- | ------------------------------------------------------ | ----- |
-| 0000      | Initial schema                                         | 1     |
-| 0001      | Settlement comment + settledBy columns                 | 2     |
-| 0002      | Group currency column                                  | 2     |
-| 0003      | users.botStarted + group_members.muted                 | 2     |
-| 0004      | avatar_key (users, groups), avatar_emoji, receipt keys | 6     |
-| 0005      | activity_log + debt_reminders tables                   | 7     |
-| 0006      | expenses.split_mode + settlements receipt keys         | 8     |
-| 0007      | users.is_dummy column                                  | —     |
-| 0008      | exchange_rates table                                   | 10    |
-| 0009      | settlements.usdtAmount + commission columns            | 10    |
-| 0010      | group_members.netBalance + activity_log compound indexes | —   |
-| 0011      | image_reports table                                    | —     |
+| Migration | What                                                     | Phase |
+| --------- | -------------------------------------------------------- | ----- |
+| 0000      | Initial schema                                           | 1     |
+| 0001      | Settlement comment + settledBy columns                   | 2     |
+| 0002      | Group currency column                                    | 2     |
+| 0003      | users.botStarted + group_members.muted                   | 2     |
+| 0004      | avatar_key (users, groups), avatar_emoji, receipt keys   | 6     |
+| 0005      | activity_log + debt_reminders tables                     | 7     |
+| 0006      | expenses.split_mode + settlements receipt keys           | 8     |
+| 0007      | users.is_dummy column                                    | —     |
+| 0008      | exchange_rates table                                     | 10    |
+| 0009      | settlements.usdtAmount + commission columns              | 10    |
+| 0010      | group_members.netBalance + activity_log compound indexes | —     |
+| 0011      | image_reports table                                      | —     |
 
 ---
 

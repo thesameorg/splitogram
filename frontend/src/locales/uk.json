@@ -191,7 +191,12 @@
     "connectWallet": "Підключити гаманець",
     "disconnectWallet": "Відключити",
     "confirmDisconnectWallet": "Від'єднати гаманець TON?",
-    "walletConnected": "Гаманець підключено"
+    "walletConnected": "Гаманець підключено",
+    "deleteAccount": "Видалити акаунт",
+    "deleteWarning": "Ваш акаунт буде видалено назавжди. Дані в групах збережуться як плейсхолдер, але профіль, гаманець та аватар будуть видалені. Це не можна скасувати.",
+    "deleteConfirmFirst": "ТАК, Я ВПЕВНЕНИЙ",
+    "deleteFinalWarning": "Це останній шанс. Ваш акаунт буде видалено безповоротно. Ви абсолютно впевнені?",
+    "deleteConfirmFinal": "ТАК, Я ВПЕВНЕНИЙ — ВИДАЛИТИ"
   },
   "settlement": {
     "payWithUsdt": "Оплатити в USDT через TON",

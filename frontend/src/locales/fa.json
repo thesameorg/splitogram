@@ -189,7 +189,12 @@
     "connectWallet": "اتصال کیف پول",
     "disconnectWallet": "قطع اتصال",
     "confirmDisconnectWallet": "کیف پول TON خود را قطع کنید؟",
-    "walletConnected": "کیف پول متصل شد"
+    "walletConnected": "کیف پول متصل شد",
+    "deleteAccount": "حذف حساب",
+    "deleteWarning": "حساب شما برای همیشه حذف خواهد شد. داده‌ها در گروه‌ها به عنوان عضو جایگزین حفظ می‌شوند، اما پروفایل، کیف پول و آواتار شما حذف خواهند شد. این قابل بازگشت نیست.",
+    "deleteConfirmFirst": "بله، مطمئنم",
+    "deleteFinalWarning": "این آخرین فرصت شماست. حساب شما برای همیشه حذف خواهد شد. آیا کاملاً مطمئن هستید؟",
+    "deleteConfirmFinal": "بله، مطمئنم — حذف کن"
   },
   "settlement": {
     "payWithUsdt": "پرداخت با USDT در TON",

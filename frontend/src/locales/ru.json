@@ -191,7 +191,12 @@
     "connectWallet": "Подключить кошелёк",
     "disconnectWallet": "Отключить",
     "confirmDisconnectWallet": "Отключить кошелёк TON?",
-    "walletConnected": "Кошелёк подключён"
+    "walletConnected": "Кошелёк подключён",
+    "deleteAccount": "Удалить аккаунт",
+    "deleteWarning": "Ваш аккаунт будет удалён навсегда. Данные в группах сохранятся как плейсхолдер, но профиль, кошелёк и аватар будут удалены. Это нельзя отменить.",
+    "deleteConfirmFirst": "ДА, Я УВЕРЕН",
+    "deleteFinalWarning": "Это последний шанс. Ваш аккаунт будет удалён безвозвратно. Вы точно уверены?",
+    "deleteConfirmFinal": "ДА, Я УВЕРЕН — УДАЛИТЬ"
   },
   "settlement": {
     "payWithUsdt": "Оплатить в USDT через TON",

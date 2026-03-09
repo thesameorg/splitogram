@@ -189,7 +189,12 @@
     "connectWallet": "Conectar carteira",
     "disconnectWallet": "Desconectar",
     "confirmDisconnectWallet": "Desconectar sua carteira TON?",
-    "walletConnected": "Carteira conectada"
+    "walletConnected": "Carteira conectada",
+    "deleteAccount": "Excluir conta",
+    "deleteWarning": "Sua conta será excluída permanentemente. Os dados nos grupos serão mantidos como membro marcador, mas seu perfil, carteira e avatar serão removidos. Isso não pode ser desfeito.",
+    "deleteConfirmFirst": "SIM, TENHO CERTEZA",
+    "deleteFinalWarning": "Esta é sua última chance. Sua conta será excluída permanentemente. Tem certeza absoluta?",
+    "deleteConfirmFinal": "SIM, TENHO CERTEZA — EXCLUIR"
   },
   "settlement": {
     "payWithUsdt": "Pagar com USDT na TON",

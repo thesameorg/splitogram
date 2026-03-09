@@ -517,10 +517,7 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
       .returning({ id: settlements.id });
 
     if (updated.length === 0) {
-      return c.json(
-        { error: 'invalid_status', detail: 'Settlement status has changed' },
-        409,
-      );
+      return c.json({ error: 'invalid_status', detail: 'Settlement status has changed' }, 409);
     }
   }
 
@@ -809,10 +806,7 @@ settlementsApp.post(
       .returning({ id: settlements.id });
 
     if (updated.length === 0) {
-      return c.json(
-        { error: 'already_settled', detail: 'Settlement was already completed' },
-        409,
-      );
+      return c.json({ error: 'already_settled', detail: 'Settlement was already completed' }, 409);
     }
 
     // Refresh cached balances

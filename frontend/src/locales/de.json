@@ -189,7 +189,12 @@
     "connectWallet": "Wallet verbinden",
     "disconnectWallet": "Trennen",
     "confirmDisconnectWallet": "TON-Wallet trennen?",
-    "walletConnected": "Wallet verbunden"
+    "walletConnected": "Wallet verbunden",
+    "deleteAccount": "Konto löschen",
+    "deleteWarning": "Dein Konto wird dauerhaft gelöscht. Daten in Gruppen bleiben als Platzhalter erhalten, aber dein Profil, Wallet und Avatar werden entfernt. Dies kann nicht rückgängig gemacht werden.",
+    "deleteConfirmFirst": "JA, ICH BIN SICHER",
+    "deleteFinalWarning": "Das ist deine letzte Chance. Dein Konto wird unwiderruflich gelöscht. Bist du absolut sicher?",
+    "deleteConfirmFinal": "JA, ICH BIN SICHER — LÖSCHEN"
   },
   "settlement": {
     "payWithUsdt": "Mit USDT auf TON bezahlen",

@@ -274,6 +274,7 @@ export const api = {
   },
   deleteAvatar: () =>
     apiRequest<{ deleted: boolean }>('/api/v1/users/me/avatar', { method: 'DELETE' }),
+  deleteAccount: () => apiRequest<{ deleted: boolean }>('/api/v1/users/me', { method: 'DELETE' }),
   sendFeedback: (message: string, files?: File[]) => {
     const formData = new FormData();
     formData.append('message', message);

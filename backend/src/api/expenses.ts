@@ -468,7 +468,6 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
           );
         }
       }
-
     }
 
     const calculatedShares = calculateShares(
