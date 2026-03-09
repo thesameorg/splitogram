@@ -12,7 +12,7 @@ import {
   debtReminders,
   activityLog,
 } from '../db/schema';
-import { computeGroupBalances } from './balances';
+import { computeGroupBalances, refreshGroupBalances } from './balances';
 import { simplifyDebts } from '../services/debt-solver';
 import { CURRENCY_CODES } from '../utils/currencies';
 import { notify } from '../services/notifications';
@@ -156,14 +156,20 @@ groupsApp.get('/', async (c) => {
 
   const countMap = new Map(memberCounts.map((r) => [r.groupId, r.count]));
 
-  // Compute net balances per group (uses computeGroupBalances — single source of truth)
-  const balanceMap = new Map<number, number>();
-  await Promise.all(
-    groupIds.map(async (groupId) => {
-      const netBalances = await computeGroupBalances(db, groupId);
-      balanceMap.set(groupId, netBalances.get(user.id) ?? 0);
-    }),
-  );
+  // Read cached net balances from group_members
+  const userBalances = await db
+    .select({ groupId: groupMembers.groupId, netBalance: groupMembers.netBalance })
+    .from(groupMembers)
+    .where(
+      and(
+        eq(groupMembers.userId, user.id),
+        sql`${groupMembers.groupId} IN (${sql.join(
+          groupIds.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      ),
+    );
+  const balanceMap = new Map(userBalances.map((r) => [r.groupId, r.netBalance]));
 
   const result = userGroups.map((g) => ({
     id: g.id,
@@ -710,6 +716,9 @@ groupsApp.post('/:id/leave', async (c) => {
     .delete(groupMembers)
     .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)));
 
+  // Refresh cached balances after member removal
+  await refreshGroupBalances(db, groupId);
+
   return c.json({ left: true, groupId });
 });
 
@@ -790,6 +799,9 @@ groupsApp.delete('/:id/members/:userId', async (c) => {
   await db
     .delete(groupMembers)
     .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, targetUserId)));
+
+  // Refresh cached balances after member removal
+  await refreshGroupBalances(db, groupId);
 
   return c.json({ kicked: true, groupId, userId: targetUserId });
 });
@@ -881,6 +893,9 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
     userId: user.id,
     role: 'member',
   });
+
+  // Refresh cached balances (new member starts at 0, but recompute for consistency)
+  await refreshGroupBalances(db, groupId);
 
   // Log activity
   await logActivity(db, {
@@ -1136,6 +1151,9 @@ groupsApp.post('/:id/placeholders', zValidator('json', createPlaceholderSchema),
     role: 'member',
   });
 
+  // Refresh cached balances (new placeholder starts at 0)
+  await refreshGroupBalances(db, groupId);
+
   return c.json(
     {
       userId: dummyUser.id,
@@ -1270,6 +1288,9 @@ groupsApp.delete('/:id/placeholders/:userId', async (c) => {
     .delete(groupMembers)
     .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, targetUserId)));
   await db.delete(users).where(eq(users.id, targetUserId));
+
+  // Refresh cached balances after placeholder removal
+  await refreshGroupBalances(db, groupId);
 
   return c.json({ deleted: true, userId: targetUserId });
 });
@@ -1430,6 +1451,9 @@ groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSche
         .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, dummyUserId))),
     ]);
   }
+
+  // Refresh cached balances after claim (FK references moved from dummy to real user)
+  await refreshGroupBalances(db, groupId);
 
   // Delete dummy user only if no other group memberships remain (already removed from this group above)
   const [remainingMemberships] = await db

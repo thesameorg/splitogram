@@ -14,6 +14,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@splitogram/shared": "workspace:*",
     "@hono/zod-validator": "^0.7.4",
     "drizzle-orm": "^0.44.6",
     "grammy": "^1.29.0",

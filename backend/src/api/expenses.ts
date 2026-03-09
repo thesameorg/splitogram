@@ -3,6 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { expenses, expenseParticipants, groupMembers, groups, users } from '../db/schema';
+import { refreshGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
@@ -185,6 +186,9 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   }));
 
   await db.insert(expenseParticipants).values(participantValues);
+
+  // Refresh cached balances
+  await refreshGroupBalances(db, groupId);
 
   // Log activity
   await logActivity(db, {
@@ -472,6 +476,9 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
     await db.insert(expenseParticipants).values(participantValues);
   }
 
+  // Refresh cached balances
+  await refreshGroupBalances(db, groupId);
+
   // Log activity (store oldAmount for feed display)
   await logActivity(db, {
     groupId,
@@ -557,6 +564,9 @@ expensesApp.delete('/:expenseId', async (c) => {
 
   // expense_participants cascade-deletes via FK onDelete: 'cascade'
   await db.delete(expenses).where(eq(expenses.id, expenseId));
+
+  // Refresh cached balances
+  await refreshGroupBalances(db, groupId);
 
   return c.json({ id: expenseId, deleted: true });
 });

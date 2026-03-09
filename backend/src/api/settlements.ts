@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { eq, and, sql, inArray, desc } from 'drizzle-orm';
 import { settlements, groupMembers, users, groups } from '../db/schema';
 import { simplifyDebts } from '../services/debt-solver';
-import { computeGroupBalances } from './balances';
+import { computeGroupBalances, refreshGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
@@ -414,6 +414,18 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   const totalAmount = settlementAmountUsdt + commission;
   const network = c.env.TON_NETWORK === 'mainnet' ? '-239' : '-3'; // CHAIN enum values
 
+  // Dynamic gas calculation based on testnet profiling:
+  // Settlement chain = 11 messages, measured cost ~0.035 TON.
+  // forward_ton_amount needs to cover contract's 2 outgoing Jetton transfers (0.15 TON each).
+  // Add 0.1 TON contingency and round up to nearest 0.1 TON.
+  const BASE_FORWARD_TON = 300_000_000; // 0.3 TON (2x 0.15 for outgoing transfers)
+  const GAS_OVERHEAD = 50_000_000; // 0.05 TON (contract execution + bounce handling)
+  const CONTINGENCY = 100_000_000; // 0.1 TON safety margin
+  const forwardTon = BASE_FORWARD_TON + GAS_OVERHEAD;
+  const gasAttach = forwardTon + CONTINGENCY;
+  // Round up to nearest 0.1 TON
+  const gasAttachRounded = Math.ceil(gasAttach / 100_000_000) * 100_000_000;
+
   return c.json({
     settlementId: settlement.id,
     amount: settlementAmountUsdt, // micro-USDT (debt converted to USD)
@@ -425,8 +437,8 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     contractAddress,
     senderJettonWallet,
     usdtMasterAddress,
-    gasAttach: '500000000', // 0.5 TON
-    forwardTonAmount: '400000000', // 0.4 TON
+    gasAttach: String(gasAttachRounded), // nanoTON, dynamically calculated
+    forwardTonAmount: String(forwardTon), // nanoTON
     network, // "-3" testnet, "-239" mainnet
   });
 });
@@ -628,6 +640,9 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
     })
     .where(eq(settlements.id, settlementId));
 
+  // Refresh cached balances
+  await refreshGroupBalances(db, settlement.groupId);
+
   // Fire-and-forget notification + activity log
   const explorerUrl = verification.txHash ? tonExplorerUrl(c.env, verification.txHash) : undefined;
   const notifyCtx = {
@@ -739,6 +754,9 @@ settlementsApp.post(
         updatedAt: new Date().toISOString(),
       })
       .where(eq(settlements.id, settlementId));
+
+    // Refresh cached balances
+    await refreshGroupBalances(db, settlement.groupId);
 
     // Log activity
     await logActivity(db, {

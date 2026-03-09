@@ -1,20 +1,23 @@
 import { Context } from 'hono';
 import { Bot, webhookCallback, Context as GrammyContext } from 'grammy';
 import { createDatabase } from './db';
-import { users, groups, groupMembers, expenses, settlements } from './db/schema';
+import { users, groups, groupMembers, expenses, settlements, imageReports } from './db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { logActivity } from './services/activity';
+import { refreshGroupBalances } from './api/balances';
 import { removeImage } from './services/moderation';
+import type { Env } from './env';
 
-export async function handleWebhook(c: Context) {
-  const botToken = c.env.TELEGRAM_BOT_TOKEN;
-  if (!botToken) {
-    return c.json({ error: 'bot_not_configured', detail: 'Bot token not configured' }, 500);
-  }
+// Module-level bot cache — reused across requests within the same isolate
+let cachedBot: Bot | null = null;
+let cachedToken: string | null = null;
 
-  if (!c.env.PAGES_URL) {
-    console.warn('PAGES_URL is not set — bot buttons will link to empty URLs');
-  }
+// Updated per-request before webhook processing.
+// Handlers read this at call time (not registration time) via closure.
+let currentEnv: Env;
+
+function getOrCreateBot(botToken: string): Bot {
+  if (cachedBot && cachedToken === botToken) return cachedBot;
 
   const bot = new Bot(botToken);
 
@@ -25,7 +28,7 @@ export async function handleWebhook(c: Context) {
     // Handle join deep link: /start join_{invite_code}
     if (typeof payload === 'string' && payload.startsWith('join_')) {
       const inviteCode = payload.substring(5);
-      const db = createDatabase(c.env.DB);
+      const db = createDatabase(currentEnv.DB);
 
       // Look up group
       const [group] = await db
@@ -69,7 +72,7 @@ export async function handleWebhook(c: Context) {
 
       const alreadyMember = !!existingMember;
 
-      const groupUrl = `${c.env.PAGES_URL ?? ''}/groups/${group.id}`;
+      const groupUrl = `${currentEnv.PAGES_URL ?? ''}/groups/${group.id}`;
 
       if (alreadyMember) {
         await ctx.reply(`You're already in "${group.name}"! Open the app to see your expenses.`, {
@@ -86,6 +89,9 @@ export async function handleWebhook(c: Context) {
         userId: user.id,
         role: 'member',
       });
+
+      // Refresh cached balances
+      await refreshGroupBalances(db, group.id);
 
       // Log activity
       await logActivity(db, {
@@ -105,7 +111,7 @@ export async function handleWebhook(c: Context) {
     // Mark bot as started for this user
     const defaultTgId = ctx.from?.id;
     if (defaultTgId) {
-      const db = createDatabase(c.env.DB);
+      const db = createDatabase(currentEnv.DB);
       await db.update(users).set({ botStarted: true }).where(eq(users.telegramId, defaultTgId));
     }
 
@@ -118,7 +124,7 @@ export async function handleWebhook(c: Context) {
             [
               {
                 text: 'Open Splitogram',
-                web_app: { url: `${c.env.PAGES_URL ?? ''}` },
+                web_app: { url: `${currentEnv.PAGES_URL ?? ''}` },
               },
             ],
           ],
@@ -129,10 +135,10 @@ export async function handleWebhook(c: Context) {
 
   // Admin /stats command
   bot.command('stats', async (ctx: GrammyContext) => {
-    const adminTgId = c.env.ADMIN_TELEGRAM_ID;
+    const adminTgId = currentEnv.ADMIN_TELEGRAM_ID;
     if (!adminTgId || String(ctx.from?.id) !== adminTgId) return;
 
-    const db = createDatabase(c.env.DB);
+    const db = createDatabase(currentEnv.DB);
     const [{ total: totalUsers }] = await db.select({ total: sql<number>`count(*)` }).from(users);
     const [{ total: dummyUsers }] = await db
       .select({ total: sql<number>`count(*)` })
@@ -183,21 +189,48 @@ export async function handleWebhook(c: Context) {
   });
 
   // Report moderation: admin taps Reject or Remove
+  // callback_data format: "rj|{reportId}" or "rm|{reportId}"
   bot.on('callback_query:data', async (ctx: GrammyContext) => {
     const data = ctx.callbackQuery?.data;
     if (!data) return;
 
     const parts = data.split('|');
-    if (parts.length !== 3) return;
+    if (parts.length !== 2) return;
 
-    const [action, reporterTgIdStr, imageKey] = parts;
-    const reporterTgId = parseInt(reporterTgIdStr, 10);
-    if (isNaN(reporterTgId)) return;
+    const [action, reportIdStr] = parts;
+    const reportId = parseInt(reportIdStr, 10);
+    if (isNaN(reportId)) return;
 
-    const botToken = c.env.TELEGRAM_BOT_TOKEN;
+    const db = createDatabase(currentEnv.DB);
+    const botToken = currentEnv.TELEGRAM_BOT_TOKEN;
+
+    // Look up report from DB
+    const [report] = await db
+      .select()
+      .from(imageReports)
+      .where(eq(imageReports.id, reportId))
+      .limit(1);
+
+    if (!report) {
+      await ctx.answerCallbackQuery({ text: 'Report not found' });
+      return;
+    }
+
+    if (report.status !== 'pending') {
+      await ctx.answerCallbackQuery({ text: 'Already processed' });
+      return;
+    }
+
+    const reporterTgId = report.reporterTelegramId;
+    const imageKey = report.imageKey;
 
     if (action === 'rj') {
-      // Reject — notify reporter, update caption
+      // Reject — update report, notify reporter, update caption
+      await db
+        .update(imageReports)
+        .set({ status: 'rejected' })
+        .where(eq(imageReports.id, reportId));
+
       await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -226,9 +259,13 @@ export async function handleWebhook(c: Context) {
 
       await ctx.answerCallbackQuery({ text: 'Rejected' });
     } else if (action === 'rm') {
-      // Remove — delete from R2 + DB reference, notify reporter, update caption
-      const db = createDatabase(c.env.DB);
-      await removeImage(c.env.IMAGES, db, imageKey);
+      // Remove — update report, delete from R2, notify reporter, update caption
+      await db
+        .update(imageReports)
+        .set({ status: 'removed' })
+        .where(eq(imageReports.id, reportId));
+
+      await removeImage(currentEnv.IMAGES, db, imageKey);
 
       await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: 'POST',
@@ -268,7 +305,7 @@ export async function handleWebhook(c: Context) {
             [
               {
                 text: 'Open Splitogram',
-                web_app: { url: `${c.env.PAGES_URL ?? ''}` },
+                web_app: { url: `${currentEnv.PAGES_URL ?? ''}` },
               },
             ],
           ],
@@ -277,5 +314,24 @@ export async function handleWebhook(c: Context) {
     }
   });
 
+  cachedBot = bot;
+  cachedToken = botToken;
+  return bot;
+}
+
+export async function handleWebhook(c: Context) {
+  const botToken = c.env.TELEGRAM_BOT_TOKEN;
+  if (!botToken) {
+    return c.json({ error: 'bot_not_configured', detail: 'Bot token not configured' }, 500);
+  }
+
+  if (!c.env.PAGES_URL) {
+    console.warn('PAGES_URL is not set — bot buttons will link to empty URLs');
+  }
+
+  // Set env for this request — handlers will read from currentEnv
+  currentEnv = c.env;
+
+  const bot = getOrCreateBot(botToken);
   return webhookCallback(bot, 'hono')(c);
 }

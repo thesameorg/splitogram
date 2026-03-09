@@ -6,82 +6,59 @@ Full codebase review performed 2026-03-09. Issues categorized by severity.
 
 ## Major
 
-### 4. Bot instantiated per request (`webhook.ts`)
+### 4. ~~Bot instantiated per request (`webhook.ts`)~~ — DONE
 
-**File:** `backend/src/webhook.ts` — line ~19
+**File:** `backend/src/webhook.ts`
 
-A new `Bot` instance is created on every webhook request. While grammY is lightweight, this means middleware, command handlers, and error handlers are re-registered on every invocation. In a Cloudflare Worker (stateless isolate per request), this is technically correct — but wasteful if the isolate is reused across requests.
-
-**Fix:** Consider lazy-initializing the bot outside the handler and caching it per-isolate (module-level `let bot: Bot | null`). grammY's webhook handler is designed for this pattern.
+Module-level bot cache: `getOrCreateBot()` creates bot and registers handlers once per token. `currentEnv` variable updated per-request so handlers access fresh env via closure.
 
 ---
 
-### 5. O(N) balance computation on group detail (`groups.ts`)
+### 5. ~~O(N) balance computation on group detail~~ — DONE
 
-**File:** `backend/src/api/groups.ts` — GET `/groups/:id`
+**File:** `backend/src/api/balances.ts`, `backend/src/db/schema.ts`
 
-Every time a group is fetched, balances are recomputed from scratch: query all expenses + all settlements + run `simplifyDebts()`. For groups with hundreds of expenses, this is O(N) on every page load.
-
-**Impact:** Low for now (most groups have <50 expenses), but will degrade as groups grow.
-
-**Fix (when needed):** Materialized balance cache in D1 (invalidated on expense/settlement mutations). Not urgent — measure first.
+Added `netBalance` column to `group_members` table. `refreshGroupBalances(db, groupId)` recomputes from source of truth (expenses + settlements) and writes to `group_members.netBalance`. Called after every balance-affecting mutation (expense create/edit/delete, settlement complete, member join/leave/kick). Read endpoints now pull cached value from `group_members` — no recomputation needed. Migration 0010.
 
 ---
 
-### 6. `callback_data` length risk (`reports.ts` / `webhook.ts`)
+### 6. ~~`callback_data` length risk~~ — DONE
 
-**File:** `backend/src/api/reports.ts` — inline keyboard buttons
+**File:** `backend/src/api/reports.ts`, `backend/src/webhook.ts`, `backend/src/db/schema.ts`
 
-Telegram's `callback_data` has a 64-byte limit. The current format includes action + type + key (e.g., `report_remove:receipt:groups/123/expenses/456/receipt.jpg`). R2 keys for receipts can be long — if the key exceeds ~50 chars, the callback will silently fail or be truncated by Telegram.
-
-**Fix:** Store report metadata in D1 with a short ID, and use `report_remove:{shortId}` as callback_data. Or hash the R2 key.
+Added `image_reports` table to store report metadata (reporter TG ID, image key, reason, details, status). Callback_data now uses `rj|{reportId}` / `rm|{reportId}` (max ~10 bytes) instead of embedding the full R2 key. Webhook handler looks up report from DB, checks for duplicate processing (`status !== 'pending'`), and updates status on action. Migration 0011.
 
 ---
 
-### 7. Shared utils duplicated between backend and frontend
+### 7. ~~Shared utils duplicated between backend and frontend~~ — DONE
 
-**Files:** `backend/src/utils/currencies.ts` + `frontend/src/utils/currencies.ts` (identical), same for `format.ts`
+**Files:** `packages/shared/src/currencies.ts`, `packages/shared/src/format.ts`
 
-These are manually kept in sync. Any edit to one must be mirrored to the other. This is a maintenance risk — eventually they'll diverge.
-
-**Fix options:**
-
-- Extract to a shared workspace package (`packages/shared/`)
-- Or use a symlink / build-time copy script
-- Low priority — they've been kept in sync so far, but worth fixing before the codebase grows
+Extracted to `@splitogram/shared` workspace package. Backend and frontend utils re-export from the shared package — all existing imports continue to work unchanged.
 
 ---
 
-### 8. No index on `expenses.group_id` for balance queries
+### 8. ~~Missing indexes on `activity_log`~~ — DONE
 
 **File:** `backend/src/db/schema.ts`
 
-Balance computation queries `expenses` by `group_id` on every group page load. Without an index on `group_id`, D1 does a full table scan. Same concern for `settlements.group_id` and `expense_participants.expense_id`.
-
-**Check:** Verify if D1 auto-creates indexes on foreign keys (SQLite does not by default). If not, add explicit indexes in a migration.
+Added compound index `activity_log_group_created_idx` on `(groupId, createdAt)` for cursor pagination, and `activity_log_actor_idx` on `actorId` for user activity queries. Note: `expenses.group_id`, `settlements.group_id`, and `expense_participants.expense_id` already had indexes. Migration 0010.
 
 ---
 
-### 9. `response_destination` in TON message building
+### 9. ~~`response_destination` in TON message building~~ — DONE
 
-**File:** `frontend/src/utils/ton.ts` — `buildSettlementBody()`
+**File:** `frontend/src/utils/ton.ts`
 
-The `response_destination` in the Jetton transfer message is set to `Address.parse('0:0000...')` (null address). This means excess gas from the Jetton transfer has nowhere to return to. The sender (debtor) loses any excess gas.
-
-**Fix:** Set `response_destination` to the sender's address so excess gas is refunded.
+Changed `response_destination` from `contractAddress` to `senderJettonWallet` so excess gas is refunded to the sender instead of being locked in the contract.
 
 ---
 
-### 10. Fixed gas attachment (0.5 TON)
+### 10. ~~Fixed gas attachment (0.5 TON)~~ — DONE
 
-**File:** `frontend/src/pages/SettleUp.tsx`
+**File:** `backend/src/api/settlements.ts`
 
-Every settlement attaches exactly 0.5 TON for gas, regardless of network conditions. Users get ~0.33 TON back, but:
-
-- If gas prices change, 0.5 may not be enough
-- Users see "0.5 TON" which looks expensive before the refund
-
-**Fix:** Either estimate gas dynamically via TONAPI, or at minimum show the expected refund amount in the confirmation UI (e.g., "Gas: ~0.035 TON (0.5 TON attached, ~0.33 refunded)").
+Dynamic gas calculation based on testnet profiling: base 0.3 TON (2 outgoing Jetton transfers) + 0.05 TON overhead + 0.1 TON contingency, rounded up to nearest 0.1 TON. Result: 0.5 TON (same as before for now, but formula adapts if base costs change). `forwardTonAmount` set to 0.35 TON (was hardcoded 0.4 TON).
 
 ---
 
@@ -190,12 +167,22 @@ The polling loop uses `setInterval` for checking settlement status. While there'
 
 | Severity | Count | Key themes                                                                                                   |
 | -------- | ----- | ------------------------------------------------------------------------------------------------------------ |
-| Critical | 3     | GET mutation, spoofable verification, non-atomic claim                                                       |
-| Major    | 7     | Per-request bot init, O(N) balances, callback_data overflow, duplicated utils, missing indexes, gas handling |
+| Critical | 3     | ~~GET mutation, spoofable verification, non-atomic claim~~ — ALL DONE                                        |
+| Major    | 7     | ~~Per-request bot, O(N) balances, callback_data, duplicated utils, missing indexes, gas handling~~ — ALL DONE |
 | Minor    | 8     | No rate limiting, no error boundary, silent `waitUntil` errors, generous auth window                         |
 
-**Top 3 priorities:** All fixed (2026-03-09)
+**Critical (1-3):** All fixed (2026-03-09)
 
 1. ~~Fix on-chain verification to check sender/recipient (security)~~ — DONE
 2. ~~Wrap placeholder claim in D1 batch (data integrity)~~ — DONE
 3. ~~Move settlement lazy-verify from GET to POST (HTTP correctness)~~ — DONE
+
+**Major (4-10):** All fixed (2026-03-09)
+
+4. ~~Bot per-request → module-level cache~~ — DONE
+5. ~~O(N) balances → rolling `netBalance` on `group_members`~~ — DONE
+6. ~~callback_data overflow → `image_reports` table with short ID~~ — DONE
+7. ~~Duplicated utils → `@splitogram/shared` workspace package~~ — DONE
+8. ~~Missing indexes → compound `activity_log` indexes~~ — DONE
+9. ~~`response_destination` → sender's Jetton wallet~~ — DONE
+10. ~~Fixed gas → dynamic calculation with contingency~~ — DONE

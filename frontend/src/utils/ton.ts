@@ -25,7 +25,7 @@ export function buildSettlementBody(params: SettlementTxParams): string {
     .storeUint(0, 64) // query_id
     .storeCoins(BigInt(params.totalAmount)) // jetton amount = debt + commission
     .storeAddress(Address.parse(params.contractAddress)) // destination: settlement contract
-    .storeAddress(Address.parse(params.contractAddress)) // response_destination: excess gas back
+    .storeAddress(Address.parse(params.senderJettonWallet)) // response_destination: excess gas back to sender
     .storeBit(false) // no custom_payload
     .storeCoins(BigInt(params.forwardTonAmount)) // forward_ton_amount (gas for contract)
     // inline forward_payload (no Either bit, no ref — validated on testnet)

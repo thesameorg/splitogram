@@ -61,6 +61,7 @@ export const groupMembers = sqliteTable(
       .notNull()
       .default('member'),
     muted: integer('muted', { mode: 'boolean' }).notNull().default(false),
+    netBalance: integer('net_balance').notNull().default(0),
     joinedAt: text('joined_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
@@ -154,6 +155,8 @@ export const activityLog = sqliteTable(
   (table) => [
     index('activity_log_group_idx').on(table.groupId),
     index('activity_log_created_at_idx').on(table.createdAt),
+    index('activity_log_group_created_idx').on(table.groupId, table.createdAt),
+    index('activity_log_actor_idx').on(table.actorId),
   ],
 );
 
@@ -179,6 +182,21 @@ export const debtReminders = sqliteTable(
     uniqueIndex('debt_reminders_unique_idx').on(table.groupId, table.fromUserId, table.toUserId),
   ],
 );
+
+// --- Image Reports ---
+export const imageReports = sqliteTable('image_reports', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  reporterTelegramId: integer('reporter_telegram_id').notNull(),
+  imageKey: text('image_key').notNull(),
+  reason: text('reason').notNull(),
+  details: text('details'),
+  status: text('status', { enum: ['pending', 'rejected', 'removed'] })
+    .notNull()
+    .default('pending'),
+  createdAt: text('created_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
 
 // --- Exchange Rates ---
 export const exchangeRates = sqliteTable('exchange_rates', {

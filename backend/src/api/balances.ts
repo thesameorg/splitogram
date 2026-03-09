@@ -41,23 +41,25 @@ balancesApp.get('/', async (c) => {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  const netBalances = await computeGroupBalances(db, groupId);
-  const debts = simplifyDebts(netBalances);
-
-  // Enrich with user display names
-  const memberMap = new Map<number, { displayName: string; username: string | null }>();
-  const members = await db
+  // Read cached net balances from group_members
+  const memberDetails = await db
     .select({
-      id: users.id,
+      userId: users.id,
       displayName: users.displayName,
       username: users.username,
+      avatarKey: users.avatarKey,
+      netBalance: groupMembers.netBalance,
     })
     .from(groupMembers)
     .innerJoin(users, eq(groupMembers.userId, users.id))
     .where(eq(groupMembers.groupId, groupId));
 
-  for (const m of members) {
-    memberMap.set(m.id, { displayName: m.displayName, username: m.username });
+  const netBalances = new Map(memberDetails.map((m) => [m.userId, m.netBalance]));
+  const debts = simplifyDebts(netBalances);
+
+  const memberMap = new Map<number, { displayName: string; username: string | null }>();
+  for (const m of memberDetails) {
+    memberMap.set(m.userId, { displayName: m.displayName, username: m.username });
   }
 
   const enrichedDebts = debts.map((d) => ({
@@ -74,24 +76,12 @@ balancesApp.get('/', async (c) => {
     amount: d.amount,
   }));
 
-  // Build members array with net balances and avatars
-  const memberDetails = await db
-    .select({
-      userId: users.id,
-      displayName: users.displayName,
-      username: users.username,
-      avatarKey: users.avatarKey,
-    })
-    .from(groupMembers)
-    .innerJoin(users, eq(groupMembers.userId, users.id))
-    .where(eq(groupMembers.groupId, groupId));
-
   const balanceMembers = memberDetails.map((m) => ({
     userId: m.userId,
     displayName: m.displayName,
     username: m.username,
     avatarKey: m.avatarKey,
-    netBalance: netBalances.get(m.userId) ?? 0,
+    netBalance: m.netBalance,
   }));
 
   return c.json({ debts: enrichedDebts, members: balanceMembers });
@@ -127,21 +117,22 @@ balancesApp.get('/me', async (c) => {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  const netBalances = await computeGroupBalances(db, groupId);
-  const debts = simplifyDebts(netBalances);
-
-  // Filter to debts involving current user
-  const memberMap = new Map<number, { displayName: string; username: string | null }>();
+  // Read cached net balances from group_members
   const members = await db
     .select({
       id: users.id,
       displayName: users.displayName,
       username: users.username,
+      netBalance: groupMembers.netBalance,
     })
     .from(groupMembers)
     .innerJoin(users, eq(groupMembers.userId, users.id))
     .where(eq(groupMembers.groupId, groupId));
 
+  const netBalances = new Map(members.map((m) => [m.id, m.netBalance]));
+  const debts = simplifyDebts(netBalances);
+
+  const memberMap = new Map<number, { displayName: string; username: string | null }>();
   for (const m of members) {
     memberMap.set(m.id, { displayName: m.displayName, username: m.username });
   }
@@ -235,4 +226,21 @@ async function computeGroupBalances(db: Database, groupId: number): Promise<Map<
   return balances;
 }
 
-export { balancesApp, computeGroupBalances };
+// --- Refresh cached net balances on group_members ---
+async function refreshGroupBalances(db: Database, groupId: number): Promise<void> {
+  const netBalances = await computeGroupBalances(db, groupId);
+
+  // Batch update all members' cached netBalance
+  const updates = Array.from(netBalances.entries()).map(([userId, balance]) =>
+    db
+      .update(groupMembers)
+      .set({ netBalance: balance })
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId))),
+  );
+
+  if (updates.length > 0) {
+    await Promise.all(updates);
+  }
+}
+
+export { balancesApp, computeGroupBalances, refreshGroupBalances };

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { users } from '../db/schema';
+import { users, imageReports } from '../db/schema';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 import type { Env } from '../env';
@@ -37,8 +37,19 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
     return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
   }
 
+  // Store report in DB — callback_data uses the short report ID instead of the full R2 key
+  const [report] = await db
+    .insert(imageReports)
+    .values({
+      reporterTelegramId: user.telegramId,
+      imageKey,
+      reason,
+      details: details ?? null,
+    })
+    .returning();
+
   const caption = [
-    `🚩 Image Report`,
+    `🚩 Image Report #${report.id}`,
     `From: ${user.displayName} (${user.username ? `@${user.username}` : `ID: ${user.telegramId}`})`,
     `Reason: ${reason}`,
     details ? `Details: ${details}` : '',
@@ -46,8 +57,6 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
   ]
     .filter(Boolean)
     .join('\n');
-
-  const reporterTgId = user.telegramId;
 
   // Read image from R2 and upload directly (Pages URL doesn't serve /r2/ routes)
   const sendReport = async () => {
@@ -71,8 +80,8 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
       JSON.stringify({
         inline_keyboard: [
           [
-            { text: '❌ Reject', callback_data: `rj|${reporterTgId}|${imageKey}` },
-            { text: '🗑 Remove', callback_data: `rm|${reporterTgId}|${imageKey}` },
+            { text: '❌ Reject', callback_data: `rj|${report.id}` },
+            { text: '🗑 Remove', callback_data: `rm|${report.id}` },
           ],
         ],
       }),

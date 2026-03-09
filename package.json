@@ -5,7 +5,8 @@
   "description": "Telegram Mini App for splitting group expenses with on-chain USDT settlement",
   "workspaces": [
     "backend",
-    "frontend"
+    "frontend",
+    "packages/*"
   ],
   "scripts": {
     "install:backend": "cd backend && bun install",
