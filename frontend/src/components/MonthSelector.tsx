@@ -42,7 +42,7 @@ export function MonthSelector({ availableMonths, selected, onChange }: MonthSele
       <button
         onClick={() => onChange('all')}
         className={`px-3 py-1.5 rounded-full text-sm font-medium shrink-0 ${
-          selected === 'all'
+          selected !== 'all'
             ? 'bg-tg-button text-tg-button-text'
             : 'bg-tg-section text-tg-hint border border-tg-separator'
         }`}

@@ -148,13 +148,31 @@ export async function handleWebhook(c: Context) {
       .from(expenses)
       .where(sql`${expenses.createdAt} > ${sevenDaysAgo}`);
 
+    // TON on-chain settlement stats (uses stored usdt_amount + commission)
+    const [onchainStats] = await db
+      .select({
+        count: sql<number>`count(*)`,
+        volume: sql<number>`coalesce(sum(${settlements.usdtAmount}), 0)`,
+        fees: sql<number>`coalesce(sum(${settlements.commission}), 0)`,
+      })
+      .from(settlements)
+      .where(eq(settlements.status, 'settled_onchain'));
+
+    const onchainCount = onchainStats.count;
+    const volumeStr = (onchainStats.volume / 1_000_000).toFixed(2);
+    const feesStr = (onchainStats.fees / 1_000_000).toFixed(2);
+
     await ctx.reply(
       `<b>Splitogram Stats</b>\n\n` +
         `Users: <b>${userCount}</b>\n` +
         `Groups: <b>${groupCount}</b>\n` +
         `Expenses: <b>${expenseCount}</b>\n` +
         `Settlements: <b>${settlementCount}</b>\n` +
-        `Active groups (7d): <b>${activeGroups7d}</b>`,
+        `Active groups (7d): <b>${activeGroups7d}</b>\n\n` +
+        `<b>TON Settlements</b>\n` +
+        `On-chain: <b>${onchainCount}</b>\n` +
+        `Volume: <b>~$${volumeStr}</b>\n` +
+        `Fees earned: <b>~$${feesStr}</b>`,
       { parse_mode: 'HTML' },
     );
   });

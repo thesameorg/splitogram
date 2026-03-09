@@ -117,6 +117,20 @@ app.get('/', async (c) => {
 
   const hasMore = groupRows.length === perPage;
 
+  // TON on-chain settlement stats (uses stored usdt_amount + commission)
+  const [onchainStats] = await db
+    .select({
+      count: sql<number>`count(*)`,
+      volume: sql<number>`coalesce(sum(${settlements.usdtAmount}), 0)`,
+      fees: sql<number>`coalesce(sum(${settlements.commission}), 0)`,
+    })
+    .from(settlements)
+    .where(eq(settlements.status, 'settled_onchain'));
+
+  const onchainCount = onchainStats.count;
+  const volumeStr = formatAmount(onchainStats.volume, 'USD');
+  const feesStr = formatAmount(onchainStats.fees, 'USD');
+
   const cards = `
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
       ${metricCard('Users', userCount)}
@@ -124,6 +138,11 @@ app.get('/', async (c) => {
       ${metricCard('Active (30d)', activeGroups30d)}
       ${metricCard('Expenses', expenseCount)}
       ${metricCard('Settlements', settlementCount)}
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+      ${metricCard('On-chain TXs', onchainCount)}
+      ${metricCard('Volume (USDT)', '~' + volumeStr)}
+      ${metricCard('Fees Earned', '~' + feesStr)}
     </div>`;
 
   const tableRows = groupRows

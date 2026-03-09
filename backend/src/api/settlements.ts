@@ -305,11 +305,15 @@ settlementsApp.get('/settlements/:id', async (c) => {
         verifyUsdtAmount,
       );
       if (verification.verified) {
+        const settledUsdt = verifyUsdtAmount ?? settlement.amount;
+        const settledCommission = calculateCommission(settledUsdt);
         await db
           .update(settlements)
           .set({
             status: 'settled_onchain',
             txHash: verification.txHash ?? null,
+            usdtAmount: settledUsdt,
+            commission: settledCommission,
             updatedAt: new Date().toISOString(),
           })
           .where(eq(settlements.id, settlementId));

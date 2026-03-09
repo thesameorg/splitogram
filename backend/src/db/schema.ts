@@ -209,6 +209,8 @@ export const settlements = sqliteTable(
       .notNull()
       .default('open'),
     txHash: text('tx_hash'),
+    usdtAmount: integer('usdt_amount'), // micro-USDT (converted amount sent on-chain, null for external)
+    commission: integer('commission'), // micro-USDT (fee taken by contract, null for external)
     comment: text('comment'),
     settledBy: integer('settled_by').references(() => users.id),
     receiptKey: text('receipt_key'),
