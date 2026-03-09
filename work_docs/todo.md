@@ -2,3 +2,5 @@
 - update APP icons
 - update icon link at frontend/public/tonconnect-manifest.json
 - branding \ animations \ 
+    - loading screen
+    - successfully settled screen

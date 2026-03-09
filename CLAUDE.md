@@ -110,19 +110,24 @@ SplitogramSettlement (Tact)  →  USDT settlement with commission split
 
 ### Bun Workspaces
 
-Root `package.json` defines `workspaces: ["backend", "frontend"]`. A single `bun install` at root installs both. Root scripts delegate to workspace scripts (e.g., `bun run test:backend` → `cd backend && bun run test`).
+Root `package.json` defines `workspaces: ["backend", "frontend", "packages/*"]`. A single `bun install` at root installs all. Root scripts delegate to workspace scripts (e.g., `bun run test:backend` → `cd backend && bun run test`). Shared code lives in `packages/shared/` (`@splitogram/shared`).
 
 ### Repo Structure
 
 ```
+packages/shared/src/
+├── currencies.ts         # 150+ currency configs (canonical source)
+├── format.ts             # formatAmount, formatSignedAmount (canonical source)
+└── index.ts              # Barrel re-export
+
 backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
-├── webhook.ts            # grammY bot: /start, /stats (admin), deep links, botStarted tracking, report moderation callbacks
+├── webhook.ts            # grammY bot (module-level cached): /start, /stats, deep links, report moderation callbacks
 ├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
-├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, stats, r2, admin)
+├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, stats, r2, admin, reports)
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
-├── services/             # telegram-auth, notifications, debt-solver, activity, moderation
-├── utils/                # currencies, format (shared with frontend), r2 (key gen, safe delete)
+├── services/             # telegram-auth, notifications, debt-solver, activity, moderation, exchange-rates
+├── utils/                # currencies, format (re-export from @splitogram/shared), r2 (key gen, safe delete)
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
 │   └── schema.ts         # All table definitions
@@ -196,12 +201,13 @@ Bot sends links with `start_param`. Frontend reads `window.Telegram.WebApp.initD
 
 - **users**: telegram_id, username, display_name, wallet_address, bot_started, avatar_key, is_dummy
 - **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by, avatar_key, avatar_emoji
-- **group_members**: group_id, user_id, role (admin/member), muted
+- **group_members**: group_id, user_id, role (admin/member), muted, net_balance (cached, updated on mutations)
 - **expenses**: group_id, paid_by, amount (micro-units integer), description, receipt_key, receipt_thumb_key
 - **expense_participants**: expense_id, user_id, share_amount
-- **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, comment, settled_by
+- **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, usdt_amount, commission, comment, settled_by
 - **activity_log**: group_id, actor_id, type (expense_created/edited/deleted, settlement_completed, member_joined/left/kicked), target_user_id, expense_id, settlement_id, amount, metadata (JSON), created_at
 - **debt_reminders**: group_id, from_user_id (creditor), to_user_id (debtor), last_sent_at (24h cooldown)
+- **image_reports**: reporter_telegram_id, image_key, reason, details, status (pending/rejected/removed)
 
 Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-group. No floating point.
 
@@ -230,12 +236,12 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - Per-group mute: `group_members.muted` flag, muted users skip expense notifications
 - Health endpoint `GET /api/health` excluded from auth
 - Settlements created on demand when user taps "Settle up" (not pre-created)
-- Shared currency utilities in `utils/currencies.ts` + `utils/format.ts` (both backend and frontend)
+- Shared currency utilities in `@splitogram/shared` (`packages/shared/src/currencies.ts` + `format.ts`). Backend/frontend `utils/` re-export from shared package.
 - Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation, auto-creates mock user from `backend/src/dev/mock-user.ts`)
 - **Theming** — Telegram `--tg-theme-*` CSS vars mapped to Tailwind `tg-*` tokens (e.g., `bg-tg-bg`, `text-tg-hint`, `bg-tg-button`). No `dark:` prefixes — CSS vars handle both modes. Fallback values in `index.css` for dev outside Telegram. Semantic colors (positive/negative/warning) use `--app-*` CSS vars with light/dark variants, mapped to Tailwind `app-*` tokens (e.g., `text-app-positive`, `bg-app-negative-bg`). `data-theme` attribute set from `webApp.colorScheme`.
 - **i18n** — `react-i18next` with 11 JSON locale files (`src/locales/{en,ru,es,hi,id,fa,pt,uk,de,it,vi}.json`). All UI strings use `t('key')`. Plurals via `t('key', { count })` (CLDR rules: one/few/many for ru/uk, other-only for id/vi). Locale resolved server-side from TG `language_code` during auth (prefix matching, e.g. `pt-BR` → `pt`, fallback `en`), returned in auth response, applied on frontend unless user has a persisted CloudStorage preference. Selectable on Account page via BottomSheet picker with flags.
 - **Feedback** — `POST /api/v1/users/feedback` accepts multipart FormData (message + up to 5 attachments). Text sent as bot DM, attachments forwarded as photos/documents. Fire-and-forget via `waitUntil()`.
-- **Content moderation** — `POST /api/v1/reports` sends reported image as photo to admin with inline keyboard (Reject/Remove). Bot `callback_query:data` handler in webhook.ts processes admin actions: Reject notifies reporter, Remove deletes image from R2 and notifies reporter. Both actions edit original caption and remove buttons. Image removal extracted to `removeImage()` in `services/moderation.ts` (shared by webhook + admin dashboard).
+- **Content moderation** — `POST /api/v1/reports` stores report in `image_reports` table and sends reported image as photo to admin with inline keyboard (Reject/Remove). Bot `callback_query:data` handler in webhook.ts looks up report by ID from DB (callback_data: `rj|{id}` / `rm|{id}` — avoids Telegram's 64-byte limit). Reject/Remove update report status, notify reporter, edit caption. Image removal via `removeImage()` in `services/moderation.ts`.
 - **Legal pages** — Privacy Policy (`/privacy`) and Terms of Service (`/terms`) served as Worker HTML routes. Source of truth is `docs/privacy-policy.md` and `docs/terms-of-service.md` — imported as raw text via wrangler `Text` rule, converted to HTML with `marked` at module init. Public, no auth. Opened from Account page via `WebApp.openLink()`. Vite proxy includes `/privacy` and `/terms` for local dev.
 - **Admin dashboard** — Plain HTML at `/admin`, served from the Worker (no React). Protected by `hono/basic-auth` with `ADMIN_SECRET` env var (needed because the page opens in an external browser where TG `initData` is unavailable). Shows metrics (users, groups, expenses, settlements, active groups), paginated groups table, group detail with members/expenses/images, and image delete. Bot `/stats` command (admin TG ID only) provides quick metrics via DM. Frontend link uses `config.apiBaseUrl` (Worker URL) as base — not `window.location.origin` (Pages domain) — so the browser hits the Worker directly. Vite proxy includes `/admin` for local dev.
 - **`isAdmin` flag** — Auth response includes `isAdmin: boolean` (compares `telegramId` to `ADMIN_TELEGRAM_ID`). Propagated through `useAuth` → `UserContext` → Account page, which shows an "Admin Dashboard" link that opens `/admin` in external browser via `WebApp.openLink()`.
@@ -263,4 +269,4 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 - `docs/envs.md` — TON-related environment variables
 - `docs/mainnet-migration.md` — testnet → mainnet migration checklist
 - `docs/TWA-checklist.md` — Telegram Mini App listing requirements
-- `work_docs/CODE_REVIEW.md` — code review findings (3 critical fixed, remaining open)
+- `work_docs/CODE_REVIEW.md` — code review findings (3 critical + 7 major all fixed, 8 minor remaining)

@@ -106,12 +106,13 @@ Small reusable components extracted from pages:
 
 - **users**: telegram_id, username, display_name, wallet_address, bot_started, avatar_key, is_dummy
 - **groups**: name, invite_code, is_pair, currency (default 'USD'), created_by, avatar_key, avatar_emoji
-- **group_members**: group_id, user_id, role (admin/member), muted
+- **group_members**: group_id, user_id, role (admin/member), muted, net_balance (cached)
 - **expenses**: group_id, paid_by, amount (micro-units integer), description, split_mode, receipt_key, receipt_thumb_key
 - **expense_participants**: expense_id, user_id, share_amount
 - **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, comment, settled_by, receipt_key, receipt_thumb_key
 - **activity_log**: group_id, actor_id, type (group_created/expense_created/edited/deleted, settlement_completed, member_joined/left/kicked), target_user_id, expense_id, settlement_id, amount, metadata (JSON), created_at
 - **debt_reminders**: group_id, from_user_id (creditor), to_user_id (debtor), last_sent_at (24h cooldown)
+- **image_reports**: reporter_telegram_id, image_key, reason, details, status (pending/rejected/removed)
 - **exchange_rates**: id (singleton row), base ('USD'), rates (JSON), fetched_at (unix timestamp, 24h TTL)
 
 Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-group. No floating point. Settlements store `usdtAmount` and `commission` (micro-units) for on-chain settlements.
@@ -132,7 +133,7 @@ Good enough for groups under 50 people. Tested with 6 cases.
 
 ## Currency Support (Phase 2 + Phase 4)
 
-150+ currencies with correct symbols and decimal handling. Full searchable currency list via `CurrencyPicker` component. Shared `utils/currencies.ts` + `utils/format.ts` in both backend and frontend (identical files). Amounts stored as micro-units (1 unit = 1,000,000) regardless of currency. Zero-decimal currencies (VND, JPY, IDR) display without decimals but use the same micro-unit storage. Currency is locked per-group once expenses exist.
+150+ currencies with correct symbols and decimal handling. Full searchable currency list via `CurrencyPicker` component. Shared `@splitogram/shared` package (`packages/shared/`) contains canonical `currencies.ts` + `format.ts`. Backend/frontend utils re-export from it. Amounts stored as micro-units (1 unit = 1,000,000) regardless of currency. Zero-decimal currencies (VND, JPY, IDR) display without decimals but use the same micro-unit storage. Currency is locked per-group once expenses exist.
 
 ---
 
@@ -293,6 +294,8 @@ Scaffolded from `/Users/dmitrykozlov/repos/telegram-webapp-cloudflare-template`.
 | 0007      | users.is_dummy column                                  | —     |
 | 0008      | exchange_rates table                                   | 10    |
 | 0009      | settlements.usdtAmount + commission columns            | 10    |
+| 0010      | group_members.netBalance + activity_log compound indexes | —   |
+| 0011      | image_reports table                                    | —     |
 
 ---
 
