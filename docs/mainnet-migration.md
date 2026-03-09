@@ -111,7 +111,7 @@ Or just push to `main` — CI handles everything.
 | Item                | Testnet                                            | Mainnet                                            |
 | ------------------- | -------------------------------------------------- | -------------------------------------------------- |
 | USDT Jetton Master  | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
-| Settlement Contract | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` | TBD                                                |
+| Settlement Contract | `EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW` | TBD                                                |
 | Owner Wallet        | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` | TBD                                                |
 | Commission          | 1% (100 bps), min 0.1, max 1.0 USDT                | Same                                               |
 
