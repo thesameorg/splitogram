@@ -1,0 +1,4 @@
+- check naming everywhere
+- update APP icons
+- update icon link at frontend/public/tonconnect-manifest.json
+- branding \ animations \ 

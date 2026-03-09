@@ -4,38 +4,6 @@ Full codebase review performed 2026-03-09. Issues categorized by severity.
 
 ---
 
-## Critical
-
-### 1. ~~GET endpoint mutates database (`settlements.ts`)~~ — FIXED
-
-**File:** `backend/src/api/settlements.ts` — GET `/settlements/:id`
-
-The GET handler for fetching a settlement performed lazy on-chain verification: if status was `payment_pending`, it called TONAPI and **updated the settlement status to `settled_onchain` in D1**. A GET request should be idempotent and side-effect-free.
-
-**Fix applied:** Created dedicated `POST /settlements/:id/confirm` endpoint for on-chain verification polling. Stripped all side effects from the GET handler. Frontend polling loop updated to call `confirmSettlement()` (POST) instead of `getSettlement()` (GET).
-
----
-
-### 2. ~~On-chain verification is spoofable (`settlements.ts`)~~ — FIXED
-
-**File:** `backend/src/api/settlements.ts` — `verifySettlementOnChain()`
-
-The verification logic only checked the **amount** of Jetton transfers — not the sender or recipient addresses. Any user sending the right amount to the contract could satisfy the check.
-
-**Fix applied:** `verifySettlementOnChain()` now takes both `debtorWallet` and `creditorWallet` parameters. It validates the full trace: (1) an incoming transfer from the debtor, (2) an outgoing transfer to the creditor with matching amount. Uses `normalizeAddress()` for consistent address comparison. Gracefully degrades if debtor wallet is unknown (logs warning-level concern).
-
----
-
-### 3. ~~Non-atomic placeholder claim (`groups.ts`)~~ — FIXED
-
-**File:** `backend/src/api/groups.ts` — `POST /groups/:id/claim-placeholder`
-
-The claim flow performed 5+ sequential D1 writes without a transaction. If any write failed mid-way, FK references would be left in a partially-merged state.
-
-**Fix applied:** All FK transfer mutations (expenses.paid_by, expense_participants, settlements, activity_log, debt_reminders, group_members) are now wrapped in `db.batch([...])` which executes as a single D1 transaction. Data gathering (expense IDs) is done before the batch. Dummy user deletion (conditional on no remaining memberships) happens after the batch since it's a separate concern.
-
----
-
 ## Major
 
 ### 4. Bot instantiated per request (`webhook.ts`)
