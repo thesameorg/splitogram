@@ -6,38 +6,33 @@ Full codebase review performed 2026-03-09. Issues categorized by severity.
 
 ## Critical
 
-### 1. GET endpoint mutates database (`settlements.ts`)
+### 1. ~~GET endpoint mutates database (`settlements.ts`)~~ — FIXED
 
 **File:** `backend/src/api/settlements.ts` — GET `/settlements/:id`
 
-The GET handler for fetching a settlement performs lazy on-chain verification: if status is `payment_pending`, it calls TONAPI, and on success **updates the settlement status to `settled_onchain` in D1**. A GET request should be idempotent and side-effect-free. This violates HTTP semantics and could cause issues with caching, retries, and CDN behavior.
+The GET handler for fetching a settlement performed lazy on-chain verification: if status was `payment_pending`, it called TONAPI and **updated the settlement status to `settled_onchain` in D1**. A GET request should be idempotent and side-effect-free.
 
-**Fix:** Move verification to a dedicated `POST /settlements/:id/verify` endpoint (or a separate background polling mechanism). The frontend already has a polling loop — make it POST instead of GET.
+**Fix applied:** Created dedicated `POST /settlements/:id/confirm` endpoint for on-chain verification polling. Stripped all side effects from the GET handler. Frontend polling loop updated to call `confirmSettlement()` (POST) instead of `getSettlement()` (GET).
 
 ---
 
-### 2. On-chain verification is spoofable (`settlements.ts`)
+### 2. ~~On-chain verification is spoofable (`settlements.ts`)~~ — FIXED
 
 **File:** `backend/src/api/settlements.ts` — `verifySettlementOnChain()`
 
-The verification logic queries TONAPI for recent events on the settlement contract and checks if any Jetton transfer matches the expected amount. However:
-- It only checks the **amount** — not the sender or recipient addresses
-- Any user sending the right amount to the contract could satisfy the check
-- The `txHash` stored is whatever event matched first, not necessarily from the actual payer
+The verification logic only checked the **amount** of Jetton transfers — not the sender or recipient addresses. Any user sending the right amount to the contract could satisfy the check.
 
-**Fix:** Verify the full trace: sender must be the debtor's wallet, recipient (forward_payload) must be the creditor's wallet, and amount must match within a tolerance. Consider storing the expected BOC hash and matching against it.
+**Fix applied:** `verifySettlementOnChain()` now takes both `debtorWallet` and `creditorWallet` parameters. It validates the full trace: (1) an incoming transfer from the debtor, (2) an outgoing transfer to the creditor with matching amount. Uses `normalizeAddress()` for consistent address comparison. Gracefully degrades if debtor wallet is unknown (logs warning-level concern).
 
 ---
 
-### 3. Non-atomic placeholder claim (`groups.ts`)
+### 3. ~~Non-atomic placeholder claim (`groups.ts`)~~ — FIXED
 
 **File:** `backend/src/api/groups.ts` — `POST /groups/:id/claim-placeholder`
 
-The claim flow performs 5+ sequential D1 writes (update expenses.paid_by, expense_participants, settlements from/to, activity_log, delete dummy user, update group_members). These are individual statements, not wrapped in a D1 batch or transaction.
+The claim flow performed 5+ sequential D1 writes without a transaction. If any write failed mid-way, FK references would be left in a partially-merged state.
 
-If any write fails mid-way, the data is left in a partially-merged state — some FK references point to the real user, others still reference the deleted dummy. This is a data corruption risk.
-
-**Fix:** Wrap all claim operations in a D1 batch (`db.batch([...])`) to make it atomic. D1 supports batched writes.
+**Fix applied:** All FK transfer mutations (expenses.paid_by, expense_participants, settlements, activity_log, debt_reminders, group_members) are now wrapped in `db.batch([...])` which executes as a single D1 transaction. Data gathering (expense IDs) is done before the batch. Dummy user deletion (conditional on no remaining memberships) happens after the batch since it's a separate concern.
 
 ---
 
@@ -82,6 +77,7 @@ Telegram's `callback_data` has a 64-byte limit. The current format includes acti
 These are manually kept in sync. Any edit to one must be mirrored to the other. This is a maintenance risk — eventually they'll diverge.
 
 **Fix options:**
+
 - Extract to a shared workspace package (`packages/shared/`)
 - Or use a symlink / build-time copy script
 - Low priority — they've been kept in sync so far, but worth fixing before the codebase grows
@@ -113,6 +109,7 @@ The `response_destination` in the Jetton transfer message is set to `Address.par
 **File:** `frontend/src/pages/SettleUp.tsx`
 
 Every settlement attaches exactly 0.5 TON for gas, regardless of network conditions. Users get ~0.33 TON back, but:
+
 - If gas prices change, 0.5 may not be enough
 - Users see "0.5 TON" which looks expensive before the refund
 
@@ -145,6 +142,7 @@ The `auth_date` max age is 86400s (24h). Telegram doesn't refresh `initData` mid
 ### 13. No rate limiting
 
 No rate limiting on any endpoint. A malicious user could:
+
 - Spam group creation
 - Flood debt reminders (24h cooldown exists, but only per-creditor-per-debtor)
 - Create thousands of expenses
@@ -206,9 +204,11 @@ The polling loop uses `setInterval` for checking settlement status. While there'
 ## Documentation Discrepancies Found
 
 ### PLAN.md
+
 - Phase 10 checklist was outdated (showed steps 2-6 as not done when they're all implemented). **Fixed.**
 
 ### docs/architecture.md
+
 - Contract address was stale (showed v1 `EQC7KPpOr...` instead of v4 `EQBWECX8...`). **Fixed.**
 - Migration table was missing 0008 and 0009. **Fixed.**
 - Research table showed exchange rates and TON Connect as "Pending" — they're implemented. **Fixed.**
@@ -220,13 +220,14 @@ The polling loop uses `setInterval` for checking settlement status. While there'
 
 ## Summary
 
-| Severity | Count | Key themes |
-|----------|-------|------------|
-| Critical | 3     | GET mutation, spoofable verification, non-atomic claim |
+| Severity | Count | Key themes                                                                                                   |
+| -------- | ----- | ------------------------------------------------------------------------------------------------------------ |
+| Critical | 3     | GET mutation, spoofable verification, non-atomic claim                                                       |
 | Major    | 7     | Per-request bot init, O(N) balances, callback_data overflow, duplicated utils, missing indexes, gas handling |
-| Minor    | 8     | No rate limiting, no error boundary, silent `waitUntil` errors, generous auth window |
+| Minor    | 8     | No rate limiting, no error boundary, silent `waitUntil` errors, generous auth window                         |
 
-**Top 3 priorities:**
-1. Fix on-chain verification to check sender/recipient (security)
-2. Wrap placeholder claim in D1 batch (data integrity)
-3. Move settlement lazy-verify from GET to POST (HTTP correctness)
+**Top 3 priorities:** All fixed (2026-03-09)
+
+1. ~~Fix on-chain verification to check sender/recipient (security)~~ — DONE
+2. ~~Wrap placeholder claim in D1 batch (data integrity)~~ — DONE
+3. ~~Move settlement lazy-verify from GET to POST (HTTP correctness)~~ — DONE

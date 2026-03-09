@@ -1327,86 +1327,111 @@ groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSche
     );
   }
 
-  // Transfer all references from dummy to real user within this group
-  // 1. expenses.paid_by (group-scoped)
-  await db
-    .update(expenses)
-    .set({ paidBy: user.id })
-    .where(and(eq(expenses.groupId, groupId), eq(expenses.paidBy, dummyUserId)));
-
-  // 2. expense_participants (join through expenses for group scope)
+  // Gather data needed before the atomic batch
   const groupExpenseIds = await db
     .select({ id: expenses.id })
     .from(expenses)
     .where(eq(expenses.groupId, groupId));
-
-  if (groupExpenseIds.length > 0) {
-    const expIds = groupExpenseIds.map((e) => e.id);
-    // Delete any existing participant rows for real user in these expenses (avoid unique constraint)
-    await db.delete(expenseParticipants).where(
-      and(
-        sql`${expenseParticipants.expenseId} IN (${sql.join(
+  const expIds = groupExpenseIds.map((e) => e.id);
+  const expIdsSql =
+    expIds.length > 0
+      ? sql`${expenseParticipants.expenseId} IN (${sql.join(
           expIds.map((id) => sql`${id}`),
           sql`, `,
-        )})`,
-        eq(expenseParticipants.userId, user.id),
-      ),
-    );
-    // Transfer dummy's participant rows to real user
-    await db
-      .update(expenseParticipants)
-      .set({ userId: user.id })
-      .where(
-        and(
-          sql`${expenseParticipants.expenseId} IN (${sql.join(
-            expIds.map((id) => sql`${id}`),
-            sql`, `,
-          )})`,
-          eq(expenseParticipants.userId, dummyUserId),
+        )})`
+      : null;
+
+  // Transfer all references from dummy to real user atomically via D1 batch.
+  // D1 batch wraps all statements in a single transaction — if any fails, all roll back.
+  // Note: expenseParticipants ops go BEFORE other mutations since they delete real user's
+  // existing rows first (unique constraint), then transfer dummy's rows.
+  if (expIdsSql) {
+    await db.batch([
+      // expense_participants: delete real user's rows first, then transfer dummy's
+      db.delete(expenseParticipants).where(and(expIdsSql, eq(expenseParticipants.userId, user.id))),
+      db
+        .update(expenseParticipants)
+        .set({ userId: user.id })
+        .where(and(expIdsSql, eq(expenseParticipants.userId, dummyUserId))),
+      // expenses.paid_by
+      db
+        .update(expenses)
+        .set({ paidBy: user.id })
+        .where(and(eq(expenses.groupId, groupId), eq(expenses.paidBy, dummyUserId))),
+      // settlements — from, to, settledBy
+      db
+        .update(settlements)
+        .set({ fromUser: user.id })
+        .where(and(eq(settlements.groupId, groupId), eq(settlements.fromUser, dummyUserId))),
+      db
+        .update(settlements)
+        .set({ toUser: user.id })
+        .where(and(eq(settlements.groupId, groupId), eq(settlements.toUser, dummyUserId))),
+      db
+        .update(settlements)
+        .set({ settledBy: user.id })
+        .where(and(eq(settlements.groupId, groupId), eq(settlements.settledBy, dummyUserId))),
+      // activity_log
+      db
+        .update(activityLog)
+        .set({ actorId: user.id })
+        .where(and(eq(activityLog.groupId, groupId), eq(activityLog.actorId, dummyUserId))),
+      db
+        .update(activityLog)
+        .set({ targetUserId: user.id })
+        .where(and(eq(activityLog.groupId, groupId), eq(activityLog.targetUserId, dummyUserId))),
+      // debt_reminders
+      db
+        .delete(debtReminders)
+        .where(
+          and(
+            eq(debtReminders.groupId, groupId),
+            sql`(${debtReminders.fromUserId} = ${dummyUserId} OR ${debtReminders.toUserId} = ${dummyUserId})`,
+          ),
         ),
-      );
+      // Remove dummy's membership
+      db
+        .delete(groupMembers)
+        .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, dummyUserId))),
+    ]);
+  } else {
+    // No expenses in group — simpler batch without participant ops
+    await db.batch([
+      db
+        .update(settlements)
+        .set({ fromUser: user.id })
+        .where(and(eq(settlements.groupId, groupId), eq(settlements.fromUser, dummyUserId))),
+      db
+        .update(settlements)
+        .set({ toUser: user.id })
+        .where(and(eq(settlements.groupId, groupId), eq(settlements.toUser, dummyUserId))),
+      db
+        .update(settlements)
+        .set({ settledBy: user.id })
+        .where(and(eq(settlements.groupId, groupId), eq(settlements.settledBy, dummyUserId))),
+      db
+        .update(activityLog)
+        .set({ actorId: user.id })
+        .where(and(eq(activityLog.groupId, groupId), eq(activityLog.actorId, dummyUserId))),
+      db
+        .update(activityLog)
+        .set({ targetUserId: user.id })
+        .where(and(eq(activityLog.groupId, groupId), eq(activityLog.targetUserId, dummyUserId))),
+      db
+        .delete(debtReminders)
+        .where(
+          and(
+            eq(debtReminders.groupId, groupId),
+            sql`(${debtReminders.fromUserId} = ${dummyUserId} OR ${debtReminders.toUserId} = ${dummyUserId})`,
+          ),
+        ),
+      db
+        .delete(groupMembers)
+        .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, dummyUserId))),
+    ]);
   }
 
-  // 3. settlements (group-scoped)
-  await db
-    .update(settlements)
-    .set({ fromUser: user.id })
-    .where(and(eq(settlements.groupId, groupId), eq(settlements.fromUser, dummyUserId)));
-  await db
-    .update(settlements)
-    .set({ toUser: user.id })
-    .where(and(eq(settlements.groupId, groupId), eq(settlements.toUser, dummyUserId)));
-  await db
-    .update(settlements)
-    .set({ settledBy: user.id })
-    .where(and(eq(settlements.groupId, groupId), eq(settlements.settledBy, dummyUserId)));
-
-  // 4. activity_log (group-scoped)
-  await db
-    .update(activityLog)
-    .set({ actorId: user.id })
-    .where(and(eq(activityLog.groupId, groupId), eq(activityLog.actorId, dummyUserId)));
-  await db
-    .update(activityLog)
-    .set({ targetUserId: user.id })
-    .where(and(eq(activityLog.groupId, groupId), eq(activityLog.targetUserId, dummyUserId)));
-
-  // 5. debt_reminders (group-scoped)
-  await db
-    .delete(debtReminders)
-    .where(
-      and(
-        eq(debtReminders.groupId, groupId),
-        sql`(${debtReminders.fromUserId} = ${dummyUserId} OR ${debtReminders.toUserId} = ${dummyUserId})`,
-      ),
-    );
-
-  // 6. Remove dummy's membership
-  await db
-    .delete(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, dummyUserId)));
-
-  // 7. Delete dummy user only if no other group memberships remain
+  // Delete dummy user only if no other group memberships remain (already removed from this group above)
   const [remainingMemberships] = await db
     .select({ count: sql<number>`count(*)` })
     .from(groupMembers)

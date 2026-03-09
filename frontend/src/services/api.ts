@@ -468,6 +468,12 @@ export const api = {
       { method: 'POST', body: JSON.stringify({ boc }) },
     ),
 
+  confirmSettlement: (id: number) =>
+    apiRequest<{ status: string; settlementId: number; txHash?: string }>(
+      `/api/v1/settlements/${id}/confirm`,
+      { method: 'POST' },
+    ),
+
   // Wallet
   setWallet: (address: string) =>
     apiRequest<{ walletAddress: string }>('/api/v1/users/me/wallet', {

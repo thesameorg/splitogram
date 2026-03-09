@@ -227,16 +227,19 @@ export function SettleUp() {
     pollingRef.current = setInterval(async () => {
       elapsed += POLL_INTERVAL;
       try {
-        const data = await api.getSettlement(settlementId);
-        setSettlement(data);
+        const result = await api.confirmSettlement(settlementId);
 
-        if (data.status === 'settled_onchain') {
+        if (result.status === 'settled_onchain') {
           if (pollingRef.current) clearInterval(pollingRef.current);
+          setSettlement((prev) =>
+            prev ? { ...prev, status: 'settled_onchain', txHash: result.txHash ?? null } : prev,
+          );
           setCryptoState('success');
           setTimeout(() => navigate(-1), 2000);
-        } else if (data.status === 'open') {
-          // Rolled back
+        } else if (result.status === 'open') {
+          // Rolled back (timeout)
           if (pollingRef.current) clearInterval(pollingRef.current);
+          setSettlement((prev) => (prev ? { ...prev, status: 'open' } : prev));
           setCryptoError(t('settlement.txFailed'));
           setCryptoState('error');
         } else if (elapsed >= MAX_POLL) {
