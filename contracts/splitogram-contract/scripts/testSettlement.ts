@@ -38,7 +38,7 @@ export async function run(provider: NetworkProvider) {
 
   // ── Addresses ─────────────────────────────────────────────
   const walletB = Address.parse('0QBMsbxhNZbk4oCEYt6R_hOlm8_7-D4vooTnQxd2ArXG5yOS');
-  const contractAddress = Address.parse('EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu');
+  const contractAddress = Address.parse('EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW');
 
   // ── Settlement Parameters ─────────────────────────────────
   const amountUSDT = 100_000_000n; // 100 tUSDT (6 decimals)

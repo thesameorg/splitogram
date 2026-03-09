@@ -9,7 +9,7 @@ import { NetworkProvider } from '@ton/blueprint';
  */
 export async function run(provider: NetworkProvider) {
   // Fill in after deployment
-  const contractAddress = Address.parse('EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu');
+  const contractAddress = Address.parse('EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW');
 
   const contract = provider.open(SplitogramSettlement.fromAddress(contractAddress));
 

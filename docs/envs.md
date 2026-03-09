@@ -11,7 +11,7 @@ Where each TON-related variable lives, what it does, and what to set.
 | `TONAPI_KEY`                  | Yes     | `.dev.vars`, GH secret, wrangler secret     | From [tonconsole.com](https://tonconsole.com)      |
 | `TON_NETWORK`                 | No      | `.dev.vars`, `wrangler.toml [vars]`, GH var | `testnet`                                          |
 | `USDT_MASTER_ADDRESS`         | No      | `.dev.vars`, `wrangler.toml [vars]`         | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
-| `SETTLEMENT_CONTRACT_ADDRESS` | No      | `.dev.vars`, `wrangler.toml [vars]`         | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` |
+| `SETTLEMENT_CONTRACT_ADDRESS` | No      | `.dev.vars`, `wrangler.toml [vars]`         | `EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW` |
 | `VITE_TON_NETWORK`            | No      | `.env`, GH var (Pages build)                | `testnet`                                          |
 
 ---
@@ -70,7 +70,7 @@ The deployed Splitogram settlement smart contract. Receives USDT, takes 1% commi
 
 | Network    | Address                                            | Notes                            |
 | ---------- | -------------------------------------------------- | -------------------------------- |
-| Testnet v4 | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` | Current, validated               |
+| Testnet v5 | `EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW` | Current, validated (excess fix)  |
 | Mainnet    | TBD                                                | Deploy with mainnet owner wallet |
 
 **Where to set:**

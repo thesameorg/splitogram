@@ -15,7 +15,7 @@ import { NetworkProvider } from '@ton/blueprint';
  * Connect as Wallet C (owner).
  */
 export async function run(provider: NetworkProvider) {
-  const contractAddress = Address.parse('EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu');
+  const contractAddress = Address.parse('EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW');
   const contract = provider.open(SplitogramSettlement.fromAddress(contractAddress));
 
   // Step 1: Read current commission

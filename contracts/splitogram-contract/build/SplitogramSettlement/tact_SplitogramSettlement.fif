@@ -450,18 +450,21 @@ PROGRAM{
       ADD
       s0 s10 XCHG
       INC
-      s5 s9 XCHG
-      s4 s10 XCHG
-      s1 s3 s3 XCHG3
-      s10 PUSH
+      s7 s8 XCHG
+      s6 s8 XCHG
+      s5 s8 XCHG
+      s4 s9 XCHG
+      s3 s10 XCHG
+      s0 s1 s10 XCHG3
+      s10 s9 PUSH2
       $SplitogramSettlement$_fun__sendJetton INLINECALLDICT
       s5 PUSH
-      s0 s8 XCHG
-      s5 s7 XCHG
-      s4 s6 XCHG
-      s3 s5 XCHG
-      s4 s3 s0 XCHG3
-      s2 s(-1) PUXC
+      s0 s9 XCHG
+      s5 s8 XCHG
+      s4 s7 XCHG
+      s3 s6 XCHG
+      s5 s0 s4 XCHG3
+      s0 s2 XCHG
       $SplitogramSettlement$_fun__sendJetton INLINECALLDICT
       $SplitogramSettlement$_contract_store INLINECALLDICT
     }>

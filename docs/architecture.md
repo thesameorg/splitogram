@@ -237,7 +237,7 @@ See `work_docs/research/5-i18n-approach.md` for full analysis.
 
 | Entity              | Address                                            |
 | ------------------- | -------------------------------------------------- |
-| Contract (v4)       | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` |
+| Contract (v5)       | `EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW` |
 | tUSDT Jetton Master | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
 | Owner (Wallet C)    | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` |
 

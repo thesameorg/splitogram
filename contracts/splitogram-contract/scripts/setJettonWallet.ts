@@ -9,12 +9,12 @@ import { NetworkProvider } from '@ton/blueprint';
  * Usage: npx blueprint run setJettonWallet --testnet --tonconnect
  */
 export async function run(provider: NetworkProvider) {
-  const contractAddress = Address.parse('EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu');
+  const contractAddress = Address.parse('EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW');
   const contract = provider.open(SplitogramSettlement.fromAddress(contractAddress));
 
   // Contract's USDT Jetton Wallet address (from jetton master get_wallet_address)
   const jettonWalletAddress = Address.parseRaw(
-    '0:dcda54490e86ba8f7d55cd19955915611dfe026e9d75f13f9f45480bb896c047',
+    '0:a50579a1a99b035709d65a0ef6fa0fe16a41e660ccf31d062fd52255343c240a',
   );
 
   const currentWallet = await contract.getJettonWallet();

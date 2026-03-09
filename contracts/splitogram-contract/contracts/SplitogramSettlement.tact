@@ -102,8 +102,8 @@ contract SplitogramSettlement with Deployable, Ownable {
         // Send remainder to recipient
         self._sendJetton(recipient, remainder, msg.from, msg.queryId);
 
-        // Send commission to owner
-        self._sendJetton(self.owner, commission, self.owner, msg.queryId);
+        // Send commission to owner (excess TON returns to original sender)
+        self._sendJetton(self.owner, commission, msg.from, msg.queryId);
     }
 
     // ── Internal: send Jettons via our Jetton Wallet ────────────

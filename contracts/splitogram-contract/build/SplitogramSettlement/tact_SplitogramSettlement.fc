@@ -579,7 +579,7 @@ _ %owner() method_id(83229) {
         $self'total_commission = ($self'total_commission + $commission);
         $self'settlement_count = ($self'settlement_count + 1);
         ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun__sendJetton($recipient, $remainder, $msg'from, $msg'queryId);
-        ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun__sendJetton($self'owner, $commission, $self'owner, $msg'queryId);
+        ($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count)~$SplitogramSettlement$_fun__sendJetton($self'owner, $commission, $msg'from, $msg'queryId);
         $SplitogramSettlement$_contract_store(($self'owner, $self'commission_bps, $self'usdt_wallet, $self'total_processed, $self'total_commission, $self'settlement_count));
         return ();
     }
