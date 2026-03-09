@@ -189,7 +189,8 @@
     "walletConnected": "کیف پول متصل شد"
   },
   "settlement": {
-    "payWithUsdt": "پرداخت با USDT",
+    "payWithUsdt": "پرداخت با USDT در TON",
+    "viewTransaction": "مشاهده تراکنش",
     "orSettleManually": "یا تسویه دستی",
     "connectWalletFirst": "برای پرداخت با USDT کیف پول خود را متصل کنید",
     "creditorNoWallet": "{{name}} هنوز کیف پول متصل نکرده است. یادآوری برای اتصال بفرستید.",

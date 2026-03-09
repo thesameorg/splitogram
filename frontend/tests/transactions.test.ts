@@ -28,6 +28,8 @@ function makeSettlement(overrides: Partial<SettlementListItem> = {}): Settlement
     toUserName: 'Alice',
     amount: 500000,
     status: 'settled_external',
+    txHash: null,
+    explorerUrl: null,
     comment: null,
     receiptKey: null,
     receiptThumbKey: null,

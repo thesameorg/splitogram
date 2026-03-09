@@ -151,6 +151,7 @@ export interface Settlement {
 export interface SettlementDetail extends Settlement {
   currentUserId: number;
   currency: string;
+  explorerUrl: string | null;
   from: {
     userId: number;
     displayName: string;
@@ -167,9 +168,11 @@ export interface SettlementDetail extends Settlement {
 
 export interface SettlementTxParams {
   settlementId: number;
-  amount: number; // micro-USDT (debt amount)
+  amount: number; // micro-USDT (debt amount converted to USD)
   totalAmount: number; // micro-USDT (debt + commission — what payer sends)
   commission: number; // micro-USDT
+  originalAmount: number; // micro-units in group currency
+  originalCurrency: string;
   recipientAddress: string;
   contractAddress: string;
   senderJettonWallet: string;
@@ -188,6 +191,8 @@ export interface SettlementListItem {
   toUserName: string;
   amount: number;
   status: string;
+  txHash: string | null;
+  explorerUrl: string | null;
   comment: string | null;
   receiptKey: string | null;
   receiptThumbKey: string | null;

@@ -189,7 +189,8 @@
     "walletConnected": "Carteira conectada"
   },
   "settlement": {
-    "payWithUsdt": "Pagar com USDT",
+    "payWithUsdt": "Pagar com USDT na TON",
+    "viewTransaction": "Ver transação",
     "orSettleManually": "ou acertar manualmente",
     "connectWalletFirst": "Conecte sua carteira para pagar com USDT",
     "creditorNoWallet": "{{name}} ainda não conectou uma carteira. Envie um lembrete para conectar.",

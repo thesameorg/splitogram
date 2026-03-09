@@ -189,7 +189,8 @@
     "walletConnected": "वॉलेट कनेक्ट हो गया"
   },
   "settlement": {
-    "payWithUsdt": "USDT से भुगतान करें",
+    "payWithUsdt": "TON पर USDT से भुगतान करें",
+    "viewTransaction": "लेन-देन देखें",
     "orSettleManually": "या मैन्युअल रूप से हिसाब करें",
     "connectWalletFirst": "USDT से भुगतान करने के लिए अपना वॉलेट कनेक्ट करें",
     "creditorNoWallet": "{{name}} ने अभी तक वॉलेट कनेक्ट नहीं किया है। उन्हें कनेक्ट करने का रिमाइंडर भेजें।",

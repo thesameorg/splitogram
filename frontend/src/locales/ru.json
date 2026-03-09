@@ -191,7 +191,8 @@
     "walletConnected": "Кошелёк подключён"
   },
   "settlement": {
-    "payWithUsdt": "Оплатить в USDT",
+    "payWithUsdt": "Оплатить в USDT через TON",
+    "viewTransaction": "Посмотреть транзакцию",
     "orSettleManually": "или рассчитаться вручную",
     "connectWalletFirst": "Подключите кошелёк, чтобы платить в USDT",
     "creditorNoWallet": "{{name}} ещё не подключил(а) кошелёк. Отправьте напоминание подключить.",

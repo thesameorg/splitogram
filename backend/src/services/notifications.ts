@@ -95,6 +95,7 @@ export const notify = {
       amount: number;
       status: string;
       txHash?: string | null;
+      explorerUrl?: string;
       groupId: number;
     },
     debtor: NotifyUser,
@@ -104,10 +105,12 @@ export const notify = {
   ): Promise<void> {
     const api = createApi(ctx);
     const amountStr = formatAmount(settlement.amount, currency);
-    const method = settlement.status === 'settled_onchain' ? 'on-chain' : 'externally';
-    const txInfo = settlement.txHash
-      ? `\nTx: <code>${settlement.txHash.slice(0, 16)}...</code>`
-      : '';
+    const method = settlement.status === 'settled_onchain' ? 'on-chain (USDT)' : 'externally';
+    const txInfo = settlement.explorerUrl
+      ? `\n<a href="${settlement.explorerUrl}">View transaction</a>`
+      : settlement.txHash
+        ? `\nTx: <code>${settlement.txHash.slice(0, 16)}...</code>`
+        : '';
 
     const creditorText = `<b>${debtor.displayName}</b> settled ${amountStr} with you ${method} in <b>${groupName}</b>${txInfo}`;
 

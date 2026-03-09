@@ -124,6 +124,17 @@ export function Activity() {
                   <span className="text-xs text-tg-hint">{timeAgo(item.createdAt)}</span>
                 </div>
               </div>
+              {item.type === 'settlement_completed' && (item.metadata as any)?.explorerUrl && (
+                <a
+                  href={(item.metadata as any).explorerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-tg-link underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  TX
+                </a>
+              )}
               {item.amount != null && item.amount > 0 && (
                 <span className="text-sm font-medium text-tg-text shrink-0">
                   {formatAmount(item.amount, item.currency)}

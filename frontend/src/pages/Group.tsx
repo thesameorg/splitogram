@@ -233,6 +233,19 @@ export function Group() {
             </div>
           </div>
         </div>
+        {settlement.status === 'settled_onchain' && settlement.explorerUrl && (
+          <div className="mt-2 text-xs">
+            <a
+              href={settlement.explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-tg-link underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {t('settlement.viewTransaction')}
+            </a>
+          </div>
+        )}
         {settlement.comment && (
           <div className="mt-2 text-sm text-tg-hint italic">{settlement.comment}</div>
         )}
@@ -384,6 +397,17 @@ export function Group() {
                     </div>
                     <span className="text-xs text-tg-hint">{timeAgo(item.createdAt)}</span>
                   </div>
+                  {item.type === 'settlement_completed' && (item.metadata as any)?.explorerUrl && (
+                    <a
+                      href={(item.metadata as any).explorerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-tg-link underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      TX
+                    </a>
+                  )}
                   {item.amount != null && item.amount > 0 && (
                     <span className="text-sm font-medium text-tg-text shrink-0">
                       {formatAmount(item.amount, group?.currency)}
@@ -734,6 +758,19 @@ export function Group() {
                 {selectedSettlement.fromUserName} &rarr; {selectedSettlement.toUserName}
               </div>
             </div>
+
+            {selectedSettlement.status === 'settled_onchain' && selectedSettlement.explorerUrl && (
+              <div className="text-center">
+                <a
+                  href={selectedSettlement.explorerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-tg-link underline"
+                >
+                  {t('settlement.viewTransaction')}
+                </a>
+              </div>
+            )}
 
             {selectedSettlement.comment && (
               <div className="text-sm text-tg-hint italic text-center">

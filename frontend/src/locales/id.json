@@ -187,7 +187,8 @@
     "walletConnected": "Dompet terhubung"
   },
   "settlement": {
-    "payWithUsdt": "Bayar dengan USDT",
+    "payWithUsdt": "Bayar dengan USDT di TON",
+    "viewTransaction": "Lihat transaksi",
     "orSettleManually": "atau lunasi secara manual",
     "connectWalletFirst": "Hubungkan dompet Anda untuk membayar dengan USDT",
     "creditorNoWallet": "{{name}} belum menghubungkan dompet. Kirim pengingat untuk menghubungkan.",

@@ -279,13 +279,21 @@ export function SettleUp() {
     );
   }
 
-  const usdtAmount = formatUsdtAmount(settlement.amount); // debt amount
+  const usdtAmount = txParams
+    ? formatUsdtAmount(txParams.amount)
+    : formatUsdtAmount(settlement.amount); // debt amount in USDT
   const commission = txParams
     ? formatUsdtAmount(txParams.commission)
     : formatUsdtCommission(settlement.amount);
   const totalPayment = txParams
     ? formatUsdtAmount(txParams.totalAmount)
     : formatUsdtAmount(settlement.amount + calculateCommission(settlement.amount));
+
+  // Show conversion note if group currency differs from USD
+  const conversionNote =
+    txParams && txParams.originalCurrency !== 'USD'
+      ? `${formatAmount(txParams.originalAmount, txParams.originalCurrency)} ≈ ${formatUsdtAmount(txParams.amount)} USDT`
+      : null;
 
   return (
     <PageLayout>
@@ -313,7 +321,20 @@ export function SettleUp() {
         <div className="bg-app-positive-bg p-4 rounded-xl mb-6 text-center">
           <div className="text-app-positive font-medium text-lg">{t('settleUp.settled')}</div>
           {settlement.status === 'settled_onchain' && settlement.txHash && (
-            <div className="text-xs text-tg-hint mt-1">TX: {settlement.txHash.slice(0, 16)}...</div>
+            <div className="mt-2">
+              {settlement.explorerUrl ? (
+                <a
+                  href={settlement.explorerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-tg-link underline"
+                >
+                  {t('settlement.viewTransaction')}
+                </a>
+              ) : (
+                <div className="text-xs text-tg-hint">TX: {settlement.txHash.slice(0, 16)}...</div>
+              )}
+            </div>
           )}
           {settlement.comment && (
             <div className="text-sm text-tg-hint mt-1">{settlement.comment}</div>
@@ -334,6 +355,7 @@ export function SettleUp() {
             usdtAmount={usdtAmount}
             totalPayment={totalPayment}
             commission={commission}
+            conversionNote={conversionNote}
             recipientName={settlement.to?.displayName ?? ''}
             onPay={handlePayWithUsdt}
             onConfirm={handleConfirmPayment}
@@ -494,6 +516,7 @@ function CryptoSettlementUI({
   usdtAmount,
   totalPayment,
   commission,
+  conversionNote,
   recipientName,
   onPay,
   onConfirm,
@@ -507,6 +530,7 @@ function CryptoSettlementUI({
   usdtAmount: string;
   totalPayment: string;
   commission: string;
+  conversionNote: string | null;
   recipientName: string;
   onPay: () => void;
   onConfirm: () => void;
@@ -544,6 +568,11 @@ function CryptoSettlementUI({
     return (
       <div className="bg-tg-section p-4 rounded-2xl border border-tg-separator space-y-3">
         <div className="font-medium">{t('settlement.confirmTitle')}</div>
+        {conversionNote && (
+          <div className="text-xs text-tg-hint bg-tg-secondary-bg px-3 py-1.5 rounded-lg">
+            {conversionNote}
+          </div>
+        )}
         <p className="text-sm text-tg-hint">
           {t('settlement.confirmBody', {
             amount: usdtAmount,

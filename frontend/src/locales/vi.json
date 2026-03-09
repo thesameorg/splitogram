@@ -187,7 +187,8 @@
     "walletConnected": "Ví đã kết nối"
   },
   "settlement": {
-    "payWithUsdt": "Thanh toán bằng USDT",
+    "payWithUsdt": "Thanh toán bằng USDT trên TON",
+    "viewTransaction": "Xem giao dịch",
     "orSettleManually": "hoặc thanh toán thủ công",
     "connectWalletFirst": "Kết nối ví của bạn để thanh toán bằng USDT",
     "creditorNoWallet": "{{name}} chưa kết nối ví. Gửi nhắc nhở để kết nối.",

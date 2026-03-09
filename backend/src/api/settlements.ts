@@ -8,10 +8,17 @@ import { computeGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
+import { getExchangeRates, convertToMicroUsdt } from '../services/exchange-rates';
 import type { Database } from '../db';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 import type { Env } from '../env';
+
+function tonExplorerUrl(env: Env, txHash: string): string {
+  const base =
+    env.TON_NETWORK === 'mainnet' ? 'https://tonviewer.com' : 'https://testnet.tonviewer.com';
+  return `${base}/transaction/${txHash}`;
+}
 
 type SettlementEnv = AuthContext & DBContext & { Bindings: Env };
 
@@ -180,6 +187,8 @@ settlementsApp.get('/groups/:id/settlements', async (c) => {
     toUserName: userMap.get(r.toUser) ?? 'Unknown',
     amount: r.amount,
     status: r.status,
+    txHash: r.txHash,
+    explorerUrl: r.txHash ? tonExplorerUrl(c.env, r.txHash) : null,
     comment: r.comment,
     receiptKey: r.receiptKey,
     receiptThumbKey: r.receiptThumbKey,
@@ -258,6 +267,7 @@ settlementsApp.get('/settlements/:id', async (c) => {
     ...settlement,
     currentUserId: currentUser.id,
     currency: group?.currency ?? 'USD',
+    explorerUrl: settlement.txHash ? tonExplorerUrl(c.env, settlement.txHash) : null,
     from: { userId: settlement.fromUser, ...fromUserInfo },
     to: { userId: settlement.toUser, ...toUserInfo },
   };
@@ -276,11 +286,23 @@ settlementsApp.get('/settlements/:id', async (c) => {
         .where(eq(settlements.id, settlementId));
       result.status = 'open';
     } else {
+      // Convert to USDT for on-chain verification if needed
+      const groupCurrency = group?.currency ?? 'USD';
+      let verifyUsdtAmount: number | undefined;
+      if (groupCurrency !== 'USD') {
+        const ratesData = await getExchangeRates(db);
+        if (ratesData) {
+          verifyUsdtAmount =
+            convertToMicroUsdt(settlement.amount, groupCurrency, ratesData.rates) ?? undefined;
+        }
+      }
+
       // Try to verify on-chain
       const verification = await verifySettlementOnChain(
         c.env,
         settlement,
         toUserInfo.walletAddress,
+        verifyUsdtAmount,
       );
       if (verification.verified) {
         await db
@@ -295,6 +317,9 @@ settlementsApp.get('/settlements/:id', async (c) => {
         result.txHash = verification.txHash ?? null;
 
         // Fire-and-forget notification + activity log
+        const explorerUrl = verification.txHash
+          ? tonExplorerUrl(c.env, verification.txHash)
+          : undefined;
         const notifyCtx = {
           botToken: c.env.TELEGRAM_BOT_TOKEN,
           pagesUrl: c.env.PAGES_URL || '',
@@ -315,6 +340,7 @@ settlementsApp.get('/settlements/:id', async (c) => {
                 amount: settlement.amount,
                 status: 'settled_onchain',
                 txHash: verification.txHash,
+                explorerUrl,
               },
               settlement.fromUser,
               settlement.toUser,
@@ -327,6 +353,9 @@ settlementsApp.get('/settlements/:id', async (c) => {
               settlementId,
               targetUserId: settlement.toUser,
               amount: settlement.amount,
+              metadata: verification.txHash
+                ? { txHash: verification.txHash, explorerUrl, method: 'onchain' }
+                : undefined,
             }),
           ]),
         );
@@ -403,6 +432,35 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     return c.json({ error: 'no_wallet', detail: 'Creditor has not connected a wallet' }, 400);
   }
 
+  // Get group currency for conversion
+  const [group] = await db
+    .select({ currency: groups.currency })
+    .from(groups)
+    .where(eq(groups.id, settlement.groupId))
+    .limit(1);
+
+  const groupCurrency = group?.currency ?? 'USD';
+
+  // Convert group currency amount to USDT (micro-units)
+  let settlementAmountUsdt = settlement.amount; // default: same as group amount (USD groups)
+  if (groupCurrency !== 'USD') {
+    const ratesData = await getExchangeRates(db);
+    if (!ratesData) {
+      return c.json(
+        { error: 'rates_unavailable', detail: 'Exchange rates unavailable. Try again later.' },
+        503,
+      );
+    }
+    const converted = convertToMicroUsdt(settlement.amount, groupCurrency, ratesData.rates);
+    if (converted === null) {
+      return c.json(
+        { error: 'unsupported_currency', detail: `Cannot convert ${groupCurrency} to USDT` },
+        400,
+      );
+    }
+    settlementAmountUsdt = converted;
+  }
+
   // Look up sender's USDT Jetton Wallet via TONAPI
   const baseUrl = tonapiBaseUrl(c.env);
   const usdtMasterRaw = friendlyToRaw(usdtMasterAddress);
@@ -443,15 +501,17 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   }
 
   // Calculate commission so payer sends debt + commission (recipient gets full debt)
-  const commission = calculateCommission(settlement.amount);
-  const totalAmount = settlement.amount + commission;
+  const commission = calculateCommission(settlementAmountUsdt);
+  const totalAmount = settlementAmountUsdt + commission;
   const network = c.env.TON_NETWORK === 'mainnet' ? '-239' : '-3'; // CHAIN enum values
 
   return c.json({
     settlementId: settlement.id,
-    amount: settlement.amount, // micro-USDT (debt)
+    amount: settlementAmountUsdt, // micro-USDT (debt converted to USD)
     totalAmount, // micro-USDT (debt + commission — what payer sends)
     commission, // micro-USDT
+    originalAmount: settlement.amount, // micro-units in group currency
+    originalCurrency: groupCurrency,
     recipientAddress: creditor.walletAddress,
     contractAddress,
     senderJettonWallet,
@@ -615,6 +675,7 @@ settlementsApp.post(
       targetUserId:
         currentUser.id === settlement.fromUser ? settlement.toUser : settlement.fromUser,
       amount: paidAmount,
+      metadata: { method: 'external' },
     });
 
     // Fire-and-forget notification
@@ -778,7 +839,13 @@ settlementsApp.delete('/settlements/:id/receipt', async (c) => {
 async function sendSettlementNotification(
   notifyCtx: { botToken: string; pagesUrl: string; onBotBlocked?: (telegramId: number) => void },
   db: Database,
-  settlement: { id: number; amount: number; status: string; txHash?: string | null },
+  settlement: {
+    id: number;
+    amount: number;
+    status: string;
+    txHash?: string | null;
+    explorerUrl?: string;
+  },
   fromUserId: number,
   toUserId: number,
   groupId: number,
@@ -872,6 +939,7 @@ async function verifySettlementOnChain(
   env: Env,
   settlement: { id: number; amount: number; toUser: number },
   creditorWallet: string,
+  usdtAmount?: number, // micro-USDT (if already converted)
 ): Promise<{ verified: boolean; txHash?: string }> {
   const contractAddress = env.SETTLEMENT_CONTRACT_ADDRESS;
   if (!contractAddress) return { verified: false };
@@ -910,11 +978,10 @@ async function verifySettlementOnChain(
           return false;
         }
 
-        // Check amount: the recipient gets (amount - commission)
-        // Commission is 1% clamped [0.1, 1.0] USDT
-        const rawCommission = Math.floor(settlement.amount / 100);
-        const commission = Math.max(100_000, Math.min(1_000_000, rawCommission)); // micro-USDT
-        const expectedRecipientAmount = settlement.amount - commission;
+        // Check amount: the recipient gets the debt amount in USDT
+        // The payer sent (debt + commission), contract kept commission, forwarded debt
+        const debtUsdt = usdtAmount ?? settlement.amount; // use USDT amount if converted
+        const expectedRecipientAmount = debtUsdt;
 
         const transferAmount = parseInt(transfer.amount ?? '0', 10);
         // Allow 1% tolerance for rounding

@@ -189,7 +189,8 @@
     "walletConnected": "Portafoglio collegato"
   },
   "settlement": {
-    "payWithUsdt": "Paga con USDT",
+    "payWithUsdt": "Paga con USDT su TON",
+    "viewTransaction": "Vedi transazione",
     "orSettleManually": "o salda manualmente",
     "connectWalletFirst": "Collega il tuo portafoglio per pagare con USDT",
     "creditorNoWallet": "{{name}} non ha ancora collegato un portafoglio. Invia un promemoria per collegarlo.",
