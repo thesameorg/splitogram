@@ -164,7 +164,9 @@
     "markAsReceived": "Xác nhận đã nhận",
     "settling": "Đang lưu...",
     "notFound": "Không tìm thấy thanh toán",
-    "attachReceipt": "Đính kèm hóa đơn"
+    "attachReceipt": "Đính kèm hóa đơn",
+    "confirmMarkPaid": "Đánh dấu khoản nợ này là đã thanh toán?",
+    "confirmMarkReceived": "Đánh dấu khoản nợ này là đã nhận?"
   },
   "account": {
     "title": "Tài khoản",
@@ -204,7 +206,8 @@
     "declined": "Giao dịch bị từ chối. Bạn có thể thử lại.",
     "walletTimeout": "Ví không phản hồi. Mở ứng dụng ví và thử lại.",
     "txFailed": "Thanh toán chưa được xác nhận trên blockchain. Vui lòng thử lại.",
-    "txPending": "Mất nhiều thời gian hơn dự kiến...",
+    "txPending": "Mất nhiều thời gian hơn dự kiến. Thanh toán có thể vẫn đến — hãy kiểm tra lại sau.",
+    "walletDisconnected": "Ví đã bị ngắt kết nối. Vui lòng kết nối lại và thử lại.",
     "refreshStatus": "Làm mới Trạng thái",
     "tryAgain": "Thử Lại",
     "apiUnavailable": "API blockchain tạm thời không khả dụng. Bạn vẫn có thể thử thanh toán.",

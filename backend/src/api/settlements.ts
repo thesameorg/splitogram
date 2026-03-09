@@ -374,6 +374,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   const baseUrl = tonapiBaseUrl(c.env);
   const usdtMasterRaw = friendlyToRaw(usdtMasterAddress);
   let senderJettonWallet: string | null = null;
+  let senderUsdtBalance: number | null = null;
   try {
     const resp = await fetch(`${baseUrl}/v2/accounts/${senderAddress}/jettons?currencies=usd`, {
       headers: tonapiHeaders(c.env),
@@ -394,6 +395,9 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
       if (entry?.wallet_address) {
         senderJettonWallet = entry.wallet_address.address ?? entry.wallet_address;
       }
+      if (entry?.balance != null) {
+        senderUsdtBalance = parseInt(entry.balance, 10);
+      }
     }
   } catch {
     // TONAPI unavailable — frontend can't proceed but we return what we have
@@ -412,6 +416,20 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   // Calculate commission so payer sends debt + commission (recipient gets full debt)
   const commission = calculateCommission(settlementAmountUsdt);
   const totalAmount = settlementAmountUsdt + commission;
+
+  // Check USDT balance if available (TONAPI returns balance in nano-units, USDT has 6 decimals)
+  if (senderUsdtBalance != null && senderUsdtBalance < totalAmount) {
+    return c.json(
+      {
+        error: 'insufficient_usdt',
+        detail: 'Not enough USDT to cover payment + commission.',
+        balance: senderUsdtBalance,
+        required: totalAmount,
+      },
+      400,
+    );
+  }
+
   const network = c.env.TON_NETWORK === 'mainnet' ? '-239' : '-3'; // CHAIN enum values
 
   // Dynamic gas calculation based on testnet profiling:

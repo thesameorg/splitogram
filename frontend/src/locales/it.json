@@ -166,7 +166,9 @@
     "markAsReceived": "Conferma ricezione",
     "settling": "Salvataggio...",
     "notFound": "Saldo non trovato",
-    "attachReceipt": "Allega scontrino"
+    "attachReceipt": "Allega scontrino",
+    "confirmMarkPaid": "Contrassegnare questo debito come pagato?",
+    "confirmMarkReceived": "Contrassegnare questo debito come ricevuto?"
   },
   "account": {
     "title": "Account",
@@ -206,7 +208,8 @@
     "declined": "Transazione rifiutata. Puoi riprovare.",
     "walletTimeout": "Il portafoglio non ha risposto. Apri l'app del portafoglio e riprova.",
     "txFailed": "Pagamento non confermato sulla blockchain. Riprova.",
-    "txPending": "Sta richiedendo più tempo del previsto...",
+    "txPending": "Ci vuole più tempo del previsto. Il pagamento potrebbe ancora arrivare — controlla tra poco.",
+    "walletDisconnected": "Portafoglio disconnesso. Riconnetti e riprova.",
     "refreshStatus": "Aggiorna Stato",
     "tryAgain": "Riprova",
     "apiUnavailable": "L'API della blockchain è temporaneamente non disponibile. Puoi comunque provare a pagare.",

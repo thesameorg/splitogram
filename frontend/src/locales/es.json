@@ -166,7 +166,9 @@
     "markAsReceived": "Confirmar recibido",
     "settling": "Guardando...",
     "notFound": "Liquidación no encontrada",
-    "attachReceipt": "Adjuntar recibo"
+    "attachReceipt": "Adjuntar recibo",
+    "confirmMarkPaid": "¿Marcar esta deuda como pagada?",
+    "confirmMarkReceived": "¿Marcar esta deuda como recibida?"
   },
   "account": {
     "title": "Cuenta",
@@ -206,7 +208,8 @@
     "declined": "Transacción rechazada. Puedes intentarlo de nuevo.",
     "walletTimeout": "El monedero no respondió. Abre la app del monedero e intenta de nuevo.",
     "txFailed": "Pago no confirmado en la blockchain. Inténtalo de nuevo.",
-    "txPending": "Tardando más de lo esperado...",
+    "txPending": "Tarda más de lo esperado. El pago puede llegar todavía — revisa en breve.",
+    "walletDisconnected": "Billetera desconectada. Reconecta e inténtalo de nuevo.",
     "refreshStatus": "Actualizar estado",
     "tryAgain": "Intentar de nuevo",
     "apiUnavailable": "La API de la blockchain no está disponible temporalmente. Aún puedes intentar pagar.",

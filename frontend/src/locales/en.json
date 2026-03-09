@@ -169,7 +169,9 @@
     "attachReceipt": "Attach receipt",
     "amount": "Amount",
     "debtAmount": "Debt amount",
-    "invalidAmount": "Please enter a valid amount"
+    "invalidAmount": "Please enter a valid amount",
+    "confirmMarkPaid": "Mark this debt as paid?",
+    "confirmMarkReceived": "Mark this debt as received?"
   },
   "account": {
     "title": "Account",
@@ -216,7 +218,8 @@
     "declined": "Transaction declined. You can try again when ready.",
     "walletTimeout": "Wallet didn't respond. Open your wallet app and try again.",
     "txFailed": "Payment not confirmed on blockchain. Please try again.",
-    "txPending": "Taking longer than expected...",
+    "txPending": "Taking longer than expected. The payment may still arrive — check back shortly.",
+    "walletDisconnected": "Wallet disconnected. Please reconnect and try again.",
     "refreshStatus": "Refresh Status",
     "tryAgain": "Try Again",
     "apiUnavailable": "Blockchain API is temporarily unavailable. You can still try to pay.",

@@ -166,7 +166,9 @@
     "markAsReceived": "Empfang bestätigen",
     "settling": "Wird gespeichert...",
     "notFound": "Ausgleich nicht gefunden",
-    "attachReceipt": "Beleg anhängen"
+    "attachReceipt": "Beleg anhängen",
+    "confirmMarkPaid": "Diese Schuld als bezahlt markieren?",
+    "confirmMarkReceived": "Diese Schuld als erhalten markieren?"
   },
   "account": {
     "title": "Konto",
@@ -206,7 +208,8 @@
     "declined": "Transaktion abgelehnt. Du kannst es erneut versuchen.",
     "walletTimeout": "Wallet hat nicht geantwortet. Öffne deine Wallet-App und versuche es erneut.",
     "txFailed": "Zahlung nicht auf der Blockchain bestätigt. Bitte versuche es erneut.",
-    "txPending": "Dauert länger als erwartet...",
+    "txPending": "Dauert länger als erwartet. Die Zahlung kann noch ankommen — prüfen Sie in Kürze.",
+    "walletDisconnected": "Wallet getrennt. Bitte erneut verbinden und nochmal versuchen.",
     "refreshStatus": "Status aktualisieren",
     "tryAgain": "Erneut versuchen",
     "apiUnavailable": "Blockchain-API ist vorübergehend nicht verfügbar. Du kannst trotzdem versuchen zu bezahlen.",

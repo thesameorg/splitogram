@@ -164,7 +164,9 @@
     "markAsReceived": "Konfirmasi Diterima",
     "settling": "Menyimpan...",
     "notFound": "Pelunasan tidak ditemukan",
-    "attachReceipt": "Lampirkan struk"
+    "attachReceipt": "Lampirkan struk",
+    "confirmMarkPaid": "Tandai utang ini sebagai dibayar?",
+    "confirmMarkReceived": "Tandai utang ini sebagai diterima?"
   },
   "account": {
     "title": "Akun",
@@ -204,7 +206,8 @@
     "declined": "Transaksi ditolak. Anda bisa mencoba lagi.",
     "walletTimeout": "Dompet tidak merespons. Buka aplikasi dompet dan coba lagi.",
     "txFailed": "Pembayaran tidak dikonfirmasi di blockchain. Silakan coba lagi.",
-    "txPending": "Memakan waktu lebih lama dari yang diharapkan...",
+    "txPending": "Memakan waktu lebih lama dari yang diharapkan. Pembayaran mungkin masih sampai — periksa kembali segera.",
+    "walletDisconnected": "Dompet terputus. Silakan hubungkan kembali dan coba lagi.",
     "refreshStatus": "Perbarui Status",
     "tryAgain": "Coba Lagi",
     "apiUnavailable": "API blockchain sementara tidak tersedia. Anda tetap bisa mencoba membayar.",

@@ -167,6 +167,13 @@ export function SettleUp() {
             required: formatUsdtAmount(settlement!.amount),
           }),
         );
+      } else if (code === 'insufficient_usdt') {
+        setCryptoError(
+          t('settlement.insufficientUsdt', {
+            balance: formatUsdtAmount(err.balance ?? 0),
+            required: formatUsdtAmount(err.required ?? settlement!.amount),
+          }),
+        );
       } else {
         setCryptoError(err.message || 'Failed to prepare transaction');
       }
@@ -265,6 +272,15 @@ export function SettleUp() {
       startPolling();
     }
   }, [isPending, cryptoState, startPolling]);
+
+  // Detect wallet disconnect during crypto flow (preflight/confirm stages)
+  useEffect(() => {
+    if (!walletConnected && (cryptoState === 'preflight' || cryptoState === 'confirm')) {
+      setCryptoError(t('settlement.walletDisconnected'));
+      setCryptoState('error');
+      setTxParams(null);
+    }
+  }, [walletConnected, cryptoState, t]);
 
   function handleRetry() {
     setCryptoState('idle');
@@ -522,7 +538,12 @@ export function SettleUp() {
             </div>
 
             <button
-              onClick={handleMarkSettled}
+              onClick={() => {
+                const msg = isDebtor
+                  ? t('settleUp.confirmMarkPaid')
+                  : t('settleUp.confirmMarkReceived');
+                if (window.confirm(msg)) handleMarkSettled();
+              }}
               disabled={submitting}
               className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium disabled:opacity-50"
             >

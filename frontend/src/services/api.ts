@@ -1,13 +1,16 @@
 import { config } from '../config';
 
 export class ApiError extends Error {
+  [key: string]: unknown;
   constructor(
     public status: number,
     public errorCode: string,
     message: string,
+    extra?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'ApiError';
+    if (extra) Object.assign(this, extra);
   }
 }
 
@@ -37,7 +40,8 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
       error: 'unknown_error',
       detail: 'Unknown error',
     }));
-    throw new ApiError(response.status, body.error, body.detail);
+    const { error: code, detail, ...extra } = body;
+    throw new ApiError(response.status, code, detail, extra);
   }
 
   return response.json();

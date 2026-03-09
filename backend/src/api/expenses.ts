@@ -151,14 +151,6 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
     }
   }
 
-  // Payer must be in participants
-  if (!participantIds.includes(payerId)) {
-    return c.json(
-      { error: 'payer_not_participant', detail: 'Payer must be included in participants' },
-      400,
-    );
-  }
-
   // For percentage/manual, derive participantIds from shares
   const effectiveParticipantIds =
     splitMode !== 'equal' && shares ? shares.map((s) => s.userId) : participantIds;
@@ -449,12 +441,6 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
         }
       }
 
-      if (!participantIds.includes(expense.paidBy)) {
-        return c.json(
-          { error: 'payer_not_participant', detail: 'Payer must be included in participants' },
-          400,
-        );
-      }
     }
 
     const calculatedShares = calculateShares(
