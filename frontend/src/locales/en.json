@@ -219,7 +219,12 @@
     "refreshStatus": "Refresh Status",
     "tryAgain": "Try Again",
     "apiUnavailable": "Blockchain API is temporarily unavailable. You can still try to pay.",
-    "gasNote": "+ ~0.05 TON gas fee"
+    "gasNote": "+ ~0.05 TON gas fee",
+    "infoTitle": "How it works",
+    "infoHow": "Your payment goes through a smart contract on the TON blockchain. The contract receives your USDT, deducts a small commission, and forwards the rest directly to the recipient's wallet.",
+    "infoCommission": "Commission is 1% of the payment amount, with a minimum of 0.10 USDT and a maximum of 1.00 USDT.",
+    "infoGas": "A small TON gas fee (~0.05 TON) is required to process the transaction on the blockchain. Unused gas is returned to your wallet.",
+    "infoContract": "Settlement is processed by the Splitogram smart contract on the TON network. Transactions are final and verifiable on-chain."
   },
   "activity": {
     "title": "Activity",

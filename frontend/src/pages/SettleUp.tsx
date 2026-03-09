@@ -38,6 +38,7 @@ export function SettleUp() {
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
   const [reportImageKey, setReportImageKey] = useState<string | null>(null);
+  const [showCryptoInfo, setShowCryptoInfo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Crypto settlement state
@@ -365,6 +366,7 @@ export function SettleUp() {
             onPay={handlePayWithUsdt}
             onConfirm={handleConfirmPayment}
             onRetry={handleRetry}
+            onInfo={() => setShowCryptoInfo(true)}
             t={t}
           />
         </div>
@@ -507,6 +509,20 @@ export function SettleUp() {
         open={!!reportImageKey}
         onClose={() => setReportImageKey(null)}
       />
+
+      {/* Crypto info */}
+      <BottomSheet
+        open={showCryptoInfo}
+        onClose={() => setShowCryptoInfo(false)}
+        title={t('settlement.infoTitle')}
+      >
+        <div className="space-y-3 text-sm text-tg-text">
+          <p>{t('settlement.infoHow')}</p>
+          <p>{t('settlement.infoCommission')}</p>
+          <p>{t('settlement.infoGas')}</p>
+          <p className="text-tg-hint text-xs">{t('settlement.infoContract')}</p>
+        </div>
+      </BottomSheet>
     </PageLayout>
   );
 }
@@ -526,6 +542,7 @@ function CryptoSettlementUI({
   onPay,
   onConfirm,
   onRetry,
+  onInfo,
   t,
 }: {
   state: CryptoState;
@@ -540,6 +557,7 @@ function CryptoSettlementUI({
   onPay: () => void;
   onConfirm: () => void;
   onRetry: () => void;
+  onInfo: () => void;
   t: (key: string, opts?: Record<string, string>) => string;
 }) {
   if (state === 'success') {
@@ -626,13 +644,22 @@ function CryptoSettlementUI({
   // idle state
   return (
     <div className="space-y-2">
-      <button
-        onClick={onPay}
-        className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2"
-      >
-        <IconTon size={18} />
-        {walletConnected ? t('settlement.payWithUsdt') : t('account.connectWallet')}
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={onPay}
+          className="flex-1 bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2"
+        >
+          <IconTon size={18} />
+          {walletConnected ? t('settlement.payWithUsdt') : t('account.connectWallet')}
+        </button>
+        <button
+          onClick={onInfo}
+          className="px-4 py-4 rounded-xl border border-tg-separator text-tg-hint font-medium text-sm"
+          aria-label="Info"
+        >
+          ?
+        </button>
+      </div>
       {walletConnected && (
         <div className="text-center text-xs text-tg-hint">
           {truncateAddress(friendlyAddress)} &middot; {t('settlement.gasNote')}

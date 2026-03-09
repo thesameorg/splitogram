@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   api,
@@ -34,6 +34,7 @@ import { getActivityText } from './Activity';
 export function Group() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const groupId = parseInt(id ?? '', 10);
 
@@ -116,15 +117,17 @@ export function Group() {
       .finally(() => setStatsLoading(false));
   }, [tab, groupId, statsPeriod]);
 
-  // Show claim prompt once when group has placeholders and user is not a placeholder
+  // Show claim prompt only when user just joined the group (via ?joined=1 param)
   useEffect(() => {
-    if (!group || !currentUserId) return;
+    if (!group || !currentUserId || searchParams.get('joined') !== '1') return;
     const hasDummies = group.members.some((m) => m.isDummy);
     const iAmDummy = group.members.find((m) => m.userId === currentUserId)?.isDummy;
     if (hasDummies && !iAmDummy) {
       setShowClaimPrompt(true);
     }
-  }, [group, currentUserId]);
+    // Clear the param so it doesn't re-trigger
+    setSearchParams({}, { replace: true });
+  }, [group, currentUserId, searchParams, setSearchParams]);
 
   function canEditExpense(exp: Expense): boolean {
     return currentUserId === exp.paidBy;

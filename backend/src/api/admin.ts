@@ -75,7 +75,12 @@ function metricCard(label: string, value: string | number): string {
 app.get('/', async (c) => {
   const db = c.get('db');
 
-  const [{ total: userCount }] = await db.select({ total: sql<number>`count(*)` }).from(users);
+  const [{ total: totalUsers }] = await db.select({ total: sql<number>`count(*)` }).from(users);
+  const [{ total: dummyUsers }] = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(users)
+    .where(eq(users.isDummy, true));
+  const realUsers = totalUsers - dummyUsers;
   const [{ total: groupCount }] = await db.select({ total: sql<number>`count(*)` }).from(groups);
   const [{ total: expenseCount }] = await db
     .select({ total: sql<number>`count(*)` })
@@ -133,7 +138,7 @@ app.get('/', async (c) => {
 
   const cards = `
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-      ${metricCard('Users', userCount)}
+      ${metricCard('Users', `${realUsers}${dummyUsers > 0 ? ` (+${dummyUsers} placeholders)` : ''}`)}
       ${metricCard('Groups', groupCount)}
       ${metricCard('Active (30d)', activeGroups30d)}
       ${metricCard('Expenses', expenseCount)}

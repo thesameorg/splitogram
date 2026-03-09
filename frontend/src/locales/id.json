@@ -207,7 +207,12 @@
     "refreshStatus": "Perbarui Status",
     "tryAgain": "Coba Lagi",
     "apiUnavailable": "API blockchain sementara tidak tersedia. Anda tetap bisa mencoba membayar.",
-    "gasNote": "+ ~0.05 TON biaya gas"
+    "gasNote": "+ ~0.05 TON biaya gas",
+    "infoTitle": "Cara kerjanya",
+    "infoHow": "Pembayaran Anda melalui smart contract di blockchain TON. Kontrak menerima USDT Anda, memotong komisi kecil, dan meneruskan sisanya langsung ke dompet penerima.",
+    "infoCommission": "Komisi 1% dari jumlah pembayaran, minimum 0.10 USDT dan maksimum 1.00 USDT.",
+    "infoGas": "Biaya gas TON kecil (~0.05 TON) diperlukan untuk memproses transaksi di blockchain. Gas yang tidak terpakai dikembalikan ke dompet Anda.",
+    "infoContract": "Pembayaran diproses oleh smart contract Splitogram di jaringan TON. Transaksi bersifat final dan dapat diverifikasi on-chain."
   },
   "activity": {
     "title": "Aktivitas",

@@ -209,7 +209,12 @@
     "refreshStatus": "Actualizar estado",
     "tryAgain": "Intentar de nuevo",
     "apiUnavailable": "La API de la blockchain no está disponible temporalmente. Aún puedes intentar pagar.",
-    "gasNote": "+ ~0.05 TON comisión de gas"
+    "gasNote": "+ ~0.05 TON comisión de gas",
+    "infoTitle": "Cómo funciona",
+    "infoHow": "Tu pago pasa por un contrato inteligente en la blockchain TON. El contrato recibe tu USDT, deduce una pequeña comisión y envía el resto a la billetera del destinatario.",
+    "infoCommission": "La comisión es del 1% del monto, con un mínimo de 0.10 USDT y un máximo de 1.00 USDT.",
+    "infoGas": "Se necesita una pequeña tarifa de gas (~0.05 TON) para procesar la transacción. El gas no utilizado se devuelve a tu billetera.",
+    "infoContract": "El pago es procesado por el contrato inteligente de Splitogram en la red TON. Las transacciones son finales y verificables en la blockchain."
   },
   "activity": {
     "title": "Actividad",

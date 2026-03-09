@@ -70,7 +70,7 @@ function AppContent() {
             } catch (err) {
               if (!(err instanceof ApiError && err.errorCode === 'already_member')) throw err;
             }
-            navigate(`/groups/${info.id}`);
+            navigate(`/groups/${info.id}?joined=1`);
           })
           .catch((err) => {
             console.error('Failed to handle join deep link:', err);

@@ -133,7 +133,12 @@ export async function handleWebhook(c: Context) {
     if (!adminTgId || String(ctx.from?.id) !== adminTgId) return;
 
     const db = createDatabase(c.env.DB);
-    const [{ total: userCount }] = await db.select({ total: sql<number>`count(*)` }).from(users);
+    const [{ total: totalUsers }] = await db.select({ total: sql<number>`count(*)` }).from(users);
+    const [{ total: dummyUsers }] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(users)
+      .where(eq(users.isDummy, true));
+    const realUsers = totalUsers - dummyUsers;
     const [{ total: groupCount }] = await db.select({ total: sql<number>`count(*)` }).from(groups);
     const [{ total: expenseCount }] = await db
       .select({ total: sql<number>`count(*)` })
@@ -164,7 +169,7 @@ export async function handleWebhook(c: Context) {
 
     await ctx.reply(
       `<b>Splitogram Stats</b>\n\n` +
-        `Users: <b>${userCount}</b>\n` +
+        `Users: <b>${realUsers}</b>${dummyUsers > 0 ? ` (+${dummyUsers} placeholders)` : ''}\n` +
         `Groups: <b>${groupCount}</b>\n` +
         `Expenses: <b>${expenseCount}</b>\n` +
         `Settlements: <b>${settlementCount}</b>\n` +
