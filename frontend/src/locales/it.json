@@ -154,7 +154,10 @@
     "totalPercent": "Totale: {{total}}%",
     "remaining": "Rimanente: {{amount}}",
     "note": "Nota (facoltativo)",
-    "notePlaceholder": "Aggiungi una nota..."
+    "notePlaceholder": "Aggiungi una nota...",
+    "descriptionRequired": "La descrizione è obbligatoria",
+    "deselectAll": "Deseleziona tutti",
+    "selectAll": "Seleziona tutti"
   },
   "settleUp": {
     "title": "Salda",

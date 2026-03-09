@@ -154,7 +154,10 @@
     "totalPercent": "Total: {{total}}%",
     "remaining": "Restante: {{amount}}",
     "note": "Nota (opcional)",
-    "notePlaceholder": "Añadir una nota..."
+    "notePlaceholder": "Añadir una nota...",
+    "descriptionRequired": "La descripción es obligatoria",
+    "deselectAll": "Quitar todos",
+    "selectAll": "Seleccionar todos"
   },
   "settleUp": {
     "title": "Saldar deuda",

@@ -154,7 +154,10 @@
     "totalPercent": "مجموع: {{total}}%",
     "remaining": "باقی‌مانده: {{amount}}",
     "note": "یادداشت (اختیاری)",
-    "notePlaceholder": "یادداشت بنویسید..."
+    "notePlaceholder": "یادداشت بنویسید...",
+    "descriptionRequired": "توضیحات الزامی است",
+    "deselectAll": "حذف همه",
+    "selectAll": "انتخاب همه"
   },
   "settleUp": {
     "title": "تسویه حساب",

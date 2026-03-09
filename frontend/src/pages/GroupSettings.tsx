@@ -300,6 +300,7 @@ export function GroupSettings() {
                   avatarKey: null,
                   isDummy: true,
                   role: 'member',
+                  muted: false,
                   joinedAt: new Date().toISOString(),
                 },
               ],

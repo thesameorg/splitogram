@@ -59,6 +59,7 @@ export function Group() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [showClaimPrompt, setShowClaimPrompt] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
+  const [showGroupAvatar, setShowGroupAvatar] = useState(false);
 
   useTelegramBackButton(true);
 
@@ -296,8 +297,9 @@ export function Group() {
           </div>
         </div>
         <div className="mt-2 text-xs text-tg-hint">
-          {t('group.splitAmong', { count: exp.participants.length })}:{' '}
-          {exp.participants.map((p) => p.displayName).join(', ')}
+          {exp.participants.length > 3
+            ? t('group.splitAmong', { count: exp.participants.length })
+            : `${t('group.splitAmong', { count: exp.participants.length })}: ${exp.participants.map((p) => p.displayName).join(', ')}`}
         </div>
       </button>
     );
@@ -311,12 +313,23 @@ export function Group() {
       <div className="mb-6">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-3">
-            <Avatar
-              avatarKey={group.avatarKey}
-              emoji={group.avatarEmoji}
-              displayName={group.name}
-              size="lg"
-            />
+            {group.avatarKey ? (
+              <button onClick={() => setShowGroupAvatar(true)}>
+                <Avatar
+                  avatarKey={group.avatarKey}
+                  emoji={group.avatarEmoji}
+                  displayName={group.name}
+                  size="lg"
+                />
+              </button>
+            ) : (
+              <Avatar
+                avatarKey={group.avatarKey}
+                emoji={group.avatarEmoji}
+                displayName={group.name}
+                size="lg"
+              />
+            )}
             <div>
               <h1 className="text-xl font-bold">{group.name}</h1>
               <div className="text-sm text-tg-hint">
@@ -466,6 +479,11 @@ export function Group() {
                     {group.members.find((gm) => gm.userId === m.userId)?.isDummy
                       ? `\uD83D\uDC64 ${m.displayName}`
                       : m.displayName}
+                    {group.members.find((gm) => gm.userId === m.userId)?.muted && (
+                      <span className="ml-1 text-tg-hint" title="Muted">
+                        {'\uD83D\uDD07'}
+                      </span>
+                    )}
                   </span>
                   <span className={`text-sm font-medium ${balanceColor}`}>
                     {m.netBalance === 0
@@ -533,12 +551,21 @@ export function Group() {
                         >
                           {t('group.markAsSettled')}
                         </button>
-                        <button
-                          onClick={() => handleSendReminder(debt)}
-                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
-                        >
-                          {t('group.sendReminder')}
-                        </button>
+                        {group.members.find((m) => m.userId === debt.from.userId)?.isDummy ? (
+                          <button
+                            onClick={() => shareInviteLink(group.inviteCode, group.name)}
+                            className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                          >
+                            {t('group.invite')}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleSendReminder(debt)}
+                            className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                          >
+                            {t('group.sendReminder')}
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -849,6 +876,31 @@ export function Group() {
         open={!!reportImageKey}
         onClose={() => setReportImageKey(null)}
       />
+
+      {/* Group avatar viewer */}
+      <BottomSheet open={showGroupAvatar} onClose={() => setShowGroupAvatar(false)} title="">
+        {group.avatarKey && (
+          <div>
+            <img
+              src={imageUrl(group.avatarKey)}
+              alt={group.name}
+              className="w-full rounded-xl"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <button
+              onClick={() => {
+                setReportImageKey(group.avatarKey);
+                setShowGroupAvatar(false);
+              }}
+              className="mt-3 text-xs text-tg-hint"
+            >
+              ⚠️ {t('report.button')}
+            </button>
+          </div>
+        )}
+      </BottomSheet>
 
       {/* Claim placeholder prompt */}
       <BottomSheet

@@ -154,7 +154,10 @@
     "totalPercent": "Total: {{total}}%",
     "remaining": "Restante: {{amount}}",
     "note": "Nota (opcional)",
-    "notePlaceholder": "Adicionar uma nota..."
+    "notePlaceholder": "Adicionar uma nota...",
+    "descriptionRequired": "Descrição é obrigatória",
+    "deselectAll": "Limpar todos",
+    "selectAll": "Selecionar todos"
   },
   "settleUp": {
     "title": "Acertar Contas",

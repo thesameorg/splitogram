@@ -154,7 +154,10 @@
     "totalPercent": "कुल: {{total}}%",
     "remaining": "शेष: {{amount}}",
     "note": "नोट (वैकल्पिक)",
-    "notePlaceholder": "नोट जोड़ें..."
+    "notePlaceholder": "नोट जोड़ें...",
+    "descriptionRequired": "विवरण आवश्यक है",
+    "deselectAll": "सभी हटाएं",
+    "selectAll": "सभी चुनें"
   },
   "settleUp": {
     "title": "हिसाब करें",

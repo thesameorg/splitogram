@@ -154,7 +154,10 @@
     "totalPercent": "Total: {{total}}%",
     "remaining": "Remaining: {{amount}}",
     "note": "Note (optional)",
-    "notePlaceholder": "Add a note..."
+    "notePlaceholder": "Add a note...",
+    "descriptionRequired": "Description is required",
+    "deselectAll": "Clear all",
+    "selectAll": "Select all"
   },
   "settleUp": {
     "title": "Settle Up",

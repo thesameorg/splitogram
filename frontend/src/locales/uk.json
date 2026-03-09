@@ -156,7 +156,10 @@
     "totalPercent": "Разом: {{total}}%",
     "remaining": "Залишок: {{amount}}",
     "note": "Нотатка (необов'язково)",
-    "notePlaceholder": "Додати нотатку..."
+    "notePlaceholder": "Додати нотатку...",
+    "descriptionRequired": "Введіть опис",
+    "deselectAll": "Зняти все",
+    "selectAll": "Вибрати все"
   },
   "settleUp": {
     "title": "Розрахунок",

@@ -12,7 +12,8 @@ interface ActivityEntry {
     | 'settlement_completed'
     | 'member_joined'
     | 'member_left'
-    | 'member_kicked';
+    | 'member_kicked'
+    | 'placeholder_claimed';
   targetUserId?: number;
   expenseId?: number;
   settlementId?: number;

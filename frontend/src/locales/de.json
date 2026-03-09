@@ -154,7 +154,10 @@
     "totalPercent": "Gesamt: {{total}}%",
     "remaining": "Verbleibend: {{amount}}",
     "note": "Notiz (optional)",
-    "notePlaceholder": "Notiz hinzufügen..."
+    "notePlaceholder": "Notiz hinzufügen...",
+    "descriptionRequired": "Beschreibung ist erforderlich",
+    "deselectAll": "Alle abwählen",
+    "selectAll": "Alle auswählen"
   },
   "settleUp": {
     "title": "Begleichen",

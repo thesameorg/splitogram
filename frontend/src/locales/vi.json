@@ -152,7 +152,10 @@
     "totalPercent": "Tổng: {{total}}%",
     "remaining": "Còn lại: {{amount}}",
     "note": "Ghi chú (tùy chọn)",
-    "notePlaceholder": "Thêm ghi chú..."
+    "notePlaceholder": "Thêm ghi chú...",
+    "descriptionRequired": "Mô tả là bắt buộc",
+    "deselectAll": "Bỏ chọn tất cả",
+    "selectAll": "Chọn tất cả"
   },
   "settleUp": {
     "title": "Thanh toán",

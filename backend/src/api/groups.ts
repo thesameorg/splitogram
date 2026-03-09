@@ -216,6 +216,7 @@ groupsApp.get('/:id', async (c) => {
       avatarKey: users.avatarKey,
       isDummy: users.isDummy,
       role: groupMembers.role,
+      muted: groupMembers.muted,
       joinedAt: groupMembers.joinedAt,
     })
     .from(groupMembers)
@@ -1246,6 +1247,26 @@ groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSche
     );
   }
 
+  // Prevent claiming multiple placeholders — one claim per user per group.
+  // Uses activity_log to check for prior placeholder_claimed events.
+  const [priorClaim] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(activityLog)
+    .where(
+      and(
+        eq(activityLog.groupId, groupId),
+        eq(activityLog.actorId, userId),
+        eq(activityLog.type, 'placeholder_claimed'),
+      ),
+    );
+
+  if (priorClaim.count > 0) {
+    return c.json(
+      { error: 'already_claimed', detail: 'You have already claimed a placeholder in this group' },
+      400,
+    );
+  }
+
   // Gather data needed before the atomic batch
   const groupExpenseIds = await db
     .select({ id: expenses.id })
@@ -1352,6 +1373,15 @@ groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSche
 
   // Refresh cached balances after claim (FK references moved from dummy to real user)
   await refreshGroupBalances(db, groupId);
+
+  // Log the claim event (used to prevent multiple claims per user per group)
+  await logActivity(db, {
+    groupId,
+    actorId: userId,
+    type: 'placeholder_claimed',
+    targetUserId: dummyUserId,
+    metadata: { dummyName: dummy.displayName },
+  });
 
   // Delete dummy user only if no other group memberships remain (already removed from this group above)
   const [remainingMemberships] = await db

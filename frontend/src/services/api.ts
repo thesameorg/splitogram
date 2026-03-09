@@ -73,6 +73,7 @@ export interface GroupMember {
   avatarKey: string | null;
   isDummy: boolean;
   role: string;
+  muted: boolean;
   joinedAt: string;
 }
 

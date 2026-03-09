@@ -152,7 +152,10 @@
     "totalPercent": "Total: {{total}}%",
     "remaining": "Sisa: {{amount}}",
     "note": "Catatan (opsional)",
-    "notePlaceholder": "Tambahkan catatan..."
+    "notePlaceholder": "Tambahkan catatan...",
+    "descriptionRequired": "Deskripsi wajib diisi",
+    "deselectAll": "Hapus semua",
+    "selectAll": "Pilih semua"
   },
   "settleUp": {
     "title": "Lunasi",

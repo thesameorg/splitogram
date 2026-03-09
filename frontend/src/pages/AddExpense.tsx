@@ -37,6 +37,7 @@ export function AddExpense() {
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [existingReceipt, setExistingReceipt] = useState(false);
+  const [attempted, setAttempted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useTelegramBackButton(true);
@@ -118,6 +119,7 @@ export function AddExpense() {
     sharesValid;
 
   const handleSubmit = useCallback(async () => {
+    setAttempted(true);
     if (!canSubmit || submitting || paidBy === null) return;
     setSubmitting(true);
     setError(null);
@@ -264,10 +266,13 @@ export function AddExpense() {
           placeholder={t('addExpense.descriptionPlaceholder')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+          className={`w-full p-3 border rounded-xl bg-transparent ${attempted && !description.trim() ? 'border-app-negative' : 'border-tg-separator'}`}
           autoFocus
           maxLength={500}
         />
+        {attempted && !description.trim() && (
+          <p className="text-xs text-app-negative mt-1">{t('addExpense.descriptionRequired')}</p>
+        )}
       </div>
 
       {/* Comment (optional note) */}
@@ -321,9 +326,29 @@ export function AddExpense() {
 
       {/* Split Among */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-2 text-tg-hint">
-          {t('addExpense.splitAmong')}
-        </label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-tg-hint">
+            {t('addExpense.splitAmong')}
+          </label>
+          <div className="flex gap-2">
+            {selectedParticipants.size > 0 && selectedParticipants.size < group.members.length && (
+              <button
+                onClick={() => setSelectedParticipants(new Set(group.members.map((m) => m.userId)))}
+                className="text-xs text-tg-link font-medium"
+              >
+                {t('addExpense.selectAll')}
+              </button>
+            )}
+            {selectedParticipants.size > 0 && (
+              <button
+                onClick={() => setSelectedParticipants(new Set())}
+                className="text-xs text-app-negative font-medium"
+              >
+                {t('addExpense.deselectAll')}
+              </button>
+            )}
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2">
           {group.members.map((m) => (
             <button
