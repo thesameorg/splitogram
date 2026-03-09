@@ -38,7 +38,12 @@ function generateInviteCode(): string {
 
 // --- Create group ---
 const createGroupSchema = z.object({
-  name: z.string().min(1).max(100),
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, '')),
   currency: z
     .string()
     .refine((c) => CURRENCY_CODES.includes(c))
@@ -266,7 +271,13 @@ groupsApp.get('/:id', async (c) => {
 
 // --- Update group settings ---
 const updateGroupSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, ''))
+    .optional(),
   currency: z
     .string()
     .refine((c) => CURRENCY_CODES.includes(c))
@@ -888,6 +899,20 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
     );
   }
 
+  // Enforce max group size to prevent unbounded growth
+  const MAX_GROUP_MEMBERS = 100;
+  const [{ count: currentMemberCount }] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(groupMembers)
+    .where(eq(groupMembers.groupId, groupId));
+
+  if (currentMemberCount >= MAX_GROUP_MEMBERS) {
+    return c.json(
+      { error: 'group_full', detail: `Group is full (max ${MAX_GROUP_MEMBERS} members)` },
+      400,
+    );
+  }
+
   await db.insert(groupMembers).values({
     groupId,
     userId: user.id,
@@ -1096,7 +1121,12 @@ groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) =
 
 // --- Create placeholder member (admin only) ---
 const createPlaceholderSchema = z.object({
-  name: z.string().min(1).max(64),
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(64)
+    .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, '')),
 });
 
 groupsApp.post('/:id/placeholders', zValidator('json', createPlaceholderSchema), async (c) => {
@@ -1166,7 +1196,12 @@ groupsApp.post('/:id/placeholders', zValidator('json', createPlaceholderSchema),
 
 // --- Edit placeholder name (admin only) ---
 const editPlaceholderSchema = z.object({
-  name: z.string().min(1).max(64),
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(64)
+    .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, '')),
 });
 
 groupsApp.put('/:id/placeholders/:userId', zValidator('json', editPlaceholderSchema), async (c) => {

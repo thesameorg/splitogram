@@ -911,12 +911,16 @@ settlementsApp.post('/settlements/:id/receipt', async (c) => {
     httpMetadata: { contentType: 'image/jpeg' },
   });
 
+  // Upload thumbnail if provided (validate to prevent oversized uploads)
   let thumbKey: string | null = null;
   if (thumbnail instanceof File) {
-    thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
-    await c.env.IMAGES.put(thumbKey, await thumbnail.arrayBuffer(), {
-      httpMetadata: { contentType: 'image/jpeg' },
-    });
+    const thumbError = validateUpload(thumbnail);
+    if (!thumbError) {
+      thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
+      await c.env.IMAGES.put(thumbKey, await thumbnail.arrayBuffer(), {
+        httpMetadata: { contentType: 'image/jpeg' },
+      });
+    }
   }
 
   // Delete old receipt from R2 (best-effort)

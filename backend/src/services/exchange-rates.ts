@@ -2,7 +2,8 @@ import { eq } from 'drizzle-orm';
 import { exchangeRates } from '../db/schema';
 import type { Database } from '../db';
 
-const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours
+const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours — triggers refresh
+const MAX_STALE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — refuse to use older rates
 const API_URL = 'https://open.er-api.com/v6/latest/USD';
 const FALLBACK_URL =
   'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
@@ -41,8 +42,8 @@ export async function getExchangeRates(db: Database): Promise<RatesResult | null
     return { rates: freshRates, fetchedAt };
   }
 
-  // API failed — return stale data if available
-  if (row) {
+  // API failed — return stale data if not too old (max 7 days)
+  if (row && now - row.fetchedAt * 1000 < MAX_STALE_MS) {
     return { rates: JSON.parse(row.rates), fetchedAt: row.fetchedAt };
   }
 

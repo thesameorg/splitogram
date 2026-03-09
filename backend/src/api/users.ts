@@ -42,7 +42,12 @@ app.put(
   zValidator(
     'json',
     z.object({
-      displayName: z.string().min(1).max(64),
+      displayName: z
+        .string()
+        .trim()
+        .min(1)
+        .max(64)
+        .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, '')),
     }),
   ),
   async (c) => {
@@ -173,11 +178,12 @@ app.post('/feedback', async (c) => {
   const chatId = parseInt(adminTelegramId, 10);
   const botToken = c.env.TELEGRAM_BOT_TOKEN;
 
-  // Collect attachment files (attachment_0..4)
+  // Collect attachment files (attachment_0..4), enforce 10MB per file limit
+  const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
   const attachments: File[] = [];
   for (let i = 0; i < 5; i++) {
     const file = body[`attachment_${i}`];
-    if (file instanceof File) attachments.push(file);
+    if (file instanceof File && file.size <= MAX_ATTACHMENT_SIZE) attachments.push(file);
   }
 
   c.executionCtx.waitUntil(

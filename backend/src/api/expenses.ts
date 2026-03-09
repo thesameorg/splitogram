@@ -27,7 +27,12 @@ const shareSchema = z.object({
 const createExpenseSchema = z
   .object({
     amount: z.number().int().positive('Amount must be positive').max(MAX_AMOUNT_MICRO),
-    description: z.string().min(1).max(500),
+    description: z
+      .string()
+      .trim()
+      .min(1)
+      .max(500)
+      .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, '')),
     paidBy: z.number().int().positive().optional(),
     participantIds: z.array(z.number().int().positive()).min(1, 'At least 1 participant required'),
     splitMode: z.enum(splitModes).default('equal'),
@@ -347,13 +352,33 @@ expensesApp.get('/', async (c) => {
 });
 
 // --- Edit expense ---
-const editExpenseSchema = z.object({
-  amount: z.number().int().positive().max(MAX_AMOUNT_MICRO).optional(),
-  description: z.string().min(1).max(500).optional(),
-  participantIds: z.array(z.number().int().positive()).min(1).optional(),
-  splitMode: z.enum(splitModes).optional(),
-  shares: z.array(shareSchema).optional(),
-});
+const editExpenseSchema = z
+  .object({
+    amount: z.number().int().positive().max(MAX_AMOUNT_MICRO).optional(),
+    description: z
+      .string()
+      .trim()
+      .min(1)
+      .max(500)
+      .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, ''))
+      .optional(),
+    participantIds: z.array(z.number().int().positive()).min(1).optional(),
+    splitMode: z.enum(splitModes).optional(),
+    shares: z.array(shareSchema).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.splitMode === 'percentage' && data.shares) {
+      const total = data.shares.reduce((sum, s) => sum + s.value, 0);
+      if (Math.abs(total - 100) > 0.01) {
+        ctx.addIssue({ code: 'custom', message: 'Percentages must sum to 100' });
+      }
+    } else if (data.splitMode === 'manual' && data.shares && data.amount) {
+      const total = data.shares.reduce((sum, s) => sum + s.value, 0);
+      if (total !== data.amount) {
+        ctx.addIssue({ code: 'custom', message: 'Manual shares must sum to the total amount' });
+      }
+    }
+  });
 
 expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) => {
   const db = c.get('db');
@@ -631,13 +656,16 @@ expensesApp.post('/:expenseId/receipt', async (c) => {
     httpMetadata: { contentType: 'image/jpeg' },
   });
 
-  // Upload thumbnail if provided
+  // Upload thumbnail if provided (validate to prevent oversized uploads)
   let thumbKey: string | null = null;
   if (thumbnail instanceof File) {
-    thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
-    await c.env.IMAGES.put(thumbKey, await thumbnail.arrayBuffer(), {
-      httpMetadata: { contentType: 'image/jpeg' },
-    });
+    const thumbError = validateUpload(thumbnail);
+    if (!thumbError) {
+      thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
+      await c.env.IMAGES.put(thumbKey, await thumbnail.arrayBuffer(), {
+        httpMetadata: { contentType: 'image/jpeg' },
+      });
+    }
   }
 
   // Delete old receipt from R2 (best-effort)
