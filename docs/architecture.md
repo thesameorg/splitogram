@@ -18,6 +18,8 @@ Living document. Updated as architectural decisions are made.
 | TON verification | TONAPI REST API (plain `fetch`) | No SDK needed on backend                              |
 | Smart contract   | Tact (Blueprint + Sandbox)      | High-level TON lang, typed, testable                  |
 
+**Legal pages:** Privacy Policy (`/privacy`) and Terms of Service (`/terms`) served as plain HTML from the Worker. Source of truth is `docs/*.md` — imported as raw text via wrangler `Text` rule, converted to HTML with `marked` at module init. Public, no auth.
+
 **Admin dashboard:** Plain HTML at `/admin`, same Worker, `hono/basic-auth` with `ADMIN_SECRET`. External browser only (no TG `initData` available outside WebView). Frontend admin link uses Worker URL (`config.apiBaseUrl`) as base, not Pages origin — since Pages and Worker are separate deployments. Vite proxy includes `/admin` for local dev. Bot `/stats` command for quick metrics.
 
 **Frontend framework/UI library:** Plain React + Tailwind, no component library. Decided Phase 3 — see below.
