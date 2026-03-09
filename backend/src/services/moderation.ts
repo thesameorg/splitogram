@@ -8,7 +8,11 @@ import type { Database } from '../db';
  * Key format: `{prefix}/{entityId}-{hash}.jpg` where prefix is avatars|groups|receipts.
  */
 export async function removeImage(bucket: R2Bucket, db: Database, imageKey: string): Promise<void> {
-  await bucket.delete(imageKey);
+  try {
+    await bucket.delete(imageKey);
+  } catch (e) {
+    console.error('[moderation:removeImage] R2 delete failed:', imageKey, e);
+  }
 
   // Also delete thumbnail variant if exists
   const thumbKey = imageKey.replace('.jpg', '-thumb.jpg');

@@ -193,109 +193,114 @@ function getOrCreateBot(botToken: string): Bot {
   // Report moderation: admin taps Reject or Remove
   // callback_data format: "rj|{reportId}" or "rm|{reportId}"
   bot.on('callback_query:data', async (ctx: GrammyContext) => {
-    const data = ctx.callbackQuery?.data;
-    if (!data) return;
+    try {
+      const data = ctx.callbackQuery?.data;
+      if (!data) return;
 
-    const parts = data.split('|');
-    if (parts.length !== 2) return;
+      const parts = data.split('|');
+      if (parts.length !== 2) return;
 
-    const [action, reportIdStr] = parts;
-    const reportId = parseInt(reportIdStr, 10);
-    if (isNaN(reportId)) return;
+      const [action, reportIdStr] = parts;
+      const reportId = parseInt(reportIdStr, 10);
+      if (isNaN(reportId)) return;
 
-    const db = createDatabase(currentEnv.DB);
-    const botToken = currentEnv.TELEGRAM_BOT_TOKEN;
+      const db = createDatabase(currentEnv.DB);
+      const botToken = currentEnv.TELEGRAM_BOT_TOKEN;
 
-    // Look up report from DB
-    const [report] = await db
-      .select()
-      .from(imageReports)
-      .where(eq(imageReports.id, reportId))
-      .limit(1);
+      // Look up report from DB
+      const [report] = await db
+        .select()
+        .from(imageReports)
+        .where(eq(imageReports.id, reportId))
+        .limit(1);
 
-    if (!report) {
-      await ctx.answerCallbackQuery({ text: 'Report not found' });
-      return;
-    }
+      if (!report) {
+        await ctx.answerCallbackQuery({ text: 'Report not found' });
+        return;
+      }
 
-    if (report.status !== 'pending') {
-      await ctx.answerCallbackQuery({ text: 'Already processed' });
-      return;
-    }
+      if (report.status !== 'pending') {
+        await ctx.answerCallbackQuery({ text: 'Already processed' });
+        return;
+      }
 
-    const reporterTgId = report.reporterTelegramId;
-    const imageKey = report.imageKey;
+      const reporterTgId = report.reporterTelegramId;
+      const imageKey = report.imageKey;
 
-    if (action === 'rj') {
-      // Reject — update report, notify reporter, update caption
-      await db
-        .update(imageReports)
-        .set({ status: 'rejected' })
-        .where(eq(imageReports.id, reportId));
+      if (action === 'rj') {
+        // Reject — update report, notify reporter, update caption
+        await db
+          .update(imageReports)
+          .set({ status: 'rejected' })
+          .where(eq(imageReports.id, reportId));
 
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: reporterTgId,
-          text: 'Your report has been reviewed. The image was not found to violate our guidelines.',
-        }),
-        signal: AbortSignal.timeout(10000),
-      }).catch(() => {});
-
-      const msgId = ctx.callbackQuery?.message?.message_id;
-      const chatId = ctx.callbackQuery?.message?.chat.id;
-      const oldCaption = (ctx.callbackQuery?.message as any)?.caption || '';
-      if (msgId && chatId) {
-        await fetch(`https://api.telegram.org/bot${botToken}/editMessageCaption`, {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: chatId,
-            message_id: msgId,
-            caption: `${oldCaption}\n\n✅ Rejected by admin`,
+            chat_id: reporterTgId,
+            text: 'Your report has been reviewed. The image was not found to violate our guidelines.',
           }),
           signal: AbortSignal.timeout(10000),
         }).catch(() => {});
-      }
 
-      await ctx.answerCallbackQuery({ text: 'Rejected' });
-    } else if (action === 'rm') {
-      // Remove — update report, delete from R2, notify reporter, update caption
-      await db
-        .update(imageReports)
-        .set({ status: 'removed' })
-        .where(eq(imageReports.id, reportId));
+        const msgId = ctx.callbackQuery?.message?.message_id;
+        const chatId = ctx.callbackQuery?.message?.chat.id;
+        const oldCaption = (ctx.callbackQuery?.message as any)?.caption || '';
+        if (msgId && chatId) {
+          await fetch(`https://api.telegram.org/bot${botToken}/editMessageCaption`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              message_id: msgId,
+              caption: `${oldCaption}\n\n✅ Rejected by admin`,
+            }),
+            signal: AbortSignal.timeout(10000),
+          }).catch(() => {});
+        }
 
-      await removeImage(currentEnv.IMAGES, db, imageKey);
+        await ctx.answerCallbackQuery({ text: 'Rejected' });
+      } else if (action === 'rm') {
+        // Remove — update report, delete from R2, notify reporter, update caption
+        await db
+          .update(imageReports)
+          .set({ status: 'removed' })
+          .where(eq(imageReports.id, reportId));
 
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: reporterTgId,
-          text: 'Your report has been reviewed. The image has been removed.',
-        }),
-        signal: AbortSignal.timeout(10000),
-      }).catch(() => {});
+        await removeImage(currentEnv.IMAGES, db, imageKey);
 
-      const msgId = ctx.callbackQuery?.message?.message_id;
-      const chatId = ctx.callbackQuery?.message?.chat.id;
-      const oldCaption = (ctx.callbackQuery?.message as any)?.caption || '';
-      if (msgId && chatId) {
-        await fetch(`https://api.telegram.org/bot${botToken}/editMessageCaption`, {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: chatId,
-            message_id: msgId,
-            caption: `${oldCaption}\n\n🗑 Removed by admin`,
+            chat_id: reporterTgId,
+            text: 'Your report has been reviewed. The image has been removed.',
           }),
           signal: AbortSignal.timeout(10000),
         }).catch(() => {});
-      }
 
-      await ctx.answerCallbackQuery({ text: 'Removed' });
+        const msgId = ctx.callbackQuery?.message?.message_id;
+        const chatId = ctx.callbackQuery?.message?.chat.id;
+        const oldCaption = (ctx.callbackQuery?.message as any)?.caption || '';
+        if (msgId && chatId) {
+          await fetch(`https://api.telegram.org/bot${botToken}/editMessageCaption`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              message_id: msgId,
+              caption: `${oldCaption}\n\n🗑 Removed by admin`,
+            }),
+            signal: AbortSignal.timeout(10000),
+          }).catch(() => {});
+        }
+
+        await ctx.answerCallbackQuery({ text: 'Removed' });
+      }
+    } catch (e) {
+      console.error('Callback query handler error:', e);
+      await ctx.answerCallbackQuery({ text: 'Error processing request' }).catch(() => {});
     }
   });
 

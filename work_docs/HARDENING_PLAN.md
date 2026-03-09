@@ -94,30 +94,27 @@ Edit schema doesn't accept `paidBy` field — payer can't be changed during edit
 
 ## LOW
 
-### N1. Notification retry logic
-**File:** `backend/src/services/notifications.ts`
-Single bounded retry on failure. No exponential backoff, no dead-letter tracking.
+### N1. Notification retry logic — SKIPPED
+Current retry (1 retry after 1s, 403 handling) is adequate for fire-and-forget notifications at this scale.
 
-### N2. Moderation service error logging
+### N2. Moderation service error logging ✅
 **File:** `backend/src/services/moderation.ts`
-`removeImage()` errors are caught but not logged with context (which image, which report).
+**Was:** R2 delete failure in `removeImage()` threw and prevented DB cleanup.
+**Fix:** Wrapped R2 delete in try-catch with logging. DB cleanup now runs regardless.
 
-### N3. Webhook callback error handling
+### N3. Webhook callback error handling ✅
 **File:** `backend/src/webhook.ts`
-Bot callback query handlers don't answer the callback on error, leaving Telegram's loading spinner stuck.
+**Was:** Unhandled errors left Telegram's callback spinner stuck.
+**Fix:** Wrapped entire `callback_query:data` handler in try-catch. Answers callback with error message on failure.
 
-### N4. Frontend settle-up polling without backoff
-**File:** `frontend/src/pages/SettleUp.tsx`
-TX polling uses fixed interval with no exponential backoff or max retry limit.
+### N4. Frontend settle-up polling without backoff — SKIPPED
+Already bounded: 3s interval, 90s max (30 requests). Exponential backoff not worth the complexity.
 
-### N5. Group deletion doesn't clean up R2 images
-**File:** `backend/src/api/groups.ts`
-Deleting a group leaves orphaned avatar and receipt images in R2.
+### N5. Group deletion doesn't clean up R2 images — ALREADY HANDLED
+R2 cleanup was already implemented: group avatar, expense receipts, and settlement receipts all cleaned up via `waitUntil()` on group delete.
 
-### N6. No user deletion / GDPR
-**File:** `backend/src/api/users.ts`
-No endpoint to delete user data. Potential GDPR compliance gap.
+### N6. No user deletion / GDPR — DEFERRED
+Feature request, not hardening. Needs product decision on data retention policy.
 
-### N7. Stats queries on large groups
-**File:** `backend/src/api/stats.ts`
-Stats queries scan all expenses for a group with no pagination or caching. Could be slow for groups with thousands of expenses.
+### N7. Stats queries on large groups — DEFERRED
+Move to later optimization pass. Not a security/correctness issue.
