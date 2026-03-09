@@ -24,7 +24,7 @@ r2App.get('/*', async (c) => {
     headers.set('Content-Length', object.size.toString());
   }
 
-  return new Response(object.body as ReadableStream, { headers });
+  return new Response(object.body as unknown as ReadableStream, { headers });
 });
 
 export { r2App };
