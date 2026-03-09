@@ -256,6 +256,10 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 
 ## Planning Docs
 
-- `work_docs/PLAN.md` — 10-phase roadmap (Phase 1-8 done, Phase 9 next)
 - `docs/architecture.md` — stack, architecture, key engineering principles
-- `work_docs/idea.md` — business overview and competitive landscape
+- `docs/idea.md` — business overview and competitive landscape
+- `docs/smart-contract.md` — TON settlement contract manual
+- `docs/envs.md` — TON-related environment variables
+- `docs/mainnet-migration.md` — testnet → mainnet migration checklist
+- `docs/TWA-checklist.md` — Telegram Mini App listing requirements
+- `work_docs/CODE_REVIEW.md` — code review findings (3 critical fixed, remaining open)
