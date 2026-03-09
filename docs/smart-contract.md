@@ -112,8 +112,10 @@ User A owes User B 100 USDT. Commission: 1%.
    a) 99 USDT → User B's address
    b) 1 USDT  → Owner (your) address
 
-7. Excess TON gas is returned to User A (response_destination)
+7. Excess TON gas is returned to User A's regular wallet (response_destination)
 ```
+
+**Important: `response_destination`** must be set to the sender's **regular wallet address** (not their Jetton Wallet). The recipient's Jetton Wallet sends an `Excesses` message (opcode `0xd53276db`) to `response_destination` with leftover TON. If this points to a Jetton Wallet contract, the Jetton Wallet has no handler for `Excesses` → exit code 65535 and the excess TON is lost.
 
 **Gas considerations:** each Jetton transfer on TON costs ~0.05-0.1 TON in gas. Since the contract sends two outgoing transfers, User A needs to attach ~0.3 TON as `forward_ton_amount` to cover gas. This is standard practice in TON DeFi.
 
@@ -206,7 +208,7 @@ The deployed contract is in `contracts/splitogram-contract/contracts/SplitogramS
 
 - **Commission:** configurable basis points (100 = 1%), clamped between min 0.1 USDT and max 1 USDT
 - **Jetton Wallet trust:** must be set via `SetJettonWallet` (owner only) before the contract accepts any settlements. No trust-on-first-use — contract rejects `TokenNotification` if `usdt_wallet` is null.
-- **Gas:** 0.15 TON per outgoing Jetton transfer (two per settlement = 0.30 TON). Sender attaches 0.5 TON total (0.4 forward_ton_amount + overhead). Excess returns to sender.
+- **Gas:** 0.15 TON per outgoing Jetton transfer (two per settlement = 0.30 TON). Sender attaches 0.5 TON total (0.35 forward_ton_amount + overhead). Excess TON returns to sender's regular wallet via `response_destination` (must NOT be the sender's Jetton Wallet — Jetton Wallets can't handle `Excesses` messages).
 - **Stats:** `total_processed`, `total_commission`, `settlement_count` — accumulated on each settlement
 - **Bounce handler:** present — bounced jettons stay in the contract's jetton wallet for owner to recover manually. Stats are already incremented (treat as exception).
 - **WithdrawTon:** uses mode 0 (sends exact `msg.amount` from contract balance)
@@ -408,6 +410,7 @@ import { beginCell, Address, toNano } from '@ton/core';
 
 async function sendSettlement(
   tonConnectUI: TonConnectUI,
+  senderAddress: string, // sender's regular wallet address
   userJettonWalletAddress: string, // sender's USDT Jetton Wallet
   contractAddress: string, // Splitogram contract
   recipientAddress: string, // who receives the remainder
@@ -415,23 +418,21 @@ async function sendSettlement(
 ) {
   const amount = BigInt(Math.round(amountInUSDT * 1_000_000)); // 6 decimals
 
-  // Encode recipient in forward_payload
-  const forwardPayload = beginCell()
-    .storeUint(0, 32) // op = 0 (settlement)
-    .storeAddress(Address.parse(recipientAddress))
-    .endCell();
-
   // Build Jetton transfer body
+  // IMPORTANT: response_destination MUST be the sender's regular wallet address,
+  // NOT their Jetton Wallet. The Excesses message (0xd53276db) with leftover TON
+  // is sent to response_destination — Jetton Wallets can't handle it (exit code 65535).
   const body = beginCell()
     .storeUint(0xf8a7ea5, 32) // op: jetton transfer
     .storeUint(0, 64) // query_id
     .storeCoins(amount) // jetton amount
-    .storeAddress(Address.parse(contractAddress)) // destination
-    .storeAddress(Address.parse(recipientAddress)) // response_destination
+    .storeAddress(Address.parse(contractAddress)) // destination: settlement contract
+    .storeAddress(Address.parse(senderAddress)) // response_destination: excess TON back to sender's wallet
     .storeBit(false) // no custom_payload
-    .storeCoins(toNano('0.25')) // forward_ton_amount (gas for contract)
-    .storeBit(true) // forward_payload in ref
-    .storeRef(forwardPayload)
+    .storeCoins(toNano('0.35')) // forward_ton_amount (gas for contract's 2 outgoing transfers)
+    // inline forward_payload (no Either bit, no ref — validated on testnet)
+    .storeUint(0, 32) // op = 0 (settlement)
+    .storeAddress(Address.parse(recipientAddress)) // who receives remainder
     .endCell();
 
   await tonConnectUI.sendTransaction({
@@ -439,7 +440,7 @@ async function sendSettlement(
     messages: [
       {
         address: userJettonWalletAddress,
-        amount: toNano('0.35').toString(), // TON for gas
+        amount: toNano('0.5').toString(), // TON for gas (forward_ton_amount + overhead)
         payload: body.toBoc().toString('base64'),
       },
     ],
