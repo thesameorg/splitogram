@@ -307,14 +307,14 @@ export function Account() {
         <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.legal')}</label>
         <div className="bg-tg-section rounded-xl border border-tg-separator divide-y divide-tg-separator">
           <button
-            onClick={() => alert('Terms of Service — coming soon')}
+            onClick={() => window.Telegram?.WebApp?.openLink(`${config.apiBaseUrl}/terms`)}
             className="w-full flex justify-between items-center p-3 text-left"
           >
             <span className="font-medium">{t('account.termsOfService')}</span>
             <span className="text-tg-hint">&rsaquo;</span>
           </button>
           <button
-            onClick={() => alert('Privacy Policy — coming soon')}
+            onClick={() => window.Telegram?.WebApp?.openLink(`${config.apiBaseUrl}/privacy`)}
             className="w-full flex justify-between items-center p-3 text-left"
           >
             <span className="font-medium">{t('account.privacyPolicy')}</span>

@@ -28,6 +28,8 @@ export default defineConfig({
       '/webhook': 'http://localhost:8787',
       '/r2': 'http://localhost:8787',
       '/admin': 'http://localhost:8787',
+      '/privacy': 'http://localhost:8787',
+      '/terms': 'http://localhost:8787',
     },
   },
   define: {

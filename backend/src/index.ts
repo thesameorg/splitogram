@@ -14,6 +14,7 @@ import { reportsApp } from './api/reports';
 import { statsApp } from './api/stats';
 import { r2App } from './api/r2';
 import { adminApp } from './api/admin';
+import { legalApp } from './api/legal';
 import { exchangeRatesApp } from './api/exchange-rates';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
@@ -92,6 +93,9 @@ app.route('/api/v1/exchange-rates', exchangeRatesApp);
 
 // --- Admin dashboard (own Basic Auth) ---
 app.route('/admin', adminApp);
+
+// --- Legal pages (public, no auth) ---
+app.route('/', legalApp);
 
 // --- Root info ---
 app.get('/', (c) => {
