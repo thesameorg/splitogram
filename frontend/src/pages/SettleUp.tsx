@@ -6,7 +6,7 @@ import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { useTonWallet } from '../hooks/useTonWallet';
 import { formatAmount } from '../utils/format';
 import { getCurrency } from '../utils/currencies';
-import { buildSettlementBody, truncateAddress } from '../utils/ton';
+import { buildSettlementBody, truncateAddress, toFriendly } from '../utils/ton';
 import {
   validateImageFile,
   processReceipt,
@@ -186,7 +186,7 @@ export function SettleUp() {
         network: txParams.network as any,
         messages: [
           {
-            address: txParams.senderJettonWallet,
+            address: toFriendly(txParams.senderJettonWallet),
             amount: txParams.gasAttach,
             payload,
           },

@@ -835,7 +835,6 @@ function calculateCommission(microAmount: number): number {
 /** Convert a user-friendly TON address (base64/base64url) to raw format (wc:hex) */
 function friendlyToRaw(friendly: string): string | null {
   try {
-    // Normalize base64url → base64
     let b64 = friendly.replace(/-/g, '+').replace(/_/g, '/');
     while (b64.length % 4 !== 0) b64 += '=';
     const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));

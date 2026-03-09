@@ -2,6 +2,14 @@ import { beginCell, Address } from '@ton/core';
 import type { SettlementTxParams } from '../services/api';
 
 /**
+ * Convert any TON address (raw 0:hex or user-friendly) to bounceable user-friendly format.
+ * TonConnect SDK requires user-friendly format in sendTransaction messages.
+ */
+export function toFriendly(addr: string): string {
+  return Address.parse(addr).toString({ bounceable: true });
+}
+
+/**
  * Build a Jetton transfer message body for settlement via the Splitogram contract.
  *
  * The message is sent TO the sender's USDT Jetton Wallet, which transfers tokens
