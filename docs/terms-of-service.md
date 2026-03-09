@@ -71,7 +71,7 @@ You agree **not** to:
 
 ## 9. Privacy
 
-Your use of the App is also governed by our [Privacy Policy](privacy-policy.md). Key points:
+Your use of the App is also governed by our [Privacy Policy](/privacy). Key points:
 
 - We collect data from Telegram (user ID, name, username, language) and data you provide (expenses, images, groups)
 - Data is stored on Cloudflare infrastructure
