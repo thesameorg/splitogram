@@ -53,7 +53,7 @@ async function sendMessage(
         ctx.onBotBlocked?.(telegramId);
         return;
       }
-      console.error(`Failed to notify user ${telegramId}:`, firstError);
+      console.error(`Failed to notify user ${telegramId} after retry:`, retryError);
     }
   }
 }

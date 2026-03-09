@@ -14,6 +14,8 @@ let cachedToken: string | null = null;
 
 // Updated per-request before webhook processing.
 // Handlers read this at call time (not registration time) via closure.
+// NOTE: This is safe because CF Workers env bindings are identical across all requests
+// to the same worker deployment. The values never differ between concurrent requests.
 let currentEnv: Env;
 
 function getOrCreateBot(botToken: string): Bot {
@@ -319,10 +321,41 @@ function getOrCreateBot(botToken: string): Bot {
   return bot;
 }
 
+/**
+ * Derive a webhook secret token from the bot token.
+ * Used as `secret_token` when setting webhook and verified via
+ * `X-Telegram-Bot-Api-Secret-Token` header on incoming requests.
+ */
+async function deriveWebhookSecret(botToken: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode('WebhookSecret'),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(botToken));
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+    .slice(0, 64);
+}
+
+/** Exported for webhook setup scripts to generate the same secret. */
+export { deriveWebhookSecret };
+
 export async function handleWebhook(c: Context) {
   const botToken = c.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) {
     return c.json({ error: 'bot_not_configured', detail: 'Bot token not configured' }, 500);
+  }
+
+  // Verify Telegram's secret token header
+  const expectedSecret = await deriveWebhookSecret(botToken);
+  const receivedSecret = c.req.header('X-Telegram-Bot-Api-Secret-Token');
+  if (receivedSecret !== expectedSecret) {
+    return c.json({ error: 'unauthorized', detail: 'Invalid webhook secret' }, 401);
   }
 
   if (!c.env.PAGES_URL) {

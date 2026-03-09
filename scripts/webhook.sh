@@ -48,9 +48,12 @@ set_webhook() {
     local WEBHOOK_URL="$TUNNEL_URL/webhook"
     echo "🔗 Setting webhook: $WEBHOOK_URL"
 
+    # Derive webhook secret from bot token (must match backend/src/webhook.ts deriveWebhookSecret)
+    local SECRET_TOKEN=$(echo -n "$TELEGRAM_BOT_TOKEN" | openssl dgst -sha256 -hmac "WebhookSecret" -hex 2>/dev/null | awk '{print $NF}' | cut -c1-64)
+
     WEBHOOK_RESPONSE=$(curl -s -X POST "$TELEGRAM_API_BASE$TELEGRAM_BOT_TOKEN/setWebhook" \
         -H "Content-Type: application/json" \
-        -d "{\"url\": \"$WEBHOOK_URL\", \"allowed_updates\": [\"message\", \"callback_query\", \"pre_checkout_query\"]}")
+        -d "{\"url\": \"$WEBHOOK_URL\", \"secret_token\": \"$SECRET_TOKEN\", \"allowed_updates\": [\"message\", \"callback_query\", \"pre_checkout_query\"]}")
 
     if echo "$WEBHOOK_RESPONSE" | jq -e '.ok' > /dev/null 2>&1; then
         echo "✅ Webhook set!"

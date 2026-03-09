@@ -7,6 +7,7 @@ import { api, ApiError } from './services/api';
 import { UserProvider, useUser } from './contexts/UserContext';
 import { config } from './config';
 import { AppLayout } from './components/AppLayout';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Home } from './pages/Home';
 import { Group } from './pages/Group';
@@ -128,13 +129,15 @@ function AppContent() {
 
 function App() {
   return (
-    <TonConnectUIProvider manifestUrl={config.tonConnectManifestUrl}>
-      <BrowserRouter>
-        <UserProvider>
-          <AppContent />
-        </UserProvider>
-      </BrowserRouter>
-    </TonConnectUIProvider>
+    <ErrorBoundary>
+      <TonConnectUIProvider manifestUrl={config.tonConnectManifestUrl}>
+        <BrowserRouter>
+          <UserProvider>
+            <AppContent />
+          </UserProvider>
+        </BrowserRouter>
+      </TonConnectUIProvider>
+    </ErrorBoundary>
   );
 }
 
