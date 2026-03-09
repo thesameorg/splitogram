@@ -14,5 +14,6 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["@cloudflare/workers-types", "vitest/globals"]
   },
-  "include": ["src/**/*", "tests/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["tests/**/*"]
 }
