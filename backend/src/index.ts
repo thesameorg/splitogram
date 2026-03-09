@@ -14,6 +14,7 @@ import { reportsApp } from './api/reports';
 import { statsApp } from './api/stats';
 import { r2App } from './api/r2';
 import { adminApp } from './api/admin';
+import { exchangeRatesApp } from './api/exchange-rates';
 import { authMiddleware } from './middleware/auth';
 import { dbMiddleware } from './middleware/db';
 import type { Env } from './env';
@@ -84,6 +85,10 @@ app.route('/api/v1', activityApp);
 // Reports
 app.use('/api/v1/reports', authMiddleware);
 app.route('/api/v1/reports', reportsApp);
+
+// Exchange rates
+app.use('/api/v1/exchange-rates', authMiddleware);
+app.route('/api/v1/exchange-rates', exchangeRatesApp);
 
 // --- Admin dashboard (own Basic Auth) ---
 app.route('/admin', adminApp);

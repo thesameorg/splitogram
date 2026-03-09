@@ -10,6 +10,22 @@ import { BottomSheet } from '../components/BottomSheet';
 import { CurrencyPicker, CurrencyButton } from '../components/CurrencyPicker';
 import { Avatar } from '../components/Avatar';
 
+function computeTotalUsd(
+  balancesByCurrency: Record<string, { owed: number; owe: number }>,
+  rates: Record<string, number>,
+): { totalOwed: number; totalOwe: number } | null {
+  let totalOwed = 0;
+  let totalOwe = 0;
+  for (const [currency, bal] of Object.entries(balancesByCurrency)) {
+    const rate = currency === 'USD' ? 1 : rates[currency];
+    if (!rate || rate <= 0) return null; // can't convert
+    totalOwed += bal.owed / rate;
+    totalOwe += bal.owe / rate;
+  }
+  // Convert back to micro-units (amounts are already in micro-units, rate converts micro→micro)
+  return { totalOwed: Math.round(totalOwed), totalOwe: Math.round(totalOwe) };
+}
+
 export function Home() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -20,6 +36,7 @@ export function Home() {
   const [creating, setCreating] = useState(false);
   const [newGroupCurrency, setNewGroupCurrency] = useState('USD');
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number> | null>(null);
 
   useTelegramBackButton(false);
 
@@ -54,6 +71,17 @@ export function Home() {
     }
   }
 
+  // Fetch exchange rates when user has balances in multiple currencies
+  const currencies = new Set(groups.map((g) => g.currency || 'USD'));
+  useEffect(() => {
+    if (currencies.size > 1 && !exchangeRates) {
+      api
+        .getExchangeRates()
+        .then((data) => setExchangeRates(data.rates))
+        .catch(() => {}); // silent fail — total just won't show
+    }
+  }, [currencies.size, exchangeRates]);
+
   // A2: Group balances by currency
   const balancesByCurrency = groups.reduce<Record<string, { owed: number; owe: number }>>(
     (acc, g) => {
@@ -66,6 +94,9 @@ export function Home() {
     {},
   );
   const hasBalances = Object.values(balancesByCurrency).some((b) => b.owed > 0 || b.owe > 0);
+  const currencyCount = Object.keys(balancesByCurrency).length;
+  const totalUsd =
+    currencyCount > 1 && exchangeRates ? computeTotalUsd(balancesByCurrency, exchangeRates) : null;
 
   if (loading) return <LoadingScreen />;
 
@@ -94,6 +125,24 @@ export function Home() {
                 )}
               </div>
             ))}
+            {totalUsd && (totalUsd.totalOwed > 0 || totalUsd.totalOwe > 0) && (
+              <div className="w-full flex gap-2 pt-1 border-t border-tg-separator">
+                {totalUsd.totalOwed > 0 && (
+                  <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
+                    <span className="text-app-positive font-medium text-xs">
+                      ≈ {t('home.owedToYou', { amount: formatAmount(totalUsd.totalOwed, 'USD') })}
+                    </span>
+                  </div>
+                )}
+                {totalUsd.totalOwe > 0 && (
+                  <div className="bg-app-negative-bg px-3 py-2 rounded-lg">
+                    <span className="text-app-negative font-medium text-xs">
+                      ≈ {t('home.youOwe', { amount: formatAmount(totalUsd.totalOwe, 'USD') })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

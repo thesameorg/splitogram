@@ -18,6 +18,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { BottomSheet } from '../components/BottomSheet';
 import { ReportImage } from '../components/ReportImage';
+import { IconTon } from '../icons';
 
 type CryptoState = 'idle' | 'preflight' | 'confirm' | 'sending' | 'polling' | 'success' | 'error';
 
@@ -327,8 +328,9 @@ export function SettleUp() {
                   href={settlement.explorerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-tg-link underline"
+                  className="inline-flex items-center gap-1 text-xs text-tg-link underline"
                 >
+                  <IconTon size={12} />
                   {t('settlement.viewTransaction')}
                 </a>
               ) : (
@@ -584,8 +586,9 @@ function CryptoSettlementUI({
         <div className="text-xs text-tg-hint">{t('settlement.gasNote')}</div>
         <button
           onClick={onConfirm}
-          className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium"
+          className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2"
         >
+          <IconTon size={18} />
           {t('settlement.confirmButton')}
         </button>
       </div>
@@ -622,8 +625,9 @@ function CryptoSettlementUI({
     <div className="space-y-2">
       <button
         onClick={onPay}
-        className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium"
+        className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2"
       >
+        <IconTon size={18} />
         {walletConnected ? t('settlement.payWithUsdt') : t('account.connectWallet')}
       </button>
       {walletConnected && (

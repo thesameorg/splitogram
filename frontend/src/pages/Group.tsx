@@ -28,7 +28,7 @@ import { ReportImage } from '../components/ReportImage';
 import { DonutChart } from '../components/DonutChart';
 import { MonthSelector } from '../components/MonthSelector';
 import { ErrorBanner } from '../components/ErrorBanner';
-import { IconCheck } from '../icons';
+import { IconCheck, IconTon } from '../icons';
 import { getActivityText } from './Activity';
 
 export function Group() {
@@ -211,7 +211,11 @@ export function Group() {
       >
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
-            <IconCheck size={18} className="text-app-positive" />
+            {settlement.status === 'settled_onchain' ? (
+              <IconTon size={18} className="text-app-positive" />
+            ) : (
+              <IconCheck size={18} className="text-app-positive" />
+            )}
             <div>
               <div className="font-medium text-app-positive">{label}</div>
               <div className="text-sm text-tg-hint">{timeAgo(settlement.createdAt)}</div>
@@ -239,9 +243,10 @@ export function Group() {
               href={settlement.explorerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-tg-link underline"
+              className="inline-flex items-center gap-1 text-tg-link underline"
               onClick={(e) => e.stopPropagation()}
             >
+              <IconTon size={12} />
               {t('settlement.viewTransaction')}
             </a>
           </div>
@@ -402,9 +407,10 @@ export function Group() {
                       href={(item.metadata as any).explorerUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-tg-link underline"
+                      className="inline-flex items-center gap-0.5 text-xs text-tg-link shrink-0"
                       onClick={(e) => e.stopPropagation()}
                     >
+                      <IconTon size={12} />
                       TX
                     </a>
                   )}
@@ -765,8 +771,9 @@ export function Group() {
                   href={selectedSettlement.explorerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-tg-link underline"
+                  className="inline-flex items-center gap-1 text-sm text-tg-link underline"
                 >
+                  <IconTon size={14} />
                   {t('settlement.viewTransaction')}
                 </a>
               </div>

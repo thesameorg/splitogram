@@ -7,6 +7,7 @@ import { timeAgo } from '../utils/time';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { Avatar } from '../components/Avatar';
+import { IconTon } from '../icons';
 
 function getActivityText(
   item: ActivityItem,
@@ -129,9 +130,10 @@ export function Activity() {
                   href={(item.metadata as any).explorerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-tg-link underline"
+                  className="inline-flex items-center gap-0.5 text-xs text-tg-link shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
+                  <IconTon size={12} />
                   TX
                 </a>
               )}

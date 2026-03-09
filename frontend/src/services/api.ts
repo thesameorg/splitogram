@@ -524,4 +524,10 @@ export const api = {
       `/api/v1/groups/${groupId}/claim-placeholder`,
       { method: 'POST', body: JSON.stringify({ dummyUserId }) },
     ),
+
+  // Exchange rates
+  getExchangeRates: () =>
+    apiRequest<{ base: string; rates: Record<string, number>; fetchedAt: number }>(
+      '/api/v1/exchange-rates',
+    ),
 };
