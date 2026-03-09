@@ -104,7 +104,7 @@ export function Home() {
     <PageLayout>
       {/* Balance Summary */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold mb-3">{t('app.title')}</h1>
+        <h1 className="text-xl font-bold mb-3">{t('tabs.groups')}</h1>
         {hasBalances && (
           <div className="flex gap-4 text-sm flex-wrap">
             {Object.entries(balancesByCurrency).map(([currency, bal]) => (

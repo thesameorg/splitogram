@@ -118,7 +118,8 @@
     "placeholderBadge": "temporal",
     "editPlaceholder": "Renombrar",
     "editPlaceholderTitle": "Renombrar temporal",
-    "sharePlaceholderInvite": "Invitar"
+    "sharePlaceholderInvite": "Invitar",
+    "emojiInputPlaceholder": "Escribe cualquier emoji..."
   },
   "placeholder": {
     "claimBanner": "¿Eres una de estas personas?",
@@ -214,7 +215,9 @@
     "infoHow": "Tu pago pasa por un contrato inteligente en la blockchain TON. El contrato recibe tu USDT, deduce una pequeña comisión y envía el resto a la billetera del destinatario.",
     "infoCommission": "La comisión es del 1% del monto, con un mínimo de 0.10 USDT y un máximo de 1.00 USDT.",
     "infoGas": "Se necesita una pequeña tarifa de gas (~0.05 TON) para procesar la transacción. El gas no utilizado se devuelve a tu billetera.",
-    "infoContract": "El pago es procesado por el contrato inteligente de Splitogram en la red TON. Las transacciones son finales y verificables en la blockchain."
+    "infoContract": "El pago es procesado por el contrato inteligente de Splitogram en la red TON. Las transacciones son finales y verificables en la blockchain.",
+    "commissionLabel": "Comisión",
+    "settledByLabel": "Saldado por {{name}}"
   },
   "activity": {
     "title": "Actividad",

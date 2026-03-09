@@ -116,7 +116,8 @@
     "placeholderBadge": "tạm",
     "editPlaceholder": "Đổi tên",
     "editPlaceholderTitle": "Đổi tên thành viên tạm",
-    "sharePlaceholderInvite": "Mời"
+    "sharePlaceholderInvite": "Mời",
+    "emojiInputPlaceholder": "Nhập emoji bất kỳ..."
   },
   "placeholder": {
     "claimBanner": "Bạn là một trong những người này?",
@@ -212,7 +213,9 @@
     "infoHow": "Thanh toán của bạn đi qua hợp đồng thông minh trên blockchain TON. Hợp đồng nhận USDT của bạn, trừ một khoản hoa hồng nhỏ và chuyển phần còn lại trực tiếp đến ví người nhận.",
     "infoCommission": "Hoa hồng là 1% số tiền thanh toán, tối thiểu 0.10 USDT và tối đa 1.00 USDT.",
     "infoGas": "Phí gas TON nhỏ (~0.05 TON) cần thiết để xử lý giao dịch trên blockchain. Gas chưa sử dụng sẽ được trả lại ví của bạn.",
-    "infoContract": "Thanh toán được xử lý bởi hợp đồng thông minh Splitogram trên mạng TON. Giao dịch là cuối cùng và có thể xác minh on-chain."
+    "infoContract": "Thanh toán được xử lý bởi hợp đồng thông minh Splitogram trên mạng TON. Giao dịch là cuối cùng và có thể xác minh on-chain.",
+    "commissionLabel": "Phí",
+    "settledByLabel": "Thanh toán bởi {{name}}"
   },
   "activity": {
     "title": "Hoạt động",

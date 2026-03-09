@@ -36,6 +36,34 @@ const GROUP_EMOJIS = [
   '\u{1F6D2}',
   '\u{1F3CB}\u{FE0F}',
   '\u{2764}\u{FE0F}',
+  '\u{1F355}',
+  '\u{1F3A4}',
+  '\u{1F3B6}',
+  '\u{26BD}',
+  '\u{1F3BE}',
+  '\u{1F3B3}',
+  '\u{1F6B2}',
+  '\u{1F3A2}',
+  '\u{1F30E}',
+  '\u{1F3D4}\u{FE0F}',
+  '\u{26F5}',
+  '\u{1F680}',
+  '\u{1F381}',
+  '\u{1F3E5}',
+  '\u{1F393}',
+  '\u{1F4BB}',
+  '\u{1F37B}',
+  '\u{1F354}',
+  '\u{1F370}',
+  '\u{1F3A8}',
+  '\u{1F436}',
+  '\u{1F431}',
+  '\u{1F308}',
+  '\u{2B50}',
+  '\u{1F525}',
+  '\u{1F3C6}',
+  '\u{1F48E}',
+  '\u{1F4A1}',
 ];
 
 export function GroupSettings() {
@@ -596,12 +624,29 @@ export function GroupSettings() {
         onClose={() => setShowEmojiPicker(false)}
         title={t('groupSettings.emojiPicker')}
       >
-        <div className="grid grid-cols-5 gap-2">
+        <div className="mb-3">
+          <input
+            type="text"
+            placeholder={t('groupSettings.emojiInputPlaceholder')}
+            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-center text-2xl"
+            maxLength={4}
+            onInput={(e) => {
+              const input = e.currentTarget;
+              // Extract first emoji from input
+              const match = input.value.match(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/u);
+              if (match) {
+                handleSelectEmoji(match[0]);
+                input.value = '';
+              }
+            }}
+          />
+        </div>
+        <div className="grid grid-cols-8 gap-1">
           {GROUP_EMOJIS.map((emoji) => (
             <button
               key={emoji}
               onClick={() => handleSelectEmoji(emoji)}
-              className={`text-2xl p-3 rounded-xl ${
+              className={`text-2xl p-2 rounded-xl ${
                 group.avatarEmoji === emoji ? 'bg-tg-button/10 ring-2 ring-tg-button' : ''
               }`}
             >

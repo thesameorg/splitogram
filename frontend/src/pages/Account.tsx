@@ -311,14 +311,38 @@ export function Account() {
             className="w-full flex justify-between items-center p-3 text-left"
           >
             <span className="font-medium">{t('account.termsOfService')}</span>
-            <span className="text-tg-hint">&rsaquo;</span>
+            <svg
+              className="w-4 h-4 text-tg-hint"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
           </button>
           <button
             onClick={() => window.Telegram?.WebApp?.openLink(`${config.apiBaseUrl}/privacy`)}
             className="w-full flex justify-between items-center p-3 text-left"
           >
             <span className="font-medium">{t('account.privacyPolicy')}</span>
-            <span className="text-tg-hint">&rsaquo;</span>
+            <svg
+              className="w-4 h-4 text-tg-hint"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
           </button>
         </div>
       </div>

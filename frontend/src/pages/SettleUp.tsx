@@ -323,27 +323,96 @@ export function SettleUp() {
 
       {/* Settled status */}
       {isSettled && (
-        <div className="bg-app-positive-bg p-4 rounded-xl mb-6 text-center">
-          <div className="text-app-positive font-medium text-lg">{t('settleUp.settled')}</div>
-          {settlement.status === 'settled_onchain' && settlement.txHash && (
-            <div className="mt-2">
-              {settlement.explorerUrl ? (
-                <a
-                  href={settlement.explorerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-tg-link underline"
-                >
-                  <IconTon size={12} />
-                  {t('settlement.viewTransaction')}
-                </a>
-              ) : (
-                <div className="text-xs text-tg-hint">TX: {settlement.txHash.slice(0, 16)}...</div>
+        <div className="bg-app-positive-bg p-4 rounded-xl mb-6">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            {settlement.status === 'settled_onchain' ? (
+              <IconTon size={16} className="text-app-positive" />
+            ) : (
+              <svg
+                className="w-4 h-4 text-app-positive"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+            <span className="text-app-positive font-medium text-lg">{t('settleUp.settled')}</span>
+          </div>
+
+          {/* On-chain details */}
+          {settlement.status === 'settled_onchain' && (
+            <div className="mt-3 pt-3 border-t border-app-positive/20 space-y-2">
+              {settlement.usdtAmount != null && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-app-positive/70">USDT</span>
+                  <span className="text-app-positive font-medium">
+                    {formatUsdtAmount(settlement.usdtAmount)} USDT
+                  </span>
+                </div>
+              )}
+              {settlement.commission != null && settlement.commission > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-app-positive/70">{t('settlement.commissionLabel')}</span>
+                  <span className="text-app-positive/70">
+                    {formatUsdtAmount(settlement.commission)} USDT
+                  </span>
+                </div>
+              )}
+              {settlement.txHash && (
+                <div className="pt-1">
+                  {settlement.explorerUrl ? (
+                    <a
+                      href={settlement.explorerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-tg-link"
+                    >
+                      <IconTon size={12} />
+                      {t('settlement.viewTransaction')}
+                      <svg
+                        className="w-3 h-3"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </a>
+                  ) : (
+                    <div className="text-xs text-tg-hint">
+                      TX: {settlement.txHash.slice(0, 16)}...
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
+
+          {/* External settlement details */}
+          {settlement.status === 'settled_external' && settlement.settledBy && (
+            <div className="mt-2 text-sm text-app-positive/70 text-center">
+              {t('settlement.settledByLabel', {
+                name:
+                  settlement.settledBy === settlement.from?.userId
+                    ? settlement.from.displayName
+                    : (settlement.to?.displayName ?? ''),
+              })}
+            </div>
+          )}
+
           {settlement.comment && (
-            <div className="text-sm text-tg-hint mt-1">{settlement.comment}</div>
+            <div className="text-sm text-app-positive/70 text-center mt-2 italic">
+              &ldquo;{settlement.comment}&rdquo;
+            </div>
           )}
         </div>
       )}
@@ -561,10 +630,14 @@ function CryptoSettlementUI({
   t: (key: string, opts?: Record<string, string>) => string;
 }) {
   if (state === 'success') {
+    // TODO: replace with Lottie celebration animation
     return (
-      <div className="bg-app-positive-bg p-6 rounded-2xl text-center">
-        <div className="text-4xl mb-2">&#10003;</div>
-        <div className="text-app-positive font-medium text-lg">{t('settlement.confirmed')}</div>
+      <div className="bg-app-positive-bg p-8 rounded-2xl text-center">
+        <div className="text-5xl mb-3">&#127881;</div>
+        <div className="text-app-positive font-bold text-xl mb-1">{t('settlement.confirmed')}</div>
+        <div className="text-app-positive/70 text-sm">
+          {usdtAmount} USDT &rarr; {recipientName}
+        </div>
       </div>
     );
   }

@@ -145,6 +145,8 @@ export interface Settlement {
   settledBy: number | null;
   receiptKey: string | null;
   receiptThumbKey: string | null;
+  usdtAmount: number | null;
+  commission: number | null;
   createdAt: string;
 }
 
