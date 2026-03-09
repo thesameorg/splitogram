@@ -228,19 +228,34 @@ async function computeGroupBalances(db: Database, groupId: number): Promise<Map<
 
 // --- Refresh cached net balances on group_members ---
 async function refreshGroupBalances(db: Database, groupId: number): Promise<void> {
-  const netBalances = await computeGroupBalances(db, groupId);
-
-  // Batch update all members' cached netBalance
-  const updates = Array.from(netBalances.entries()).map(([userId, balance]) =>
-    db
-      .update(groupMembers)
-      .set({ netBalance: balance })
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId))),
-  );
-
-  if (updates.length > 0) {
-    await Promise.all(updates);
-  }
+  // Single atomic SQL UPDATE — computes balances from source of truth and writes in one statement.
+  // This prevents race conditions where two concurrent mutations could read stale data
+  // and the slower one overwrites the correct cache.
+  await db.run(sql`
+    UPDATE group_members
+    SET net_balance = (
+      COALESCE((
+        SELECT SUM(amount) FROM expenses
+        WHERE group_id = ${groupId} AND paid_by = group_members.user_id
+      ), 0)
+      - COALESCE((
+        SELECT SUM(ep.share_amount) FROM expense_participants ep
+        JOIN expenses e ON ep.expense_id = e.id
+        WHERE e.group_id = ${groupId} AND ep.user_id = group_members.user_id
+      ), 0)
+      + COALESCE((
+        SELECT SUM(amount) FROM settlements
+        WHERE group_id = ${groupId} AND from_user = group_members.user_id
+          AND status IN ('settled_onchain', 'settled_external')
+      ), 0)
+      - COALESCE((
+        SELECT SUM(amount) FROM settlements
+        WHERE group_id = ${groupId} AND to_user = group_members.user_id
+          AND status IN ('settled_onchain', 'settled_external')
+      ), 0)
+    )
+    WHERE group_id = ${groupId}
+  `);
 }
 
 export { balancesApp, computeGroupBalances, refreshGroupBalances };

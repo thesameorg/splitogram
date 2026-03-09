@@ -14,6 +14,9 @@ type ExpenseEnv = AuthContext & DBContext;
 
 const expensesApp = new Hono<ExpenseEnv>();
 
+// Max amount: 10 million units (10,000,000 * 1,000,000 micro-units = 10 trillion)
+const MAX_AMOUNT_MICRO = 10_000_000_000_000;
+
 const splitModes = ['equal', 'percentage', 'manual'] as const;
 
 const shareSchema = z.object({
@@ -23,7 +26,7 @@ const shareSchema = z.object({
 
 const createExpenseSchema = z
   .object({
-    amount: z.number().int().positive('Amount must be positive'),
+    amount: z.number().int().positive('Amount must be positive').max(MAX_AMOUNT_MICRO),
     description: z.string().min(1).max(500),
     paidBy: z.number().int().positive().optional(),
     participantIds: z.array(z.number().int().positive()).min(1, 'At least 1 participant required'),
@@ -345,7 +348,7 @@ expensesApp.get('/', async (c) => {
 
 // --- Edit expense ---
 const editExpenseSchema = z.object({
-  amount: z.number().int().positive().optional(),
+  amount: z.number().int().positive().max(MAX_AMOUNT_MICRO).optional(),
   description: z.string().min(1).max(500).optional(),
   participantIds: z.array(z.number().int().positive()).min(1).optional(),
   splitMode: z.enum(splitModes).optional(),

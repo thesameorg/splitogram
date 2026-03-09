@@ -508,11 +508,21 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
     );
   }
 
-  // Mark as payment_pending
-  await db
-    .update(settlements)
-    .set({ status: 'payment_pending', updatedAt: new Date().toISOString() })
-    .where(eq(settlements.id, settlementId));
+  // Atomic conditional update — only transition from 'open' to 'payment_pending'
+  if (settlement.status === 'open') {
+    const updated = await db
+      .update(settlements)
+      .set({ status: 'payment_pending', updatedAt: new Date().toISOString() })
+      .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'open')))
+      .returning({ id: settlements.id });
+
+    if (updated.length === 0) {
+      return c.json(
+        { error: 'invalid_status', detail: 'Settlement status has changed' },
+        409,
+      );
+    }
+  }
 
   // If we have a BOC, try to broadcast it (best-effort, TON Connect usually broadcasts itself)
   if (boc) {
@@ -592,10 +602,11 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
   const PENDING_TIMEOUT_MS = 5 * 60 * 1000;
 
   if (now - pendingSince > PENDING_TIMEOUT_MS) {
+    // Atomic rollback — only if still payment_pending
     await db
       .update(settlements)
       .set({ status: 'open', updatedAt: new Date().toISOString() })
-      .where(eq(settlements.id, settlementId));
+      .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')));
     return c.json({ status: 'open', settlementId });
   }
 
@@ -648,7 +659,8 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
 
   const settledUsdt = verifyUsdtAmount ?? settlement.amount;
   const settledCommission = calculateCommission(settledUsdt);
-  await db
+  // Atomic conditional update — only settle if still payment_pending
+  const confirmed = await db
     .update(settlements)
     .set({
       status: 'settled_onchain',
@@ -657,7 +669,18 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
       commission: settledCommission,
       updatedAt: new Date().toISOString(),
     })
-    .where(eq(settlements.id, settlementId));
+    .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')))
+    .returning({ id: settlements.id });
+
+  if (confirmed.length === 0) {
+    // Already settled by another request — return current status
+    const [current] = await db
+      .select({ status: settlements.status })
+      .from(settlements)
+      .where(eq(settlements.id, settlementId))
+      .limit(1);
+    return c.json({ status: current?.status ?? 'unknown', settlementId });
+  }
 
   // Refresh cached balances
   await refreshGroupBalances(db, settlement.groupId);
@@ -708,9 +731,13 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
 });
 
 // --- Mark as settled externally (either party) ---
+// Max amount: 10 million units (10,000,000 * 1,000,000 micro-units = 10 trillion)
+// This prevents overflow in downstream calculations while allowing any realistic payment
+const MAX_AMOUNT_MICRO = 10_000_000_000_000;
+
 const markExternalSchema = z.object({
   comment: z.string().max(500).optional(),
-  amount: z.number().int().positive().optional(),
+  amount: z.number().int().positive().max(MAX_AMOUNT_MICRO).optional(),
 });
 
 settlementsApp.post(
@@ -763,7 +790,8 @@ settlementsApp.post(
 
     const paidAmount = customAmount ?? settlement.amount;
 
-    await db
+    // Atomic conditional update — prevents race where two users mark simultaneously
+    const updated = await db
       .update(settlements)
       .set({
         status: 'settled_external',
@@ -772,7 +800,20 @@ settlementsApp.post(
         settledBy: currentUser.id,
         updatedAt: new Date().toISOString(),
       })
-      .where(eq(settlements.id, settlementId));
+      .where(
+        and(
+          eq(settlements.id, settlementId),
+          sql`${settlements.status} IN ('open', 'payment_pending')`,
+        ),
+      )
+      .returning({ id: settlements.id });
+
+    if (updated.length === 0) {
+      return c.json(
+        { error: 'already_settled', detail: 'Settlement was already completed' },
+        409,
+      );
+    }
 
     // Refresh cached balances
     await refreshGroupBalances(db, settlement.groupId);

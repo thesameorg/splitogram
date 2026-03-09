@@ -347,6 +347,27 @@ app.get('/groups/:id', async (c) => {
   return c.html(layout(`Group: ${group.name}`, body));
 });
 
+// CSRF protection for POST requests — validate Origin/Referer matches the request host
+app.post('*', async (c, next) => {
+  const origin = c.req.header('Origin') || c.req.header('Referer');
+  if (origin) {
+    try {
+      const requestHost = new URL(c.req.url).host;
+      const originHost = new URL(origin).host;
+      if (originHost !== requestHost) {
+        return c.text('CSRF check failed', 403);
+      }
+    } catch {
+      return c.text('CSRF check failed', 403);
+    }
+  }
+  // If neither Origin nor Referer is present, block the request (safe default)
+  if (!origin) {
+    return c.text('CSRF check failed — missing Origin header', 403);
+  }
+  return next();
+});
+
 // --- Image Delete ---
 app.post('/images/delete', async (c) => {
   const db = c.get('db');
@@ -355,6 +376,11 @@ app.post('/images/delete', async (c) => {
   const returnTo = typeof body['returnTo'] === 'string' ? body['returnTo'] : '/admin';
 
   if (!imageKey) return c.text('Missing imageKey', 400);
+
+  // Validate returnTo is a relative path to prevent open redirect
+  if (returnTo && !returnTo.startsWith('/admin')) {
+    return c.text('Invalid returnTo', 400);
+  }
 
   await removeImage(c.env.IMAGES, db, imageKey);
 
