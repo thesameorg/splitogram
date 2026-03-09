@@ -10,22 +10,23 @@ Enable users with W5 wallets to settle USDT debts **without holding TON for gas*
 
 Only the debtor's wallet version determines the settlement flow. All other actors are irrelevant.
 
-| Actor | What it is | Wallet version | Affects flow? |
-|---|---|---|---|
-| **SplitogramSettlement** | Custom Tact contract (not a wallet) | N/A — it's a smart contract | No. Processes any incoming Jetton transfer identically. |
-| **Debtor (payer)** | User's TON wallet | **v4r2 or W5** | **YES — the only actor that matters.** |
-| **Creditor (recipient)** | User's TON wallet | Any (v3r2, v4r2, W5) | No. Receives Jetton transfer from contract. |
-| **Contract owner** | Our admin wallet (`0QAoBJzd06D3...`) | v4r2 (required for admin ops) | No. Only used for UpdateCommission, WithdrawTon. |
-| **Debtor's Jetton wallet** | Standard Jetton wallet contract | N/A — TEP-74 standard | No. |
-| **Contract's Jetton wallet** | Standard Jetton wallet contract | N/A | No. |
-| **Creditor's Jetton wallet** | Standard Jetton wallet contract | N/A | No. |
-| **TONAPI Gas Proxy** | Internal TONAPI relay contract | N/A — managed by TONAPI | Only involved in gasless flow. |
+| Actor                        | What it is                           | Wallet version                | Affects flow?                                           |
+| ---------------------------- | ------------------------------------ | ----------------------------- | ------------------------------------------------------- |
+| **SplitogramSettlement**     | Custom Tact contract (not a wallet)  | N/A — it's a smart contract   | No. Processes any incoming Jetton transfer identically. |
+| **Debtor (payer)**           | User's TON wallet                    | **v4r2 or W5**                | **YES — the only actor that matters.**                  |
+| **Creditor (recipient)**     | User's TON wallet                    | Any (v3r2, v4r2, W5)          | No. Receives Jetton transfer from contract.             |
+| **Contract owner**           | Our admin wallet (`0QAoBJzd06D3...`) | v4r2 (required for admin ops) | No. Only used for UpdateCommission, WithdrawTon.        |
+| **Debtor's Jetton wallet**   | Standard Jetton wallet contract      | N/A — TEP-74 standard         | No.                                                     |
+| **Contract's Jetton wallet** | Standard Jetton wallet contract      | N/A                           | No.                                                     |
+| **Creditor's Jetton wallet** | Standard Jetton wallet contract      | N/A                           | No.                                                     |
+| **TONAPI Gas Proxy**         | Internal TONAPI relay contract       | N/A — managed by TONAPI       | Only involved in gasless flow.                          |
 
 **Bottom line:** The settlement contract has no wallet version — it's a custom Tact contract. A W5 debtor sending USDT to it works identically to a v4r2 debtor. The contract just sees "incoming Jetton transfer" either way.
 
 ### Flow comparison by debtor wallet version
 
 **v4r2 debtor (standard, current):**
+
 ```
 Debtor's v4r2 wallet
   → (external msg, debtor pays ~0.5 TON gas)
@@ -36,6 +37,7 @@ Debtor's v4r2 wallet
 ```
 
 **W5 debtor (gasless, if feasible):**
+
 ```
 TONAPI Gas Proxy
   → (internal msg, proxy pays gas in TON, recoups via Jetton fee)
@@ -52,13 +54,13 @@ TONAPI Gas Proxy
 
 ### Tonkeeper Gasless vs Battery (two separate features)
 
-| | Gasless | Battery |
-|---|---|---|
-| Requires Battery balance? | **No** — independent feature | Yes — prepaid balance |
-| Wallet versions | W5 only | All versions |
-| Token support | Limited list: USDT, jUSDT, NOT, tsTON, DOGS, CATI, HMSTR, CATS, X, MAJOR, PX, BUILD | Any token, any tx type |
-| How fee is paid | Deducted from the token being transferred | Deducted from Battery balance |
-| User action needed | None — fee option shown at transfer confirmation | Top up Battery first |
+|                           | Gasless                                                                             | Battery                       |
+| ------------------------- | ----------------------------------------------------------------------------------- | ----------------------------- |
+| Requires Battery balance? | **No** — independent feature                                                        | Yes — prepaid balance         |
+| Wallet versions           | W5 only                                                                             | All versions                  |
+| Token support             | Limited list: USDT, jUSDT, NOT, tsTON, DOGS, CATI, HMSTR, CATS, X, MAJOR, PX, BUILD | Any token, any tx type        |
+| How fee is paid           | Deducted from the token being transferred                                           | Deducted from Battery balance |
+| User action needed        | None — fee option shown at transfer confirmation                                    | Top up Battery first          |
 
 **Key:** Gasless should work for USDT on W5 wallets with zero Battery balance. Fee deducted from the USDT transfer itself.
 
@@ -89,6 +91,7 @@ TONAPI Gasless API documentation explicitly states: **"Gasless transactions are 
 The TONAPI cookbook examples use raw private key signing (`mnemonicToPrivateKey()`). This is designed for backends/bots that hold private keys — not for dApps where the user's keys live in a wallet app (TON Connect).
 
 TONAPI Gasless endpoints:
+
 - `GET /v2/gasless/config` — check supported tokens
 - `POST /v2/gasless/estimate/{master_id}` — estimate relay fee
 - `POST /v2/gasless/send` — submit signed BOC
@@ -100,6 +103,7 @@ All require a signed external message built with the user's private key. TON Con
 **Unexplored alternative:** For gasless-eligible users, skip the settlement contract entirely. Do a direct user-to-user USDT transfer, take commission separately (or forgo it for gasless settlements).
 
 **Tradeoffs:**
+
 - Pro: Would definitely be gasless-eligible (simple Jetton transfer)
 - Con: No on-chain commission enforcement — trust-based or separate commission collection
 - Con: Different on-chain verification logic
@@ -116,6 +120,7 @@ All require a signed external message built with the user's private key. TON Con
 **Setup:** Tonkeeper with W5 wallet, some USDT balance, zero TON balance (or very low).
 
 **Steps:**
+
 1. Open Tonkeeper directly (not through our app)
 2. Send a small amount of USDT to any address
 3. At the confirmation screen, check: is there a "pay fee in USDT" / "pay fee in TON" option?
@@ -123,6 +128,7 @@ All require a signed external message built with the user's private key. TON Con
 **Expected result:** Gasless option should appear (this is the baseline — confirms gasless works at all on your wallet).
 
 **If NO gasless option appears:**
+
 - Check wallet version is W5 (Settings → Wallet Version)
 - Try on mainnet (gasless relay might not run on testnet)
 - Check Tonkeeper version is up to date
@@ -132,6 +138,7 @@ All require a signed external message built with the user's private key. TON Con
 **Setup:** Same W5 wallet connected to Splitogram via TON Connect.
 
 **Steps:**
+
 1. Create a settlement in Splitogram
 2. Tap "Pay with USDT" to trigger `sendTransaction()` via TON Connect
 3. When Tonkeeper shows the approval screen, check: is there a gasless fee option?
@@ -141,12 +148,14 @@ All require a signed external message built with the user's private key. TON Con
 ### Test 3: Mainnet vs Testnet
 
 **If Test 1 fails on testnet:**
+
 - Repeat Test 1 on mainnet with real USDT
 - Gasless relay infrastructure might only run on mainnet
 
 ### Test 4: Battery as alternative
 
 **If gasless doesn't work for our dApp transactions:**
+
 1. Top up Battery in Tonkeeper (pay with TON or in-app purchase)
 2. Retry our settlement `sendTransaction()`
 3. Does Battery cover the gas for dApp transactions even if Gasless doesn't?
@@ -162,12 +171,14 @@ Even if gasless settlement is blocked, wallet version detection + stats are inde
 ### Step 1: Wallet Version Detection + DB
 
 **DB Migration (0012):**
+
 ```sql
 ALTER TABLE users ADD COLUMN wallet_version TEXT;
 -- Values: 'W5', 'v4r2', 'v4r1', 'v3r2', or NULL (no wallet)
 ```
 
 **Backend:**
+
 - `PUT /api/v1/users/me/wallet` — after receiving wallet address, call TONAPI to detect version:
   ```
   GET /v2/accounts/{address}
@@ -178,10 +189,12 @@ ALTER TABLE users ADD COLUMN wallet_version TEXT;
 - On `DELETE /api/v1/users/me/wallet` — clear both fields.
 
 **Frontend:**
+
 - Account page — show wallet version badge next to address (e.g., "W5", "v4r2").
 - If W5: show "Gasless-capable" indicator (once gasless is confirmed working).
 
 **Files to modify:**
+
 - `backend/src/db/schema.ts` — add `walletVersion` column
 - `backend/src/api/users.ts` — update wallet PUT endpoint
 - `backend/src/api/auth.ts` — include `walletVersion` in response
@@ -191,6 +204,7 @@ ALTER TABLE users ADD COLUMN wallet_version TEXT;
 ### Step 2: Admin Stats + Bot Command
 
 **Backend:**
+
 - Bot `/stats` command + admin dashboard — add wallet version breakdown:
   ```
   Wallets: 340 total | W5: 180 | v4r2: 140 | other: 20
@@ -198,6 +212,7 @@ ALTER TABLE users ADD COLUMN wallet_version TEXT;
 - Query: `SELECT wallet_version, COUNT(*) FROM users WHERE is_dummy = false AND wallet_address IS NOT NULL GROUP BY wallet_version`
 
 **Files to modify:**
+
 - `backend/src/api/admin.ts` — add wallet stats
 - `backend/src/webhook.ts` — add to `/stats` bot response
 

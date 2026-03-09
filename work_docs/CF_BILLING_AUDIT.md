@@ -3,27 +3,32 @@
 ## Cloudflare Pricing Summary
 
 ### Workers (Paid plan — $5/month base)
+
 - **Requests**: 10M included/month, then $0.30/million
 - **CPU time**: 30M CPU-ms included/month, then $0.02/million CPU-ms
 - **Subrequests**: count toward CPU; external fetch calls add CPU time
 
 ### D1 (Serverless SQLite)
+
 - **Free tier**: 5M rows read/day, 100K rows written/day, 500 MB storage
 - **Paid**: 25B rows read included/month, 50M rows written included/month, then $0.001/million reads, $1.00/million writes
 - **Key insight**: Every Drizzle `.select()` / `.update()` / `.insert()` call = rows touched. A query that scans 10 rows = 10 rows read.
 
 ### R2 (Object Storage)
+
 - **Free tier**: 10 GB storage, 1M Class A ops/month, 10M Class B ops/month
 - **Paid**: $0.015/GB-month (storage), $4.50/million Class A ops (PUT/POST), $0.36/million Class B ops (GET)
 - **Egress**: FREE — no data transfer charges
 - **Class A = writes** (PUT, POST, multipart), **Class B = reads** (GET)
 
 ### Pages
+
 - **Static assets**: free, unlimited requests — no Worker invocation cost
 - **Pages Functions** (dynamic): billed as Workers requests
 - **Builds**: 500/month free
 
 ### KV
+
 - **Free tier**: 100K reads/day, 1K writes/day
 - **Paid**: $0.50/million reads, $5.00/million writes (much more expensive per write than D1)
 
@@ -44,6 +49,7 @@ More critically: the `bot.on('message:text')` handler at `webhook.ts:300-315` fi
 **Worst case**: Bot added to a high-traffic public group → thousands of webhook calls/day for free from Telegram's side, each burning Worker CPU.
 
 **Fix**: Add Telegram webhook secret token validation. Set a random secret when calling `setWebhook` and verify it on every incoming request:
+
 ```ts
 // In handleWebhook, before getOrCreateBot:
 const secret = c.env.WEBHOOK_SECRET;
@@ -52,10 +58,13 @@ if (secret) {
   if (incoming !== secret) return c.json({ error: 'forbidden' }, 403);
 }
 ```
+
 Set `WEBHOOK_SECRET` in `.dev.vars` and `wrangler.toml`. Pass it when setting webhook:
+
 ```bash
 ?secret_token=<WEBHOOK_SECRET>
 ```
+
 This is a one-liner and stops all non-Telegram webhook spam cold.
 
 ---
@@ -69,12 +78,14 @@ This is a one-liner and stops all non-Telegram webhook spam cold.
 The admin group detail page (`admin.ts:287-303`) renders all group/member/expense images inline — one admin page load for a group with 50 expenses + 20 members = ~70 R2 GETs + 70 Worker subrequests.
 
 **Cost impact**:
+
 - 10M Class B R2 ops free, then $0.36/million
 - Each image fetch = 1 Worker invocation + 1 R2 Class B op
 - At 1,000 DAU × 10 image loads/day = 10M/day → well into paid territory fast
 - Currently mitigated somewhat by browser caching, but zero CDN edge caching
 
 **Fix**: Use Cloudflare Cache API to cache R2 responses at the edge:
+
 ```ts
 r2App.get('/*', async (c) => {
   const cacheKey = new Request(c.req.url);
@@ -91,6 +102,7 @@ r2App.get('/*', async (c) => {
   return response;
 });
 ```
+
 This eliminates the R2 read and Worker CPU on subsequent requests for the same image from the same PoP. Given the `immutable` cache header already set, this is safe for all images (they use content-addressed keys with timestamps).
 
 ---
@@ -100,6 +112,7 @@ This eliminates the R2 read and Worker CPU on subsequent requests for the same i
 **File**: `backend/src/api/settlements.ts:553-731`
 
 **Description**: The frontend polls `POST /settlements/:id/confirm` every 3 seconds for up to 90 seconds during on-chain settlement (SettleUp.tsx:233-267). Each `/confirm` call performs:
+
 1. D1 read: look up user by telegramId (auth middleware)
 2. D1 read: look up user by telegramId again (`currentUser` query, line 562)
 3. D1 read: look up settlement (line 572)
@@ -138,6 +151,7 @@ A typical Group page load triggers: auth (1 read) + group detail (2-3 reads) + e
 **File**: `backend/src/api/expenses.ts:330-344`
 
 **Description**: The expense list endpoint fetches expenses with a JOIN on the payer (one query), then for each expense does a separate query to fetch participants:
+
 ```ts
 const result = await Promise.all(
   expenseList.map(async (exp) => {
@@ -146,11 +160,13 @@ const result = await Promise.all(
   }),
 );
 ```
+
 With `limit=50` (default), this is **1 query + 50 parallel D1 queries = 51 D1 reads** per request. D1 does not support true batching of arbitrary SELECT statements via `db.batch()` (only writes), but the pattern should be rewritten to a single JOIN or a single `inArray` fetch:
 
 ```ts
-const expenseIds = expenseList.map(e => e.id);
-const allParticipants = await db.select()
+const expenseIds = expenseList.map((e) => e.id);
+const allParticipants = await db
+  .select()
   .from(expenseParticipants)
   .innerJoin(users, eq(expenseParticipants.userId, users.id))
   .where(inArray(expenseParticipants.expenseId, expenseIds));
@@ -180,6 +196,7 @@ This is correct and atomic (good!), but it burns D1 rows-read proportional to gr
 **File**: `backend/src/api/auth.ts:21-137`
 
 **Description**: The auth endpoint is called every time the Mini App loads (no session persistence — stateless design). It does:
+
 1. HMAC validation (CPU)
 2. D1 SELECT to check if user exists
 3. D1 UPDATE (if exists) or INSERT + SELECT (if new)
@@ -189,6 +206,7 @@ The `UPDATE` on every auth call (`updatedAt`, `username`, `displayName`) means e
 **Cost impact**: 1,000 DAU × 20 sessions/day = 20,000 D1 writes/day from auth alone. At $1.00/million writes, this is $0.02/day → $0.60/month at this scale. Scales linearly.
 
 **Fix**: Only write on actual field changes. Compare `existing.displayName === displayName && existing.username === username` before updating. This is a common optimization for upsert patterns:
+
 ```ts
 const needsUpdate = existing[0].displayName !== displayName || existing[0].username !== (tgUser.username ?? null);
 if (needsUpdate) {
@@ -203,6 +221,7 @@ if (needsUpdate) {
 **File**: `backend/src/api/settlements.ts:279-463`
 
 **Description**: Every time the user taps "Pay with USDT", the frontend calls `GET /settlements/:id/tx?senderAddress=...`. This endpoint:
+
 1. 2 D1 reads (user, settlement)
 2. 2 more D1 reads (creditor, group)
 3. Possibly 1 D1 read + 1 external fetch for exchange rates
@@ -239,22 +258,29 @@ Already covered in HR-4. The fix is trivial and saves real D1 writes at scale.
 **File**: `backend/src/middleware/auth.ts:80`, most route handlers
 
 **Description**: Auth sets `session.telegramId`. Every handler then does:
+
 ```ts
-const [currentUser] = await db.select({id: users.id}).from(users)
-  .where(eq(users.telegramId, session.telegramId)).limit(1);
+const [currentUser] = await db
+  .select({ id: users.id })
+  .from(users)
+  .where(eq(users.telegramId, session.telegramId))
+  .limit(1);
 ```
+
 This is a redundant D1 read — the auth middleware already fetched the user from D1, but only stored `telegramId`, `username`, `displayName` in session (not the internal `id`).
 
 **Fix**: Store `userId` (internal integer PK) in `SessionData` during auth. The middleware already has it from `existing[0]`:
+
 ```ts
 // In auth.ts session setup:
 c.set('session', {
   telegramId: existing[0].telegramId,
-  userId: existing[0].id,  // add this
+  userId: existing[0].id, // add this
   username: existing[0].username ?? undefined,
   displayName: existing[0].displayName,
 });
 ```
+
 This eliminates 1 D1 read from every authenticated endpoint. Rough count across routes: every groups, expenses, balances, stats, settlements, users, activity, reports handler has this pattern. That's ~15+ handlers, each burning 1 extra D1 read per call.
 
 ---
@@ -300,10 +326,12 @@ The legal pages are served as Worker HTML responses. The HTML is pre-generated a
 **File**: `backend/src/api/reports.ts:62-70`
 
 The `sendReport()` function is wrapped in `waitUntil()` (good — non-blocking). But inside `sendReport()`, it does:
+
 ```ts
 const r2Object = await c.env.IMAGES.get(imageKey);
 const blob = await r2Object.arrayBuffer();
 ```
+
 This is a full R2 GET + read of the entire file into memory, then forwarded to Telegram via multipart POST. For a 5MB image, this means: 1 R2 Class B op + ~5MB bandwidth through the Worker memory. This is fine since R2 egress is free, but loading 5MB into Worker memory per report could hit memory limits under concurrent reports.
 
 **Fix**: Use R2's `createPresignedUrl()` or serve via a Worker URL and pass the URL to Telegram's `sendPhoto` with a URL instead of uploading the binary. This removes the memory pressure entirely.
