@@ -85,6 +85,13 @@
       "when": 1773063595800,
       "tag": "0011_good_killraven",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1773350400000,
+      "tag": "0012_drop_exchange_rates",
+      "breakpoints": true
     }
   ]
 }

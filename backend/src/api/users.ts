@@ -16,6 +16,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import { refreshGroupBalances } from './balances';
 import { notify } from '../services/notifications';
+import { invalidateAuthCache } from '../middleware/auth';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 import type { Env } from '../env';
@@ -439,6 +440,9 @@ app.delete('/me', async (c) => {
 
   // Delete image reports by this user
   await db.delete(imageReports).where(eq(imageReports.reporterTelegramId, user.telegramId));
+
+  // Invalidate KV auth cache
+  await invalidateAuthCache(c.env.KV, user.telegramId);
 
   // Finally, delete the user row
   await db.delete(users).where(eq(users.id, user.id));

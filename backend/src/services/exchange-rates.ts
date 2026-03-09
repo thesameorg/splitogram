@@ -1,9 +1,9 @@
-import { eq } from 'drizzle-orm';
-import { exchangeRates } from '../db/schema';
-import type { Database } from '../db';
+import type { KVNamespace } from '@cloudflare/workers-types';
 
-const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours — triggers refresh
-const MAX_STALE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — refuse to use older rates
+const KV_KEY_FRESH = 'exchange_rates:usd';
+const KV_KEY_STALE = 'exchange_rates:usd:stale';
+const FRESH_TTL = 86400; // 24h
+const STALE_TTL = 7 * 86400; // 7 days — fallback if API is down
 const API_URL = 'https://open.er-api.com/v6/latest/USD';
 const FALLBACK_URL =
   'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
@@ -14,38 +14,30 @@ interface RatesResult {
 }
 
 /**
- * Get exchange rates (USD-based). Reads from D1, refreshes if stale (>24h).
- * Returns null only if both D1 and API are unavailable.
+ * Get exchange rates (USD-based). Reads from KV, refreshes if expired (>24h).
+ * Falls back to stale KV entry (up to 7 days) if both APIs fail.
+ * Returns null only if KV and APIs are all unavailable.
  */
-export async function getExchangeRates(db: Database): Promise<RatesResult | null> {
-  // Read from D1
-  const [row] = await db.select().from(exchangeRates).where(eq(exchangeRates.id, 1)).limit(1);
+export async function getExchangeRates(kv: KVNamespace): Promise<RatesResult | null> {
+  // Try fresh KV key first
+  const cached = await kv.get<RatesResult>(KV_KEY_FRESH, 'json');
+  if (cached) return cached;
 
-  const now = Date.now();
-  if (row && now - row.fetchedAt * 1000 < STALE_THRESHOLD_MS) {
-    return { rates: JSON.parse(row.rates), fetchedAt: row.fetchedAt };
-  }
-
-  // Stale or missing — fetch fresh
+  // Fresh key expired — fetch from API
   const freshRates = await fetchRates();
   if (freshRates) {
-    const fetchedAt = Math.floor(now / 1000);
-    const ratesJson = JSON.stringify(freshRates);
-    if (row) {
-      await db
-        .update(exchangeRates)
-        .set({ rates: ratesJson, fetchedAt })
-        .where(eq(exchangeRates.id, 1));
-    } else {
-      await db.insert(exchangeRates).values({ id: 1, base: 'USD', rates: ratesJson, fetchedAt });
-    }
-    return { rates: freshRates, fetchedAt };
+    const result: RatesResult = { rates: freshRates, fetchedAt: Math.floor(Date.now() / 1000) };
+    // Write both fresh (24h TTL) and stale (7d TTL) keys
+    await Promise.all([
+      kv.put(KV_KEY_FRESH, JSON.stringify(result), { expirationTtl: FRESH_TTL }),
+      kv.put(KV_KEY_STALE, JSON.stringify(result), { expirationTtl: STALE_TTL }),
+    ]);
+    return result;
   }
 
-  // API failed — return stale data if not too old (max 7 days)
-  if (row && now - row.fetchedAt * 1000 < MAX_STALE_MS) {
-    return { rates: JSON.parse(row.rates), fetchedAt: row.fetchedAt };
-  }
+  // API failed — try stale fallback (up to 7 days old)
+  const stale = await kv.get<RatesResult>(KV_KEY_STALE, 'json');
+  if (stale) return stale;
 
   return null;
 }

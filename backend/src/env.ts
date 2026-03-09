@@ -1,4 +1,4 @@
-import type { D1Database, R2Bucket } from '@cloudflare/workers-types';
+import type { D1Database, R2Bucket, KVNamespace } from '@cloudflare/workers-types';
 
 export interface Env {
   // D1 Database
@@ -6,6 +6,9 @@ export interface Env {
 
   // R2 Image Storage
   IMAGES: R2Bucket;
+
+  // KV Namespace
+  KV: KVNamespace;
 
   // Environment Variables
   ENVIRONMENT: string;
@@ -27,6 +30,4 @@ export interface Env {
 export interface SessionData {
   telegramId: number;
   userId: number;
-  username?: string;
-  displayName: string;
 }

@@ -321,7 +321,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   // Convert group currency amount to USDT (micro-units)
   let settlementAmountUsdt = settlement.amount; // default: same as group amount (USD groups)
   if (groupCurrency !== 'USD') {
-    const ratesData = await getExchangeRates(db);
+    const ratesData = await getExchangeRates(c.env.KV);
     if (!ratesData) {
       return c.json(
         { error: 'rates_unavailable', detail: 'Exchange rates unavailable. Try again later.' },
@@ -586,7 +586,7 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
   const groupCurrency = group?.currency ?? 'USD';
   let verifyUsdtAmount: number | undefined;
   if (groupCurrency !== 'USD') {
-    const ratesData = await getExchangeRates(db);
+    const ratesData = await getExchangeRates(c.env.KV);
     if (ratesData) {
       verifyUsdtAmount =
         convertToMicroUsdt(settlement.amount, groupCurrency, ratesData.rates) ?? undefined;

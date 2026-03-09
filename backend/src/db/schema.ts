@@ -198,14 +198,6 @@ export const imageReports = sqliteTable('image_reports', {
     .$defaultFn(() => new Date().toISOString()),
 });
 
-// --- Exchange Rates ---
-export const exchangeRates = sqliteTable('exchange_rates', {
-  id: integer('id').primaryKey().default(1),
-  base: text('base').notNull().default('USD'),
-  rates: text('rates').notNull(), // JSON: {"EUR": 0.847, "VND": 25000, ...}
-  fetchedAt: integer('fetched_at').notNull(), // unix timestamp
-});
-
 // --- Settlements ---
 export const settlements = sqliteTable(
   'settlements',

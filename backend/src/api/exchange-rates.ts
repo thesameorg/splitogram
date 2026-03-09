@@ -1,15 +1,14 @@
 import { Hono } from 'hono';
 import { getExchangeRates } from '../services/exchange-rates';
 import type { AuthContext } from '../middleware/auth';
-import type { DBContext } from '../middleware/db';
+import type { Env } from '../env';
 
-type RatesEnv = AuthContext & DBContext;
+type RatesEnv = AuthContext & { Bindings: Env };
 
 const exchangeRatesApp = new Hono<RatesEnv>();
 
 exchangeRatesApp.get('/', async (c) => {
-  const db = c.get('db');
-  const result = await getExchangeRates(db);
+  const result = await getExchangeRates(c.env.KV);
 
   if (!result) {
     return c.json({ error: 'rates_unavailable', detail: 'Exchange rates unavailable' }, 503);
