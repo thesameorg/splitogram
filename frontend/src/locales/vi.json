@@ -150,7 +150,9 @@
     "splitPercentage": "Phần trăm",
     "splitManual": "Thủ công",
     "totalPercent": "Tổng: {{total}}%",
-    "remaining": "Còn lại: {{amount}}"
+    "remaining": "Còn lại: {{amount}}",
+    "note": "Ghi chú (tùy chọn)",
+    "notePlaceholder": "Thêm ghi chú..."
   },
   "settleUp": {
     "title": "Thanh toán",

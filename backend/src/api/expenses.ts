@@ -33,6 +33,12 @@ const createExpenseSchema = z
       .min(1)
       .max(500)
       .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, '')),
+    comment: z
+      .string()
+      .trim()
+      .max(1000)
+      .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, ''))
+      .optional(),
     paidBy: z.number().int().positive().optional(),
     participantIds: z.array(z.number().int().positive()).min(1, 'At least 1 participant required'),
     splitMode: z.enum(splitModes).default('equal'),
@@ -102,7 +108,8 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
   const groupId = parseInt(c.req.param('id') ?? '', 10);
-  const { amount, description, paidBy, participantIds, splitMode, shares } = c.req.valid('json');
+  const { amount, description, comment, paidBy, participantIds, splitMode, shares } =
+    c.req.valid('json');
 
   if (isNaN(groupId)) {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
@@ -165,6 +172,7 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
       paidBy: payerId,
       amount,
       description,
+      comment: comment || null,
       splitMode,
     })
     .returning();
@@ -257,6 +265,7 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
       paidBy: expense.paidBy,
       amount: expense.amount,
       description: expense.description,
+      comment: expense.comment,
       createdAt: expense.createdAt,
       participants: participantValues.map((p) => ({
         userId: p.userId,
@@ -301,6 +310,7 @@ expensesApp.get('/', async (c) => {
       payerName: users.displayName,
       amount: expenses.amount,
       description: expenses.description,
+      comment: expenses.comment,
       splitMode: expenses.splitMode,
       receiptKey: expenses.receiptKey,
       receiptThumbKey: expenses.receiptThumbKey,
@@ -358,6 +368,13 @@ const editExpenseSchema = z
       .min(1)
       .max(500)
       .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, ''))
+      .optional(),
+    comment: z
+      .string()
+      .trim()
+      .max(1000)
+      .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, ''))
+      .nullable()
       .optional(),
     participantIds: z.array(z.number().int().positive()).min(1).optional(),
     splitMode: z.enum(splitModes).optional(),
@@ -419,6 +436,7 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
   // Update expense fields
   const expenseUpdates: Record<string, any> = {};
   if (updates.description !== undefined) expenseUpdates.description = updates.description;
+  if (updates.comment !== undefined) expenseUpdates.comment = updates.comment || null;
 
   const newAmount = updates.amount ?? expense.amount;
   if (updates.amount !== undefined) expenseUpdates.amount = updates.amount;

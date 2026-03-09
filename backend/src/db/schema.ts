@@ -86,6 +86,7 @@ export const expenses = sqliteTable(
       .references(() => users.id),
     amount: integer('amount').notNull(), // micro-USDT (1 USDT = 1,000,000)
     description: text('description').notNull(),
+    comment: text('comment'),
     splitMode: text('split_mode').notNull().default('equal'),
     receiptKey: text('receipt_key'),
     receiptThumbKey: text('receipt_thumb_key'),

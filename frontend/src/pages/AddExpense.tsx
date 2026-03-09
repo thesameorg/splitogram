@@ -26,6 +26,7 @@ export function AddExpense() {
 
   const [group, setGroup] = useState<GroupDetail | null>(null);
   const [description, setDescription] = useState('');
+  const [comment, setComment] = useState('');
   const [amountStr, setAmountStr] = useState('');
   const [paidBy, setPaidBy] = useState<number | null>(null);
   const [selectedParticipants, setSelectedParticipants] = useState<Set<number>>(new Set());
@@ -51,6 +52,7 @@ export function AddExpense() {
         const expense = expensesData.expenses.find((e) => e.id === expenseId);
         if (expense) {
           setDescription(expense.description);
+          setComment(expense.comment || '');
           setAmountStr((expense.amount / 1_000_000).toString());
           setPaidBy(expense.paidBy);
           setSelectedParticipants(new Set(expense.participants.map((p) => p.userId)));
@@ -137,6 +139,7 @@ export function AddExpense() {
         await api.editExpense(groupId, expenseId, {
           amount: amountMicro,
           description: description.trim(),
+          comment: comment.trim() || null,
           participantIds: Array.from(selectedParticipants),
           splitMode,
           shares: sharesPayload,
@@ -156,6 +159,7 @@ export function AddExpense() {
         const result = await api.createExpense(groupId, {
           amount: amountMicro,
           description: description.trim(),
+          comment: comment.trim() || undefined,
           paidBy,
           participantIds: Array.from(selectedParticipants),
           splitMode,
@@ -185,6 +189,7 @@ export function AddExpense() {
     isEditMode,
     amountMicro,
     description,
+    comment,
     selectedParticipants,
     splitMode,
     shares,
@@ -262,6 +267,21 @@ export function AddExpense() {
           className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
           autoFocus
           maxLength={500}
+        />
+      </div>
+
+      {/* Comment (optional note) */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1 text-tg-hint">
+          {t('addExpense.note')}
+        </label>
+        <textarea
+          placeholder={t('addExpense.notePlaceholder')}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-sm resize-none"
+          rows={2}
+          maxLength={1000}
         />
       </div>
 

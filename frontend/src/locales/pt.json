@@ -152,7 +152,9 @@
     "splitPercentage": "Percentual",
     "splitManual": "Manual",
     "totalPercent": "Total: {{total}}%",
-    "remaining": "Restante: {{amount}}"
+    "remaining": "Restante: {{amount}}",
+    "note": "Nota (opcional)",
+    "notePlaceholder": "Adicionar uma nota..."
   },
   "settleUp": {
     "title": "Acertar Contas",

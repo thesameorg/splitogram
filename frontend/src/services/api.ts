@@ -105,6 +105,7 @@ export interface Expense {
   payerName: string;
   amount: number;
   description: string;
+  comment: string | null;
   splitMode: SplitMode;
   receiptKey: string | null;
   receiptThumbKey: string | null;
@@ -373,6 +374,7 @@ export const api = {
     data: {
       amount: number;
       description: string;
+      comment?: string;
       paidBy?: number;
       participantIds: number[];
       splitMode?: SplitMode;
@@ -390,6 +392,7 @@ export const api = {
     data: {
       amount?: number;
       description?: string;
+      comment?: string | null;
       participantIds?: number[];
       splitMode?: SplitMode;
       shares?: Array<{ userId: number; value: number }>;

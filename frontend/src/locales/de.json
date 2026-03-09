@@ -152,7 +152,9 @@
     "splitPercentage": "Prozent",
     "splitManual": "Manuell",
     "totalPercent": "Gesamt: {{total}}%",
-    "remaining": "Verbleibend: {{amount}}"
+    "remaining": "Verbleibend: {{amount}}",
+    "note": "Notiz (optional)",
+    "notePlaceholder": "Notiz hinzufügen..."
   },
   "settleUp": {
     "title": "Begleichen",

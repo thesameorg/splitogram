@@ -152,7 +152,9 @@
     "splitPercentage": "درصدی",
     "splitManual": "دستی",
     "totalPercent": "مجموع: {{total}}%",
-    "remaining": "باقی‌مانده: {{amount}}"
+    "remaining": "باقی‌مانده: {{amount}}",
+    "note": "یادداشت (اختیاری)",
+    "notePlaceholder": "یادداشت بنویسید..."
   },
   "settleUp": {
     "title": "تسویه حساب",

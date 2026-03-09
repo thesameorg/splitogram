@@ -150,7 +150,9 @@
     "splitPercentage": "Persen",
     "splitManual": "Manual",
     "totalPercent": "Total: {{total}}%",
-    "remaining": "Sisa: {{amount}}"
+    "remaining": "Sisa: {{amount}}",
+    "note": "Catatan (opsional)",
+    "notePlaceholder": "Tambahkan catatan..."
   },
   "settleUp": {
     "title": "Lunasi",

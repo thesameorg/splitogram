@@ -92,6 +92,13 @@
       "when": 1773350400000,
       "tag": "0012_drop_exchange_rates",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1773083749122,
+      "tag": "0013_fresh_union_jack",
+      "breakpoints": true
     }
   ]
 }

@@ -154,7 +154,9 @@
     "splitPercentage": "Відсотки",
     "splitManual": "Вручну",
     "totalPercent": "Разом: {{total}}%",
-    "remaining": "Залишок: {{amount}}"
+    "remaining": "Залишок: {{amount}}",
+    "note": "Нотатка (необов'язково)",
+    "notePlaceholder": "Додати нотатку..."
   },
   "settleUp": {
     "title": "Розрахунок",

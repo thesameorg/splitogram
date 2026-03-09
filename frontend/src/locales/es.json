@@ -152,7 +152,9 @@
     "splitPercentage": "Porcentaje",
     "splitManual": "Manual",
     "totalPercent": "Total: {{total}}%",
-    "remaining": "Restante: {{amount}}"
+    "remaining": "Restante: {{amount}}",
+    "note": "Nota (opcional)",
+    "notePlaceholder": "Añadir una nota..."
   },
   "settleUp": {
     "title": "Saldar deuda",

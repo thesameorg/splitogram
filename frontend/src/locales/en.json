@@ -152,7 +152,9 @@
     "splitPercentage": "Percent",
     "splitManual": "Manual",
     "totalPercent": "Total: {{total}}%",
-    "remaining": "Remaining: {{amount}}"
+    "remaining": "Remaining: {{amount}}",
+    "note": "Note (optional)",
+    "notePlaceholder": "Add a note..."
   },
   "settleUp": {
     "title": "Settle Up",

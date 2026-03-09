@@ -697,6 +697,13 @@ export function Group() {
               </div>
             </div>
 
+            {/* Comment */}
+            {selectedExpense.comment && (
+              <div className="text-sm text-tg-text bg-tg-section rounded-xl px-3 py-2">
+                {selectedExpense.comment}
+              </div>
+            )}
+
             {/* Receipt */}
             {selectedExpense.receiptThumbKey && (
               <button

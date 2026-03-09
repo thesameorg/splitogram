@@ -152,7 +152,9 @@
     "splitPercentage": "Percentuale",
     "splitManual": "Manuale",
     "totalPercent": "Totale: {{total}}%",
-    "remaining": "Rimanente: {{amount}}"
+    "remaining": "Rimanente: {{amount}}",
+    "note": "Nota (facoltativo)",
+    "notePlaceholder": "Aggiungi una nota..."
   },
   "settleUp": {
     "title": "Salda",

@@ -9,6 +9,7 @@ function makeExpense(overrides: Partial<Expense> = {}): Expense {
     payerName: 'Alice',
     amount: 1000000,
     description: 'Lunch',
+    comment: null,
     splitMode: 'equal',
     receiptKey: null,
     receiptThumbKey: null,
