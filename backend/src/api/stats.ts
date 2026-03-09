@@ -17,20 +17,12 @@ statsApp.get('/', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
@@ -101,7 +93,7 @@ statsApp.get('/', async (c) => {
       })
       .from(expenses)
       .where(
-        sql`${expenses.groupId} = ${groupId} AND ${expenses.paidBy} = ${currentUser.id} ${expenseDateFilter}`,
+        sql`${expenses.groupId} = ${groupId} AND ${expenses.paidBy} = ${currentUserId} ${expenseDateFilter}`,
       ),
 
     // 4. Settlements involving current user
@@ -113,7 +105,7 @@ statsApp.get('/', async (c) => {
       })
       .from(settlements)
       .where(
-        sql`${settlements.groupId} = ${groupId} AND ${settlements.status} IN ('settled_onchain', 'settled_external') AND (${settlements.fromUser} = ${currentUser.id} OR ${settlements.toUser} = ${currentUser.id}) ${settlementDateFilter}`,
+        sql`${settlements.groupId} = ${groupId} AND ${settlements.status} IN ('settled_onchain', 'settled_external') AND (${settlements.fromUser} = ${currentUserId} OR ${settlements.toUser} = ${currentUserId}) ${settlementDateFilter}`,
       ),
 
     // 5. Available months
@@ -125,13 +117,13 @@ statsApp.get('/', async (c) => {
   const totalSpent = totalSpentResult[0]?.total ?? 0;
   const totalPaidFor = totalPaidForResult[0]?.total ?? 0;
 
-  const yourShare = memberSharesResult.find((m) => m.userId === currentUser.id)?.share ?? 0;
+  const yourShare = memberSharesResult.find((m) => m.userId === currentUserId)?.share ?? 0;
 
   let paymentsMade = 0;
   let paymentsReceived = 0;
   for (const s of settlementsResult) {
-    if (s.fromUser === currentUser.id) paymentsMade += s.amount;
-    if (s.toUser === currentUser.id) paymentsReceived += s.amount;
+    if (s.fromUser === currentUserId) paymentsMade += s.amount;
+    if (s.toUser === currentUserId) paymentsReceived += s.amount;
   }
 
   const balanceChange = totalPaidFor - yourShare - paymentsMade + paymentsReceived;

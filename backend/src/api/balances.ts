@@ -20,21 +20,13 @@ balancesApp.get('/', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   // Check membership
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
@@ -97,20 +89,12 @@ balancesApp.get('/me', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
@@ -138,7 +122,7 @@ balancesApp.get('/me', async (c) => {
   }
 
   const iOwe = debts
-    .filter((d) => d.from === currentUser.id)
+    .filter((d) => d.from === currentUserId)
     .map((d) => ({
       userId: d.to,
       displayName: memberMap.get(d.to)?.displayName ?? 'Unknown',
@@ -147,7 +131,7 @@ balancesApp.get('/me', async (c) => {
     }));
 
   const owedToMe = debts
-    .filter((d) => d.to === currentUser.id)
+    .filter((d) => d.to === currentUserId)
     .map((d) => ({
       userId: d.from,
       displayName: memberMap.get(d.from)?.displayName ?? 'Unknown',
@@ -155,7 +139,7 @@ balancesApp.get('/me', async (c) => {
       amount: d.amount,
     }));
 
-  const netBalance = netBalances.get(currentUser.id) ?? 0;
+  const netBalance = netBalances.get(currentUserId) ?? 0;
 
   return c.json({ netBalance, iOwe, owedToMe });
 });

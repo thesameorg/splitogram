@@ -108,29 +108,20 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  // Resolve current user
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   // Check current user is member
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  const payerId = paidBy ?? currentUser.id;
+  const payerId = paidBy ?? currentUserId;
 
   // Verify payer is a group member
   const [payerMembership] = await db
@@ -193,7 +184,7 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   // Log activity
   await logActivity(db, {
     groupId,
-    actorId: currentUser.id,
+    actorId: currentUserId,
     type: 'expense_created',
     expenseId: expense.id,
     amount: expense.amount,
@@ -286,22 +277,13 @@ expensesApp.get('/', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  // Resolve current user
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   // Check membership
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
@@ -331,22 +313,37 @@ expensesApp.get('/', async (c) => {
     .limit(limit)
     .offset(offset);
 
-  // For each expense, get participants
-  const result = await Promise.all(
-    expenseList.map(async (exp) => {
-      const participants = await db
-        .select({
-          userId: expenseParticipants.userId,
-          displayName: users.displayName,
-          shareAmount: expenseParticipants.shareAmount,
-        })
-        .from(expenseParticipants)
-        .innerJoin(users, eq(expenseParticipants.userId, users.id))
-        .where(eq(expenseParticipants.expenseId, exp.id));
+  // Batch-fetch all participants (single query instead of N+1)
+  const expenseIds = expenseList.map((e) => e.id);
+  const allParticipants =
+    expenseIds.length > 0
+      ? await db
+          .select({
+            expenseId: expenseParticipants.expenseId,
+            userId: expenseParticipants.userId,
+            displayName: users.displayName,
+            shareAmount: expenseParticipants.shareAmount,
+          })
+          .from(expenseParticipants)
+          .innerJoin(users, eq(expenseParticipants.userId, users.id))
+          .where(inArray(expenseParticipants.expenseId, expenseIds))
+      : [];
 
-      return { ...exp, participants };
-    }),
-  );
+  const participantsByExpense = new Map<number, typeof allParticipants>();
+  for (const p of allParticipants) {
+    const list = participantsByExpense.get(p.expenseId) ?? [];
+    list.push(p);
+    participantsByExpense.set(p.expenseId, list);
+  }
+
+  const result = expenseList.map((exp) => ({
+    ...exp,
+    participants: (participantsByExpense.get(exp.id) ?? []).map((p) => ({
+      userId: p.userId,
+      displayName: p.displayName,
+      shareAmount: p.shareAmount,
+    })),
+  }));
 
   return c.json({ expenses: result });
 });
@@ -391,15 +388,7 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
     return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   // Fetch expense
   const [expense] = await db
@@ -416,14 +405,14 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  if (expense.paidBy !== currentUser.id) {
+  if (expense.paidBy !== currentUserId) {
     return c.json({ error: 'not_authorized', detail: 'Only the expense creator can edit' }, 403);
   }
 
@@ -495,7 +484,7 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
   // Log activity (store oldAmount for feed display)
   await logActivity(db, {
     groupId,
-    actorId: currentUser.id,
+    actorId: currentUserId,
     type: 'expense_edited',
     expenseId,
     amount: newAmount,
@@ -519,15 +508,7 @@ expensesApp.delete('/:expenseId', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [expense] = await db
     .select()
@@ -543,14 +524,14 @@ expensesApp.delete('/:expenseId', async (c) => {
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  if (expense.paidBy !== currentUser.id && membership.role !== 'admin') {
+  if (expense.paidBy !== currentUserId && membership.role !== 'admin') {
     return c.json(
       { error: 'not_authorized', detail: 'Only the expense creator or group admin can delete' },
       403,
@@ -568,7 +549,7 @@ expensesApp.delete('/:expenseId', async (c) => {
   // Log activity before delete (need expense data)
   await logActivity(db, {
     groupId,
-    actorId: currentUser.id,
+    actorId: currentUserId,
     type: 'expense_deleted',
     expenseId,
     amount: expense.amount,
@@ -595,15 +576,7 @@ expensesApp.post('/:expenseId/receipt', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [expense] = await db
     .select()
@@ -619,14 +592,14 @@ expensesApp.post('/:expenseId/receipt', async (c) => {
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  if (expense.paidBy !== currentUser.id && membership.role !== 'admin') {
+  if (expense.paidBy !== currentUserId && membership.role !== 'admin') {
     return c.json(
       {
         error: 'not_authorized',
@@ -695,15 +668,7 @@ expensesApp.delete('/:expenseId/receipt', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [expense] = await db
     .select()
@@ -718,14 +683,14 @@ expensesApp.delete('/:expenseId/receipt', async (c) => {
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  if (expense.paidBy !== currentUser.id && membership.role !== 'admin') {
+  if (expense.paidBy !== currentUserId && membership.role !== 'admin') {
     return c.json(
       {
         error: 'not_authorized',

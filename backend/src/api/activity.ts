@@ -15,21 +15,13 @@ activityApp.get('/activity', async (c) => {
   const cursor = c.req.query('cursor');
   const limit = Math.min(parseInt(c.req.query('limit') ?? '30', 10) || 30, 50);
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   // Get user's groups
   const userGroups = await db
     .select({ groupId: groupMembers.groupId })
     .from(groupMembers)
-    .where(eq(groupMembers.userId, currentUser.id));
+    .where(eq(groupMembers.userId, currentUserId));
 
   if (userGroups.length === 0) {
     return c.json({ items: [], nextCursor: null });
@@ -113,21 +105,13 @@ activityApp.get('/groups/:id/activity', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   // Check membership
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {

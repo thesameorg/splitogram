@@ -100,14 +100,20 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
         displayName,
       });
     } else {
-      await db
-        .update(users)
-        .set({
-          username: tgUser.username ?? null,
-          displayName,
-          updatedAt: new Date().toISOString(),
-        })
-        .where(eq(users.telegramId, tgUser.id));
+      // Only write if fields actually changed (avoids unnecessary D1 writes)
+      const needsUpdate =
+        existing[0].displayName !== displayName ||
+        existing[0].username !== (tgUser.username ?? null);
+      if (needsUpdate) {
+        await db
+          .update(users)
+          .set({
+            username: tgUser.username ?? null,
+            displayName,
+            updatedAt: new Date().toISOString(),
+          })
+          .where(eq(users.telegramId, tgUser.id));
+      }
     }
 
     const [user] = await db.select().from(users).where(eq(users.telegramId, tgUser.id)).limit(1);

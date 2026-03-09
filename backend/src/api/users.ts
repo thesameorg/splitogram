@@ -28,11 +28,7 @@ app.get('/me', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
+  const [user] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
 
   if (!user) {
     return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
@@ -69,7 +65,7 @@ app.put(
     await db
       .update(users)
       .set({ displayName, updatedAt: new Date().toISOString() })
-      .where(eq(users.telegramId, session.telegramId));
+      .where(eq(users.id, session.userId));
 
     return c.json({ displayName });
   },
@@ -94,7 +90,7 @@ app.post('/me/avatar', async (c) => {
   const [user] = await db
     .select({ id: users.id, avatarKey: users.avatarKey })
     .from(users)
-    .where(eq(users.telegramId, session.telegramId))
+    .where(eq(users.id, session.userId))
     .limit(1);
 
   if (!user) {
@@ -129,7 +125,7 @@ app.delete('/me/avatar', async (c) => {
   const [user] = await db
     .select({ id: users.id, avatarKey: users.avatarKey })
     .from(users)
-    .where(eq(users.telegramId, session.telegramId))
+    .where(eq(users.id, session.userId))
     .limit(1);
 
   if (!user) {
@@ -169,11 +165,7 @@ app.post('/feedback', async (c) => {
     return c.json({ sent: true }); // silently succeed if no admin configured
   }
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
+  const [user] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
 
   if (!user) {
     return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
@@ -244,7 +236,7 @@ app.put('/me/wallet', zValidator('json', walletSchema), async (c) => {
   await db
     .update(users)
     .set({ walletAddress: address, updatedAt: new Date().toISOString() })
-    .where(eq(users.telegramId, session.telegramId));
+    .where(eq(users.id, session.userId));
 
   return c.json({ walletAddress: address });
 });
@@ -257,7 +249,7 @@ app.delete('/me/wallet', async (c) => {
   await db
     .update(users)
     .set({ walletAddress: null, updatedAt: new Date().toISOString() })
-    .where(eq(users.telegramId, session.telegramId));
+    .where(eq(users.id, session.userId));
 
   return c.json({ walletAddress: null });
 });
@@ -267,11 +259,7 @@ app.delete('/me', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
+  const [user] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
 
   if (!user) {
     return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);

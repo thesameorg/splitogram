@@ -3,13 +3,19 @@ import type { Env } from '../env';
 
 const r2App = new Hono<{ Bindings: Env }>();
 
-// GET /r2/:key+ — serve images from R2 with immutable caching
+// GET /r2/:key+ — serve images from R2 with edge + browser caching
 r2App.get('/*', async (c) => {
   const key = c.req.path.replace(/^\/r2\//, '');
 
   if (!key) {
     return c.json({ error: 'missing_key', detail: 'No image key provided' }, 400);
   }
+
+  // Check Cloudflare edge cache first (avoids R2 read on cache hit)
+  const cacheKey = new Request(c.req.url);
+  const cache = (caches as any).default as Cache;
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
 
   const object = await c.env.IMAGES.get(key);
 
@@ -24,7 +30,9 @@ r2App.get('/*', async (c) => {
     headers.set('Content-Length', object.size.toString());
   }
 
-  return new Response(object.body as unknown as ReadableStream, { headers });
+  const response = new Response(object.body as unknown as ReadableStream, { headers });
+  c.executionCtx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
 });
 
 export { r2App };

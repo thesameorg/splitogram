@@ -102,9 +102,9 @@ SplitogramSettlement (Tact)  →  USDT settlement with commission split
 - **Backend** runs as a single Cloudflare Worker handling both API routes and Telegram bot webhook
 - **Frontend** is a static React app on Cloudflare Pages
 - **Database** is Cloudflare D1 (SQLite) accessed via Drizzle ORM
-- **Auth** is stateless HMAC verification of Telegram `initData` per request — no sessions, no KV
+- **Auth** is stateless HMAC verification of Telegram `initData` per request — no sessions, no KV. Auth middleware stores `userId` (internal DB PK) in `SessionData` so route handlers never need a redundant D1 user lookup.
 - **Frontend UI** is plain React + Tailwind + react-i18next (no component library — decided Phase 3). Theming via Telegram CSS variables mapped to `tg-*` Tailwind tokens.
-- **Image storage** is Cloudflare R2, served via Worker at `/r2/*` with immutable caching. Client-side resize/compress via Canvas API (zero deps). One bucket with `avatars/`, `groups/`, `receipts/` prefixes.
+- **Image storage** is Cloudflare R2, served via Worker at `/r2/*` with Cloudflare Cache API edge caching + immutable browser caching. Client-side resize/compress via Canvas API (zero deps). One bucket with `avatars/`, `groups/`, `receipts/` prefixes.
 - **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend)
 - **Smart contract** is a Tact contract (`contracts/splitogram-contract/`) deployed on TON testnet. Receives USDT, takes 1% commission (min 0.1, max 1.0 USDT), forwards remainder to recipient. Built with Blueprint SDK, tested with `@ton/sandbox`.
 
@@ -161,6 +161,7 @@ The backend uses Hono's typed context pattern to pass data through middleware. T
 ```ts
 // middleware/auth.ts — sets session on context
 export type AuthContext = { Bindings: Env; Variables: { session: SessionData } };
+// SessionData: { telegramId, userId, username?, displayName }
 
 // middleware/db.ts — sets Drizzle instance on context
 export type DBContext = { Bindings: Env; Variables: { db: Database } };
@@ -171,6 +172,7 @@ const app = new Hono<GroupEnv>();
 app.get('/', (c) => {
   const db = c.get('db'); // from dbMiddleware
   const session = c.get('session'); // from authMiddleware
+  const userId = session.userId; // internal DB PK — no extra D1 lookup needed
 });
 ```
 

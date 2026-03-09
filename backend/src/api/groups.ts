@@ -55,16 +55,7 @@ groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
   const session = c.get('session');
   const { name, currency } = c.req.valid('json');
 
-  // Resolve internal user ID from telegram ID
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const inviteCode = generateInviteCode();
 
@@ -74,21 +65,21 @@ groupsApp.post('/', zValidator('json', createGroupSchema), async (c) => {
       name,
       inviteCode,
       currency: currency ?? 'USD',
-      createdBy: user.id,
+      createdBy: userId,
     })
     .returning();
 
   // Auto-add creator as admin
   await db.insert(groupMembers).values({
     groupId: group.id,
-    userId: user.id,
+    userId: userId,
     role: 'admin',
   });
 
   // Log activity
   await logActivity(db, {
     groupId: group.id,
-    actorId: user.id,
+    actorId: userId,
     type: 'group_created',
   });
 
@@ -110,15 +101,7 @@ groupsApp.get('/', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   // Get groups with member count
   const userGroups = await db
@@ -135,7 +118,7 @@ groupsApp.get('/', async (c) => {
     })
     .from(groupMembers)
     .innerJoin(groups, eq(groupMembers.groupId, groups.id))
-    .where(eq(groupMembers.userId, user.id))
+    .where(eq(groupMembers.userId, userId))
     .orderBy(desc(groups.createdAt));
 
   if (userGroups.length === 0) {
@@ -167,7 +150,7 @@ groupsApp.get('/', async (c) => {
     .from(groupMembers)
     .where(
       and(
-        eq(groupMembers.userId, user.id),
+        eq(groupMembers.userId, userId),
         sql`${groupMembers.groupId} IN (${sql.join(
           groupIds.map((id) => sql`${id}`),
           sql`, `,
@@ -203,21 +186,13 @@ groupsApp.get('/:id', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   // Check membership
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership) {
@@ -295,21 +270,13 @@ groupsApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   // Only admin can update group settings
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership) {
@@ -364,20 +331,12 @@ groupsApp.post('/:id/mute', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const [membership] = await db
     .select({ id: groupMembers.id, muted: groupMembers.muted })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership) {
@@ -400,20 +359,12 @@ groupsApp.post('/:id/regenerate-invite', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership) {
@@ -443,20 +394,12 @@ groupsApp.post('/:id/avatar', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership || membership.role !== 'admin') {
@@ -510,20 +453,12 @@ groupsApp.delete('/:id/avatar', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership || membership.role !== 'admin') {
@@ -558,20 +493,12 @@ groupsApp.delete('/:id', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership) {
@@ -676,20 +603,12 @@ groupsApp.post('/:id/leave', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership) {
@@ -708,7 +627,7 @@ groupsApp.post('/:id/leave', async (c) => {
 
   // Check user's net balance is zero
   const netBalances = await computeGroupBalances(db, groupId);
-  const userBalance = netBalances.get(user.id) ?? 0;
+  const userBalance = netBalances.get(userId) ?? 0;
   if (userBalance !== 0) {
     return c.json(
       { error: 'outstanding_balance', detail: 'Settle all debts before leaving the group.' },
@@ -719,13 +638,13 @@ groupsApp.post('/:id/leave', async (c) => {
   // Log activity before removing membership
   await logActivity(db, {
     groupId,
-    actorId: user.id,
+    actorId: userId,
     type: 'member_left',
   });
 
   await db
     .delete(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)));
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)));
 
   // Refresh cached balances after member removal
   await refreshGroupBalances(db, groupId);
@@ -744,21 +663,13 @@ groupsApp.delete('/:id/members/:userId', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   // Check caller is admin
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership) {
@@ -770,7 +681,7 @@ groupsApp.delete('/:id/members/:userId', async (c) => {
   }
 
   // Cannot kick self
-  if (user.id === targetUserId) {
+  if (userId === targetUserId) {
     return c.json({ error: 'cannot_kick_self', detail: 'Cannot kick yourself' }, 400);
   }
 
@@ -802,7 +713,7 @@ groupsApp.delete('/:id/members/:userId', async (c) => {
   // Log activity
   await logActivity(db, {
     groupId,
-    actorId: user.id,
+    actorId: userId,
     type: 'member_kicked',
     targetUserId,
   });
@@ -864,15 +775,7 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   // Verify group exists and invite code matches
   const [group] = await db
@@ -889,7 +792,7 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
   const [existing] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (existing) {
@@ -915,7 +818,7 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
 
   await db.insert(groupMembers).values({
     groupId,
-    userId: user.id,
+    userId: userId,
     role: 'member',
   });
 
@@ -925,7 +828,7 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
   // Log activity
   await logActivity(db, {
     groupId,
-    actorId: user.id,
+    actorId: userId,
     type: 'member_joined',
   });
 
@@ -950,7 +853,7 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
             botStarted: users.botStarted,
           })
           .from(users)
-          .where(eq(users.id, user.id))
+          .where(eq(users.id, userId))
           .limit(1);
 
         const existingMembers = await db
@@ -991,21 +894,13 @@ groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) =
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   // Check membership
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership) {
@@ -1015,7 +910,7 @@ groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) =
   // Verify user is the creditor in the debt graph
   const netBalances = await computeGroupBalances(db, groupId);
   const debts = simplifyDebts(netBalances);
-  const targetDebt = debts.find((d) => d.from === toUserId && d.to === user.id);
+  const targetDebt = debts.find((d) => d.from === toUserId && d.to === userId);
 
   if (!targetDebt) {
     return c.json({ error: 'no_debt', detail: 'This user does not owe you' }, 400);
@@ -1028,7 +923,7 @@ groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) =
     .where(
       and(
         eq(debtReminders.groupId, groupId),
-        eq(debtReminders.fromUserId, user.id),
+        eq(debtReminders.fromUserId, userId),
         eq(debtReminders.toUserId, toUserId),
       ),
     )
@@ -1054,14 +949,14 @@ groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) =
       .where(
         and(
           eq(debtReminders.groupId, groupId),
-          eq(debtReminders.fromUserId, user.id),
+          eq(debtReminders.fromUserId, userId),
           eq(debtReminders.toUserId, toUserId),
         ),
       );
   } else {
     await db.insert(debtReminders).values({
       groupId,
-      fromUserId: user.id,
+      fromUserId: userId,
       toUserId,
       lastSentAt: now,
     });
@@ -1085,7 +980,7 @@ groupsApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) =
           db
             .select({ displayName: users.displayName })
             .from(users)
-            .where(eq(users.id, user.id))
+            .where(eq(users.id, userId))
             .limit(1),
           db
             .select({
@@ -1139,21 +1034,13 @@ groupsApp.post('/:id/placeholders', zValidator('json', createPlaceholderSchema),
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   // Admin only
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership || membership.role !== 'admin') {
@@ -1215,20 +1102,12 @@ groupsApp.put('/:id/placeholders/:userId', zValidator('json', editPlaceholderSch
     return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership || membership.role !== 'admin') {
@@ -1271,20 +1150,12 @@ groupsApp.delete('/:id/placeholders/:userId', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!membership || membership.role !== 'admin') {
@@ -1345,21 +1216,13 @@ groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSche
     return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
   }
 
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!user) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const userId = session.userId;
 
   // Verify caller is a member of this group
   const [callerMembership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
     .limit(1);
 
   if (!callerMembership) {
@@ -1404,37 +1267,37 @@ groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSche
   if (expIdsSql) {
     await db.batch([
       // expense_participants: delete real user's rows first, then transfer dummy's
-      db.delete(expenseParticipants).where(and(expIdsSql, eq(expenseParticipants.userId, user.id))),
+      db.delete(expenseParticipants).where(and(expIdsSql, eq(expenseParticipants.userId, userId))),
       db
         .update(expenseParticipants)
-        .set({ userId: user.id })
+        .set({ userId: userId })
         .where(and(expIdsSql, eq(expenseParticipants.userId, dummyUserId))),
       // expenses.paid_by
       db
         .update(expenses)
-        .set({ paidBy: user.id })
+        .set({ paidBy: userId })
         .where(and(eq(expenses.groupId, groupId), eq(expenses.paidBy, dummyUserId))),
       // settlements — from, to, settledBy
       db
         .update(settlements)
-        .set({ fromUser: user.id })
+        .set({ fromUser: userId })
         .where(and(eq(settlements.groupId, groupId), eq(settlements.fromUser, dummyUserId))),
       db
         .update(settlements)
-        .set({ toUser: user.id })
+        .set({ toUser: userId })
         .where(and(eq(settlements.groupId, groupId), eq(settlements.toUser, dummyUserId))),
       db
         .update(settlements)
-        .set({ settledBy: user.id })
+        .set({ settledBy: userId })
         .where(and(eq(settlements.groupId, groupId), eq(settlements.settledBy, dummyUserId))),
       // activity_log
       db
         .update(activityLog)
-        .set({ actorId: user.id })
+        .set({ actorId: userId })
         .where(and(eq(activityLog.groupId, groupId), eq(activityLog.actorId, dummyUserId))),
       db
         .update(activityLog)
-        .set({ targetUserId: user.id })
+        .set({ targetUserId: userId })
         .where(and(eq(activityLog.groupId, groupId), eq(activityLog.targetUserId, dummyUserId))),
       // debt_reminders
       db
@@ -1455,23 +1318,23 @@ groupsApp.post('/:id/claim-placeholder', zValidator('json', claimPlaceholderSche
     await db.batch([
       db
         .update(settlements)
-        .set({ fromUser: user.id })
+        .set({ fromUser: userId })
         .where(and(eq(settlements.groupId, groupId), eq(settlements.fromUser, dummyUserId))),
       db
         .update(settlements)
-        .set({ toUser: user.id })
+        .set({ toUser: userId })
         .where(and(eq(settlements.groupId, groupId), eq(settlements.toUser, dummyUserId))),
       db
         .update(settlements)
-        .set({ settledBy: user.id })
+        .set({ settledBy: userId })
         .where(and(eq(settlements.groupId, groupId), eq(settlements.settledBy, dummyUserId))),
       db
         .update(activityLog)
-        .set({ actorId: user.id })
+        .set({ actorId: userId })
         .where(and(eq(activityLog.groupId, groupId), eq(activityLog.actorId, dummyUserId))),
       db
         .update(activityLog)
-        .set({ targetUserId: user.id })
+        .set({ targetUserId: userId })
         .where(and(eq(activityLog.groupId, groupId), eq(activityLog.targetUserId, dummyUserId))),
       db
         .delete(debtReminders)

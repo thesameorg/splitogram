@@ -43,18 +43,10 @@ settlementsApp.post(
       return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
     }
 
-    const [currentUser] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.telegramId, session.telegramId))
-      .limit(1);
-
-    if (!currentUser) {
-      return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-    }
+    const currentUserId = session.userId;
 
     // Current user must be one of the parties
-    if (currentUser.id !== fromUserId && currentUser.id !== toUserId) {
+    if (currentUserId !== fromUserId && currentUserId !== toUserId) {
       return c.json({ error: 'not_involved', detail: 'You must be the debtor or creditor' }, 403);
     }
 
@@ -62,7 +54,7 @@ settlementsApp.post(
     const [membership] = await db
       .select()
       .from(groupMembers)
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
       .limit(1);
 
     if (!membership) {
@@ -131,20 +123,12 @@ settlementsApp.get('/groups/:id/settlements', async (c) => {
   const offset = parseInt(c.req.query('offset') ?? '0', 10) || 0;
 
   // Check membership
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [membership] = await db
     .select()
     .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUser.id)))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
     .limit(1);
 
   if (!membership) {
@@ -208,15 +192,7 @@ settlementsApp.get('/settlements/:id', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [settlement] = await db
     .select()
@@ -229,7 +205,7 @@ settlementsApp.get('/settlements/:id', async (c) => {
   }
 
   // Check user is involved (debtor or creditor)
-  if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
+  if (settlement.fromUser !== currentUserId && settlement.toUser !== currentUserId) {
     return c.json(
       { error: 'not_involved', detail: 'You are not involved in this settlement' },
       403,
@@ -265,7 +241,7 @@ settlementsApp.get('/settlements/:id', async (c) => {
 
   const result = {
     ...settlement,
-    currentUserId: currentUser.id,
+    currentUserId: currentUserId,
     currency: group?.currency ?? 'USD',
     explorerUrl: settlement.txHash ? tonExplorerUrl(c.env, settlement.txHash) : null,
     from: { userId: settlement.fromUser, ...fromUserInfo },
@@ -290,15 +266,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     return c.json({ error: 'missing_param', detail: 'senderAddress query param required' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [settlement] = await db
     .select()
@@ -310,7 +278,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
   }
 
-  if (settlement.fromUser !== currentUser.id) {
+  if (settlement.fromUser !== currentUserId) {
     return c.json(
       { error: 'not_debtor', detail: 'Only the debtor can get transaction params' },
       403,
@@ -477,15 +445,7 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [settlement] = await db
     .select()
@@ -497,7 +457,7 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
     return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
   }
 
-  if (settlement.fromUser !== currentUser.id) {
+  if (settlement.fromUser !== currentUserId) {
     return c.json({ error: 'not_debtor', detail: 'Only the debtor can verify payment' }, 403);
   }
 
@@ -556,15 +516,7 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [settlement] = await db
     .select()
@@ -576,7 +528,7 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
     return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
   }
 
-  if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
+  if (settlement.fromUser !== currentUserId && settlement.toUser !== currentUserId) {
     return c.json(
       { error: 'not_involved', detail: 'You are not involved in this settlement' },
       403,
@@ -750,15 +702,7 @@ settlementsApp.post(
       return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
     }
 
-    const [currentUser] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.telegramId, session.telegramId))
-      .limit(1);
-
-    if (!currentUser) {
-      return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-    }
+    const currentUserId = session.userId;
 
     const [settlement] = await db
       .select()
@@ -771,7 +715,7 @@ settlementsApp.post(
     }
 
     // Either debtor or creditor can mark as settled
-    if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
+    if (settlement.fromUser !== currentUserId && settlement.toUser !== currentUserId) {
       return c.json(
         { error: 'not_involved', detail: 'You are not involved in this settlement' },
         403,
@@ -794,7 +738,7 @@ settlementsApp.post(
         status: 'settled_external',
         amount: paidAmount,
         comment: comment ?? null,
-        settledBy: currentUser.id,
+        settledBy: currentUserId,
         updatedAt: new Date().toISOString(),
       })
       .where(
@@ -815,11 +759,10 @@ settlementsApp.post(
     // Log activity
     await logActivity(db, {
       groupId: settlement.groupId,
-      actorId: currentUser.id,
+      actorId: currentUserId,
       type: 'settlement_completed',
       settlementId,
-      targetUserId:
-        currentUser.id === settlement.fromUser ? settlement.toUser : settlement.fromUser,
+      targetUserId: currentUserId === settlement.fromUser ? settlement.toUser : settlement.fromUser,
       amount: paidAmount,
       metadata: { method: 'external' },
     });
@@ -860,15 +803,7 @@ settlementsApp.post('/settlements/:id/receipt', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [settlement] = await db
     .select()
@@ -880,7 +815,7 @@ settlementsApp.post('/settlements/:id/receipt', async (c) => {
     return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
   }
 
-  if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
+  if (settlement.fromUser !== currentUserId && settlement.toUser !== currentUserId) {
     return c.json(
       { error: 'not_involved', detail: 'You are not involved in this settlement' },
       403,
@@ -943,15 +878,7 @@ settlementsApp.delete('/settlements/:id/receipt', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
   }
 
-  const [currentUser] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
-
-  if (!currentUser) {
-    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
-  }
+  const currentUserId = session.userId;
 
   const [settlement] = await db
     .select()
@@ -963,7 +890,7 @@ settlementsApp.delete('/settlements/:id/receipt', async (c) => {
     return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
   }
 
-  if (settlement.fromUser !== currentUser.id && settlement.toUser !== currentUser.id) {
+  if (settlement.fromUser !== currentUserId && settlement.toUser !== currentUserId) {
     return c.json(
       { error: 'not_involved', detail: 'You are not involved in this settlement' },
       403,

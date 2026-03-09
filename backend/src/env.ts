@@ -26,6 +26,7 @@ export interface Env {
 
 export interface SessionData {
   telegramId: number;
+  userId: number;
   username?: string;
   displayName: string;
 }

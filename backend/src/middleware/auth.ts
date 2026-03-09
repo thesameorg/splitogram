@@ -52,12 +52,14 @@ export async function authMiddleware(c: Context<AuthContext>, next: Next) {
           .limit(1);
         c.set('session', {
           telegramId: created.telegramId,
+          userId: created.id,
           username: created.username ?? undefined,
           displayName: created.displayName,
         });
       } else {
         c.set('session', {
           telegramId: existing[0].telegramId,
+          userId: existing[0].id,
           username: existing[0].username ?? undefined,
           displayName: existing[0].displayName,
         });
@@ -88,6 +90,7 @@ export async function authMiddleware(c: Context<AuthContext>, next: Next) {
 
     c.set('session', {
       telegramId: existing[0].telegramId,
+      userId: existing[0].id,
       username: existing[0].username ?? undefined,
       displayName: existing[0].displayName,
     });

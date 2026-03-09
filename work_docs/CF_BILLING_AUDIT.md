@@ -69,7 +69,7 @@ This is a one-liner and stops all non-Telegram webhook spam cold.
 
 ---
 
-### CR-2: `/r2/*` serving does NOT use Cloudflare Cache API — every image fetch hits R2
+### CR-2: `/r2/*` serving does NOT use Cloudflare Cache API — every image fetch hits R2 ✅ FIXED
 
 **File**: `backend/src/api/r2.ts:7-28`
 
@@ -146,7 +146,7 @@ A typical Group page load triggers: auth (1 read) + group detail (2-3 reads) + e
 
 ---
 
-### HR-2: `GET /api/v1/groups/:id/expenses` has N+1 query on participants
+### HR-2: `GET /api/v1/groups/:id/expenses` has N+1 query on participants ✅ FIXED
 
 **File**: `backend/src/api/expenses.ts:330-344`
 
@@ -191,7 +191,7 @@ This is correct and atomic (good!), but it burns D1 rows-read proportional to gr
 
 ---
 
-### HR-4: `POST /api/v1/auth` is unauthenticated and does D1 reads + writes on every call
+### HR-4: `POST /api/v1/auth` is unauthenticated and does D1 reads + writes on every call ✅ FIXED
 
 **File**: `backend/src/api/auth.ts:21-137`
 
@@ -247,13 +247,13 @@ The TONAPI call is a subrequest that consumes significant CPU time. If TONAPI is
 
 ## Medium Risks (Optimization opportunities)
 
-### MR-1: `POST /api/v1/auth` UPDATE on every app open without checking for changes
+### MR-1: `POST /api/v1/auth` UPDATE on every app open without checking for changes ✅ FIXED
 
-Already covered in HR-4. The fix is trivial and saves real D1 writes at scale.
+Already covered in HR-4. Dirty-check added — only writes when displayName or username actually changed.
 
 ---
 
-### MR-2: Auth middleware does a second user lookup that most handlers also do
+### MR-2: Auth middleware does a second user lookup that most handlers also do ✅ FIXED
 
 **File**: `backend/src/middleware/auth.ts:80`, most route handlers
 
@@ -394,23 +394,23 @@ Two D1 reads: first get user's group IDs, then query activity with `inArray(acti
 
 ## Architecture Recommendations
 
-### 1. Store `userId` in auth session (highest leverage, lowest effort)
+### 1. Store `userId` in auth session (highest leverage, lowest effort) ✅ DONE
 
-Every authenticated handler does a `users` lookup after auth middleware already did it. Fix `SessionData` to include the internal `userId`. This eliminates 1 D1 read per request across every protected route. Zero risk, simple change. Do this first.
+`SessionData` now includes `userId`. All 46 redundant D1 lookups across 8 handler files eliminated.
 
-### 2. Skip user `UPDATE` in auth if nothing changed
+### 2. Skip user `UPDATE` in auth if nothing changed ✅ DONE
 
-`POST /api/v1/auth` writes on every app open. Add a dirty-check before the UPDATE. This cuts auth D1 writes by ~90% in practice since display names rarely change.
+Dirty-check added: compares `displayName` and `username` before writing. Cuts auth D1 writes by ~90%.
 
-### 3. Fix the N+1 in expense list
+### 3. Fix the N+1 in expense list ✅ DONE
 
-The `Promise.all(expenseList.map(async exp => db.select participants))` pattern in `expenses.ts:330-344` is the single biggest D1 read amplifier for a normal user session. One `inArray` query replaces 50.
+Replaced `Promise.all(map)` with a single `inArray` batch query + in-memory grouping. 50 queries → 1.
 
-### 4. Add Cloudflare Cache API to the R2 serving endpoint
+### 4. Add Cloudflare Cache API to the R2 serving endpoint ✅ DONE
 
-`/r2/*` is the most trafficked endpoint (every image displayed = one hit). Without Cache API, every edge PoP independently hits R2. Add 5 lines of caching code and R2 Class B ops drop dramatically for popular images.
+Edge caching via `caches.default` added. Cache hit returns directly; cache miss stores response via `waitUntil(cache.put())`.
 
-### 5. Add Telegram webhook secret token validation ✅ DONE
+### 5. Add Telegram webhook secret token validation ✅ DONE (pre-existing)
 
 Already implemented: HMAC-SHA256 derived secret in `webhook.ts`, validated via `X-Telegram-Bot-Api-Secret-Token` header. Setup script passes `secret_token` to Telegram.
 
@@ -430,30 +430,30 @@ Categorized by urgency — what matters regardless of user count vs. what can wa
 
 ### Do now (security + code quality, user-count-independent)
 
-| # | Item | Ref | Effort | Status | Why now |
-|---|------|-----|--------|--------|---------|
-| 1 | Webhook secret token | CR-1 | 15 min | ✅ DONE | Security hole — unauthenticated endpoint |
-| 2 | Store `userId` in session | MR-2 | 30 min | ❌ TODO | Eliminates redundant D1 read from every handler |
-| 3 | Skip auth UPDATE if unchanged | HR-4 | 5 min | ❌ TODO | Free win — trivial dirty-check |
+| #   | Item                          | Ref  | Effort | Status  | Why now                                         |
+| --- | ----------------------------- | ---- | ------ | ------- | ----------------------------------------------- |
+| 1   | Webhook secret token          | CR-1 | 15 min | ✅ DONE | Security hole — unauthenticated endpoint        |
+| 2   | Store `userId` in session     | MR-2 | 30 min | ✅ DONE | Eliminates redundant D1 read from every handler |
+| 3   | Skip auth UPDATE if unchanged | HR-4 | 5 min  | ✅ DONE | Free win — trivial dirty-check                  |
 
 ### Do before launch (latency fixes noticeable even at 5 users)
 
-| # | Item | Ref | Effort | Status | Why soon |
-|---|------|-----|--------|--------|----------|
-| 4 | Fix N+1 expense participants | HR-2 | 1 hr | ❌ TODO | 50 queries → 1 on every group page load |
-| 5 | R2 Cache API | CR-2 | 15 min | ❌ TODO | 5 lines of code, eliminates R2 hits for cached images |
+| #   | Item                         | Ref  | Effort | Status  | Why soon                                              |
+| --- | ---------------------------- | ---- | ------ | ------- | ----------------------------------------------------- |
+| 4   | Fix N+1 expense participants | HR-2 | 1 hr   | ✅ DONE | 50 queries → 1 on every group page load               |
+| 5   | R2 Cache API                 | CR-2 | 15 min | ✅ DONE | 5 lines of code, eliminates R2 hits for cached images |
 
 ### Can wait (only matters at 1,000+ DAU)
 
-| # | Item | Ref | Why it can wait |
-|---|------|-----|-----------------|
-| 6 | Settlement polling optimization | CR-3 | Near-zero crypto settlements happening |
-| 7 | Auth middleware JWT path | HR-1 | Addressed partially by #2 (userId in session) |
-| 8 | refreshGroupBalances async | HR-3 | Correct and atomic, only slow with huge groups |
-| 9 | TONAPI jetton wallet caching | HR-5 | Near-zero crypto usage |
-| 10 | Exchange rate thundering herd | HR-6 | No concurrent stale hits with 5 users |
-| 11 | Stats query caching | MR-7 | Low traffic |
-| 12 | Legal pages on Pages (not Worker) | MR-5 | Negligible traffic |
-| 13 | Admin Tailwind CDN → inline | MR-3 | Admin-only, single user |
-| 14 | Report image streaming | MR-6 | Near-zero reports |
-| 15 | All LR items (indexes, upload limits) | LR-* | Nice-to-have at scale |
+| #   | Item                                  | Ref   | Why it can wait                                |
+| --- | ------------------------------------- | ----- | ---------------------------------------------- |
+| 6   | Settlement polling optimization       | CR-3  | Near-zero crypto settlements happening         |
+| 7   | Auth middleware JWT path              | HR-1  | Addressed partially by #2 (userId in session)  |
+| 8   | refreshGroupBalances async            | HR-3  | Correct and atomic, only slow with huge groups |
+| 9   | TONAPI jetton wallet caching          | HR-5  | Near-zero crypto usage                         |
+| 10  | Exchange rate thundering herd         | HR-6  | No concurrent stale hits with 5 users          |
+| 11  | Stats query caching                   | MR-7  | Low traffic                                    |
+| 12  | Legal pages on Pages (not Worker)     | MR-5  | Negligible traffic                             |
+| 13  | Admin Tailwind CDN → inline           | MR-3  | Admin-only, single user                        |
+| 14  | Report image streaming                | MR-6  | Near-zero reports                              |
+| 15  | All LR items (indexes, upload limits) | LR-\* | Nice-to-have at scale                          |

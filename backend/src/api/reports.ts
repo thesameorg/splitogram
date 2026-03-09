@@ -27,11 +27,7 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
     return c.json({ reported: true }); // silently succeed if no admin configured
   }
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.telegramId, session.telegramId))
-    .limit(1);
+  const [user] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
 
   if (!user) {
     return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
