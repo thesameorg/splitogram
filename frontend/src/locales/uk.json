@@ -246,7 +246,8 @@
     "settlementCompleted": "{{actor}} розрахувався(-лася) з {{target}}",
     "memberJoined": "{{actor}} приєднався(-лася) до групи",
     "memberLeft": "{{actor}} покинув(ла) групу",
-    "memberKicked": "{{actor}} видалив(ла) {{target}}"
+    "memberKicked": "{{actor}} видалив(ла) {{target}}",
+    "placeholderClaimed": "{{actor}} забрав(ла) акаунт «{{dummyName}}»"
   },
   "feed": {
     "title": "Стрічка"

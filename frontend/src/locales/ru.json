@@ -246,7 +246,8 @@
     "settlementCompleted": "{{actor}} рассчитался(-лась) с {{target}}",
     "memberJoined": "{{actor}} присоединился(-лась) к группе",
     "memberLeft": "{{actor}} покинул(а) группу",
-    "memberKicked": "{{actor}} удалил(а) {{target}}"
+    "memberKicked": "{{actor}} удалил(а) {{target}}",
+    "placeholderClaimed": "{{actor}} забрал(а) аккаунт «{{dummyName}}»"
   },
   "feed": {
     "title": "Лента"

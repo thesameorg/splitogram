@@ -244,7 +244,8 @@
     "settlementCompleted": "{{actor}} saldó con {{target}}",
     "memberJoined": "{{actor}} se unió al grupo",
     "memberLeft": "{{actor}} salió del grupo",
-    "memberKicked": "{{actor}} eliminó a {{target}}"
+    "memberKicked": "{{actor}} eliminó a {{target}}",
+    "placeholderClaimed": "{{actor}} reclamó la cuenta de \"{{dummyName}}\""
   },
   "feed": {
     "title": "Novedades"

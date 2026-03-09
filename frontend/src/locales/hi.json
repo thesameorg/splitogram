@@ -244,7 +244,8 @@
     "settlementCompleted": "{{actor}} ने {{target}} के साथ हिसाब किया",
     "memberJoined": "{{actor}} समूह में शामिल हुए",
     "memberLeft": "{{actor}} ने समूह छोड़ दिया",
-    "memberKicked": "{{actor}} ने {{target}} को हटाया"
+    "memberKicked": "{{actor}} ने {{target}} को हटाया",
+    "placeholderClaimed": "{{actor}} ने \"{{dummyName}}\" का अकाउंट ले लिया"
   },
   "feed": {
     "title": "फ़ीड"

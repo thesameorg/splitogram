@@ -255,7 +255,8 @@
     "settlementCompleted": "{{actor}} settled up with {{target}}",
     "memberJoined": "{{actor}} joined the group",
     "memberLeft": "{{actor}} left the group",
-    "memberKicked": "{{actor}} removed {{target}}"
+    "memberKicked": "{{actor}} removed {{target}}",
+    "placeholderClaimed": "{{actor}} claimed the account of \"{{dummyName}}\""
   },
   "feed": {
     "title": "Feed"

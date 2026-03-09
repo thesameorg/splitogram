@@ -242,7 +242,8 @@
     "settlementCompleted": "{{actor}} đã thanh toán với {{target}}",
     "memberJoined": "{{actor}} đã tham gia nhóm",
     "memberLeft": "{{actor}} đã rời nhóm",
-    "memberKicked": "{{actor}} đã xóa {{target}}"
+    "memberKicked": "{{actor}} đã xóa {{target}}",
+    "placeholderClaimed": "{{actor}} đã nhận tài khoản của \"{{dummyName}}\""
   },
   "feed": {
     "title": "Bảng tin"

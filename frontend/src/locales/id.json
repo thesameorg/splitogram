@@ -242,7 +242,8 @@
     "settlementCompleted": "{{actor}} melunasi dengan {{target}}",
     "memberJoined": "{{actor}} bergabung ke grup",
     "memberLeft": "{{actor}} keluar dari grup",
-    "memberKicked": "{{actor}} mengeluarkan {{target}}"
+    "memberKicked": "{{actor}} mengeluarkan {{target}}",
+    "placeholderClaimed": "{{actor}} mengklaim akun \"{{dummyName}}\""
   },
   "feed": {
     "title": "Feed"

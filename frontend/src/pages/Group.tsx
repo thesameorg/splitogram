@@ -60,6 +60,7 @@ export function Group() {
   const [showClaimPrompt, setShowClaimPrompt] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
   const [showGroupAvatar, setShowGroupAvatar] = useState(false);
+  const [userHasClaimed, setUserHasClaimed] = useState(false);
 
   useTelegramBackButton(true);
 
@@ -123,7 +124,7 @@ export function Group() {
     if (!group || !currentUserId || searchParams.get('joined') !== '1') return;
     const hasDummies = group.members.some((m) => m.isDummy);
     const iAmDummy = group.members.find((m) => m.userId === currentUserId)?.isDummy;
-    if (hasDummies && !iAmDummy) {
+    if (hasDummies && !iAmDummy && currentUserRole !== 'admin') {
       setShowClaimPrompt(true);
     }
     // Clear the param so it doesn't re-trigger
@@ -187,6 +188,9 @@ export function Group() {
       loadData();
       alert(t('placeholder.claimed', { name: result.dummyName }));
     } catch (err: any) {
+      if (err?.errorCode === 'already_claimed') {
+        setUserHasClaimed(true);
+      }
       setClaimError(err.message || 'Failed to claim placeholder');
     }
   }
@@ -456,12 +460,38 @@ export function Group() {
 
       {tab === 'balances' && (
         <div className="space-y-3">
-          {/* All members with net balances */}
-          <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mb-2">
-            {t('group.allMembers')}
-          </div>
           {[...balanceMembers]
-            .sort((a, b) => Math.abs(b.netBalance) - Math.abs(a.netBalance))
+            .sort((a, b) => {
+              const aIsMe = a.userId === currentUserId;
+              const bIsMe = b.userId === currentUserId;
+              if (aIsMe && !bIsMe) return -1;
+              if (!aIsMe && bIsMe) return 1;
+
+              const aIOwe = debts.some(
+                (d) => d.from.userId === currentUserId && d.to.userId === a.userId,
+              );
+              const bIOwe = debts.some(
+                (d) => d.from.userId === currentUserId && d.to.userId === b.userId,
+              );
+              const aOwesMe = debts.some(
+                (d) => d.to.userId === currentUserId && d.from.userId === a.userId,
+              );
+              const bOwesMe = debts.some(
+                (d) => d.to.userId === currentUserId && d.from.userId === b.userId,
+              );
+
+              const prio = (iOwe: boolean, owesMe: boolean, bal: number) => {
+                if (iOwe) return 1;
+                if (owesMe) return 2;
+                if (bal !== 0) return 3;
+                return 4;
+              };
+
+              const ap = prio(aIOwe, aOwesMe, a.netBalance);
+              const bp = prio(bIOwe, bOwesMe, b.netBalance);
+              if (ap !== bp) return ap - bp;
+              return Math.abs(b.netBalance) - Math.abs(a.netBalance);
+            })
             .map((m) => {
               const balanceColor =
                 m.netBalance > 0
@@ -469,110 +499,83 @@ export function Group() {
                   : m.netBalance < 0
                     ? 'text-app-negative'
                     : 'text-tg-hint';
+              const member = group.members.find((gm) => gm.userId === m.userId);
+              const debtIOwe = debts.find(
+                (d) => d.from.userId === currentUserId && d.to.userId === m.userId,
+              );
+              const debtOwesMe = debts.find(
+                (d) => d.to.userId === currentUserId && d.from.userId === m.userId,
+              );
+              const canClaim = member?.isDummy && currentUserRole !== 'admin' && !userHasClaimed;
+
               return (
                 <div
                   key={m.userId}
-                  className="flex items-center gap-3 bg-tg-section p-3 rounded-xl border border-tg-separator"
+                  className="bg-tg-section p-3 rounded-xl border border-tg-separator"
                 >
-                  <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
-                  <span className="flex-1 font-medium">
-                    {group.members.find((gm) => gm.userId === m.userId)?.isDummy
-                      ? `\uD83D\uDC64 ${m.displayName}`
-                      : m.displayName}
-                    {group.members.find((gm) => gm.userId === m.userId)?.muted && (
-                      <span className="ml-1 text-tg-hint" title="Muted">
-                        {'\uD83D\uDD07'}
-                      </span>
+                  <div className="flex items-center gap-3">
+                    <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
+                    <span className="flex-1 font-medium">
+                      {member?.isDummy ? `\uD83D\uDC7B ${m.displayName}` : m.displayName}
+                      {member?.muted && (
+                        <span className="ml-1 text-tg-hint" title="Muted">
+                          {'\uD83D\uDD07'}
+                        </span>
+                      )}
+                    </span>
+                    <span className={`text-sm font-medium ${balanceColor}`}>
+                      {m.netBalance === 0
+                        ? t('group.settledUp')
+                        : formatAmount(m.netBalance, group?.currency)}
+                    </span>
+                    {canClaim && (
+                      <button
+                        onClick={() => handleClaimPlaceholder(m.userId, m.displayName)}
+                        className="text-xs text-tg-link font-medium ml-1 shrink-0"
+                      >
+                        {t('placeholder.claimButton')}
+                      </button>
                     )}
-                  </span>
-                  <span className={`text-sm font-medium ${balanceColor}`}>
-                    {m.netBalance === 0
-                      ? t('group.settledUp')
-                      : formatAmount(m.netBalance, group?.currency)}
-                  </span>
-                  {group.members.find((gm) => gm.userId === m.userId)?.isDummy && (
+                  </div>
+                  {/* Settle up action — I owe this person */}
+                  {debtIOwe && (
                     <button
-                      onClick={() => handleClaimPlaceholder(m.userId, m.displayName)}
-                      className="text-xs text-tg-link font-medium ml-1 shrink-0"
+                      onClick={() => handleSettleUp(debtIOwe)}
+                      className="mt-3 w-full bg-tg-button text-tg-button-text py-2 rounded-lg text-sm font-medium"
                     >
-                      {t('placeholder.claimButton')}
+                      {t('group.settleUp')} &middot;{' '}
+                      {formatAmount(debtIOwe.amount, group?.currency)}
                     </button>
+                  )}
+                  {/* Actions — this person owes me */}
+                  {debtOwesMe && (
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => handleSettleUp(debtOwesMe)}
+                        className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
+                      >
+                        {t('group.markAsSettled')}
+                      </button>
+                      {member?.isDummy ? (
+                        <button
+                          onClick={() => shareInviteLink(group.inviteCode, group.name)}
+                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                        >
+                          {t('group.invite')}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleSendReminder(debtOwesMe)}
+                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                        >
+                          {t('group.sendReminder')}
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               );
             })}
-
-          {/* Actionable debt cards */}
-          {debts.length > 0 && (
-            <>
-              <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mt-4 mb-2">
-                {t('group.balances')}
-              </div>
-              {debts.map((debt, i) => {
-                const isUserFrom = currentUserId === debt.from.userId;
-                const isUserTo = currentUserId === debt.to.userId;
-                const amountColor = isUserFrom
-                  ? 'text-app-negative'
-                  : isUserTo
-                    ? 'text-app-positive'
-                    : 'text-tg-text';
-
-                return (
-                  <div key={i} className="bg-tg-section p-4 rounded-xl border border-tg-separator">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="font-medium">
-                          {isUserFrom ? 'You' : debt.from.displayName}
-                        </span>
-                        <span className="text-tg-hint">
-                          {isUserFrom ? ` ${t('group.youOwe')} ` : ` ${t('group.owes')} `}
-                        </span>
-                        <span className="font-medium">
-                          {isUserTo ? 'you' : debt.to.displayName}
-                        </span>
-                      </div>
-                      <div className={`font-medium ${amountColor}`}>
-                        {formatAmount(debt.amount, group?.currency)}
-                      </div>
-                    </div>
-                    {isUserFrom && (
-                      <button
-                        onClick={() => handleSettleUp(debt)}
-                        className="mt-3 w-full bg-tg-button text-tg-button-text py-2 rounded-lg text-sm font-medium"
-                      >
-                        {t('group.settleUp')}
-                      </button>
-                    )}
-                    {isUserTo && (
-                      <div className="flex gap-2 mt-3">
-                        <button
-                          onClick={() => handleSettleUp(debt)}
-                          className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
-                        >
-                          {t('group.markAsSettled')}
-                        </button>
-                        {group.members.find((m) => m.userId === debt.from.userId)?.isDummy ? (
-                          <button
-                            onClick={() => shareInviteLink(group.inviteCode, group.name)}
-                            className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
-                          >
-                            {t('group.invite')}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleSendReminder(debt)}
-                            className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
-                          >
-                            {t('group.sendReminder')}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </>
-          )}
         </div>
       )}
 
@@ -926,7 +929,7 @@ export function Group() {
                   className="w-full flex items-center justify-between p-3 bg-tg-section rounded-xl border border-tg-separator"
                 >
                   <div className="flex items-center gap-2">
-                    <span>{'\uD83D\uDC64'}</span>
+                    <span>{'\uD83D\uDC7B'}</span>
                     <span className="font-medium">{m.displayName}</span>
                   </div>
                   <span className="text-sm text-tg-hint">{balStr}</span>

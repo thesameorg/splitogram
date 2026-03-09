@@ -244,7 +244,8 @@
     "settlementCompleted": "{{actor}} با {{target}} تسویه کرد",
     "memberJoined": "{{actor}} به گروه پیوست",
     "memberLeft": "{{actor}} گروه را ترک کرد",
-    "memberKicked": "{{actor}} {{target}} را حذف کرد"
+    "memberKicked": "{{actor}} {{target}} را حذف کرد",
+    "placeholderClaimed": "{{actor}} حساب «{{dummyName}}» را تصاحب کرد"
   },
   "feed": {
     "title": "فید"

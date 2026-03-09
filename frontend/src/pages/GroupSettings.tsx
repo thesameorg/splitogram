@@ -534,8 +534,8 @@ export function GroupSettings() {
                 <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
                 <span className="font-medium">{m.displayName}</span>
                 {m.isDummy && (
-                  <span className="text-xs bg-tg-hint/15 text-tg-hint px-1.5 py-0.5 rounded">
-                    {'\uD83D\uDC64'} {t('groupSettings.placeholderBadge')}
+                  <span className="text-sm" title={t('groupSettings.placeholderBadge')}>
+                    {'\uD83D\uDC7B'}
                   </span>
                 )}
                 {m.role === 'admin' && <IconCrown size={14} className="text-app-warning" />}

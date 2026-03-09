@@ -318,7 +318,7 @@ export function AddExpense() {
         >
           {group.members.map((m) => (
             <option key={m.userId} value={m.userId}>
-              {m.isDummy ? `\uD83D\uDC64 ${m.displayName}` : m.displayName}
+              {m.isDummy ? `\uD83D\uDC7B ${m.displayName}` : m.displayName}
             </option>
           ))}
         </select>
@@ -331,7 +331,7 @@ export function AddExpense() {
             {t('addExpense.splitAmong')}
           </label>
           <div className="flex gap-2">
-            {selectedParticipants.size > 0 && selectedParticipants.size < group.members.length && (
+            {selectedParticipants.size < group.members.length && (
               <button
                 onClick={() => setSelectedParticipants(new Set(group.members.map((m) => m.userId)))}
                 className="text-xs text-tg-link font-medium"
@@ -360,7 +360,7 @@ export function AddExpense() {
                   : 'bg-transparent text-tg-hint border-tg-separator'
               }`}
             >
-              {m.isDummy ? `\uD83D\uDC64 ${m.displayName}` : m.displayName}
+              {m.isDummy ? `\uD83D\uDC7B ${m.displayName}` : m.displayName}
             </button>
           ))}
         </div>

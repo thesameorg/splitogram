@@ -48,6 +48,11 @@ function getActivityText(
       return t('activity.memberLeft', { actor });
     case 'member_kicked':
       return t('activity.memberKicked', { actor, target: target ?? '' });
+    case 'placeholder_claimed':
+      return t('activity.placeholderClaimed', {
+        actor,
+        dummyName: (meta?.dummyName as string) ?? '',
+      });
     default:
       return item.type;
   }
