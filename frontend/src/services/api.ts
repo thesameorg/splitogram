@@ -177,6 +177,7 @@ export interface SettlementTxParams {
   originalCurrency: string;
   recipientAddress: string;
   contractAddress: string;
+  senderAddress: string; // sender's regular wallet (for response_destination)
   senderJettonWallet: string;
   usdtMasterAddress: string;
   gasAttach: string; // nanoTON

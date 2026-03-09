@@ -435,6 +435,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     originalCurrency: groupCurrency,
     recipientAddress: creditor.walletAddress,
     contractAddress,
+    senderAddress,
     senderJettonWallet,
     usdtMasterAddress,
     gasAttach: String(gasAttachRounded), // nanoTON, dynamically calculated
