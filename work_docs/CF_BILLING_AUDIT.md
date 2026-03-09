@@ -36,7 +36,7 @@
 
 ## Critical Risks (Can directly inflate bill)
 
-### CR-1: `/webhook` is unauthenticated and triggers D1 reads on every call
+### CR-1: `/webhook` is unauthenticated and triggers D1 reads on every call ✅ FIXED
 
 **File**: `backend/src/index.ts:50`, `backend/src/webhook.ts`
 
@@ -410,9 +410,9 @@ The `Promise.all(expenseList.map(async exp => db.select participants))` pattern 
 
 `/r2/*` is the most trafficked endpoint (every image displayed = one hit). Without Cache API, every edge PoP independently hits R2. Add 5 lines of caching code and R2 Class B ops drop dramatically for popular images.
 
-### 5. Add Telegram webhook secret token validation
+### 5. Add Telegram webhook secret token validation ✅ DONE
 
-This is a one-liner that eliminates the entire unauthenticated webhook attack surface. Set `secretToken` in `setWebhook` call and verify the `X-Telegram-Bot-Api-Secret-Token` header. Zero downside.
+Already implemented: HMAC-SHA256 derived secret in `webhook.ts`, validated via `X-Telegram-Bot-Api-Secret-Token` header. Setup script passes `secret_token` to Telegram.
 
 ### 6. Decouple on-chain confirmation from polling
 
@@ -421,3 +421,39 @@ The `/confirm` endpoint is expensive because it chains: D1 reads → TONAPI fetc
 ### 7. Consider Cron for exchange rate refresh
 
 A Cron Trigger running once per hour to refresh exchange rates eliminates the stale-on-first-request thundering herd entirely. The trigger runs a single Worker invocation at a predictable time rather than betting that concurrent users won't all hit the stale check at once.
+
+---
+
+## Implementation Priority Plan
+
+Categorized by urgency — what matters regardless of user count vs. what can wait for scale.
+
+### Do now (security + code quality, user-count-independent)
+
+| # | Item | Ref | Effort | Status | Why now |
+|---|------|-----|--------|--------|---------|
+| 1 | Webhook secret token | CR-1 | 15 min | ✅ DONE | Security hole — unauthenticated endpoint |
+| 2 | Store `userId` in session | MR-2 | 30 min | ❌ TODO | Eliminates redundant D1 read from every handler |
+| 3 | Skip auth UPDATE if unchanged | HR-4 | 5 min | ❌ TODO | Free win — trivial dirty-check |
+
+### Do before launch (latency fixes noticeable even at 5 users)
+
+| # | Item | Ref | Effort | Status | Why soon |
+|---|------|-----|--------|--------|----------|
+| 4 | Fix N+1 expense participants | HR-2 | 1 hr | ❌ TODO | 50 queries → 1 on every group page load |
+| 5 | R2 Cache API | CR-2 | 15 min | ❌ TODO | 5 lines of code, eliminates R2 hits for cached images |
+
+### Can wait (only matters at 1,000+ DAU)
+
+| # | Item | Ref | Why it can wait |
+|---|------|-----|-----------------|
+| 6 | Settlement polling optimization | CR-3 | Near-zero crypto settlements happening |
+| 7 | Auth middleware JWT path | HR-1 | Addressed partially by #2 (userId in session) |
+| 8 | refreshGroupBalances async | HR-3 | Correct and atomic, only slow with huge groups |
+| 9 | TONAPI jetton wallet caching | HR-5 | Near-zero crypto usage |
+| 10 | Exchange rate thundering herd | HR-6 | No concurrent stale hits with 5 users |
+| 11 | Stats query caching | MR-7 | Low traffic |
+| 12 | Legal pages on Pages (not Worker) | MR-5 | Negligible traffic |
+| 13 | Admin Tailwind CDN → inline | MR-3 | Admin-only, single user |
+| 14 | Report image streaming | MR-6 | Near-zero reports |
+| 15 | All LR items (indexes, upload limits) | LR-* | Nice-to-have at scale |
