@@ -69,7 +69,11 @@
     "statsBalanceChange": "تغییر کل موجودی",
     "statsAllTime": "همه زمان‌ها",
     "statsNoData": "هنوز هزینه‌ای نیست",
-    "exportCsv": "خروجی CSV"
+    "exportCsv": "خروجی CSV",
+    "inviteNudge": "!دوستانتان را دعوت کنید تا هزینه‌ها را تقسیم کنید",
+    "inviteNudgeButton": "اشتراک لینک",
+    "inviteNudgeLater": "بعداً",
+    "welcomeBanner": ".شما عضو شدید! اولین هزینه را اضافه کنید"
   },
   "groupSettings": {
     "title": "تنظیمات گروه",

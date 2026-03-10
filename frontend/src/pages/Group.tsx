@@ -61,6 +61,8 @@ export function Group() {
   const [claimError, setClaimError] = useState<string | null>(null);
   const [showGroupAvatar, setShowGroupAvatar] = useState(false);
   const [userHasClaimed, setUserHasClaimed] = useState(false);
+  const [showInviteNudge, setShowInviteNudge] = useState(false);
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
 
   useTelegramBackButton(true);
 
@@ -127,9 +129,17 @@ export function Group() {
     if (hasDummies && !iAmDummy && currentUserRole !== 'admin') {
       setShowClaimPrompt(true);
     }
+    setShowWelcomeBanner(true);
     // Clear the param so it doesn't re-trigger
     setSearchParams({}, { replace: true });
   }, [group, currentUserId, searchParams, setSearchParams]);
+
+  // Show invite nudge when group was just created (via ?created=1 param)
+  useEffect(() => {
+    if (!group || searchParams.get('created') !== '1') return;
+    setShowInviteNudge(true);
+    setSearchParams({}, { replace: true });
+  }, [group, searchParams, setSearchParams]);
 
   function canEditExpense(exp: Expense): boolean {
     return currentUserId === exp.paidBy;
@@ -358,7 +368,7 @@ export function Group() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => shareInviteLink(group.inviteCode, group.name)}
+              onClick={() => shareInviteLink(group.inviteCode, group.name, group.members.length)}
               className="text-tg-link text-sm font-medium px-3 py-1 border border-tg-link rounded-lg"
             >
               {t('group.invite')}
@@ -385,6 +395,46 @@ export function Group() {
       )}
 
       {claimError && <ErrorBanner message={claimError} onDismiss={() => setClaimError(null)} />}
+
+      {/* Invite nudge — shown right after group creation */}
+      {showInviteNudge && (
+        <div className="mb-4 bg-tg-section p-4 rounded-xl border border-tg-link/30">
+          <p className="text-sm font-medium mb-3">{t('group.inviteNudge')}</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                shareInviteLink(group.inviteCode, group.name, group.members.length);
+                setShowInviteNudge(false);
+              }}
+              className="flex-1 bg-tg-button text-tg-button-text py-2.5 rounded-lg text-sm font-medium"
+            >
+              {t('group.inviteNudgeButton')}
+            </button>
+            <button
+              onClick={() => setShowInviteNudge(false)}
+              className="px-4 py-2.5 rounded-lg text-sm text-tg-hint border border-tg-separator"
+            >
+              {t('group.inviteNudgeLater')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Welcome banner — shown when user just joined */}
+      {showWelcomeBanner && !showInviteNudge && (
+        <div className="mb-4 bg-app-positive-bg p-4 rounded-xl border border-app-positive/20">
+          <p className="text-sm font-medium text-app-positive mb-2">{t('group.welcomeBanner')}</p>
+          <button
+            onClick={() => {
+              setShowWelcomeBanner(false);
+              navigate(`/groups/${groupId}/add-expense`);
+            }}
+            className="bg-tg-button text-tg-button-text py-2 px-4 rounded-lg text-sm font-medium animate-pulse"
+          >
+            {t('group.addExpense')}
+          </button>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex border-b border-tg-separator mb-4">
@@ -580,7 +630,9 @@ export function Group() {
                       </button>
                       {member?.isDummy ? (
                         <button
-                          onClick={() => shareInviteLink(group.inviteCode, group.name)}
+                          onClick={() =>
+                            shareInviteLink(group.inviteCode, group.name, group.members.length)
+                          }
                           className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
                         >
                           {t('group.invite')}

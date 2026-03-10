@@ -69,7 +69,11 @@
     "statsBalanceChange": "Total change in balance",
     "statsAllTime": "All time",
     "statsNoData": "No expenses yet",
-    "exportCsv": "Export as CSV"
+    "exportCsv": "Export as CSV",
+    "inviteNudge": "Invite friends to start splitting expenses!",
+    "inviteNudgeButton": "Share Invite Link",
+    "inviteNudgeLater": "Later",
+    "welcomeBanner": "You joined! Add your first expense to get started."
   },
   "groupSettings": {
     "title": "Group Settings",

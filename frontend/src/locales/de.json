@@ -69,7 +69,11 @@
     "statsBalanceChange": "Gesamte Saldoänderung",
     "statsAllTime": "Gesamtzeit",
     "statsNoData": "Noch keine Ausgaben",
-    "exportCsv": "Als CSV exportieren"
+    "exportCsv": "Als CSV exportieren",
+    "inviteNudge": "Lade Freunde ein, um Ausgaben zu teilen!",
+    "inviteNudgeButton": "Einladungslink teilen",
+    "inviteNudgeLater": "Später",
+    "welcomeBanner": "Du bist beigetreten! Füge deine erste Ausgabe hinzu."
   },
   "groupSettings": {
     "title": "Gruppeneinstellungen",

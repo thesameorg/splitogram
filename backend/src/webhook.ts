@@ -77,9 +77,9 @@ function getOrCreateBot(botToken: string): Bot {
       const groupUrl = `${currentEnv.PAGES_URL ?? ''}/groups/${group.id}`;
 
       if (alreadyMember) {
-        await ctx.reply(`You're already in "${group.name}"! Open the app to see your expenses.`, {
+        await ctx.reply(`You're already in "${group.name}".`, {
           reply_markup: {
-            inline_keyboard: [[{ text: `Open "${group.name}"`, web_app: { url: groupUrl } }]],
+            inline_keyboard: [[{ text: `Open ${group.name} \u2192`, web_app: { url: groupUrl } }]],
           },
         });
         return;
@@ -102,11 +102,20 @@ function getOrCreateBot(botToken: string): Bot {
         type: 'member_joined',
       });
 
-      await ctx.reply(`You've joined "${group.name}"! Open the app to start splitting expenses.`, {
-        reply_markup: {
-          inline_keyboard: [[{ text: `Open "${group.name}"`, web_app: { url: groupUrl } }]],
+      // Count members after join
+      const [{ count: memberCount }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(groupMembers)
+        .where(eq(groupMembers.groupId, group.id));
+
+      await ctx.reply(
+        `\u2713 You joined "${group.name}" (${memberCount} ${memberCount === 1 ? 'member' : 'members'})`,
+        {
+          reply_markup: {
+            inline_keyboard: [[{ text: `Open ${group.name} \u2192`, web_app: { url: groupUrl } }]],
+          },
         },
-      });
+      );
       return;
     }
 

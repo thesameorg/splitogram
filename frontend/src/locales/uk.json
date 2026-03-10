@@ -71,7 +71,11 @@
     "statsBalanceChange": "Зміна балансу",
     "statsAllTime": "Весь час",
     "statsNoData": "Поки немає витрат",
-    "exportCsv": "Експорт у CSV"
+    "exportCsv": "Експорт у CSV",
+    "inviteNudge": "Запросіть друзів, щоб почати ділити витрати!",
+    "inviteNudgeButton": "Поділитися посиланням",
+    "inviteNudgeLater": "Пізніше",
+    "welcomeBanner": "Ви приєдналися! Додайте першу витрату, щоб почати."
   },
   "groupSettings": {
     "title": "Налаштування групи",

@@ -67,7 +67,11 @@
     "statsBalanceChange": "Thay đổi số dư",
     "statsAllTime": "Tất cả",
     "statsNoData": "Chưa có chi tiêu",
-    "exportCsv": "Xuất CSV"
+    "exportCsv": "Xuất CSV",
+    "inviteNudge": "Mời bạn bè để bắt đầu chia sẻ chi phí!",
+    "inviteNudgeButton": "Chia sẻ liên kết",
+    "inviteNudgeLater": "Để sau",
+    "welcomeBanner": "Bạn đã tham gia! Thêm chi phí đầu tiên để bắt đầu."
   },
   "groupSettings": {
     "title": "Cài đặt Nhóm",

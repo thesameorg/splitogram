@@ -63,7 +63,7 @@ export function Home() {
       setShowCreate(false);
       setNewGroupName('');
       setNewGroupCurrency('USD');
-      navigate(`/groups/${group.id}`, { replace: true });
+      navigate(`/groups/${group.id}?created=1`, { replace: true });
     } catch (err) {
       console.error('Failed to create group:', err);
     } finally {

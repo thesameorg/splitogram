@@ -161,7 +161,7 @@ export function GroupSettings() {
 
   function handleShareInvite() {
     if (!group) return;
-    shareInviteLink(group.inviteCode, group.name);
+    shareInviteLink(group.inviteCode, group.name, group.members.length);
   }
 
   async function handleCopyInvite() {

@@ -67,7 +67,11 @@
     "statsBalanceChange": "Total perubahan saldo",
     "statsAllTime": "Semua waktu",
     "statsNoData": "Belum ada pengeluaran",
-    "exportCsv": "Ekspor sebagai CSV"
+    "exportCsv": "Ekspor sebagai CSV",
+    "inviteNudge": "Undang teman untuk mulai membagi pengeluaran!",
+    "inviteNudgeButton": "Bagikan tautan",
+    "inviteNudgeLater": "Nanti",
+    "welcomeBanner": "Anda bergabung! Tambahkan pengeluaran pertama untuk memulai."
   },
   "groupSettings": {
     "title": "Pengaturan Grup",

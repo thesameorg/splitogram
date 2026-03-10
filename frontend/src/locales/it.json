@@ -69,7 +69,11 @@
     "statsBalanceChange": "Variazione totale del saldo",
     "statsAllTime": "Tutto il periodo",
     "statsNoData": "Nessuna spesa ancora",
-    "exportCsv": "Esporta come CSV"
+    "exportCsv": "Esporta come CSV",
+    "inviteNudge": "Invita gli amici per iniziare a dividere le spese!",
+    "inviteNudgeButton": "Condividi link",
+    "inviteNudgeLater": "Dopo",
+    "welcomeBanner": "Ti sei unito! Aggiungi la tua prima spesa per iniziare."
   },
   "groupSettings": {
     "title": "Impostazioni Gruppo",

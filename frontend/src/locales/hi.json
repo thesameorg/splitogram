@@ -69,7 +69,11 @@
     "statsBalanceChange": "बैलेंस में कुल बदलाव",
     "statsAllTime": "सभी समय",
     "statsNoData": "अभी तक कोई खर्च नहीं",
-    "exportCsv": "CSV में निर्यात करें"
+    "exportCsv": "CSV में निर्यात करें",
+    "inviteNudge": "खर्च बांटने के लिए दोस्तों को आमंत्रित करें!",
+    "inviteNudgeButton": "लिंक शेयर करें",
+    "inviteNudgeLater": "बाद में",
+    "welcomeBanner": "आप शामिल हो गए! शुरू करने के लिए पहला खर्च जोड़ें।"
   },
   "groupSettings": {
     "title": "समूह सेटिंग्स",
