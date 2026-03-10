@@ -461,17 +461,27 @@ export function Group() {
 
       {/* Tabs */}
       <div className="flex border-b border-tg-separator mb-4">
-        {(['transactions', 'balances', 'feed', 'stats'] as const).map((tabKey) => (
-          <button
-            key={tabKey}
-            onClick={() => setTab(tabKey)}
-            className={`flex-1 pb-2 text-sm font-medium border-b-2 ${
-              tab === tabKey ? 'border-tg-link text-tg-link' : 'border-transparent text-tg-hint'
-            }`}
-          >
-            {t(`group.${tabKey}`)}
-          </button>
-        ))}
+        {(['transactions', 'balances', 'feed', 'stats'] as const).map((tabKey) => {
+          const hasDebt =
+            tabKey === 'balances' &&
+            debts.some((d) => d.from.userId === currentUserId);
+          return (
+            <button
+              key={tabKey}
+              onClick={() => setTab(tabKey)}
+              className={`flex-1 pb-2 text-sm font-medium border-b-2 relative ${
+                tab === tabKey ? 'border-tg-link text-tg-link' : 'border-transparent text-tg-hint'
+              }`}
+            >
+              {t(`group.${tabKey}`)}
+              {hasDebt && (
+                <span className="absolute -top-0.5 ml-0.5 inline-flex bg-red-500 text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full items-center justify-center leading-none">
+                  !
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Content */}

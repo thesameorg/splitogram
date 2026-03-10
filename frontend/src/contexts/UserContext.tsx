@@ -4,7 +4,6 @@ interface UserData {
   avatarKey: string | null;
   displayName: string;
   isAdmin: boolean;
-  hasOutstandingDebts?: boolean;
 }
 
 interface UserContextValue {

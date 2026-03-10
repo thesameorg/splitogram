@@ -50,13 +50,8 @@ export function BottomTabs() {
               active ? 'text-tg-link' : 'text-tg-hint'
             }`}
           >
-            <span className="mb-0.5 relative">
+            <span className="mb-0.5">
               {tab.icon}
-              {tab.path === '/' && user?.hasOutstandingDebts && (
-                <span className="absolute -top-1 -right-2.5 bg-red-500 text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center leading-none">
-                  !
-                </span>
-              )}
             </span>
             <span>{tab.label}</span>
           </button>

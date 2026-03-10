@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, type GroupSummary } from '../services/api';
-import { useUser } from '../contexts/UserContext';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatAmount, formatSignedAmount } from '../utils/format';
 import { PageLayout } from '../components/PageLayout';
@@ -30,7 +29,6 @@ function computeTotalUsd(
 export function Home() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { setUser } = useUser();
   const [groups, setGroups] = useState<GroupSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -46,8 +44,6 @@ export function Home() {
     try {
       const data = await api.listGroups();
       setGroups(data.groups);
-      const hasDebts = data.groups.some((g: GroupSummary) => g.netBalance < 0);
-      setUser((prev) => (prev ? { ...prev, hasOutstandingDebts: hasDebts } : prev));
     } catch (err) {
       console.error('Failed to load groups:', err);
     } finally {
