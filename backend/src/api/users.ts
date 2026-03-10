@@ -183,11 +183,19 @@ app.post('/feedback', async (c) => {
   const botToken = c.env.TELEGRAM_BOT_TOKEN;
 
   // Collect attachment files (attachment_0..4), enforce 10MB per file limit
+  // Note: Workers runtime may return Blob (not File) from parseBody — check for Blob
   const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
-  const attachments: File[] = [];
+  const attachments: { blob: Blob; name: string; type: string }[] = [];
   for (let i = 0; i < 5; i++) {
-    const file = body[`attachment_${i}`];
-    if (file instanceof File && file.size <= MAX_ATTACHMENT_SIZE) attachments.push(file);
+    const raw = body[`attachment_${i}`];
+    const file = Array.isArray(raw) ? raw[0] : raw;
+    if (file && typeof file !== 'string' && file.size > 0 && file.size <= MAX_ATTACHMENT_SIZE) {
+      attachments.push({
+        blob: file,
+        name: file instanceof File ? file.name : `attachment_${i}`,
+        type: file.type || 'application/octet-stream',
+      });
+    }
   }
 
   c.executionCtx.waitUntil(
@@ -202,12 +210,12 @@ app.post('/feedback', async (c) => {
         });
 
         // Forward each attachment
-        for (const file of attachments) {
+        for (const att of attachments) {
           const formData = new FormData();
           formData.append('chat_id', String(chatId));
-          const isImage = file.type.startsWith('image/');
+          const isImage = att.type.startsWith('image/');
           const endpoint = isImage ? 'sendPhoto' : 'sendDocument';
-          formData.append(isImage ? 'photo' : 'document', file, file.name);
+          formData.append(isImage ? 'photo' : 'document', att.blob, att.name);
 
           await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
             method: 'POST',
