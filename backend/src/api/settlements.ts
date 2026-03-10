@@ -21,6 +21,7 @@ import {
   friendlyToRaw,
   verifyByEventId,
   verifySettlementOnChain,
+  estimateSettlementGas,
 } from '../services/tonapi';
 import { calculateCommission } from '../utils/commission';
 import { makeNotifyCtx } from '../utils/notify-ctx';
@@ -405,17 +406,14 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
 
   const network = c.env.TON_NETWORK === 'mainnet' ? '-239' : '-3'; // CHAIN enum values
 
-  // --- Gas calculation (empirical, from testnet profiling) ---
-  // Settlement chain = 11 messages, measured burn ~0.093 TON.
-  // forward_ton_amount covers contract's 2 outgoing Jetton transfers (0.15 TON each).
-  const FORWARD_TON = 300_000_000; // 0.3 TON — contract needs this for outgoing transfers
-  const EMPIRICAL_GAS = 100_000_000; // 0.1 TON (measured ~0.093, rounded up)
-  const GAS_BUFFER = Math.ceil(EMPIRICAL_GAS * 0.25); // 25% safety margin
-  const gasAttach = FORWARD_TON + EMPIRICAL_GAS + GAS_BUFFER;
-  // Round up to nearest 0.05 TON for cleaner display
-  const gasAttachRounded = Math.ceil(gasAttach / 50_000_000) * 50_000_000;
+  // --- Gas estimation ---
+  // forward_ton_amount: contract needs this for 2 outgoing Jetton transfers (0.15 TON each)
+  const FORWARD_TON = 300_000_000; // 0.3 TON
 
-  // Check TON balance — sender needs enough to cover gas for the Jetton transfer
+  // Try TONAPI emulate for precise gas; fall back to empirical if it fails.
+  // Fetch TON balance + wallet interfaces (for emulate) in one call.
+  let tonBalance = 0;
+  let walletInterfaces: string[] = [];
   try {
     const resp = await fetch(`${baseUrl}/v2/accounts/${senderAddress}`, {
       headers: tonapiHeaders(c.env),
@@ -423,21 +421,47 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     });
     if (resp.ok) {
       const data = (await resp.json()) as any;
-      const tonBalance = parseInt(data.balance ?? '0', 10); // nanoTON
-      if (tonBalance < gasAttachRounded) {
-        return c.json(
-          {
-            error: 'insufficient_ton',
-            detail: 'Not enough TON to cover transaction gas.',
-            tonBalance,
-            tonRequired: gasAttachRounded,
-          },
-          400,
-        );
-      }
+      tonBalance = parseInt(data.balance ?? '0', 10); // nanoTON
+      walletInterfaces = data.interfaces ?? [];
     }
   } catch {
-    // TONAPI unavailable — proceed without balance check
+    // TONAPI unavailable — proceed with empirical gas
+  }
+
+  // Emulate: builds external message, sends to TONAPI, sums trace fees.
+  // Returns null on any failure (unsupported wallet, TONAPI down, etc.)
+  const emulatedFees = await estimateSettlementGas({
+    env: c.env,
+    senderAddress,
+    senderJettonWallet: senderJettonWallet!,
+    contractAddress,
+    recipientAddress: creditor.walletAddress!,
+    totalAmount,
+    forwardTonAmount: FORWARD_TON,
+    walletInterfaces,
+  });
+
+  // Empirical fallback if emulate fails. Emulated gas is ~0.035 TON, but we use
+  // 0.1 TON as conservative fallback (excess refunded). See work_docs/tonfees.md.
+  const EMPIRICAL_FEES = 100_000_000; // 0.1 TON
+  const estimatedFees = emulatedFees ?? EMPIRICAL_FEES;
+  const CONTINGENCY_PCT = emulatedFees ? 0.15 : 0.25; // tighter buffer when emulate succeeded
+  const gasBuffer = Math.ceil(estimatedFees * CONTINGENCY_PCT);
+  const gasAttach = FORWARD_TON + estimatedFees + gasBuffer;
+  // Round up to nearest 0.05 TON for cleaner display
+  const gasAttachRounded = Math.ceil(gasAttach / 50_000_000) * 50_000_000;
+
+  // Check TON balance
+  if (tonBalance > 0 && tonBalance < gasAttachRounded) {
+    return c.json(
+      {
+        error: 'insufficient_ton',
+        detail: 'Not enough TON to cover transaction gas.',
+        tonBalance,
+        tonRequired: gasAttachRounded,
+      },
+      400,
+    );
   }
 
   return c.json({
