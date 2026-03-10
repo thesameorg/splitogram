@@ -27,9 +27,28 @@ function getOrCreateBot(botToken: string): Bot {
     const firstName = ctx.from?.first_name ?? 'User';
     const payload = ctx.match; // deep link parameter after /start
 
-    // Handle join deep link: /start join_{invite_code}
-    if (typeof payload === 'string' && payload.startsWith('join_')) {
-      const inviteCode = payload.substring(5);
+    // Handle personalized placeholder invite: /start jp_{inviteCode}_{placeholderId}
+    // Also handles regular join: /start join_{inviteCode}
+    const isPersonalized = typeof payload === 'string' && payload.startsWith('jp_');
+    const isJoin = typeof payload === 'string' && payload.startsWith('join_');
+
+    if (isPersonalized || isJoin) {
+      let inviteCode: string;
+      let placeholderId: number | null = null;
+
+      if (isPersonalized) {
+        const rest = (payload as string).substring(3);
+        const sepIdx = rest.indexOf('_');
+        inviteCode = sepIdx > 0 ? rest.substring(0, sepIdx) : '';
+        placeholderId = sepIdx > 0 ? parseInt(rest.substring(sepIdx + 1), 10) : NaN;
+        if (!inviteCode || isNaN(placeholderId as number)) {
+          await ctx.reply('Sorry, that invite link is invalid.');
+          return;
+        }
+      } else {
+        inviteCode = (payload as string).substring(5);
+      }
+
       const db = createDatabase(currentEnv.DB);
 
       // Look up group
@@ -75,11 +94,17 @@ function getOrCreateBot(botToken: string): Bot {
       const alreadyMember = !!existingMember;
 
       const groupUrl = `${currentEnv.PAGES_URL ?? ''}/groups/${group.id}`;
+      const groupUrlWithClaim =
+        placeholderId != null
+          ? `${groupUrl}?joined=1&claim=${placeholderId}`
+          : `${groupUrl}?joined=1`;
 
       if (alreadyMember) {
+        // For personalized links, still offer to open the group with claim param
+        const url = placeholderId != null ? `${groupUrl}?claim=${placeholderId}` : groupUrl;
         await ctx.reply(`You're already in "${group.name}".`, {
           reply_markup: {
-            inline_keyboard: [[{ text: `Open ${group.name} \u2192`, web_app: { url: groupUrl } }]],
+            inline_keyboard: [[{ text: `Open ${group.name} \u2192`, web_app: { url } }]],
           },
         });
         return;
@@ -112,7 +137,9 @@ function getOrCreateBot(botToken: string): Bot {
         `\u2713 You joined "${group.name}" (${memberCount} ${memberCount === 1 ? 'member' : 'members'})`,
         {
           reply_markup: {
-            inline_keyboard: [[{ text: `Open ${group.name} \u2192`, web_app: { url: groupUrl } }]],
+            inline_keyboard: [
+              [{ text: `Open ${group.name} \u2192`, web_app: { url: groupUrlWithClaim } }],
+            ],
           },
         },
       );

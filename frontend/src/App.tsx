@@ -60,6 +60,33 @@ function AppContent() {
     if (startParam.startsWith('group_')) {
       const id = startParam.slice('group_'.length);
       if (id) navigate(`/groups/${id}`);
+    } else if (startParam.startsWith('jp_')) {
+      // Personalized placeholder invite: jp_{inviteCode}_{placeholderId}
+      const rest = startParam.slice(3); // skip "jp_"
+      const sepIdx = rest.indexOf('_');
+      const inviteCode = sepIdx > 0 ? rest.slice(0, sepIdx) : '';
+      const placeholderId = sepIdx > 0 ? parseInt(rest.slice(sepIdx + 1), 10) : NaN;
+      if (inviteCode && !isNaN(placeholderId)) {
+        api
+          .resolveInvite(inviteCode)
+          .then(async (info) => {
+            try {
+              await api.joinGroup(info.id, inviteCode);
+            } catch (err) {
+              if (!(err instanceof ApiError && err.errorCode === 'already_member')) throw err;
+            }
+            // Auto-claim the placeholder; silently ignore all errors
+            try {
+              await api.claimPlaceholder(info.id, placeholderId);
+            } catch {
+              // Placeholder already claimed, user is admin, already claimed another, etc.
+            }
+            navigate(`/groups/${info.id}?joined=1`);
+          })
+          .catch((err) => {
+            console.error('Failed to handle personalized invite link:', err);
+          });
+      }
     } else if (startParam.startsWith('join_')) {
       const inviteCode = startParam.slice('join_'.length);
       if (inviteCode) {

@@ -16,7 +16,7 @@ import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { formatAmount } from '../utils/format';
 import { getCurrency } from '../utils/currencies';
 import { timeAgo } from '../utils/time';
-import { shareInviteLink } from '../utils/share';
+import { shareInviteLink, sharePersonalizedInviteLink } from '../utils/share';
 import { mergeTransactions, type TransactionItem } from '../utils/transactions';
 import { imageUrl } from '../utils/image';
 import { PageLayout } from '../components/PageLayout';
@@ -127,9 +127,39 @@ export function Group() {
       .finally(() => setStatsLoading(false));
   }, [tab, groupId, statsPeriod]);
 
-  // Show claim prompt only when user just joined the group (via ?joined=1 param)
+  // Auto-claim from personalized invite link (?claim={placeholderId})
+  useEffect(() => {
+    if (!group || !currentUserId) return;
+    const claimParam = searchParams.get('claim');
+    if (!claimParam) return;
+    const claimId = parseInt(claimParam, 10);
+    if (isNaN(claimId)) return;
+
+    const iAmDummy = group.members.find((m) => m.userId === currentUserId)?.isDummy;
+    if (iAmDummy || currentUserRole === 'admin' || userHasClaimed) {
+      // Can't claim — clear param and show welcome
+      setShowWelcomeBanner(true);
+      setSearchParams({}, { replace: true });
+      return;
+    }
+
+    const placeholder = group.members.find((m) => m.userId === claimId && m.isDummy);
+    if (!placeholder) {
+      // Placeholder already claimed or doesn't exist — show generic claim prompt
+      setShowWelcomeBanner(true);
+      setSearchParams({}, { replace: true });
+      return;
+    }
+
+    // Auto-claim: show confirmation dialog
+    setSearchParams({}, { replace: true });
+    handleClaimPlaceholder(placeholder.userId, placeholder.displayName);
+  }, [group, currentUserId, searchParams]);
+
+  // Show claim prompt only when user just joined the group (via ?joined=1 param, no ?claim)
   useEffect(() => {
     if (!group || !currentUserId || searchParams.get('joined') !== '1') return;
+    if (searchParams.get('claim')) return; // handled by auto-claim effect above
     const hasDummies = group.members.some((m) => m.isDummy);
     const iAmDummy = group.members.find((m) => m.userId === currentUserId)?.isDummy;
     if (hasDummies && !iAmDummy && currentUserRole !== 'admin' && !userHasClaimed) {
@@ -663,7 +693,12 @@ export function Group() {
                       {member?.isDummy ? (
                         <button
                           onClick={() =>
-                            shareInviteLink(group.inviteCode, group.name, group.members.length)
+                            sharePersonalizedInviteLink(
+                              group.inviteCode,
+                              m.userId,
+                              group.name,
+                              m.displayName,
+                            )
                           }
                           className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
                         >
