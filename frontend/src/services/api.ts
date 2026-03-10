@@ -187,7 +187,7 @@ export interface SettlementTxParams {
   senderAddress: string; // sender's regular wallet (for response_destination)
   senderJettonWallet: string;
   usdtMasterAddress: string;
-  gasAttach: string; // nanoTON
+  gasAttach: string; // nanoTON — total attached (temporarily frozen, excess refunded)
   forwardTonAmount: string; // nanoTON
   network: string; // CHAIN.TESTNET ("-3") or CHAIN.MAINNET ("-239")
 }

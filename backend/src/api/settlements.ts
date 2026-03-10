@@ -400,18 +400,15 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
 
   const network = c.env.TON_NETWORK === 'mainnet' ? '-239' : '-3'; // CHAIN enum values
 
-  // Dynamic gas calculation based on testnet profiling:
-  // (compute gas early so we can check TON balance against it)
-  // Settlement chain = 11 messages, measured cost ~0.035 TON.
-  // forward_ton_amount needs to cover contract's 2 outgoing Jetton transfers (0.15 TON each).
-  // Add 0.1 TON contingency and round up to nearest 0.1 TON.
-  const BASE_FORWARD_TON = 300_000_000; // 0.3 TON (2x 0.15 for outgoing transfers)
-  const GAS_OVERHEAD = 50_000_000; // 0.05 TON (contract execution + bounce handling)
-  const CONTINGENCY = 100_000_000; // 0.1 TON safety margin
-  const forwardTon = BASE_FORWARD_TON + GAS_OVERHEAD;
-  const gasAttach = forwardTon + CONTINGENCY;
-  // Round up to nearest 0.1 TON
-  const gasAttachRounded = Math.ceil(gasAttach / 100_000_000) * 100_000_000;
+  // --- Gas calculation (empirical, from testnet profiling) ---
+  // Settlement chain = 11 messages, measured burn ~0.093 TON.
+  // forward_ton_amount covers contract's 2 outgoing Jetton transfers (0.15 TON each).
+  const FORWARD_TON = 300_000_000; // 0.3 TON — contract needs this for outgoing transfers
+  const EMPIRICAL_GAS = 100_000_000; // 0.1 TON (measured ~0.093, rounded up)
+  const GAS_BUFFER = Math.ceil(EMPIRICAL_GAS * 0.25); // 25% safety margin
+  const gasAttach = FORWARD_TON + EMPIRICAL_GAS + GAS_BUFFER;
+  // Round up to nearest 0.05 TON for cleaner display
+  const gasAttachRounded = Math.ceil(gasAttach / 50_000_000) * 50_000_000;
 
   // Check TON balance — sender needs enough to cover gas for the Jetton transfer
   try {
@@ -450,8 +447,8 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     senderAddress,
     senderJettonWallet,
     usdtMasterAddress,
-    gasAttach: String(gasAttachRounded), // nanoTON, dynamically calculated
-    forwardTonAmount: String(forwardTon), // nanoTON
+    gasAttach: String(gasAttachRounded), // nanoTON
+    forwardTonAmount: String(FORWARD_TON), // nanoTON
     network, // "-3" testnet, "-239" mainnet
   });
 });
@@ -537,189 +534,195 @@ const confirmSchema = z.object({
   txHash: z.string().max(200).optional(),
 });
 
-settlementsApp.post('/settlements/:id/confirm', zValidator('json', confirmSchema, (result, c) => {
-  // Allow empty body (polling without txHash)
-  if (!result.success) {
-    return c.json({ error: 'invalid_input', detail: 'Invalid request body' }, 400);
-  }
-}), async (c) => {
-  const db = c.get('db');
-  const session = c.get('session');
-  const settlementId = parseInt(c.req.param('id'), 10);
-
-  if (isNaN(settlementId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-  }
-
-  const body = c.req.valid('json');
-  const userTxHash = body?.txHash ? parseTxHash(body.txHash) : undefined;
-  const currentUserId = session.userId;
-
-  const [settlement] = await db
-    .select()
-    .from(settlements)
-    .where(eq(settlements.id, settlementId))
-    .limit(1);
-
-  if (!settlement) {
-    return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
-  }
-
-  if (settlement.fromUser !== currentUserId && settlement.toUser !== currentUserId) {
-    return c.json(
-      { error: 'not_involved', detail: 'You are not involved in this settlement' },
-      403,
-    );
-  }
-
-  // Already settled — return current status
-  if (settlement.status === 'settled_onchain' || settlement.status === 'settled_external') {
-    return c.json({ status: settlement.status, settlementId });
-  }
-
-  // Only check on-chain for payment_pending
-  if (settlement.status !== 'payment_pending') {
-    return c.json({ status: settlement.status, settlementId });
-  }
-
-  // Get debtor and creditor wallet addresses for verification
-  const [[debtorInfo], [creditorInfo], [group]] = await Promise.all([
-    db
-      .select({ walletAddress: users.walletAddress })
-      .from(users)
-      .where(eq(users.id, settlement.fromUser))
-      .limit(1),
-    db
-      .select({ walletAddress: users.walletAddress })
-      .from(users)
-      .where(eq(users.id, settlement.toUser))
-      .limit(1),
-    db
-      .select({ currency: groups.currency })
-      .from(groups)
-      .where(eq(groups.id, settlement.groupId))
-      .limit(1),
-  ]);
-
-  if (!creditorInfo?.walletAddress) {
-    return c.json({ status: 'payment_pending', settlementId });
-  }
-
-  // Convert to USDT for on-chain verification if needed
-  const groupCurrency = group?.currency ?? 'USD';
-  let verifyUsdtAmount: number | undefined;
-  if (groupCurrency !== 'USD') {
-    const ratesData = await getExchangeRates(c.env.KV);
-    if (ratesData) {
-      verifyUsdtAmount =
-        convertToMicroUsdt(settlement.amount, groupCurrency, ratesData.rates) ?? undefined;
+settlementsApp.post(
+  '/settlements/:id/confirm',
+  zValidator('json', confirmSchema, (result, c) => {
+    // Allow empty body (polling without txHash)
+    if (!result.success) {
+      return c.json({ error: 'invalid_input', detail: 'Invalid request body' }, 400);
     }
-  }
+  }),
+  async (c) => {
+    const db = c.get('db');
+    const session = c.get('session');
+    const settlementId = parseInt(c.req.param('id'), 10);
 
-  const debtUsdt = verifyUsdtAmount ?? settlement.amount;
-
-  // Try to verify on-chain (use user-provided txHash if available)
-  const verification = userTxHash
-    ? await verifyByEventId(
-        c.env,
-        userTxHash,
-        debtorInfo?.walletAddress ?? null,
-        creditorInfo.walletAddress,
-        debtUsdt,
-      )
-    : await verifySettlementOnChain(
-        c.env,
-        settlement,
-        debtorInfo?.walletAddress ?? null,
-        creditorInfo.walletAddress,
-        verifyUsdtAmount,
-      );
-
-  if (!verification.verified) {
-    // Only rollback to open after timeout AND failed on-chain check
-    const pendingSince = new Date(settlement.updatedAt).getTime();
-    const PENDING_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
-    if (Date.now() - pendingSince > PENDING_TIMEOUT_MS) {
-      await db
-        .update(settlements)
-        .set({ status: 'open', updatedAt: new Date().toISOString() })
-        .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')));
-      return c.json({ status: 'open', settlementId });
+    if (isNaN(settlementId)) {
+      return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
     }
-    return c.json({ status: 'payment_pending', settlementId });
-  }
 
-  const settledCommission = calculateCommission(debtUsdt);
-  // Atomic conditional update — only settle if still payment_pending
-  const confirmed = await db
-    .update(settlements)
-    .set({
-      status: 'settled_onchain',
-      txHash: verification.txHash ?? null,
-      usdtAmount: debtUsdt,
-      commission: settledCommission,
-      updatedAt: new Date().toISOString(),
-    })
-    .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')))
-    .returning({ id: settlements.id });
+    const body = c.req.valid('json');
+    const userTxHash = body?.txHash ? parseTxHash(body.txHash) : undefined;
+    const currentUserId = session.userId;
 
-  if (confirmed.length === 0) {
-    // Already settled by another request — return current status
-    const [current] = await db
-      .select({ status: settlements.status })
+    const [settlement] = await db
+      .select()
       .from(settlements)
       .where(eq(settlements.id, settlementId))
       .limit(1);
-    return c.json({ status: current?.status ?? 'unknown', settlementId });
-  }
 
-  // Refresh cached balances
-  await refreshGroupBalances(db, settlement.groupId);
+    if (!settlement) {
+      return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
+    }
 
-  // Fire-and-forget notification + activity log
-  const explorerUrl = verification.txHash ? tonExplorerUrl(c.env, verification.txHash) : undefined;
-  const notifyCtx = {
-    botToken: c.env.TELEGRAM_BOT_TOKEN,
-    pagesUrl: c.env.PAGES_URL || '',
-    onBotBlocked: (telegramId: number) => {
-      db.update(users)
-        .set({ botStarted: false })
-        .where(eq(users.telegramId, telegramId))
-        .catch(() => {});
-    },
-  };
-  c.executionCtx.waitUntil(
-    Promise.all([
-      sendSettlementNotification(
-        notifyCtx,
-        db,
-        {
-          id: settlementId,
+    if (settlement.fromUser !== currentUserId && settlement.toUser !== currentUserId) {
+      return c.json(
+        { error: 'not_involved', detail: 'You are not involved in this settlement' },
+        403,
+      );
+    }
+
+    // Already settled — return current status
+    if (settlement.status === 'settled_onchain' || settlement.status === 'settled_external') {
+      return c.json({ status: settlement.status, settlementId });
+    }
+
+    // Only check on-chain for payment_pending
+    if (settlement.status !== 'payment_pending') {
+      return c.json({ status: settlement.status, settlementId });
+    }
+
+    // Get debtor and creditor wallet addresses for verification
+    const [[debtorInfo], [creditorInfo], [group]] = await Promise.all([
+      db
+        .select({ walletAddress: users.walletAddress })
+        .from(users)
+        .where(eq(users.id, settlement.fromUser))
+        .limit(1),
+      db
+        .select({ walletAddress: users.walletAddress })
+        .from(users)
+        .where(eq(users.id, settlement.toUser))
+        .limit(1),
+      db
+        .select({ currency: groups.currency })
+        .from(groups)
+        .where(eq(groups.id, settlement.groupId))
+        .limit(1),
+    ]);
+
+    if (!creditorInfo?.walletAddress) {
+      return c.json({ status: 'payment_pending', settlementId });
+    }
+
+    // Convert to USDT for on-chain verification if needed
+    const groupCurrency = group?.currency ?? 'USD';
+    let verifyUsdtAmount: number | undefined;
+    if (groupCurrency !== 'USD') {
+      const ratesData = await getExchangeRates(c.env.KV);
+      if (ratesData) {
+        verifyUsdtAmount =
+          convertToMicroUsdt(settlement.amount, groupCurrency, ratesData.rates) ?? undefined;
+      }
+    }
+
+    const debtUsdt = verifyUsdtAmount ?? settlement.amount;
+
+    // Try to verify on-chain (use user-provided txHash if available)
+    const verification = userTxHash
+      ? await verifyByEventId(
+          c.env,
+          userTxHash,
+          debtorInfo?.walletAddress ?? null,
+          creditorInfo.walletAddress,
+          debtUsdt,
+        )
+      : await verifySettlementOnChain(
+          c.env,
+          settlement,
+          debtorInfo?.walletAddress ?? null,
+          creditorInfo.walletAddress,
+          verifyUsdtAmount,
+        );
+
+    if (!verification.verified) {
+      // Only rollback to open after timeout AND failed on-chain check
+      const pendingSince = new Date(settlement.updatedAt).getTime();
+      const PENDING_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+      if (Date.now() - pendingSince > PENDING_TIMEOUT_MS) {
+        await db
+          .update(settlements)
+          .set({ status: 'open', updatedAt: new Date().toISOString() })
+          .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')));
+        return c.json({ status: 'open', settlementId });
+      }
+      return c.json({ status: 'payment_pending', settlementId });
+    }
+
+    const settledCommission = calculateCommission(debtUsdt);
+    // Atomic conditional update — only settle if still payment_pending
+    const confirmed = await db
+      .update(settlements)
+      .set({
+        status: 'settled_onchain',
+        txHash: verification.txHash ?? null,
+        usdtAmount: debtUsdt,
+        commission: settledCommission,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')))
+      .returning({ id: settlements.id });
+
+    if (confirmed.length === 0) {
+      // Already settled by another request — return current status
+      const [current] = await db
+        .select({ status: settlements.status })
+        .from(settlements)
+        .where(eq(settlements.id, settlementId))
+        .limit(1);
+      return c.json({ status: current?.status ?? 'unknown', settlementId });
+    }
+
+    // Refresh cached balances
+    await refreshGroupBalances(db, settlement.groupId);
+
+    // Fire-and-forget notification + activity log
+    const explorerUrl = verification.txHash
+      ? tonExplorerUrl(c.env, verification.txHash)
+      : undefined;
+    const notifyCtx = {
+      botToken: c.env.TELEGRAM_BOT_TOKEN,
+      pagesUrl: c.env.PAGES_URL || '',
+      onBotBlocked: (telegramId: number) => {
+        db.update(users)
+          .set({ botStarted: false })
+          .where(eq(users.telegramId, telegramId))
+          .catch(() => {});
+      },
+    };
+    c.executionCtx.waitUntil(
+      Promise.all([
+        sendSettlementNotification(
+          notifyCtx,
+          db,
+          {
+            id: settlementId,
+            amount: settlement.amount,
+            status: 'settled_onchain',
+            txHash: verification.txHash,
+            explorerUrl,
+          },
+          settlement.fromUser,
+          settlement.toUser,
+          settlement.groupId,
+        ),
+        logActivity(db, {
+          groupId: settlement.groupId,
+          actorId: settlement.fromUser,
+          type: 'settlement_completed',
+          settlementId,
+          targetUserId: settlement.toUser,
           amount: settlement.amount,
-          status: 'settled_onchain',
-          txHash: verification.txHash,
-          explorerUrl,
-        },
-        settlement.fromUser,
-        settlement.toUser,
-        settlement.groupId,
-      ),
-      logActivity(db, {
-        groupId: settlement.groupId,
-        actorId: settlement.fromUser,
-        type: 'settlement_completed',
-        settlementId,
-        targetUserId: settlement.toUser,
-        amount: settlement.amount,
-        metadata: verification.txHash
-          ? { txHash: verification.txHash, explorerUrl, method: 'onchain' }
-          : undefined,
-      }),
-    ]),
-  );
+          metadata: verification.txHash
+            ? { txHash: verification.txHash, explorerUrl, method: 'onchain' }
+            : undefined,
+        }),
+      ]),
+    );
 
-  return c.json({ status: 'settled_onchain', settlementId, txHash: verification.txHash });
-});
+    return c.json({ status: 'settled_onchain', settlementId, txHash: verification.txHash });
+  },
+);
 
 // --- Mark as settled externally (either party) ---
 // Max amount: 10 million units (10,000,000 * 1,000,000 micro-units = 10 trillion)

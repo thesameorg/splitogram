@@ -221,7 +221,33 @@ Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-
 4. `POST /api/v1/settlements/:id/settle` → status → `settled_external`, records who settled and comment
 5. Both parties get bot notification (if not muted and bot started)
 
-On-chain USDT settlement deferred to Phase 10 (will add `settled_onchain` path via TON Connect).
+### Settlement Flow (Phase 10 — On-chain USDT)
+
+1. Debtor taps "Pay with USDT" → `GET /api/v1/settlements/:id/tx?senderAddress=...` runs preflight:
+   - Looks up sender's USDT Jetton Wallet via TONAPI
+   - Checks USDT balance ≥ debt + commission
+   - Calculates gas: empirical constants from testnet profiling (see `work_docs/tonfees.md`)
+   - Checks TON balance ≥ gas attach
+   - Returns `SettlementTxParams` (amounts, addresses, gas values)
+2. Frontend shows confirm screen with line-item breakdown (recipient, commission, total in USDT, gas in TON)
+3. User confirms → frontend builds Jetton transfer BOC (`frontend/src/utils/ton.ts`) → sends via TON Connect
+4. Backend transitions settlement to `payment_pending`, polls for on-chain confirmation
+5. `POST /api/v1/settlements/:id/confirm` verifies the transfer on-chain via TONAPI events
+
+### Gas Constants (settlements.ts)
+
+Gas is calculated from empirical testnet profiling. The settlement message chain is always the same (11 messages, 2 recipients: creditor + owner commission), so gas cost is predictable.
+
+```
+FORWARD_TON      = 0.3  TON  — contract needs this for 2 outgoing Jetton transfers (0.15 each)
+EMPIRICAL_GAS    = 0.1  TON  — measured burn ~0.093 TON, rounded up
+GAS_BUFFER       = 25%       — safety margin for network config changes
+gasAttach        = FORWARD_TON + EMPIRICAL_GAS + 25% buffer ≈ 0.45 TON (rounded to nearest 0.05)
+```
+
+**If transactions start failing with out-of-gas:** Increase `EMPIRICAL_GAS` in `backend/src/api/settlements.ts`. Check a recent failed tx on Tonviewer → compute actual gas burn (attached - excess returned). Set `EMPIRICAL_GAS` to that value rounded up. The 25% buffer handles small fluctuations; if network gas_price changes significantly (validator vote), the constant needs updating. See `work_docs/tonfees.md` for full analysis.
+
+Excess TON is always refunded — `response_destination` points to sender's wallet. Overpaying gas is safe (user gets it back), underpaying causes tx failure.
 
 ### Background Work Pattern
 

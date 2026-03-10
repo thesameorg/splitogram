@@ -352,6 +352,9 @@ export function SettleUp() {
       ? `${formatAmount(txParams.originalAmount, txParams.originalCurrency)} ≈ ${formatUsdtAmount(txParams.amount)} USDT`
       : null;
 
+  // Gas amount for display (total attached — excess refunded automatically)
+  const gasAttachDisplay = txParams ? formatTonAmount(Number(txParams.gasAttach)) : null;
+
   return (
     <PageLayout>
       <h1 className="text-xl font-bold mb-6">{t('settleUp.title')}</h1>
@@ -492,6 +495,7 @@ export function SettleUp() {
             commission={commission}
             conversionNote={conversionNote}
             recipientName={settlement.to?.displayName ?? ''}
+            gasAttachDisplay={gasAttachDisplay}
             isTestnet={isTestnet}
             pollElapsed={pollElapsed}
             onPay={handlePayWithUsdt}
@@ -676,6 +680,7 @@ function CryptoSettlementUI({
   totalPayment,
   commission,
   conversionNote,
+  gasAttachDisplay,
   recipientName,
   isTestnet: testnet,
   pollElapsed,
@@ -695,6 +700,7 @@ function CryptoSettlementUI({
   totalPayment: string;
   commission: string;
   conversionNote: string | null;
+  gasAttachDisplay: string | null;
   recipientName: string;
   isTestnet: boolean;
   pollElapsed: number;
@@ -751,15 +757,36 @@ function CryptoSettlementUI({
             {conversionNote}
           </div>
         )}
-        <p className="text-sm text-tg-hint">
-          {t('settlement.confirmBody', {
-            amount: usdtAmount,
-            recipient: recipientName,
-            totalPayment,
-            commission,
-          })}
-        </p>
-        <div className="text-xs text-tg-hint">{t('settlement.gasNote')}</div>
+
+        {/* Payment breakdown */}
+        <div className="text-sm space-y-1.5">
+          <div className="flex justify-between">
+            <span className="text-tg-hint">
+              {t('settlement.lineRecipient', { name: recipientName })}
+            </span>
+            <span>{usdtAmount} USDT</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-tg-hint">{t('settlement.commissionLabel')}</span>
+            <span>{commission} USDT</span>
+          </div>
+          <div className="flex justify-between font-medium pt-1.5 border-t border-tg-separator">
+            <span>{t('settlement.lineTotal')}</span>
+            <span>{totalPayment} USDT</span>
+          </div>
+        </div>
+
+        {/* Gas fee */}
+        {gasAttachDisplay && (
+          <div className="text-xs bg-tg-secondary-bg px-3 py-2 rounded-lg">
+            <div className="flex justify-between">
+              <span className="text-tg-hint">{t('settlement.lineGas')}</span>
+              <span className="text-tg-hint">~{gasAttachDisplay} TON</span>
+            </div>
+            <div className="text-tg-hint/60 mt-1">{t('settlement.gasRefund')}</div>
+          </div>
+        )}
+
         <button
           onClick={onConfirm}
           className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2"
@@ -778,7 +805,9 @@ function CryptoSettlementUI({
     const showTxInput = isPendingTimeout || isTxNotFound;
     return (
       <div className="space-y-3">
-        <div className={`${isPendingTimeout ? 'bg-app-warning-bg' : 'bg-app-negative-bg'} p-4 rounded-xl`}>
+        <div
+          className={`${isPendingTimeout ? 'bg-app-warning-bg' : 'bg-app-negative-bg'} p-4 rounded-xl`}
+        >
           <div className={`${isPendingTimeout ? 'text-app-warning' : 'text-app-negative'} text-sm`}>
             {error}
           </div>
@@ -829,7 +858,10 @@ function CryptoSettlementUI({
       </div>
       {walletConnected && (
         <div className="text-center text-xs text-tg-hint">
-          {truncateAddress(friendlyAddress)} &middot; {t('settlement.gasNote')}
+          {truncateAddress(friendlyAddress)}
+          {gasAttachDisplay
+            ? ` · ${t('settlement.gasAttachShort', { amount: gasAttachDisplay })}`
+            : ` · ${t('settlement.gasNote')}`}
         </div>
       )}
     </div>
