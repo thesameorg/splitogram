@@ -6,6 +6,7 @@ import { expenses, expenseParticipants, groupMembers, groups, users } from '../d
 import { refreshGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
+import { makeNotifyCtx } from '../utils/notify-ctx';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -200,16 +201,7 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   });
 
   // Fire-and-forget notification
-  const notifyCtx = {
-    botToken: c.env.TELEGRAM_BOT_TOKEN,
-    pagesUrl: c.env.PAGES_URL || '',
-    onBotBlocked: (telegramId: number) => {
-      db.update(users)
-        .set({ botStarted: false })
-        .where(eq(users.telegramId, telegramId))
-        .catch(() => {});
-    },
-  };
+  const notifyCtx = makeNotifyCtx(c.env, db);
   c.executionCtx.waitUntil(
     (async () => {
       try {

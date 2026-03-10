@@ -117,6 +117,7 @@ Root `package.json` defines `workspaces: ["backend", "frontend", "packages/*"]`.
 ```
 packages/shared/src/
 ├── currencies.ts         # 150+ currency configs (canonical source)
+├── commission.ts         # calculateCommission (mirrors smart contract: 1% clamped [0.1, 1.0] USDT)
 ├── format.ts             # formatAmount, formatSignedAmount (canonical source)
 └── index.ts              # Barrel re-export
 
@@ -124,10 +125,11 @@ backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
 ├── webhook.ts            # grammY bot (module-level cached): /start, /stats, deep links, report moderation callbacks
 ├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
-├── api/                  # Route handlers (auth, users, groups, expenses, balances, settlements, activity, stats, r2, admin, reports)
+├── api/                  # Route handlers (auth, users, groups/*, expenses, balances, settlements, activity, stats, r2, admin, reports)
+│   └── groups/           # Split into core.ts (CRUD/avatar), membership.ts (join/leave/kick/reminders), placeholders.ts, export.ts
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
-├── services/             # telegram-auth, notifications, debt-solver, activity, moderation, exchange-rates
-├── utils/                # currencies, format (re-export from @splitogram/shared), r2 (key gen, safe delete)
+├── services/             # telegram-auth, notifications, debt-solver, activity, moderation, exchange-rates, tonapi
+├── utils/                # currencies, format, commission, notify-ctx (re-export from @splitogram/shared), r2 (key gen, safe delete)
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
 │   └── schema.ts         # All table definitions
@@ -142,7 +144,7 @@ frontend/src/
 ├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
 ├── icons/                # SVG icon components (IconUsers, IconActivity, IconUser, IconCopy, IconCrown, IconCheck)
 ├── contexts/             # UserContext (avatar/name/isAdmin state for BottomTabs + Account)
-├── utils/                # currencies, format, time, share, transactions, image
+├── utils/                # currencies, format, commission, time, share, transactions, image
 ├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker, Avatar, DonutChart, MonthSelector
 └── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
 
