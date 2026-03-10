@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api, ApiError, type GroupDetail } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
-import { shareInviteLink } from '../utils/share';
+import { shareInviteLink, sharePersonalizedInviteLink } from '../utils/share';
 import { validateImageFile, processAvatar } from '../utils/image';
 import { CurrencyPicker, CurrencyButton } from '../components/CurrencyPicker';
 import { PageLayout } from '../components/PageLayout';
@@ -564,7 +564,17 @@ export function GroupSettings() {
                       >
                         {t('groupSettings.editPlaceholder')}
                       </button>
-                      <button onClick={() => handleShareInvite()} className="text-tg-link text-xs">
+                      <button
+                        onClick={() =>
+                          sharePersonalizedInviteLink(
+                            group.inviteCode,
+                            m.userId,
+                            group.name,
+                            m.displayName,
+                          )
+                        }
+                        className="text-tg-link text-xs"
+                      >
                         {t('groupSettings.sharePlaceholderInvite')}
                       </button>
                       <button

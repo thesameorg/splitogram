@@ -49,6 +49,7 @@ export function Group() {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [currentUserJoinedAt, setCurrentUserJoinedAt] = useState<string | null>(null);
   const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
   const [reminderSuccess, setReminderSuccess] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
@@ -90,6 +91,7 @@ export function Group() {
       if (user) {
         setCurrentUserId(user.userId);
         setCurrentUserRole(user.role);
+        setCurrentUserJoinedAt(user.joinedAt);
       }
     } catch (err) {
       console.error('Failed to load group:', err);
@@ -158,11 +160,15 @@ export function Group() {
 
   // Show claim prompt only when user just joined the group (via ?joined=1 param, no ?claim)
   useEffect(() => {
-    if (!group || !currentUserId || searchParams.get('joined') !== '1') return;
+    if (!group || !currentUserId || !currentUserJoinedAt || searchParams.get('joined') !== '1')
+      return;
     if (searchParams.get('claim')) return; // handled by auto-claim effect above
-    const hasDummies = group.members.some((m) => m.isDummy);
     const iAmDummy = group.members.find((m) => m.userId === currentUserId)?.isDummy;
-    if (hasDummies && !iAmDummy && currentUserRole !== 'admin' && !userHasClaimed) {
+    // Only show placeholders that existed before the user joined
+    const claimableDummies = group.members.some(
+      (m) => m.isDummy && m.joinedAt <= currentUserJoinedAt,
+    );
+    if (claimableDummies && !iAmDummy && currentUserRole !== 'admin' && !userHasClaimed) {
       setShowClaimPrompt(true);
     }
     setShowWelcomeBanner(true);
@@ -640,7 +646,10 @@ export function Group() {
               const debtOwesMe = debts.find(
                 (d) => d.to.userId === currentUserId && d.from.userId === m.userId,
               );
-              const canClaim = member?.isDummy && currentUserRole !== 'admin' && !userHasClaimed;
+              const placeholderExistedWhenUserJoined =
+                member?.isDummy && currentUserJoinedAt && member.joinedAt <= currentUserJoinedAt;
+              const canClaim =
+                placeholderExistedWhenUserJoined && currentUserRole !== 'admin' && !userHasClaimed;
 
               return (
                 <div
@@ -713,6 +722,22 @@ export function Group() {
                         </button>
                       )}
                     </div>
+                  )}
+                  {/* Invite button for placeholders with no debt relationship */}
+                  {member?.isDummy && !debtIOwe && !debtOwesMe && (
+                    <button
+                      onClick={() =>
+                        sharePersonalizedInviteLink(
+                          group.inviteCode,
+                          m.userId,
+                          group.name,
+                          m.displayName,
+                        )
+                      }
+                      className="mt-3 w-full text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                    >
+                      {t('group.invite')}
+                    </button>
                   )}
                 </div>
               );
@@ -1054,7 +1079,7 @@ export function Group() {
       >
         <div className="space-y-3">
           {group.members
-            .filter((m) => m.isDummy)
+            .filter((m) => m.isDummy && (!currentUserJoinedAt || m.joinedAt <= currentUserJoinedAt))
             .map((m) => {
               const bal = balanceMembers.find((bm) => bm.userId === m.userId);
               const balStr = bal

@@ -5,6 +5,7 @@ interface CurrentUser {
   telegramId: number;
   displayName: string;
   role: string;
+  joinedAt: string;
 }
 
 /**
@@ -23,6 +24,7 @@ export function resolveCurrentUser(members: GroupMember[]): CurrentUser | null {
         telegramId: member.telegramId,
         displayName: member.displayName,
         role: member.role,
+        joinedAt: member.joinedAt,
       };
     }
   }
@@ -35,6 +37,7 @@ export function resolveCurrentUser(members: GroupMember[]): CurrentUser | null {
       telegramId: admin.telegramId,
       displayName: admin.displayName,
       role: admin.role,
+      joinedAt: admin.joinedAt,
     };
   }
 

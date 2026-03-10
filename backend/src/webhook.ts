@@ -133,16 +133,30 @@ function getOrCreateBot(botToken: string): Bot {
         .from(groupMembers)
         .where(eq(groupMembers.groupId, group.id));
 
-      await ctx.reply(
-        `\u2713 You joined "${group.name}" (${memberCount} ${memberCount === 1 ? 'member' : 'members'})`,
-        {
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: `Open ${group.name} \u2192`, web_app: { url: groupUrlWithClaim } }],
-            ],
-          },
+      // Look up placeholder name for personalized invite messages
+      let placeholderName: string | null = null;
+      if (placeholderId != null) {
+        const [placeholder] = await db
+          .select({ displayName: users.displayName })
+          .from(users)
+          .where(eq(users.id, placeholderId))
+          .limit(1);
+        placeholderName = placeholder?.displayName ?? null;
+      }
+
+      const joinMsg = placeholderName
+        ? `\u2713 You joined "${group.name}" as ${placeholderName} — your expenses are already tracked!`
+        : `\u2713 You joined "${group.name}" (${memberCount} ${memberCount === 1 ? 'member' : 'members'})`;
+
+      const buttonText = placeholderName
+        ? `Claim "${placeholderName}" in ${group.name} \u2192`
+        : `Open ${group.name} \u2192`;
+
+      await ctx.reply(joinMsg, {
+        reply_markup: {
+          inline_keyboard: [[{ text: buttonText, web_app: { url: groupUrlWithClaim } }]],
         },
-      );
+      });
       return;
     }
 

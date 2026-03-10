@@ -253,7 +253,12 @@ placeholdersApp.post(
 
     // Verify target is a dummy in this group
     const [dummy] = await db
-      .select({ id: users.id, isDummy: users.isDummy, displayName: users.displayName })
+      .select({
+        id: users.id,
+        isDummy: users.isDummy,
+        displayName: users.displayName,
+        joinedAt: groupMembers.joinedAt,
+      })
       .from(users)
       .innerJoin(groupMembers, eq(groupMembers.userId, users.id))
       .where(
@@ -265,6 +270,17 @@ placeholdersApp.post(
       return c.json(
         { error: 'not_placeholder', detail: 'User is not a placeholder in this group' },
         404,
+      );
+    }
+
+    // Prevent claiming a placeholder that was created after the user joined
+    if (dummy.joinedAt > callerMembership.joinedAt) {
+      return c.json(
+        {
+          error: 'placeholder_created_after_join',
+          detail: 'This placeholder was created after you joined the group',
+        },
+        400,
       );
     }
 
