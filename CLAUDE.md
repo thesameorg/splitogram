@@ -229,7 +229,7 @@ Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-
 1. Debtor taps "Pay with USDT" → `GET /api/v1/settlements/:id/tx?senderAddress=...` runs preflight:
    - Looks up sender's USDT Jetton Wallet via TONAPI
    - Checks USDT balance ≥ debt + commission
-   - Calculates gas: empirical constants from testnet profiling (see `work_docs/tonfees.md`)
+   - Estimates gas via TONAPI emulate (builds external message BOC, emulates full trace, sums fees) — falls back to empirical if emulate fails
    - Checks TON balance ≥ gas attach
    - Returns `SettlementTxParams` (amounts, addresses, gas values)
 2. Frontend shows confirm screen with line-item breakdown (recipient, commission, total in USDT, gas in TON)
@@ -237,18 +237,26 @@ Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-
 4. Backend transitions settlement to `payment_pending`, polls for on-chain confirmation
 5. `POST /api/v1/settlements/:id/confirm` verifies the transfer on-chain via TONAPI events
 
-### Gas Constants (settlements.ts)
+### Gas Estimation (`services/tonapi.ts`)
 
-Gas is calculated from empirical testnet profiling. The settlement message chain is always the same (11 messages, 2 recipients: creditor + owner commission), so gas cost is predictable.
+Gas is estimated via TONAPI trace emulation. The preflight endpoint builds the full external message (wallet → jetton wallet → contract → recipients), emulates it with `ignore_signature_check=true`, and sums `total_fees` from the trace. Supports V4R2 and V5R1 wallets.
 
 ```
-FORWARD_TON      = 0.3  TON  — contract needs this for 2 outgoing Jetton transfers (0.15 each)
-EMPIRICAL_GAS    = 0.1  TON  — measured burn ~0.093 TON, rounded up
-GAS_BUFFER       = 25%       — safety margin for network config changes
-gasAttach        = FORWARD_TON + EMPIRICAL_GAS + 25% buffer ≈ 0.45 TON (rounded to nearest 0.05)
+estimateSettlementGas()
+  1. Fetch wallet seqno (+ wallet_id for V5 via get_subwallet_id) in parallel
+  2. Build jetton transfer body (same as frontend's buildSettlementBody)
+  3. Wrap in wallet-version-specific external message:
+     - V4R2: zero sig + subwallet + valid_until + seqno + op + mode + ^msg
+     - V5R1: prefix + wallet_id + valid_until + seqno + Maybe(^C5 OutList) + 0 + zero sig
+  4. POST /v2/traces/emulate?ignore_signature_check=true
+  5. Sum total_fees from all 11 transactions in the trace (~0.035 TON)
+  → returns nanoTON or null on failure
+
+gasAttach = FORWARD_TON (0.3 TON) + emulated_fees + 15% buffer
+          (if emulate fails: FORWARD_TON + EMPIRICAL_FEES (0.1 TON) + 25% buffer)
 ```
 
-**If transactions start failing with out-of-gas:** Increase `EMPIRICAL_GAS` in `backend/src/api/settlements.ts`. Check a recent failed tx on Tonviewer → compute actual gas burn (attached - excess returned). Set `EMPIRICAL_GAS` to that value rounded up. The 25% buffer handles small fluctuations; if network gas_price changes significantly (validator vote), the constant needs updating. See `work_docs/tonfees.md` for full analysis.
+**If transactions fail with out-of-gas and emulate is working:** The emulate should catch network gas changes automatically. If emulate is failing (returning null) and empirical fallback is too low, increase `EMPIRICAL_FEES` in `settlements.ts`. Check a recent failed tx on Tonviewer → compute gas burn (attached - excess). See `work_docs/tonfees.md` for full troubleshooting.
 
 Excess TON is always refunded — `response_destination` points to sender's wallet. Overpaying gas is safe (user gets it back), underpaying causes tx failure.
 

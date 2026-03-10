@@ -255,7 +255,7 @@ See `work_docs/research/5-i18n-approach.md` for full analysis.
 
 **Frontend integration:** TON Connect UI provider in App.tsx. `useTonWallet()` hook syncs wallet address to backend. SettleUp page has 6-state machine (idle → preflight → confirm → sending → polling → success). `frontend/src/utils/ton.ts` builds Jetton transfer message body.
 
-**Gas estimation:** Empirical constants from testnet profiling (~0.093 TON measured burn per settlement). `FORWARD_TON` (0.3 TON for contract's 2 outgoing transfers) + `EMPIRICAL_GAS` (0.1 TON) + 25% buffer = ~0.45 TON attached. Excess auto-refunded via `response_destination`. If txns fail with out-of-gas, increase `EMPIRICAL_GAS` in `backend/src/api/settlements.ts` — see `work_docs/tonfees.md` for analysis. UI shows exact attached amount + refund note on confirm screen.
+**Gas estimation:** TONAPI trace emulation (`estimateSettlementGas` in `services/tonapi.ts`). Builds the full external message BOC (V4R2 or V5R1 with zero signature), emulates via `POST /v2/traces/emulate?ignore_signature_check=true`, sums `total_fees` from the trace. `gasAttach = FORWARD_TON (0.3 TON) + emulated_fees + 15% buffer`. Falls back to empirical constants (0.1 TON + 25% buffer) if emulation fails (unsupported wallet version, TONAPI down, etc.). Excess auto-refunded via `response_destination`. UI shows exact attached amount + refund note on confirm screen. See `work_docs/tonfees.md` for troubleshooting.
 
 See `work_docs/smart-contract.md` for full design and `work_docs/smart-contract-testnet-plan.md` for deployment plan.
 
