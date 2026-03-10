@@ -66,7 +66,8 @@
     "statsPaymentsReceived": "Thanh toán đã nhận",
     "statsBalanceChange": "Thay đổi số dư",
     "statsAllTime": "Tất cả",
-    "statsNoData": "Chưa có chi tiêu"
+    "statsNoData": "Chưa có chi tiêu",
+    "exportCsv": "Xuất CSV"
   },
   "groupSettings": {
     "title": "Cài đặt Nhóm",
@@ -228,7 +229,8 @@
     "infoGas": "Phí gas TON nhỏ (~0.05 TON) cần thiết để xử lý giao dịch trên blockchain. Gas chưa sử dụng sẽ được trả lại ví của bạn.",
     "infoContract": "Thanh toán được xử lý bởi hợp đồng thông minh Splitogram trên mạng TON. Giao dịch là cuối cùng và có thể xác minh on-chain.",
     "commissionLabel": "Phí",
-    "settledByLabel": "Thanh toán bởi {{name}}"
+    "settledByLabel": "Thanh toán bởi {{name}}",
+    "testnetWarning": "TESTNET — sử dụng token thử nghiệm, không phải tiền thật"
   },
   "activity": {
     "title": "Hoạt động",

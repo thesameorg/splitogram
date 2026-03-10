@@ -68,7 +68,8 @@
     "statsPaymentsReceived": "Pagamenti ricevuti",
     "statsBalanceChange": "Variazione totale del saldo",
     "statsAllTime": "Tutto il periodo",
-    "statsNoData": "Nessuna spesa ancora"
+    "statsNoData": "Nessuna spesa ancora",
+    "exportCsv": "Esporta come CSV"
   },
   "groupSettings": {
     "title": "Impostazioni Gruppo",
@@ -230,7 +231,8 @@
     "infoGas": "È necessaria una piccola commissione gas TON (~0,05 TON) per elaborare la transazione sulla blockchain. Il gas inutilizzato viene restituito al tuo portafoglio.",
     "infoContract": "Il pagamento è elaborato dallo smart contract Splitogram sulla rete TON. Le transazioni sono definitive e verificabili on-chain.",
     "commissionLabel": "Commissione",
-    "settledByLabel": "Saldato da {{name}}"
+    "settledByLabel": "Saldato da {{name}}",
+    "testnetWarning": "TESTNET — token di prova, non denaro reale"
   },
   "activity": {
     "title": "Attività",

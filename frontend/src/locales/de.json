@@ -68,7 +68,8 @@
     "statsPaymentsReceived": "Zahlungen erhalten",
     "statsBalanceChange": "Gesamte Saldoänderung",
     "statsAllTime": "Gesamtzeit",
-    "statsNoData": "Noch keine Ausgaben"
+    "statsNoData": "Noch keine Ausgaben",
+    "exportCsv": "Als CSV exportieren"
   },
   "groupSettings": {
     "title": "Gruppeneinstellungen",
@@ -230,7 +231,8 @@
     "infoGas": "Eine kleine TON-Gasgebühr (~0,05 TON) ist erforderlich, um die Transaktion auf der Blockchain zu verarbeiten. Ungenutztes Gas wird an Ihre Wallet zurückgegeben.",
     "infoContract": "Die Zahlung wird vom Splitogram Smart Contract im TON-Netzwerk verarbeitet. Transaktionen sind endgültig und on-chain verifizierbar.",
     "commissionLabel": "Gebühr",
-    "settledByLabel": "Beglichen von {{name}}"
+    "settledByLabel": "Beglichen von {{name}}",
+    "testnetWarning": "TESTNET — Testtokens, kein echtes Geld"
   },
   "activity": {
     "title": "Aktivität",

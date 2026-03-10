@@ -544,6 +544,20 @@ export const api = {
       { method: 'POST', body: JSON.stringify({ dummyUserId }) },
     ),
 
+  // Export
+  exportGroupCsv: (groupId: number) => {
+    const initData = getInitData();
+    const headers: Record<string, string> = {};
+    if (initData) headers['Authorization'] = `tma ${initData}`;
+    return fetch(`${config.apiBaseUrl}/api/v1/groups/${groupId}/export`, {
+      headers,
+      signal: AbortSignal.timeout(30_000),
+    }).then(async (res) => {
+      if (!res.ok) throw new Error('Export failed');
+      return res.blob();
+    });
+  },
+
   // Exchange rates
   getExchangeRates: () =>
     apiRequest<{ base: string; rates: Record<string, number>; fetchedAt: number }>(

@@ -76,8 +76,8 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
       JSON.stringify({
         inline_keyboard: [
           [
-            { text: '❌ Reject', callback_data: `rj|${report.id}` },
-            { text: '🗑 Remove', callback_data: `rm|${report.id}` },
+            { text: '✅ Keep it', callback_data: `rj|${report.id}` },
+            { text: '❌ Delete it', callback_data: `rm|${report.id}` },
           ],
         ],
       }),

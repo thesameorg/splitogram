@@ -66,7 +66,8 @@
     "statsPaymentsReceived": "Pembayaran diterima",
     "statsBalanceChange": "Total perubahan saldo",
     "statsAllTime": "Semua waktu",
-    "statsNoData": "Belum ada pengeluaran"
+    "statsNoData": "Belum ada pengeluaran",
+    "exportCsv": "Ekspor sebagai CSV"
   },
   "groupSettings": {
     "title": "Pengaturan Grup",
@@ -228,7 +229,8 @@
     "infoGas": "Biaya gas TON kecil (~0.05 TON) diperlukan untuk memproses transaksi di blockchain. Gas yang tidak terpakai dikembalikan ke dompet Anda.",
     "infoContract": "Pembayaran diproses oleh smart contract Splitogram di jaringan TON. Transaksi bersifat final dan dapat diverifikasi on-chain.",
     "commissionLabel": "Komisi",
-    "settledByLabel": "Diselesaikan oleh {{name}}"
+    "settledByLabel": "Diselesaikan oleh {{name}}",
+    "testnetWarning": "TESTNET — menggunakan token uji coba, bukan uang sungguhan"
   },
   "activity": {
     "title": "Aktivitas",

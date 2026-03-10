@@ -303,6 +303,14 @@ export function AddExpense() {
           onChange={(e) => setAmountStr(e.target.value)}
           className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-2xl"
         />
+        {splitMode === 'equal' && selectedParticipants.size > 0 && amountMicro > 0 && (
+          <div className="text-sm text-tg-hint mt-1">
+            {t('addExpense.perPerson', {
+              amount: formatAmount(perPerson, group.currency),
+              count: selectedParticipants.size,
+            })}
+          </div>
+        )}
       </div>
 
       {/* Paid By */}
@@ -486,16 +494,6 @@ export function AddExpense() {
           className="hidden"
         />
       </div>
-
-      {/* Per-person amount (equal mode only) */}
-      {splitMode === 'equal' && selectedParticipants.size > 0 && amountMicro > 0 && (
-        <div className="text-center text-sm text-tg-hint mt-6">
-          {t('addExpense.perPerson', {
-            amount: formatAmount(perPerson, group.currency),
-            count: selectedParticipants.size,
-          })}
-        </div>
-      )}
 
       {/* Submit button (fallback for non-TG env) */}
       {!window.Telegram?.WebApp && (

@@ -68,7 +68,8 @@
     "statsPaymentsReceived": "Payments received",
     "statsBalanceChange": "Total change in balance",
     "statsAllTime": "All time",
-    "statsNoData": "No expenses yet"
+    "statsNoData": "No expenses yet",
+    "exportCsv": "Export as CSV"
   },
   "groupSettings": {
     "title": "Group Settings",
@@ -240,7 +241,8 @@
     "infoGas": "A small TON gas fee (~0.05 TON) is required to process the transaction on the blockchain. Unused gas is returned to your wallet.",
     "infoContract": "Settlement is processed by the Splitogram smart contract on the TON network. Transactions are final and verifiable on-chain.",
     "commissionLabel": "Commission",
-    "settledByLabel": "Settled by {{name}}"
+    "settledByLabel": "Settled by {{name}}",
+    "testnetWarning": "TESTNET — using test tokens, not real money"
   },
   "activity": {
     "title": "Activity",

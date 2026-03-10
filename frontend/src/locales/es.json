@@ -68,7 +68,8 @@
     "statsPaymentsReceived": "Pagos recibidos",
     "statsBalanceChange": "Cambio total en balance",
     "statsAllTime": "Todo el tiempo",
-    "statsNoData": "Aún no hay gastos"
+    "statsNoData": "Aún no hay gastos",
+    "exportCsv": "Exportar como CSV"
   },
   "groupSettings": {
     "title": "Ajustes del grupo",
@@ -230,7 +231,8 @@
     "infoGas": "Se necesita una pequeña tarifa de gas (~0.05 TON) para procesar la transacción. El gas no utilizado se devuelve a tu billetera.",
     "infoContract": "El pago es procesado por el contrato inteligente de Splitogram en la red TON. Las transacciones son finales y verificables en la blockchain.",
     "commissionLabel": "Comisión",
-    "settledByLabel": "Saldado por {{name}}"
+    "settledByLabel": "Saldado por {{name}}",
+    "testnetWarning": "TESTNET — usando tokens de prueba, no dinero real"
   },
   "activity": {
     "title": "Actividad",

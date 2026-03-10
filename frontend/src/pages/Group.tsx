@@ -163,6 +163,20 @@ export function Group() {
     }
   }
 
+  async function handleExportCsv() {
+    try {
+      const blob = await api.exportGroupCsv(groupId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${group?.name || 'transactions'}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
+  }
+
   async function handleSettleUp(debt: DebtEntry) {
     try {
       const result = await api.createSettlement(groupId, debt.from.userId, debt.to.userId);
@@ -393,9 +407,17 @@ export function Group() {
           {transactions.length === 0 ? (
             <p className="text-center text-tg-hint py-8">{t('group.noTransactions')}</p>
           ) : (
-            transactions.map((tx) =>
-              tx.type === 'expense' ? renderExpenseCard(tx.data) : renderSettlementCard(tx.data),
-            )
+            <>
+              {transactions.map((tx) =>
+                tx.type === 'expense' ? renderExpenseCard(tx.data) : renderSettlementCard(tx.data),
+              )}
+              <button
+                onClick={handleExportCsv}
+                className="w-full py-3 text-sm text-tg-link font-medium"
+              >
+                {t('group.exportCsv')}
+              </button>
+            </>
           )}
         </div>
       )}

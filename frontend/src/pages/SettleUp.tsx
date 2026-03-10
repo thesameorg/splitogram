@@ -13,12 +13,15 @@ import {
   processReceiptThumbnail,
   imageUrl,
 } from '../utils/image';
+import { config } from '../config';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { BottomSheet } from '../components/BottomSheet';
 import { ReportImage } from '../components/ReportImage';
 import { IconTon } from '../icons';
+
+const isTestnet = config.tonNetwork !== 'mainnet';
 
 type CryptoState = 'idle' | 'preflight' | 'confirm' | 'sending' | 'polling' | 'success' | 'error';
 
@@ -320,6 +323,14 @@ export function SettleUp() {
     <PageLayout>
       <h1 className="text-xl font-bold mb-6">{t('settleUp.title')}</h1>
 
+      {isTestnet && (
+        <div className="bg-app-warning-bg border border-app-warning/30 rounded-xl px-4 py-2 mb-4 text-center">
+          <span className="text-app-warning text-sm font-medium">
+            {t('settlement.testnetWarning')}
+          </span>
+        </div>
+      )}
+
       {/* Settlement info */}
       <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator mb-6 text-center">
         <div className="text-sm text-tg-hint mb-2">
@@ -448,6 +459,7 @@ export function SettleUp() {
             commission={commission}
             conversionNote={conversionNote}
             recipientName={settlement.to?.displayName ?? ''}
+            isTestnet={isTestnet}
             onPay={handlePayWithUsdt}
             onConfirm={handleConfirmPayment}
             onRetry={handleRetry}
@@ -629,6 +641,7 @@ function CryptoSettlementUI({
   commission,
   conversionNote,
   recipientName,
+  isTestnet: testnet,
   onPay,
   onConfirm,
   onRetry,
@@ -644,12 +657,14 @@ function CryptoSettlementUI({
   commission: string;
   conversionNote: string | null;
   recipientName: string;
+  isTestnet: boolean;
   onPay: () => void;
   onConfirm: () => void;
   onRetry: () => void;
   onInfo: () => void;
   t: (key: string, opts?: Record<string, string>) => string;
 }) {
+  const testnetBadge = testnet ? ' (TESTNET)' : '';
   if (state === 'success') {
     // TODO: replace with Lottie celebration animation
     return (
@@ -705,6 +720,7 @@ function CryptoSettlementUI({
         >
           <IconTon size={18} />
           {t('settlement.confirmButton')}
+          {testnetBadge}
         </button>
       </div>
     );
@@ -744,7 +760,9 @@ function CryptoSettlementUI({
           className="flex-1 bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2"
         >
           <IconTon size={18} />
-          {walletConnected ? t('settlement.payWithUsdt') : t('account.connectWallet')}
+          {walletConnected
+            ? `${t('settlement.payWithUsdt')}${testnetBadge}`
+            : t('account.connectWallet')}
         </button>
         <button
           onClick={onInfo}

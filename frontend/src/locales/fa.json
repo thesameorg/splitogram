@@ -68,7 +68,8 @@
     "statsPaymentsReceived": "پرداخت‌های دریافتی",
     "statsBalanceChange": "تغییر کل موجودی",
     "statsAllTime": "همه زمان‌ها",
-    "statsNoData": "هنوز هزینه‌ای نیست"
+    "statsNoData": "هنوز هزینه‌ای نیست",
+    "exportCsv": "خروجی CSV"
   },
   "groupSettings": {
     "title": "تنظیمات گروه",
@@ -230,7 +231,8 @@
     "infoGas": "یک هزینه گس کوچک TON (~0.05 TON) برای پردازش تراکنش در بلاکچین لازم است. گس استفاده نشده به کیف پول شما برمی‌گردد.",
     "infoContract": "پرداخت توسط قرارداد هوشمند Splitogram در شبکه TON پردازش می‌شود. تراکنش‌ها نهایی و قابل تأیید در بلاکچین هستند.",
     "commissionLabel": "کارمزد",
-    "settledByLabel": "تسویه شده توسط {{name}}"
+    "settledByLabel": "تسویه شده توسط {{name}}",
+    "testnetWarning": "TESTNET — از توکن‌های آزمایشی استفاده می‌شود، پول واقعی نیست"
   },
   "activity": {
     "title": "فعالیت",
