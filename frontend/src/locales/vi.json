@@ -213,7 +213,7 @@
     "connectWalletFirst": "Kết nối ví của bạn để thanh toán bằng USDT",
     "creditorNoWallet": "{{name}} chưa kết nối ví. Gửi nhắc nhở để kết nối.",
     "insufficientUsdt": "Không đủ USDT. Bạn có {{balance}}, cần {{required}}.",
-    "insufficientTon": "Không đủ TON cho phí gas. Bạn cần ~0.5 TON.",
+    "insufficientTon": "Không đủ TON cho gas. Bạn có {{balance}} TON, cần {{required}} TON.",
     "confirmTitle": "Xác nhận Thanh toán",
     "confirmBody": "{{recipient}} sẽ nhận {{amount}} USDT. Bạn thanh toán {{totalPayment}} USDT (bao gồm phí {{commission}} USDT).",
     "confirmButton": "Xác nhận Thanh toán",

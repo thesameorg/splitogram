@@ -225,7 +225,7 @@
     "connectWalletFirst": "Connect your wallet to pay with USDT",
     "creditorNoWallet": "{{name}} hasn't connected a wallet yet. Send them a reminder to connect.",
     "insufficientUsdt": "Not enough USDT. You have {{balance}}, need {{required}}.",
-    "insufficientTon": "Not enough TON for gas. You need ~0.5 TON.",
+    "insufficientTon": "Not enough TON for gas. You have {{balance}} TON, need {{required}} TON.",
     "confirmTitle": "Confirm Payment",
     "confirmBody": "{{recipient}} will receive {{amount}} USDT. You pay {{totalPayment}} USDT (includes {{commission}} USDT commission).",
     "confirmButton": "Confirm Payment",

@@ -215,7 +215,7 @@
     "connectWalletFirst": "Conecta tu monedero para pagar con USDT",
     "creditorNoWallet": "{{name}} aún no ha conectado un monedero. Envíale un recordatorio para que lo conecte.",
     "insufficientUsdt": "USDT insuficiente. Tienes {{balance}}, necesitas {{required}}.",
-    "insufficientTon": "TON insuficiente para gas. Necesitas ~0.5 TON.",
+    "insufficientTon": "TON insuficiente para gas. Tienes {{balance}} TON, necesitas {{required}} TON.",
     "confirmTitle": "Confirmar pago",
     "confirmBody": "{{recipient}} recibirá {{amount}} USDT. Pagarás {{totalPayment}} USDT (incluye comisión de {{commission}} USDT).",
     "confirmButton": "Confirmar pago",

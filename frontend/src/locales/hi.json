@@ -215,7 +215,7 @@
     "connectWalletFirst": "USDT से भुगतान करने के लिए अपना वॉलेट कनेक्ट करें",
     "creditorNoWallet": "{{name}} ने अभी तक वॉलेट कनेक्ट नहीं किया है। उन्हें कनेक्ट करने का रिमाइंडर भेजें।",
     "insufficientUsdt": "पर्याप्त USDT नहीं है। आपके पास {{balance}} है, {{required}} चाहिए।",
-    "insufficientTon": "गैस के लिए पर्याप्त TON नहीं है। ~0.5 TON चाहिए।",
+    "insufficientTon": "गैस के लिए पर्याप्त TON नहीं है। आपके पास {{balance}} TON है, {{required}} TON चाहिए।",
     "confirmTitle": "भुगतान की पुष्टि करें",
     "confirmBody": "{{recipient}} को {{amount}} USDT मिलेगा। आप {{totalPayment}} USDT भुगतान करेंगे ({{commission}} USDT कमीशन सहित)।",
     "confirmButton": "भुगतान की पुष्टि करें",

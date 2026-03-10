@@ -217,7 +217,7 @@
     "connectWalletFirst": "Підключіть гаманець, щоб платити в USDT",
     "creditorNoWallet": "{{name}} ще не підключив(ла) гаманець. Надішліть нагадування підключити.",
     "insufficientUsdt": "Недостатньо USDT. У вас {{balance}}, потрібно {{required}}.",
-    "insufficientTon": "Недостатньо TON для газу. Потрібно ~0.5 TON.",
+    "insufficientTon": "Недостатньо TON для газу. У вас {{balance}} TON, потрібно {{required}} TON.",
     "confirmTitle": "Підтвердження платежу",
     "confirmBody": "{{recipient}} отримає {{amount}} USDT. Ви заплатите {{totalPayment}} USDT (включаючи комісію {{commission}} USDT).",
     "confirmButton": "Підтвердити платіж",

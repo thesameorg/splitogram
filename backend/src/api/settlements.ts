@@ -401,6 +401,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   const network = c.env.TON_NETWORK === 'mainnet' ? '-239' : '-3'; // CHAIN enum values
 
   // Dynamic gas calculation based on testnet profiling:
+  // (compute gas early so we can check TON balance against it)
   // Settlement chain = 11 messages, measured cost ~0.035 TON.
   // forward_ton_amount needs to cover contract's 2 outgoing Jetton transfers (0.15 TON each).
   // Add 0.1 TON contingency and round up to nearest 0.1 TON.
@@ -411,6 +412,31 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   const gasAttach = forwardTon + CONTINGENCY;
   // Round up to nearest 0.1 TON
   const gasAttachRounded = Math.ceil(gasAttach / 100_000_000) * 100_000_000;
+
+  // Check TON balance — sender needs enough to cover gas for the Jetton transfer
+  try {
+    const resp = await fetch(`${baseUrl}/v2/accounts/${senderAddress}`, {
+      headers: tonapiHeaders(c.env),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (resp.ok) {
+      const data = (await resp.json()) as any;
+      const tonBalance = parseInt(data.balance ?? '0', 10); // nanoTON
+      if (tonBalance < gasAttachRounded) {
+        return c.json(
+          {
+            error: 'insufficient_ton',
+            detail: 'Not enough TON to cover transaction gas.',
+            tonBalance,
+            tonRequired: gasAttachRounded,
+          },
+          400,
+        );
+      }
+    }
+  } catch {
+    // TONAPI unavailable — proceed without balance check
+  }
 
   return c.json({
     settlementId: settlement.id,

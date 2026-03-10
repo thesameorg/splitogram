@@ -215,7 +215,7 @@
     "connectWalletFirst": "برای پرداخت با USDT کیف پول خود را متصل کنید",
     "creditorNoWallet": "{{name}} هنوز کیف پول متصل نکرده است. یادآوری برای اتصال بفرستید.",
     "insufficientUsdt": "USDT کافی نیست. شما {{balance}} دارید، {{required}} لازم است.",
-    "insufficientTon": "TON کافی برای گس نیست. حدود ~0.5 TON نیاز دارید.",
+    "insufficientTon": "TON کافی برای گس نیست. شما {{balance}} TON دارید، {{required}} TON لازم است.",
     "confirmTitle": "تأیید پرداخت",
     "confirmBody": "{{recipient}} مبلغ {{amount}} USDT دریافت خواهد کرد. شما {{totalPayment}} USDT پرداخت می‌کنید (شامل {{commission}} USDT کارمزد).",
     "confirmButton": "تأیید پرداخت",

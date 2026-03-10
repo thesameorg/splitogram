@@ -21,7 +21,7 @@ PAGES_URL = "https://splitogram.pages.dev"
 # TON settlement (testnet for now — switch to mainnet addresses when ready)
 TON_NETWORK = "testnet"
 USDT_MASTER_ADDRESS = "kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7"
-SETTLEMENT_CONTRACT_ADDRESS = "EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW"
+SETTLEMENT_CONTRACT_ADDRESS = "EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu"
 
 [[rules]]
 type = "Text"

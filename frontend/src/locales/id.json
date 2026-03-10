@@ -213,7 +213,7 @@
     "connectWalletFirst": "Hubungkan dompet Anda untuk membayar dengan USDT",
     "creditorNoWallet": "{{name}} belum menghubungkan dompet. Kirim pengingat untuk menghubungkan.",
     "insufficientUsdt": "USDT tidak cukup. Anda memiliki {{balance}}, butuh {{required}}.",
-    "insufficientTon": "TON tidak cukup untuk gas. Anda butuh ~0.5 TON.",
+    "insufficientTon": "TON tidak cukup untuk gas. Anda memiliki {{balance}} TON, butuh {{required}} TON.",
     "confirmTitle": "Konfirmasi Pembayaran",
     "confirmBody": "{{recipient}} akan menerima {{amount}} USDT. Anda membayar {{totalPayment}} USDT (termasuk komisi {{commission}} USDT).",
     "confirmButton": "Konfirmasi Pembayaran",

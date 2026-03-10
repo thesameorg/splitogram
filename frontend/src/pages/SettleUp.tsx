@@ -177,6 +177,13 @@ export function SettleUp() {
             required: formatUsdtAmount(err.required ?? settlement!.amount),
           }),
         );
+      } else if (code === 'insufficient_ton') {
+        setCryptoError(
+          t('settlement.insufficientTon', {
+            balance: formatTonAmount(err.tonBalance ?? 0),
+            required: formatTonAmount(err.tonRequired ?? 0),
+          }),
+        );
       } else {
         setCryptoError(err.message || 'Failed to prepare transaction');
       }
@@ -882,4 +889,8 @@ function formatUsdtAmount(microAmount: number): string {
 
 function formatUsdtCommission(microAmount: number): string {
   return formatUsdtAmount(calculateCommission(microAmount));
+}
+
+function formatTonAmount(nanoTon: number): string {
+  return (nanoTon / 1_000_000_000).toFixed(2);
 }
