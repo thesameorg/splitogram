@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { sql, desc, eq } from 'drizzle-orm';
+import { sql, desc, eq, isNull } from 'drizzle-orm';
 import { users, groups, groupMembers, expenses, settlements } from '../db/schema';
 import { removeImage } from '../services/moderation';
 import { formatAmount } from '../utils/format';
@@ -46,7 +46,12 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function layout(title: string, body: string): string {
+function tonviewerBase(env: Env): string {
+  return env.TON_NETWORK === 'mainnet' ? 'https://tonviewer.com' : 'https://testnet.tonviewer.com';
+}
+
+function layout(title: string, body: string, env: Env): string {
+  const network = env.TON_NETWORK === 'mainnet' ? '' : ' [testnet]';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,7 +62,7 @@ function layout(title: string, body: string): string {
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen">
   <nav class="bg-white border-b px-4 py-3 flex items-center justify-between">
-    <a href="/admin" class="text-lg font-bold">Splitogram Admin</a>
+    <a href="/admin" class="text-lg font-bold">Splitogram Admin${network ? `<span class="ml-2 text-xs font-normal px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded">${escapeHtml(network.trim())}</span>` : ''}</a>
   </nav>
   <main class="max-w-5xl mx-auto px-4 py-6">${body}</main>
 </body>
@@ -81,7 +86,14 @@ app.get('/', async (c) => {
     .from(users)
     .where(eq(users.isDummy, true));
   const realUsers = totalUsers - dummyUsers;
-  const [{ total: groupCount }] = await db.select({ total: sql<number>`count(*)` }).from(groups);
+  const [{ total: activeGroupCount }] = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(groups)
+    .where(isNull(groups.deletedAt));
+  const [{ total: deletedGroupCount }] = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(groups)
+    .where(sql`${groups.deletedAt} IS NOT NULL`);
   const [{ total: expenseCount }] = await db
     .select({ total: sql<number>`count(*)` })
     .from(expenses);
@@ -107,15 +119,12 @@ app.get('/', async (c) => {
       name: groups.name,
       currency: groups.currency,
       createdAt: groups.createdAt,
+      deletedAt: groups.deletedAt,
       memberCount: sql<number>`(select count(*) from group_members where group_members.group_id = groups.id)`,
       expenseCount: sql<number>`(select count(*) from expenses where expenses.group_id = groups.id)`,
     })
     .from(groups)
-    .where(
-      showDeleted
-        ? undefined
-        : sql`(select count(*) from group_members where group_members.group_id = groups.id) > 0`,
-    )
+    .where(showDeleted ? undefined : isNull(groups.deletedAt))
     .orderBy(desc(groups.createdAt))
     .limit(perPage)
     .offset(offset);
@@ -136,10 +145,66 @@ app.get('/', async (c) => {
   const volumeStr = formatAmount(onchainStats.volume, 'USD');
   const feesStr = formatAmount(onchainStats.fees, 'USD');
 
+  // Recent on-chain transactions
+  const onchainTxs = await db
+    .select({
+      id: settlements.id,
+      txHash: settlements.txHash,
+      usdtAmount: settlements.usdtAmount,
+      commission: settlements.commission,
+      fromUser: settlements.fromUser,
+      toUser: settlements.toUser,
+      groupId: settlements.groupId,
+      updatedAt: settlements.updatedAt,
+    })
+    .from(settlements)
+    .where(eq(settlements.status, 'settled_onchain'))
+    .orderBy(desc(settlements.updatedAt))
+    .limit(20);
+
+  // Resolve user names + group names for on-chain txs
+  const userIds = new Set<number>();
+  const groupIds = new Set<number>();
+  for (const tx of onchainTxs) {
+    userIds.add(tx.fromUser);
+    userIds.add(tx.toUser);
+    groupIds.add(tx.groupId);
+  }
+  const userMap = new Map<number, string>();
+  const groupMap = new Map<number, string>();
+  if (userIds.size > 0) {
+    const userRows = await db
+      .select({ id: users.id, displayName: users.displayName })
+      .from(users)
+      .where(
+        sql`${users.id} IN (${sql.join(
+          [...userIds].map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      );
+    for (const u of userRows) userMap.set(u.id, u.displayName);
+  }
+  if (groupIds.size > 0) {
+    const groupNameRows = await db
+      .select({ id: groups.id, name: groups.name, deletedAt: groups.deletedAt })
+      .from(groups)
+      .where(
+        sql`${groups.id} IN (${sql.join(
+          [...groupIds].map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      );
+    for (const g of groupNameRows) {
+      groupMap.set(g.id, g.deletedAt ? `${g.name} (deleted)` : g.name);
+    }
+  }
+
+  const viewerBase = tonviewerBase(c.env);
+
   const cards = `
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
       ${metricCard('Users', `${realUsers}${dummyUsers > 0 ? ` (+${dummyUsers} placeholders)` : ''}`)}
-      ${metricCard('Groups', groupCount)}
+      ${metricCard('Groups', `${activeGroupCount}${deletedGroupCount > 0 ? ` (+${deletedGroupCount} deleted)` : ''}`)}
       ${metricCard('Active (30d)', activeGroups30d)}
       ${metricCard('Expenses', expenseCount)}
       ${metricCard('Settlements', settlementCount)}
@@ -151,15 +216,20 @@ app.get('/', async (c) => {
     </div>`;
 
   const tableRows = groupRows
-    .map(
-      (g) => `<tr class="border-b hover:bg-gray-50">
-      <td class="py-2 px-3"><a href="/admin/groups/${g.id}" class="text-blue-600 hover:underline">${escapeHtml(g.name)}</a></td>
+    .map((g) => {
+      const deleted = g.deletedAt != null;
+      const nameClass = deleted ? 'text-gray-400 line-through' : 'text-blue-600 hover:underline';
+      const nameHtml = deleted
+        ? `<span class="${nameClass}">${escapeHtml(g.name)}</span> <span class="text-xs text-red-400 ml-1">deleted</span>`
+        : `<a href="/admin/groups/${g.id}" class="${nameClass}">${escapeHtml(g.name)}</a>`;
+      return `<tr class="border-b hover:bg-gray-50">
+      <td class="py-2 px-3">${nameHtml}</td>
       <td class="py-2 px-3 text-center">${g.memberCount}</td>
       <td class="py-2 px-3 text-center">${g.expenseCount}</td>
       <td class="py-2 px-3 text-center">${escapeHtml(g.currency)}</td>
       <td class="py-2 px-3 text-gray-500 text-sm">${g.createdAt.split('T')[0]}</td>
-    </tr>`,
-    )
+    </tr>`;
+    })
     .join('');
 
   const showDeletedParam = showDeleted ? '&showDeleted=1' : '';
@@ -176,7 +246,7 @@ app.get('/', async (c) => {
       <h2 class="text-lg font-semibold">Groups</h2>
       <label class="flex items-center gap-2 text-sm cursor-pointer select-none">
         <input type="checkbox" ${showDeleted ? 'checked' : ''} onchange="window.location.href='${toggleUrl}'" class="rounded">
-        Show deleted (0 members)
+        Show deleted (${deletedGroupCount} groups)
       </label>
     </div>
     <div class="bg-white rounded-lg border overflow-x-auto">
@@ -195,7 +265,53 @@ app.get('/', async (c) => {
     </div>
     ${pagination}`;
 
-  return c.html(layout('Dashboard', cards + table));
+  // On-chain transactions table
+  const txRows = onchainTxs
+    .map((tx) => {
+      const amount = tx.usdtAmount != null ? formatAmount(tx.usdtAmount, 'USD') : '-';
+      const fee = tx.commission != null ? formatAmount(tx.commission, 'USD') : '-';
+      const from = userMap.get(tx.fromUser) ?? `#${tx.fromUser}`;
+      const to = userMap.get(tx.toUser) ?? `#${tx.toUser}`;
+      const group = groupMap.get(tx.groupId) ?? `#${tx.groupId}`;
+      const txLink = tx.txHash
+        ? `<a href="${viewerBase}/transaction/${escapeHtml(tx.txHash)}" target="_blank" class="text-blue-600 hover:underline font-mono text-xs">${escapeHtml(tx.txHash.slice(0, 10))}...</a>`
+        : '-';
+      const date = tx.updatedAt.split('T')[0];
+      return `<tr class="border-b hover:bg-gray-50">
+      <td class="py-2 px-3">${txLink}</td>
+      <td class="py-2 px-3">${escapeHtml(from)}</td>
+      <td class="py-2 px-3">${escapeHtml(to)}</td>
+      <td class="py-2 px-3 text-right">${escapeHtml(amount)}</td>
+      <td class="py-2 px-3 text-right">${escapeHtml(fee)}</td>
+      <td class="py-2 px-3 text-gray-500">${escapeHtml(group)}</td>
+      <td class="py-2 px-3 text-gray-500 text-sm">${date}</td>
+    </tr>`;
+    })
+    .join('');
+
+  const txTable =
+    onchainTxs.length > 0
+      ? `
+    <h2 class="text-lg font-semibold mb-3 mt-8">On-chain Transactions (last 20)</h2>
+    <div class="bg-white rounded-lg border overflow-x-auto mb-6">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="py-2 px-3 text-left">TX Hash</th>
+            <th class="py-2 px-3 text-left">From</th>
+            <th class="py-2 px-3 text-left">To</th>
+            <th class="py-2 px-3 text-right">USDT</th>
+            <th class="py-2 px-3 text-right">Fee</th>
+            <th class="py-2 px-3 text-left">Group</th>
+            <th class="py-2 px-3 text-left">Date</th>
+          </tr>
+        </thead>
+        <tbody>${txRows}</tbody>
+      </table>
+    </div>`
+      : '';
+
+  return c.html(layout('Dashboard', cards + table + txTable, c.env));
 });
 
 // --- Group Detail ---
@@ -207,6 +323,8 @@ app.get('/groups/:id', async (c) => {
   const [group] = await db.select().from(groups).where(eq(groups.id, groupId)).limit(1);
   if (!group) return c.text('Group not found', 404);
 
+  const isDeleted = group.deletedAt != null;
+
   // Members
   const members = await db
     .select({
@@ -215,6 +333,7 @@ app.get('/groups/:id', async (c) => {
       displayName: users.displayName,
       username: users.username,
       avatarKey: users.avatarKey,
+      isDummy: users.isDummy,
     })
     .from(groupMembers)
     .innerJoin(users, eq(groupMembers.userId, users.id))
@@ -237,6 +356,46 @@ app.get('/groups/:id', async (c) => {
     .where(eq(expenses.groupId, groupId))
     .orderBy(desc(expenses.createdAt))
     .limit(50);
+
+  // Settlements for this group
+  const groupSettlements = await db
+    .select({
+      id: settlements.id,
+      fromUser: settlements.fromUser,
+      toUser: settlements.toUser,
+      amount: settlements.amount,
+      status: settlements.status,
+      txHash: settlements.txHash,
+      usdtAmount: settlements.usdtAmount,
+      commission: settlements.commission,
+      updatedAt: settlements.updatedAt,
+    })
+    .from(settlements)
+    .where(eq(settlements.groupId, groupId))
+    .orderBy(desc(settlements.updatedAt))
+    .limit(50);
+
+  // Resolve user names for settlements
+  const settlementUserIds = new Set<number>();
+  for (const s of groupSettlements) {
+    settlementUserIds.add(s.fromUser);
+    settlementUserIds.add(s.toUser);
+  }
+  const settlementUserMap = new Map<number, string>();
+  if (settlementUserIds.size > 0) {
+    const userRows = await db
+      .select({ id: users.id, displayName: users.displayName })
+      .from(users)
+      .where(
+        sql`${users.id} IN (${sql.join(
+          [...settlementUserIds].map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      );
+    for (const u of userRows) settlementUserMap.set(u.id, u.displayName);
+  }
+
+  const viewerBase = tonviewerBase(c.env);
 
   // Collect images for moderation
   const images: Array<{ key: string; type: string; label: string }> = [];
@@ -263,14 +422,16 @@ app.get('/groups/:id', async (c) => {
   }
 
   const memberRows = members
-    .map(
-      (m) =>
-        `<tr class="border-b">
-      <td class="py-2 px-3">${escapeHtml(m.displayName)}</td>
+    .map((m) => {
+      const placeholderBadge = m.isDummy
+        ? ' <span class="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">placeholder</span>'
+        : '';
+      return `<tr class="border-b">
+      <td class="py-2 px-3">${escapeHtml(m.displayName)}${placeholderBadge}</td>
       <td class="py-2 px-3 text-gray-500">${m.username ? '@' + escapeHtml(m.username) : '-'}</td>
       <td class="py-2 px-3">${m.role}</td>
-    </tr>`,
-    )
+    </tr>`;
+    })
     .join('');
 
   const expenseRows = recentExpenses
@@ -283,6 +444,34 @@ app.get('/groups/:id', async (c) => {
       <td class="py-2 px-3 text-gray-500 text-sm">${e.createdAt.split('T')[0]}</td>
     </tr>`,
     )
+    .join('');
+
+  const statusColors: Record<string, string> = {
+    open: 'bg-yellow-100 text-yellow-800',
+    payment_pending: 'bg-blue-100 text-blue-800',
+    settled_onchain: 'bg-green-100 text-green-800',
+    settled_external: 'bg-gray-100 text-gray-600',
+  };
+
+  const settlementRows = groupSettlements
+    .map((s) => {
+      const from = settlementUserMap.get(s.fromUser) ?? `#${s.fromUser}`;
+      const to = settlementUserMap.get(s.toUser) ?? `#${s.toUser}`;
+      const statusClass = statusColors[s.status] ?? 'bg-gray-100 text-gray-600';
+      const statusLabel = s.status.replace(/_/g, ' ');
+      const amountStr = formatAmount(s.amount, group.currency);
+      const txLink =
+        s.txHash && s.status === 'settled_onchain'
+          ? ` <a href="${viewerBase}/transaction/${escapeHtml(s.txHash)}" target="_blank" class="text-blue-600 hover:underline font-mono text-xs">${escapeHtml(s.txHash.slice(0, 10))}...</a>`
+          : '';
+      const usdtStr = s.usdtAmount != null ? ` (${formatAmount(s.usdtAmount, 'USD')} USDT)` : '';
+      return `<tr class="border-b">
+      <td class="py-2 px-3">${escapeHtml(from)} &rarr; ${escapeHtml(to)}</td>
+      <td class="py-2 px-3 text-right">${escapeHtml(amountStr)}${escapeHtml(usdtStr)}</td>
+      <td class="py-2 px-3"><span class="text-xs px-2 py-0.5 rounded ${statusClass}">${escapeHtml(statusLabel)}</span>${txLink}</td>
+      <td class="py-2 px-3 text-gray-500 text-sm">${s.updatedAt.split('T')[0]}</td>
+    </tr>`;
+    })
     .join('');
 
   const imageCards = images
@@ -303,12 +492,19 @@ app.get('/groups/:id', async (c) => {
     )
     .join('');
 
+  const deletedBanner = isDeleted
+    ? `<div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-2 mb-4 text-sm">This group was deleted on ${group.deletedAt!.split('T')[0]}. On-chain settlements are retained for commission accounting.</div>`
+    : '';
+
   const body = `
     <a href="/admin" class="text-blue-600 hover:underline text-sm">&larr; Back to dashboard</a>
-    <h1 class="text-xl font-bold mt-2 mb-1">${escapeHtml(group.name)}</h1>
-    <p class="text-sm text-gray-500 mb-6">Currency: ${escapeHtml(group.currency)} &middot; Created ${group.createdAt.split('T')[0]}</p>
+    <h1 class="text-xl font-bold mt-2 mb-1">${escapeHtml(group.name)}${isDeleted ? ' <span class="text-sm text-red-400 font-normal">deleted</span>' : ''}</h1>
+    <p class="text-sm text-gray-500 mb-4">Currency: ${escapeHtml(group.currency)} &middot; Created ${group.createdAt.split('T')[0]}</p>
+    ${deletedBanner}
 
-    <h2 class="text-lg font-semibold mb-3">Members (${members.length})</h2>
+    ${
+      members.length > 0
+        ? `<h2 class="text-lg font-semibold mb-3">Members (${members.length})</h2>
     <div class="bg-white rounded-lg border overflow-x-auto mb-6">
       <table class="w-full text-sm">
         <thead class="bg-gray-100">
@@ -320,9 +516,13 @@ app.get('/groups/:id', async (c) => {
         </thead>
         <tbody>${memberRows}</tbody>
       </table>
-    </div>
+    </div>`
+        : '<p class="text-sm text-gray-500 mb-6">No members (group deleted)</p>'
+    }
 
-    <h2 class="text-lg font-semibold mb-3">Recent Expenses (${recentExpenses.length})</h2>
+    ${
+      recentExpenses.length > 0
+        ? `<h2 class="text-lg font-semibold mb-3">Recent Expenses (${recentExpenses.length})</h2>
     <div class="bg-white rounded-lg border overflow-x-auto mb-6">
       <table class="w-full text-sm">
         <thead class="bg-gray-100">
@@ -335,7 +535,28 @@ app.get('/groups/:id', async (c) => {
         </thead>
         <tbody>${expenseRows}</tbody>
       </table>
-    </div>
+    </div>`
+        : ''
+    }
+
+    ${
+      groupSettlements.length > 0
+        ? `<h2 class="text-lg font-semibold mb-3">Settlements (${groupSettlements.length})</h2>
+    <div class="bg-white rounded-lg border overflow-x-auto mb-6">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="py-2 px-3 text-left">From &rarr; To</th>
+            <th class="py-2 px-3 text-right">Amount</th>
+            <th class="py-2 px-3 text-left">Status</th>
+            <th class="py-2 px-3 text-left">Date</th>
+          </tr>
+        </thead>
+        <tbody>${settlementRows}</tbody>
+      </table>
+    </div>`
+        : ''
+    }
 
     ${
       images.length > 0
@@ -344,7 +565,7 @@ app.get('/groups/:id', async (c) => {
         : ''
     }`;
 
-  return c.html(layout(`Group: ${group.name}`, body));
+  return c.html(layout(`Group: ${group.name}`, body, c.env));
 });
 
 // CSRF protection for POST requests — validate Origin/Referer matches the request host

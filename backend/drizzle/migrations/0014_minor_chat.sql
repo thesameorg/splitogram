@@ -1,0 +1,1 @@
+ALTER TABLE `groups` ADD `deleted_at` text;

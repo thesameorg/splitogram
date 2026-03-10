@@ -463,8 +463,7 @@ export function Group() {
       <div className="flex border-b border-tg-separator mb-4">
         {(['transactions', 'balances', 'feed', 'stats'] as const).map((tabKey) => {
           const hasDebt =
-            tabKey === 'balances' &&
-            debts.some((d) => d.from.userId === currentUserId);
+            tabKey === 'balances' && debts.some((d) => d.from.userId === currentUserId);
           return (
             <button
               key={tabKey}

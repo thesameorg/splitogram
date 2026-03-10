@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { eq, and, sql, desc } from 'drizzle-orm';
+import { eq, and, sql, desc, isNull } from 'drizzle-orm';
 import {
   groups,
   groupMembers,
@@ -548,27 +548,25 @@ groupsApp.delete('/:id', async (c) => {
         if (r.receiptKey) await safeR2Delete(c.env.IMAGES, r.receiptKey);
         if (r.receiptThumbKey) await safeR2Delete(c.env.IMAGES, r.receiptThumbKey);
       }
-      // Delete all settlement receipts for this group
+      // Delete settlement receipts (only for non-onchain settlements — onchain ones are retained)
       const settlementReceipts = await db
         .select({
           receiptKey: settlements.receiptKey,
           receiptThumbKey: settlements.receiptThumbKey,
+          status: settlements.status,
         })
         .from(settlements)
         .where(eq(settlements.groupId, groupId));
       for (const r of settlementReceipts) {
+        if (r.status === 'settled_onchain') continue; // keep onchain receipts
         if (r.receiptKey) await safeR2Delete(c.env.IMAGES, r.receiptKey);
         if (r.receiptThumbKey) await safeR2Delete(c.env.IMAGES, r.receiptThumbKey);
       }
     })(),
   );
 
-  // Cascade delete: all referencing tables must be cleaned before deleting the group.
-  // activity_log and debt_reminders also have FK references to groups.id — omitting them
-  // caused the final `delete groups` to fail with a FK constraint violation, while earlier
-  // deletes (expenses, group_members) had already succeeded, leaving the group orphaned
-  // but invisible (no group_members → not listed).
-  // Get expense IDs for this group
+  // Soft-delete: keep group row + on-chain settlements for commission accounting.
+  // Delete everything else (expenses, participants, non-onchain settlements, activity, reminders, members).
   const groupExpenses = await db
     .select({ id: expenses.id })
     .from(expenses)
@@ -585,11 +583,18 @@ groupsApp.delete('/:id', async (c) => {
   }
 
   await db.delete(expenses).where(eq(expenses.groupId, groupId));
-  await db.delete(settlements).where(eq(settlements.groupId, groupId));
+  // Delete only non-onchain settlements; keep onchain ones for commission tracking
+  await db
+    .delete(settlements)
+    .where(and(eq(settlements.groupId, groupId), sql`${settlements.status} != 'settled_onchain'`));
   await db.delete(activityLog).where(eq(activityLog.groupId, groupId));
   await db.delete(debtReminders).where(eq(debtReminders.groupId, groupId));
   await db.delete(groupMembers).where(eq(groupMembers.groupId, groupId));
-  await db.delete(groups).where(eq(groups.id, groupId));
+  // Soft-delete the group (keep the row for on-chain settlement references)
+  await db
+    .update(groups)
+    .set({ deletedAt: new Date().toISOString() })
+    .where(eq(groups.id, groupId));
 
   return c.json({ deleted: true, groupId });
 });
@@ -741,7 +746,7 @@ groupsApp.get('/join/:inviteCode', async (c) => {
       isPair: groups.isPair,
     })
     .from(groups)
-    .where(eq(groups.inviteCode, inviteCode))
+    .where(and(eq(groups.inviteCode, inviteCode), isNull(groups.deletedAt)))
     .limit(1);
 
   if (!group) {
@@ -782,7 +787,7 @@ groupsApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
   const [group] = await db
     .select()
     .from(groups)
-    .where(and(eq(groups.id, groupId), eq(groups.inviteCode, inviteCode)))
+    .where(and(eq(groups.id, groupId), eq(groups.inviteCode, inviteCode), isNull(groups.deletedAt)))
     .limit(1);
 
   if (!group) {

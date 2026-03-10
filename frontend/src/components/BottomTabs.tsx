@@ -50,9 +50,7 @@ export function BottomTabs() {
               active ? 'text-tg-link' : 'text-tg-hint'
             }`}
           >
-            <span className="mb-0.5">
-              {tab.icon}
-            </span>
+            <span className="mb-0.5">{tab.icon}</span>
             <span>{tab.label}</span>
           </button>
         );

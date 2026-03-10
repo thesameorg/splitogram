@@ -39,6 +39,7 @@ export const groups = sqliteTable(
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
+    deletedAt: text('deleted_at'),
     updatedAt: text('updated_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

@@ -534,60 +534,60 @@ export function GroupSettings() {
             })
             .slice(0, showAllMembers ? undefined : 5)
             .map((m) => (
-            <div
-              key={m.userId}
-              className="flex items-center justify-between bg-tg-section p-3 rounded-xl border border-tg-separator"
-            >
-              <div className="flex items-center gap-2">
-                <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
-                <span className="font-medium">{m.displayName}</span>
-                {m.isDummy && (
-                  <span className="text-sm" title={t('groupSettings.placeholderBadge')}>
-                    {'\uD83D\uDC7B'}
-                  </span>
-                )}
-                {m.role === 'admin' && <IconCrown size={14} className="text-app-warning" />}
-                {m.userId === currentUserId && (
-                  <span className="text-xs text-tg-hint">{t('groupSettings.you')}</span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {m.username && <span className="text-sm text-tg-hint">@{m.username}</span>}
-                {isAdmin && m.isDummy && (
-                  <>
+              <div
+                key={m.userId}
+                className="flex items-center justify-between bg-tg-section p-3 rounded-xl border border-tg-separator"
+              >
+                <div className="flex items-center gap-2">
+                  <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
+                  <span className="font-medium">{m.displayName}</span>
+                  {m.isDummy && (
+                    <span className="text-sm" title={t('groupSettings.placeholderBadge')}>
+                      {'\uD83D\uDC7B'}
+                    </span>
+                  )}
+                  {m.role === 'admin' && <IconCrown size={14} className="text-app-warning" />}
+                  {m.userId === currentUserId && (
+                    <span className="text-xs text-tg-hint">{t('groupSettings.you')}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {m.username && <span className="text-sm text-tg-hint">@{m.username}</span>}
+                  {isAdmin && m.isDummy && (
+                    <>
+                      <button
+                        onClick={() => {
+                          setEditingPlaceholder({ userId: m.userId, name: m.displayName });
+                          setEditPlaceholderName(m.displayName);
+                        }}
+                        className="text-tg-link text-xs"
+                      >
+                        {t('groupSettings.editPlaceholder')}
+                      </button>
+                      <button onClick={() => handleShareInvite()} className="text-tg-link text-xs">
+                        {t('groupSettings.sharePlaceholderInvite')}
+                      </button>
+                      <button
+                        onClick={() => handleDeletePlaceholder(m.userId, m.displayName)}
+                        className="text-tg-destructive text-sm"
+                        title={t('groupSettings.kick')}
+                      >
+                        &#10005;
+                      </button>
+                    </>
+                  )}
+                  {isAdmin && !m.isDummy && m.role !== 'admin' && m.userId !== currentUserId && (
                     <button
-                      onClick={() => {
-                        setEditingPlaceholder({ userId: m.userId, name: m.displayName });
-                        setEditPlaceholderName(m.displayName);
-                      }}
-                      className="text-tg-link text-xs"
-                    >
-                      {t('groupSettings.editPlaceholder')}
-                    </button>
-                    <button onClick={() => handleShareInvite()} className="text-tg-link text-xs">
-                      {t('groupSettings.sharePlaceholderInvite')}
-                    </button>
-                    <button
-                      onClick={() => handleDeletePlaceholder(m.userId, m.displayName)}
-                      className="text-tg-destructive text-sm"
+                      onClick={() => handleKickMember(m.userId, m.displayName)}
+                      className="text-tg-destructive text-sm ml-2"
                       title={t('groupSettings.kick')}
                     >
                       &#10005;
                     </button>
-                  </>
-                )}
-                {isAdmin && !m.isDummy && m.role !== 'admin' && m.userId !== currentUserId && (
-                  <button
-                    onClick={() => handleKickMember(m.userId, m.displayName)}
-                    className="text-tg-destructive text-sm ml-2"
-                    title={t('groupSettings.kick')}
-                  >
-                    &#10005;
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
           {group.members.length > 5 && (
             <button
               onClick={() => setShowAllMembers(!showAllMembers)}

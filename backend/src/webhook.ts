@@ -2,7 +2,7 @@ import { Context } from 'hono';
 import { Bot, webhookCallback, Context as GrammyContext } from 'grammy';
 import { createDatabase } from './db';
 import { users, groups, groupMembers, expenses, settlements, imageReports } from './db/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, isNull } from 'drizzle-orm';
 import { logActivity } from './services/activity';
 import { refreshGroupBalances } from './api/balances';
 import { removeImage } from './services/moderation';
@@ -36,7 +36,7 @@ function getOrCreateBot(botToken: string): Bot {
       const [group] = await db
         .select()
         .from(groups)
-        .where(eq(groups.inviteCode, inviteCode))
+        .where(and(eq(groups.inviteCode, inviteCode), isNull(groups.deletedAt)))
         .limit(1);
 
       if (!group) {
@@ -156,7 +156,14 @@ function getOrCreateBot(botToken: string): Bot {
       .from(users)
       .where(eq(users.isDummy, true));
     const realUsers = totalUsers - dummyUsers;
-    const [{ total: groupCount }] = await db.select({ total: sql<number>`count(*)` }).from(groups);
+    const [{ total: groupCount }] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(groups)
+      .where(isNull(groups.deletedAt));
+    const [{ total: deletedGroupCount }] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(groups)
+      .where(sql`${groups.deletedAt} IS NOT NULL`);
     const [{ total: expenseCount }] = await db
       .select({ total: sql<number>`count(*)` })
       .from(expenses);
@@ -184,14 +191,16 @@ function getOrCreateBot(botToken: string): Bot {
     const volumeStr = (onchainStats.volume / 1_000_000).toFixed(2);
     const feesStr = (onchainStats.fees / 1_000_000).toFixed(2);
 
+    const network = currentEnv.TON_NETWORK === 'mainnet' ? 'mainnet' : 'testnet';
+
     await ctx.reply(
       `<b>Splitogram Stats</b>\n\n` +
         `Users: <b>${realUsers}</b>${dummyUsers > 0 ? ` (+${dummyUsers} placeholders)` : ''}\n` +
-        `Groups: <b>${groupCount}</b>\n` +
+        `Groups: <b>${groupCount}</b>${deletedGroupCount > 0 ? ` (+${deletedGroupCount} deleted)` : ''}\n` +
         `Expenses: <b>${expenseCount}</b>\n` +
         `Settlements: <b>${settlementCount}</b>\n` +
         `Active groups (7d): <b>${activeGroups7d}</b>\n\n` +
-        `<b>TON Settlements</b>\n` +
+        `<b>TON Settlements</b> [${network}]\n` +
         `On-chain: <b>${onchainCount}</b>\n` +
         `Volume: <b>~$${volumeStr}</b>\n` +
         `Fees earned: <b>~$${feesStr}</b>`,

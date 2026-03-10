@@ -1,24 +1,4 @@
 # Go Live!
-- add real settlement transactions to admin stats page, with tonviewer links
-- stats admin page:
-  - if group was deleted, TON settlements should stay in a some table - so we have consistent sums in commissions wallet & stats page
-  - maybe just mark group as deleted? is that GDPR complian? or somehow make deletion not-recursive for TON-settlements? 
-  - add "placeholder" marker to user if so ongroup page
-  - generally actualize stats pages to current fuctions
-  - should mention "testnet" if so
-  - show deleted (x members) -> show deleted (x groups)
-  - 
-- feedback does not actaully forward images, only text - just silently, no error logs. same for 1 and 6 files.
-- align TON fees - maybe no need for 0.5 TON, as 
-- personalized invite links to placeholder users
-  - check-claim
-  - race check? already claimed - just join
-  - callback button data length
-  - 
-
-
-
-
 
 # Later | manual
 
