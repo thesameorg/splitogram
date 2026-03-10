@@ -3,6 +3,8 @@
 
 # Later | manual
 
+- **Cron: pending settlement checker** — Add a Cloudflare Workers [scheduled trigger](https://developers.cloudflare.com/workers/configuration/cron-triggers/) (e.g. every 5 min) that queries all `payment_pending` settlements and verifies them on-chain via TONAPI. Safety net for cases where the user closes the app before confirmation completes. Would catch stuck settlements that neither polling nor manual tx link verification resolved.
+
 - check for 30+ users groups - how it looks etc.
 - check naming everywhere
 - update APP icons

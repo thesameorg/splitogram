@@ -229,14 +229,18 @@ export function SettleUp() {
     }
   }
 
+  const [pollElapsed, setPollElapsed] = useState(0);
+
   const startPolling = useCallback(() => {
     setCryptoState('polling');
     let elapsed = 0;
+    setPollElapsed(0);
     const POLL_INTERVAL = 3000;
-    const MAX_POLL = 90000; // 90 seconds
+    const MAX_POLL = 120000; // 2 minutes
 
     pollingRef.current = setInterval(async () => {
       elapsed += POLL_INTERVAL;
+      setPollElapsed(elapsed);
       try {
         const result = await api.confirmSettlement(settlementId);
 
@@ -289,6 +293,28 @@ export function SettleUp() {
     setCryptoState('idle');
     setCryptoError(null);
     setTxParams(null);
+  }
+
+  async function handleManualVerify(txLink: string) {
+    setCryptoState('polling');
+    setCryptoError(null);
+    setPollElapsed(0);
+    try {
+      const result = await api.confirmSettlement(settlementId, txLink);
+      if (result.status === 'settled_onchain') {
+        setSettlement((prev) =>
+          prev ? { ...prev, status: 'settled_onchain', txHash: result.txHash ?? null } : prev,
+        );
+        setCryptoState('success');
+        setTimeout(() => navigate(-1), 2000);
+      } else {
+        setCryptoError(t('settlement.txNotFound'));
+        setCryptoState('error');
+      }
+    } catch {
+      setCryptoError(t('settlement.txNotFound'));
+      setCryptoState('error');
+    }
   }
 
   if (loading) return <LoadingScreen />;
@@ -460,9 +486,12 @@ export function SettleUp() {
             conversionNote={conversionNote}
             recipientName={settlement.to?.displayName ?? ''}
             isTestnet={isTestnet}
+            pollElapsed={pollElapsed}
             onPay={handlePayWithUsdt}
             onConfirm={handleConfirmPayment}
             onRetry={handleRetry}
+            onRefresh={() => startPolling()}
+            onManualVerify={handleManualVerify}
             onInfo={() => setShowCryptoInfo(true)}
             t={t}
           />
@@ -642,9 +671,12 @@ function CryptoSettlementUI({
   conversionNote,
   recipientName,
   isTestnet: testnet,
+  pollElapsed,
   onPay,
   onConfirm,
   onRetry,
+  onRefresh,
+  onManualVerify,
   onInfo,
   t,
 }: {
@@ -658,9 +690,12 @@ function CryptoSettlementUI({
   conversionNote: string | null;
   recipientName: string;
   isTestnet: boolean;
+  pollElapsed: number;
   onPay: () => void;
   onConfirm: () => void;
   onRetry: () => void;
+  onRefresh: () => void;
+  onManualVerify: (txLink: string) => void;
   onInfo: () => void;
   t: (key: string, opts?: Record<string, string>) => string;
 }) {
@@ -679,10 +714,14 @@ function CryptoSettlementUI({
   }
 
   if (state === 'polling') {
+    const elapsedSec = Math.floor(pollElapsed / 1000);
     return (
       <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
         <div className="w-8 h-8 border-3 border-tg-button border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <div className="font-medium">{t('settlement.confirming')}</div>
+        <div className="text-xs text-tg-hint mt-1">
+          {t('settlement.confirmingElapsed', { seconds: String(elapsedSec) })}
+        </div>
       </div>
     );
   }
@@ -727,17 +766,26 @@ function CryptoSettlementUI({
   }
 
   if (state === 'error' && error) {
+    const isPendingTimeout = error === t('settlement.txPending');
+    const isTxNotFound = error === t('settlement.txNotFound');
+    const showTxInput = isPendingTimeout || isTxNotFound;
     return (
       <div className="space-y-3">
-        <div className="bg-app-negative-bg p-4 rounded-xl">
-          <div className="text-app-negative text-sm">{error}</div>
+        <div className={`${isPendingTimeout ? 'bg-app-warning-bg' : 'bg-app-negative-bg'} p-4 rounded-xl`}>
+          <div className={`${isPendingTimeout ? 'text-app-warning' : 'text-app-negative'} text-sm`}>
+            {error}
+          </div>
         </div>
-        <button
-          onClick={onRetry}
-          className="w-full border border-tg-separator py-3 rounded-xl font-medium text-sm"
-        >
-          {t('settlement.tryAgain')}
-        </button>
+        {showTxInput ? (
+          <TxLinkInput onSubmit={onManualVerify} onRefresh={onRefresh} t={t} />
+        ) : (
+          <button
+            onClick={onRetry}
+            className="w-full border border-tg-separator py-3 rounded-xl font-medium text-sm"
+          >
+            {t('settlement.tryAgain')}
+          </button>
+        )}
       </div>
     );
   }
@@ -777,6 +825,46 @@ function CryptoSettlementUI({
           {truncateAddress(friendlyAddress)} &middot; {t('settlement.gasNote')}
         </div>
       )}
+    </div>
+  );
+}
+
+// --- Tx link input for manual verification ---
+
+function TxLinkInput({
+  onSubmit,
+  onRefresh,
+  t,
+}: {
+  onSubmit: (txLink: string) => void;
+  onRefresh: () => void;
+  t: (key: string) => string;
+}) {
+  const [txLink, setTxLink] = useState('');
+
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={onRefresh}
+        className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium text-sm"
+      >
+        {t('settlement.refreshStatus')}
+      </button>
+      <div className="text-center text-xs text-tg-hint py-1">{t('settlement.orPasteTx')}</div>
+      <input
+        type="text"
+        value={txLink}
+        onChange={(e) => setTxLink(e.target.value)}
+        placeholder={t('settlement.txLinkPlaceholder')}
+        className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-sm"
+      />
+      <button
+        onClick={() => txLink.trim() && onSubmit(txLink.trim())}
+        disabled={!txLink.trim()}
+        className="w-full border border-tg-separator py-3 rounded-xl font-medium text-sm disabled:opacity-40"
+      >
+        {t('settlement.verifyTx')}
+      </button>
     </div>
   );
 }

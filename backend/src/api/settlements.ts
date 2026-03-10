@@ -507,7 +507,16 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
 });
 
 // --- Confirm on-chain settlement (poll endpoint) ---
-settlementsApp.post('/settlements/:id/confirm', async (c) => {
+const confirmSchema = z.object({
+  txHash: z.string().max(200).optional(),
+});
+
+settlementsApp.post('/settlements/:id/confirm', zValidator('json', confirmSchema, (result, c) => {
+  // Allow empty body (polling without txHash)
+  if (!result.success) {
+    return c.json({ error: 'invalid_input', detail: 'Invalid request body' }, 400);
+  }
+}), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
   const settlementId = parseInt(c.req.param('id'), 10);
@@ -516,6 +525,8 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
   }
 
+  const body = c.req.valid('json');
+  const userTxHash = body?.txHash ? parseTxHash(body.txHash) : undefined;
   const currentUserId = session.userId;
 
   const [settlement] = await db
@@ -543,20 +554,6 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
   // Only check on-chain for payment_pending
   if (settlement.status !== 'payment_pending') {
     return c.json({ status: settlement.status, settlementId });
-  }
-
-  // Timeout check: rollback to open after 5 minutes
-  const pendingSince = new Date(settlement.updatedAt).getTime();
-  const now = Date.now();
-  const PENDING_TIMEOUT_MS = 5 * 60 * 1000;
-
-  if (now - pendingSince > PENDING_TIMEOUT_MS) {
-    // Atomic rollback — only if still payment_pending
-    await db
-      .update(settlements)
-      .set({ status: 'open', updatedAt: new Date().toISOString() })
-      .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')));
-    return c.json({ status: 'open', settlementId });
   }
 
   // Get debtor and creditor wallet addresses for verification
@@ -593,28 +590,47 @@ settlementsApp.post('/settlements/:id/confirm', async (c) => {
     }
   }
 
-  // Try to verify on-chain
-  const verification = await verifySettlementOnChain(
-    c.env,
-    settlement,
-    debtorInfo?.walletAddress ?? null,
-    creditorInfo.walletAddress,
-    verifyUsdtAmount,
-  );
+  const debtUsdt = verifyUsdtAmount ?? settlement.amount;
+
+  // Try to verify on-chain (use user-provided txHash if available)
+  const verification = userTxHash
+    ? await verifyByEventId(
+        c.env,
+        userTxHash,
+        debtorInfo?.walletAddress ?? null,
+        creditorInfo.walletAddress,
+        debtUsdt,
+      )
+    : await verifySettlementOnChain(
+        c.env,
+        settlement,
+        debtorInfo?.walletAddress ?? null,
+        creditorInfo.walletAddress,
+        verifyUsdtAmount,
+      );
 
   if (!verification.verified) {
+    // Only rollback to open after timeout AND failed on-chain check
+    const pendingSince = new Date(settlement.updatedAt).getTime();
+    const PENDING_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+    if (Date.now() - pendingSince > PENDING_TIMEOUT_MS) {
+      await db
+        .update(settlements)
+        .set({ status: 'open', updatedAt: new Date().toISOString() })
+        .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')));
+      return c.json({ status: 'open', settlementId });
+    }
     return c.json({ status: 'payment_pending', settlementId });
   }
 
-  const settledUsdt = verifyUsdtAmount ?? settlement.amount;
-  const settledCommission = calculateCommission(settledUsdt);
+  const settledCommission = calculateCommission(debtUsdt);
   // Atomic conditional update — only settle if still payment_pending
   const confirmed = await db
     .update(settlements)
     .set({
       status: 'settled_onchain',
       txHash: verification.txHash ?? null,
-      usdtAmount: settledUsdt,
+      usdtAmount: debtUsdt,
       commission: settledCommission,
       updatedAt: new Date().toISOString(),
     })
@@ -991,6 +1007,97 @@ function friendlyToRaw(friendly: string): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Parse a tx hash from user input — accepts:
+ * - Raw hex hash
+ * - Tonviewer URL: https://tonviewer.com/transaction/{hash}
+ * - Tonscan URL: https://tonscan.org/tx/{hash}
+ * - Tonkeeper redirect URL with encoded tonviewer link
+ */
+function parseTxHash(input: string): string {
+  const trimmed = input.trim();
+
+  // Try to extract from URL patterns
+  const tonviewerMatch = trimmed.match(/tonviewer\.com\/transaction\/([a-fA-F0-9]{64})/);
+  if (tonviewerMatch) return tonviewerMatch[1];
+
+  const tonscanMatch = trimmed.match(/tonscan\.org\/tx\/([a-fA-F0-9]{64})/);
+  if (tonscanMatch) return tonscanMatch[1];
+
+  // URL-encoded tonviewer link (e.g. from Tonkeeper redirect)
+  try {
+    const decoded = decodeURIComponent(trimmed);
+    const decodedMatch = decoded.match(/tonviewer\.com\/transaction\/([a-fA-F0-9]{64})/);
+    if (decodedMatch) return decodedMatch[1];
+  } catch {
+    // not a URL-encoded string
+  }
+
+  // Raw hex hash
+  if (/^[a-fA-F0-9]{64}$/.test(trimmed)) return trimmed;
+
+  return trimmed;
+}
+
+/**
+ * Verify a settlement by looking up a specific TONAPI event.
+ * Used when the user provides a transaction hash/link.
+ */
+async function verifyByEventId(
+  env: Env,
+  eventId: string,
+  debtorWallet: string | null,
+  creditorWallet: string,
+  debtUsdt: number,
+): Promise<{ verified: boolean; txHash?: string }> {
+  const baseUrl = tonapiBaseUrl(env);
+  try {
+    const resp = await fetch(`${baseUrl}/v2/events/${eventId}`, {
+      headers: tonapiHeaders(env),
+      signal: AbortSignal.timeout(10000),
+    });
+
+    if (!resp.ok) return { verified: false };
+
+    const event = (await resp.json()) as any;
+    if (!event.actions) return { verified: false };
+
+    const jettonActions = event.actions.filter(
+      (a: any) => a.type === 'JettonTransfer' && a.status === 'ok',
+    );
+
+    // Validate debtor if wallet known
+    if (debtorWallet) {
+      const debtorNorm = normalizeAddress(debtorWallet);
+      const hasValidSender = jettonActions.some((a: any) => {
+        const transfer = a.JettonTransfer;
+        if (!transfer) return false;
+        return normalizeAddress(transfer.sender?.address ?? '') === debtorNorm;
+      });
+      if (!hasValidSender) return { verified: false };
+    }
+
+    // Find outgoing transfer to creditor with matching amount
+    const creditorNorm = normalizeAddress(creditorWallet);
+    const matchingTransfer = jettonActions.find((a: any) => {
+      const transfer = a.JettonTransfer;
+      if (!transfer) return false;
+      const recipientNorm = normalizeAddress(transfer.recipient?.address ?? '');
+      if (recipientNorm !== creditorNorm) return false;
+      const transferAmount = parseInt(transfer.amount ?? '0', 10);
+      const tolerance = Math.max(1, Math.floor(debtUsdt * 0.02));
+      return Math.abs(transferAmount - debtUsdt) <= tolerance;
+    });
+
+    if (matchingTransfer) {
+      return { verified: true, txHash: event.event_id ?? eventId };
+    }
+  } catch {
+    // TONAPI error
+  }
+  return { verified: false };
 }
 
 // --- TONAPI helpers ---

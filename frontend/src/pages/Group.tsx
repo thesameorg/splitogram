@@ -182,13 +182,23 @@ export function Group() {
   async function handleExportCsv() {
     try {
       const blob = await api.exportGroupCsv(groupId);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${group?.name || 'transactions'}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
+      const filename = `${group?.name || 'transactions'}.csv`;
+      const file = new File([blob], filename, { type: 'text/csv' });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+      } else {
+        // Fallback: download directly
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err: any) {
+      // User cancelled share — not an error
+      if (err?.name === 'AbortError') return;
       console.error('Export failed:', err);
     }
   }
