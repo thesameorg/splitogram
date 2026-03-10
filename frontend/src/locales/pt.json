@@ -124,7 +124,9 @@
     "editPlaceholder": "Renomear",
     "editPlaceholderTitle": "Renomear Temporário",
     "sharePlaceholderInvite": "Convidar",
-    "emojiInputPlaceholder": "Digite qualquer emoji..."
+    "emojiInputPlaceholder": "Digite qualquer emoji...",
+    "showMore": "Mostrar mais {{count}}",
+    "showLess": "Mostrar menos"
   },
   "placeholder": {
     "claimBanner": "Você é uma dessas pessoas?",

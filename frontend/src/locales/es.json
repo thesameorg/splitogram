@@ -124,7 +124,9 @@
     "editPlaceholder": "Renombrar",
     "editPlaceholderTitle": "Renombrar temporal",
     "sharePlaceholderInvite": "Invitar",
-    "emojiInputPlaceholder": "Escribe cualquier emoji..."
+    "emojiInputPlaceholder": "Escribe cualquier emoji...",
+    "showMore": "Mostrar {{count}} más",
+    "showLess": "Mostrar menos"
   },
   "placeholder": {
     "claimBanner": "¿Eres una de estas personas?",

@@ -124,7 +124,9 @@
     "editPlaceholder": "नाम बदलें",
     "editPlaceholderTitle": "प्लेसहोल्डर का नाम बदलें",
     "sharePlaceholderInvite": "आमंत्रित करें",
-    "emojiInputPlaceholder": "कोई भी इमोजी टाइप करें..."
+    "emojiInputPlaceholder": "कोई भी इमोजी टाइप करें...",
+    "showMore": "{{count}} और दिखाएं",
+    "showLess": "कम दिखाएं"
   },
   "placeholder": {
     "claimBanner": "क्या आप इनमें से कोई हैं?",

@@ -126,7 +126,9 @@
     "editPlaceholder": "Переименовать",
     "editPlaceholderTitle": "Переименовать заглушку",
     "sharePlaceholderInvite": "Пригласить",
-    "emojiInputPlaceholder": "Введите любой эмодзи..."
+    "emojiInputPlaceholder": "Введите любой эмодзи...",
+    "showMore": "Показать ещё {{count}}",
+    "showLess": "Свернуть"
   },
   "placeholder": {
     "claimBanner": "Вы один из этих людей?",

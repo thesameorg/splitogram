@@ -93,6 +93,7 @@ export function GroupSettings() {
     name: string;
   } | null>(null);
   const [editPlaceholderName, setEditPlaceholderName] = useState('');
+  const [showAllMembers, setShowAllMembers] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useTelegramBackButton(true);
@@ -525,7 +526,14 @@ export function GroupSettings() {
           {t('groupSettings.members', { count: group.members.length })}
         </label>
         <div className="space-y-2">
-          {group.members.map((m) => (
+          {[...group.members]
+            .sort((a, b) => {
+              if (a.userId === currentUserId) return -1;
+              if (b.userId === currentUserId) return 1;
+              return 0;
+            })
+            .slice(0, showAllMembers ? undefined : 5)
+            .map((m) => (
             <div
               key={m.userId}
               className="flex items-center justify-between bg-tg-section p-3 rounded-xl border border-tg-separator"
@@ -580,6 +588,16 @@ export function GroupSettings() {
               </div>
             </div>
           ))}
+          {group.members.length > 5 && (
+            <button
+              onClick={() => setShowAllMembers(!showAllMembers)}
+              className="w-full py-2 text-sm text-tg-link font-medium"
+            >
+              {showAllMembers
+                ? t('groupSettings.showLess')
+                : t('groupSettings.showMore', { count: group.members.length - 5 })}
+            </button>
+          )}
         </div>
 
         {/* Add Placeholder button (admin only) */}

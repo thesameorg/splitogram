@@ -122,7 +122,9 @@
     "editPlaceholder": "Ganti nama",
     "editPlaceholderTitle": "Ganti Nama Sementara",
     "sharePlaceholderInvite": "Undang",
-    "emojiInputPlaceholder": "Ketik emoji apa saja..."
+    "emojiInputPlaceholder": "Ketik emoji apa saja...",
+    "showMore": "Tampilkan {{count}} lagi",
+    "showLess": "Tampilkan lebih sedikit"
   },
   "placeholder": {
     "claimBanner": "Apakah Anda salah satu dari orang-orang ini?",

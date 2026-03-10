@@ -122,7 +122,9 @@
     "editPlaceholder": "Đổi tên",
     "editPlaceholderTitle": "Đổi tên thành viên tạm",
     "sharePlaceholderInvite": "Mời",
-    "emojiInputPlaceholder": "Nhập emoji bất kỳ..."
+    "emojiInputPlaceholder": "Nhập emoji bất kỳ...",
+    "showMore": "Hiển thị thêm {{count}}",
+    "showLess": "Ẩn bớt"
   },
   "placeholder": {
     "claimBanner": "Bạn là một trong những người này?",

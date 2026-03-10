@@ -124,7 +124,9 @@
     "editPlaceholder": "Rinomina",
     "editPlaceholderTitle": "Rinomina segnaposto",
     "sharePlaceholderInvite": "Invita",
-    "emojiInputPlaceholder": "Digita qualsiasi emoji..."
+    "emojiInputPlaceholder": "Digita qualsiasi emoji...",
+    "showMore": "Mostra altri {{count}}",
+    "showLess": "Mostra meno"
   },
   "placeholder": {
     "claimBanner": "Sei una di queste persone?",

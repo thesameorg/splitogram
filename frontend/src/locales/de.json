@@ -124,7 +124,9 @@
     "editPlaceholder": "Umbenennen",
     "editPlaceholderTitle": "Platzhalter umbenennen",
     "sharePlaceholderInvite": "Einladen",
-    "emojiInputPlaceholder": "Beliebiges Emoji eingeben..."
+    "emojiInputPlaceholder": "Beliebiges Emoji eingeben...",
+    "showMore": "{{count}} weitere anzeigen",
+    "showLess": "Weniger anzeigen"
   },
   "placeholder": {
     "claimBanner": "Bist du eine dieser Personen?",

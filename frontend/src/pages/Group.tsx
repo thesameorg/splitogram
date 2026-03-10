@@ -60,7 +60,13 @@ export function Group() {
   const [showClaimPrompt, setShowClaimPrompt] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
   const [showGroupAvatar, setShowGroupAvatar] = useState(false);
-  const [userHasClaimed, setUserHasClaimed] = useState(false);
+  const [userHasClaimed, setUserHasClaimed] = useState(() => {
+    try {
+      return localStorage.getItem(`claimed_placeholder_${groupId}`) === '1';
+    } catch {
+      return false;
+    }
+  });
   const [showInviteNudge, setShowInviteNudge] = useState(false);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
 
@@ -126,7 +132,7 @@ export function Group() {
     if (!group || !currentUserId || searchParams.get('joined') !== '1') return;
     const hasDummies = group.members.some((m) => m.isDummy);
     const iAmDummy = group.members.find((m) => m.userId === currentUserId)?.isDummy;
-    if (hasDummies && !iAmDummy && currentUserRole !== 'admin') {
+    if (hasDummies && !iAmDummy && currentUserRole !== 'admin' && !userHasClaimed) {
       setShowClaimPrompt(true);
     }
     setShowWelcomeBanner(true);
@@ -208,12 +214,19 @@ export function Group() {
     setClaimError(null);
     try {
       const result = await api.claimPlaceholder(groupId, dummyUserId);
+      setUserHasClaimed(true);
+      try {
+        localStorage.setItem(`claimed_placeholder_${groupId}`, '1');
+      } catch {}
       setShowClaimPrompt(false);
       loadData();
       alert(t('placeholder.claimed', { name: result.dummyName }));
     } catch (err: any) {
       if (err?.errorCode === 'already_claimed') {
         setUserHasClaimed(true);
+        try {
+          localStorage.setItem(`claimed_placeholder_${groupId}`, '1');
+        } catch {}
       }
       setClaimError(err.message || 'Failed to claim placeholder');
     }

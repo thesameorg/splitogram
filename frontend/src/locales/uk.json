@@ -126,7 +126,9 @@
     "editPlaceholder": "Перейменувати",
     "editPlaceholderTitle": "Перейменувати тимчасового учасника",
     "sharePlaceholderInvite": "Запросити",
-    "emojiInputPlaceholder": "Введіть будь-який емодзі..."
+    "emojiInputPlaceholder": "Введіть будь-який емодзі...",
+    "showMore": "Показати ще {{count}}",
+    "showLess": "Згорнути"
   },
   "placeholder": {
     "claimBanner": "Ви одна з цих людей?",

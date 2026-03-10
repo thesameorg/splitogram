@@ -124,7 +124,9 @@
     "editPlaceholder": "Rename",
     "editPlaceholderTitle": "Rename Placeholder",
     "sharePlaceholderInvite": "Invite",
-    "emojiInputPlaceholder": "Type any emoji..."
+    "emojiInputPlaceholder": "Type any emoji...",
+    "showMore": "Show {{count}} more",
+    "showLess": "Show less"
   },
   "placeholder": {
     "claimBanner": "Are you one of these people?",
