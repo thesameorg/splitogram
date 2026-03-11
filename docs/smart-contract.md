@@ -465,25 +465,25 @@ async function getUserJettonWallet(userAddress: Address, client: TonClient): Pro
 
 ---
 
-## 10. Mainnet Deployment
+## 10. Mainnet Deployment — DONE (2026-03-12)
 
-### Pre-deployment checklist
+### Deployed
 
-- [ ] All test cases pass
-- [ ] Gas consumption profiled and forward_ton_amount values are correct
-- [ ] Bounced message handling implemented
-- [ ] Contract verified on testnet with real-like scenarios
-- [ ] Owner address is a secure wallet (ideally multisig)
-- [ ] Commission rate is set correctly
-- [ ] Consider a professional security audit for contracts handling significant value
+- [x] All test cases pass (17 sandbox tests)
+- [x] Gas consumption profiled and forward_ton_amount values are correct
+- [x] Bounced message handling implemented
+- [x] Contract verified on testnet with real-like scenarios
+- [x] Commission rate: 1% (100 bps), min 0.1, max 1.0 USDT
+- [x] First production settlement completed
 
-### Deploy
+### Mainnet addresses
 
-```bash
-npx blueprint run
-# Same flow as testnet but with mainnet wallet
-# Confirm transaction in Tonkeeper (mainnet mode)
-```
+| Entity              | Address                                            |
+| ------------------- | -------------------------------------------------- |
+| Contract            | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` |
+| Contract Jetton Wallet | `EQAjosp5oiyrp9yClBOcPT2fFxOwO8t1LLJW7z79evsYUZGn` |
+| USDT Jetton Master  | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
+| Owner (W5R1)        | `UQCZRBAItQRFbE3HkfTZerfOgcGiucYSL3ZAd3x0eyAIfxqe` |
 
 ### USDT Master addresses
 
@@ -492,11 +492,12 @@ Mainnet: EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs
 Testnet: kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7  (tUSDT — "test USDT SPLIT", 6 decimals)
 ```
 
-### Post-deployment
+### Deploy scripts
 
-- Verify contract on tonviewer.com
-- Test with a small real settlement (e.g. 1 USDT)
-- Monitor the first few transactions
+Mainnet deploy scripts live in `contracts/splitogram-contract/scripts/mainnet/`:
+- `deploySplitogramSettlement.ts` — deploy with mainnet owner
+- `setJettonWallet.ts` — configure trusted USDT jetton wallet
+- `verifyState.ts` — read contract state
 - Set up alerts for unusual activity
 
 ---

@@ -233,15 +233,15 @@ See `work_docs/research/5-i18n-approach.md` for full analysis.
 
 **Flow:** User A sends USDT to contract with recipient (User B) in `forward_payload` → contract splits into two outgoing Jetton transfers (remainder → B, commission → owner).
 
-**Key addresses (testnet):**
+**Key addresses (mainnet — live since 2026-03-12):**
 
 | Entity              | Address                                            |
 | ------------------- | -------------------------------------------------- |
-| Contract (v5)       | `EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW` |
-| tUSDT Jetton Master | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
-| Owner (Wallet C)    | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` |
+| Contract            | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` |
+| USDT Jetton Master  | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
+| Owner               | `UQCZRBAItQRFbE3HkfTZerfOgcGiucYSL3ZAd3x0eyAIfxqe` |
 
-**Mainnet USDT Master:** `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs`
+**Testnet contract (v4):** `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu`
 
 **Owner messages:** `UpdateCommission`, `WithdrawTon`, `SetJettonWallet`
 

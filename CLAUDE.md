@@ -106,7 +106,7 @@ SplitogramSettlement (Tact)  →  USDT settlement with commission split
 - **Frontend UI** is plain React + Tailwind + react-i18next (no component library — decided Phase 3). Theming via Telegram CSS variables mapped to `tg-*` Tailwind tokens.
 - **Image storage** is Cloudflare R2, served via Worker at `/r2/*` with Cloudflare Cache API edge caching + immutable browser caching. Client-side resize/compress via Canvas API (zero deps). One bucket with `avatars/`, `groups/`, `receipts/` prefixes.
 - **TON verification** via TONAPI REST API (plain `fetch`, no SDK on backend)
-- **Smart contract** is a Tact contract (`contracts/splitogram-contract/`) deployed on TON testnet. Receives USDT, takes 1% commission (min 0.1, max 1.0 USDT), forwards remainder to recipient. Built with Blueprint SDK, tested with `@ton/sandbox`.
+- **Smart contract** is a Tact contract (`contracts/splitogram-contract/`) deployed on TON mainnet. Receives USDT, takes 1% commission (min 0.1, max 1.0 USDT), forwards remainder to recipient. Built with Blueprint SDK, tested with `@ton/sandbox`. Mainnet contract: `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq`.
 
 ### Bun Workspaces
 
@@ -338,6 +338,6 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 - `docs/idea.md` — business overview and competitive landscape
 - `docs/smart-contract.md` — TON settlement contract manual
 - `docs/envs.md` — TON-related environment variables
-- `docs/mainnet-migration.md` — testnet → mainnet migration checklist
+- `docs/envs.md` — TON environment variables and network switching guide
 - `docs/TWA-checklist.md` — Telegram Mini App listing requirements
 - `work_docs/CODE_REVIEW.md` — code review findings (3 critical + 7 major all fixed, 8 minor remaining)

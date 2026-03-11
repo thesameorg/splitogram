@@ -6,13 +6,13 @@ Where each TON-related variable lives, what it does, and what to set.
 
 ## Overview
 
-| Variable                      | Secret? | Where it lives                              | Testnet value                                      |
+| Variable                      | Secret? | Where it lives                              | Production value (mainnet)                         |
 | ----------------------------- | ------- | ------------------------------------------- | -------------------------------------------------- |
 | `TONAPI_KEY`                  | Yes     | `.dev.vars`, GH secret, wrangler secret     | From [tonconsole.com](https://tonconsole.com)      |
-| `TON_NETWORK`                 | No      | `.dev.vars`, `wrangler.toml [vars]`, GH var | `testnet`                                          |
-| `USDT_MASTER_ADDRESS`         | No      | `.dev.vars`, `wrangler.toml [vars]`         | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
-| `SETTLEMENT_CONTRACT_ADDRESS` | No      | `.dev.vars`, `wrangler.toml [vars]`         | `EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW` |
-| `VITE_TON_NETWORK`            | No      | `.env`, GH var (Pages build)                | `testnet`                                          |
+| `TON_NETWORK`                 | No      | `.dev.vars`, `wrangler.toml [vars]`, GH var | `mainnet`                                          |
+| `USDT_MASTER_ADDRESS`         | No      | `.dev.vars`, `wrangler.toml [vars]`         | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
+| `SETTLEMENT_CONTRACT_ADDRESS` | No      | `.dev.vars`, `wrangler.toml [vars]`         | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` |
+| `VITE_TON_NETWORK`            | No      | `.env`, GH var (Pages build)                | `mainnet`                                          |
 
 ---
 
@@ -70,8 +70,8 @@ The deployed Splitogram settlement smart contract. Receives USDT, takes 1% commi
 
 | Network    | Address                                            | Notes                            |
 | ---------- | -------------------------------------------------- | -------------------------------- |
-| Testnet v5 | `EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW` | Current, validated (excess fix)  |
-| Mainnet    | TBD                                                | Deploy with mainnet owner wallet |
+| Testnet v4 | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` | Testnet, validated               |
+| Mainnet    | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` | Live since 2026-03-12            |
 
 **Where to set:**
 
@@ -110,22 +110,28 @@ Only set this if the manifest is hosted elsewhere. Normally not needed.
 
 ---
 
-## Switching to Mainnet
+## Switching Networks
 
-When ready to go live:
+Switching between mainnet and testnet is config-only — no code changes needed.
 
-1. **Deploy the contract to mainnet** (new address)
-2. **Update `wrangler.toml`:**
-   ```toml
-   TON_NETWORK = "mainnet"
-   USDT_MASTER_ADDRESS = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs"
-   SETTLEMENT_CONTRACT_ADDRESS = "<new mainnet contract address>"
-   ```
-3. **Update GH variable** `TON_NETWORK` to `mainnet` (for frontend build)
-4. **Ensure `TONAPI_KEY`** in GH secrets works for mainnet (it should — same key)
-5. Deploy. Done.
+| Variable                      | Mainnet                                            | Testnet                                            |
+| ----------------------------- | -------------------------------------------------- | -------------------------------------------------- |
+| `TON_NETWORK`                 | `mainnet`                                          | `testnet`                                          |
+| `USDT_MASTER_ADDRESS`         | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` |
+| `SETTLEMENT_CONTRACT_ADDRESS` | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` |
 
-No code changes needed. Just config.
+What each variable controls:
+
+- `TON_NETWORK` — TONAPI base URL (`tonapi.io` vs `testnet.tonapi.io`), explorer URLs (`tonviewer.com` vs `testnet.tonviewer.com`), TON Connect chain ID (`-239` vs `-3`)
+- `USDT_MASTER_ADDRESS` — Jetton Master for USDT balance lookups
+- `SETTLEMENT_CONTRACT_ADDRESS` — contract for settlement routing
+- `VITE_TON_NETWORK` (derived from GH variable `TON_NETWORK`) — testnet badge on frontend
+
+To switch, update all three in `wrangler.toml` `[vars]` + `.dev.vars` (local) + GH variable `TON_NETWORK` (CI/Pages build). Deploy. Done.
+
+Address files: `.envs/mainnet_addresses.json`, `.envs/testnet_addresses.json`.
+
+**Current production: mainnet** (live since 2026-03-12).
 
 ---
 
