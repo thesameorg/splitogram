@@ -436,7 +436,29 @@ app.delete('/me', async (c) => {
     .from(groupMembers)
     .where(eq(groupMembers.userId, user.id));
 
-  if (remainingMemberships.length > 0) {
+  // Check if any FK references exist (groups.createdBy, settlements, activity_log, etc.)
+  // Even with no remaining memberships, on-chain settlements and soft-deleted groups
+  // may still reference the user — we need a dummy to absorb those references.
+  const [fkCheck] = await db
+    .select({ cnt: sql<number>`COUNT(*)` })
+    .from(groups)
+    .where(eq(groups.createdBy, user.id));
+  const [settlementCheck] = await db
+    .select({ cnt: sql<number>`COUNT(*)` })
+    .from(settlements)
+    .where(sql`${settlements.fromUser} = ${user.id} OR ${settlements.toUser} = ${user.id}`);
+  const [activityCheck] = await db
+    .select({ cnt: sql<number>`COUNT(*)` })
+    .from(activityLog)
+    .where(sql`${activityLog.actorId} = ${user.id} OR ${activityLog.targetUserId} = ${user.id}`);
+
+  const hasDanglingRefs =
+    remainingMemberships.length > 0 ||
+    (fkCheck?.cnt ?? 0) > 0 ||
+    (settlementCheck?.cnt ?? 0) > 0 ||
+    (activityCheck?.cnt ?? 0) > 0;
+
+  if (hasDanglingRefs) {
     // Create ONE dummy user with deterministic telegramId for re-claim
     const dummyTelegramId = -Math.abs(user.telegramId);
     const [dummyUser] = await db
