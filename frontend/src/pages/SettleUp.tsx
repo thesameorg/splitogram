@@ -760,6 +760,8 @@ function CryptoSettlementUI({
 
   if (state === 'polling') {
     const elapsedSec = Math.floor(pollElapsed / 1000);
+    const senderAddr = walletConnected && friendlyAddress ? friendlyAddress : null;
+    const viewerBase = testnet ? 'https://testnet.tonviewer.com' : 'https://tonviewer.com';
     return (
       <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
         <div className="w-8 h-8 border-3 border-tg-button border-t-transparent rounded-full animate-spin mx-auto mb-3" />
@@ -767,6 +769,17 @@ function CryptoSettlementUI({
         <div className="text-xs text-tg-hint mt-1">
           {t('settlement.confirmingElapsed', { seconds: String(elapsedSec) })}
         </div>
+        {senderAddr && (
+          <a
+            href={`${viewerBase}/${senderAddr}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-tg-link mt-2"
+          >
+            <IconTon size={10} />
+            {t('settlement.viewWalletTxns')}
+          </a>
+        )}
       </div>
     );
   }

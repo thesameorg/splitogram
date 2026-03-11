@@ -242,6 +242,7 @@
     "orPasteTx": "o pega el enlace de tu transacción",
     "txLinkPlaceholder": "Pega un enlace de Tonviewer o Tonscan...",
     "verifyTx": "Verificar transacción",
+    "viewWalletTxns": "Ver transacciones",
     "txNotFound": "No se pudo verificar esta transacción. Revisa el enlace e inténtalo de nuevo.",
     "tryAgain": "Intentar de nuevo",
     "apiUnavailable": "La API de la blockchain no está disponible temporalmente. Aún puedes intentar pagar.",

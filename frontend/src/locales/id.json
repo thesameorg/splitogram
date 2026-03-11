@@ -240,6 +240,7 @@
     "orPasteTx": "atau tempel tautan transaksi Anda",
     "txLinkPlaceholder": "Tempel tautan Tonviewer atau Tonscan...",
     "verifyTx": "Verifikasi Transaksi",
+    "viewWalletTxns": "Lihat transaksi dompet",
     "txNotFound": "Tidak dapat memverifikasi transaksi ini. Periksa tautan dan coba lagi.",
     "tryAgain": "Coba Lagi",
     "apiUnavailable": "API blockchain sementara tidak tersedia. Anda tetap bisa mencoba membayar.",
