@@ -71,6 +71,10 @@ export function Account() {
   } = useTonWallet();
 
   const [walletVersion, setWalletVersion] = useState<string | null>(null);
+  const [showBalances, setShowBalances] = useState(false);
+  const [tonBalance, setTonBalance] = useState<string | null>(null);
+  const [usdtBalance, setUsdtBalance] = useState<string | null>(null);
+  const [balancesLoading, setBalancesLoading] = useState(false);
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
@@ -89,6 +93,9 @@ export function Account() {
   useEffect(() => {
     if (!rawAddress) {
       setWalletVersion(null);
+      setShowBalances(false);
+      setTonBalance(null);
+      setUsdtBalance(null);
       return;
     }
     const tonapiBase =
@@ -105,6 +112,54 @@ export function Account() {
       })
       .catch(() => setWalletVersion(null));
   }, [rawAddress]);
+
+  async function fetchBalances() {
+    if (!rawAddress) return;
+    setBalancesLoading(true);
+    const tonapiBase =
+      config.tonNetwork === 'mainnet' ? 'https://tonapi.io' : 'https://testnet.tonapi.io';
+    const usdtMaster =
+      config.tonNetwork === 'mainnet'
+        ? 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs'
+        : 'kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7';
+    try {
+      const [accRes, jettonRes] = await Promise.all([
+        fetch(`${tonapiBase}/v2/accounts/${rawAddress}`, { signal: AbortSignal.timeout(5000) }),
+        fetch(`${tonapiBase}/v2/accounts/${rawAddress}/jettons/${usdtMaster}`, {
+          signal: AbortSignal.timeout(5000),
+        }),
+      ]);
+      if (accRes.ok) {
+        const acc = await accRes.json();
+        if ((acc as any).balance != null) {
+          const ton = Number((acc as any).balance) / 1e9;
+          setTonBalance(ton.toFixed(ton < 0.01 ? 4 : 2));
+        }
+      }
+      if (jettonRes.ok) {
+        const jet = await jettonRes.json();
+        const decimals = (jet as any).jetton?.decimals ?? 6;
+        const usdt = Number((jet as any).balance ?? 0) / Math.pow(10, decimals);
+        setUsdtBalance(usdt.toFixed(2));
+      } else {
+        setUsdtBalance('0');
+      }
+    } catch {
+      setTonBalance(null);
+      setUsdtBalance(null);
+    } finally {
+      setBalancesLoading(false);
+    }
+  }
+
+  function toggleBalances() {
+    if (showBalances) {
+      setShowBalances(false);
+    } else {
+      setShowBalances(true);
+      fetchBalances();
+    }
+  }
 
   async function handleSave() {
     if (!editName.trim() || saving) return;
@@ -408,30 +463,71 @@ export function Account() {
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.wallet')}</label>
         {walletConnected ? (
-          <div className="flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator">
-            <div>
-              <span className="font-medium">{truncateAddress(friendlyAddress)}</span>
-              {walletVersion && (
-                <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-tg-secondary-bg text-tg-hint">
-                  {walletVersion}
-                </span>
-              )}
-              {config.tonNetwork === 'testnet' && (
-                <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-app-warning-bg text-app-warning">
-                  testnet
-                </span>
-              )}
+          <div className="p-3 bg-tg-section rounded-xl border border-tg-separator">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{truncateAddress(friendlyAddress)}</span>
+                {walletVersion && (
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-tg-secondary-bg text-tg-hint">
+                    {walletVersion}
+                  </span>
+                )}
+                {config.tonNetwork === 'testnet' && (
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-app-warning-bg text-app-warning">
+                    testnet
+                  </span>
+                )}
+                <button
+                  onClick={toggleBalances}
+                  className="p-1 text-tg-hint hover:text-tg-text transition-colors"
+                  title={showBalances ? t('account.hideBalances') : t('account.showBalances')}
+                >
+                  {showBalances ? (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                      <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  if (window.confirm(t('account.confirmDisconnectWallet'))) {
+                    disconnect();
+                  }
+                }}
+                className="text-tg-destructive text-sm font-medium"
+              >
+                {t('account.disconnectWallet')}
+              </button>
             </div>
-            <button
-              onClick={() => {
-                if (window.confirm(t('account.confirmDisconnectWallet'))) {
-                  disconnect();
-                }
-              }}
-              className="text-tg-destructive text-sm font-medium"
-            >
-              {t('account.disconnectWallet')}
-            </button>
+            {showBalances && (
+              <div className="flex gap-4 mt-2 pt-2 border-t border-tg-separator text-sm">
+                {balancesLoading ? (
+                  <span className="text-tg-hint">...</span>
+                ) : (
+                  <>
+                    {tonBalance !== null && (
+                      <span className="text-tg-hint">
+                        <span className="font-medium text-tg-text">{tonBalance}</span> TON
+                      </span>
+                    )}
+                    {usdtBalance !== null && (
+                      <span className="text-tg-hint">
+                        <span className="font-medium text-tg-text">{usdtBalance}</span> USDT
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <button
@@ -441,6 +537,29 @@ export function Account() {
             {t('account.connectWallet')}
           </button>
         )}
+      </div>
+
+      {/* Channel */}
+      <div className="mb-4">
+        <button
+          onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/splitogramm')}
+          className="w-full flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator text-left"
+        >
+          <span className="font-medium">{t('account.channel')}</span>
+          <svg
+            className="w-4 h-4 text-tg-hint"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </button>
       </div>
 
       {/* Legal */}
