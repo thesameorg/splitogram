@@ -653,6 +653,20 @@ export function Account() {
       {/* Version */}
       <div className="text-center text-xs text-tg-hint/50 mt-2 mb-2">v{__APP_VERSION__}</div>
 
+      {/* DEBUG: Temporary env check — remove next build */}
+      {userCtx?.isAdmin && (
+        <div className="mt-4 p-3 bg-gray-100 rounded-xl text-xs font-mono break-all space-y-1">
+          <div className="font-bold text-gray-600 mb-2">Build-time env vars:</div>
+          <div>VITE_TG_ANALYTICS_TOKEN: <span className="text-blue-600">{import.meta.env.VITE_TG_ANALYTICS_TOKEN || '(empty)'}</span></div>
+          <div>VITE_WORKER_URL: <span className="text-blue-600">{import.meta.env.VITE_WORKER_URL || '(empty)'}</span></div>
+          <div>VITE_TELEGRAM_BOT_USERNAME: <span className="text-blue-600">{import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '(empty)'}</span></div>
+          <div>VITE_TON_NETWORK: <span className="text-blue-600">{import.meta.env.VITE_TON_NETWORK || '(empty)'}</span></div>
+          <div>MODE: <span className="text-blue-600">{import.meta.env.MODE}</span></div>
+          <div>PROD: <span className="text-blue-600">{String(import.meta.env.PROD)}</span></div>
+          <div>window.telegramAnalytics: <span className="text-blue-600">{typeof (window as any).telegramAnalytics}</span></div>
+        </div>
+      )}
+
       {/* Language Picker Bottom Sheet */}
       <BottomSheet
         open={showLangPicker}
