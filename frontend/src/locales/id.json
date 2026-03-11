@@ -215,7 +215,8 @@
     "deleteConfirmFinal": "YA, SAYA YAKIN — HAPUS",
     "deletedTitle": "Akun Dihapus",
     "deletedMessage": "Akun Anda telah dihapus. Anda bisa menutup aplikasi sekarang.",
-    "closeApp": "Tutup"
+    "closeApp": "Tutup",
+    "walletNetworkMismatch": "Dompet ini ada di jaringan yang salah. Hubungkan dompet {{network}}."
   },
   "settlement": {
     "payWithUsdt": "Bayar dengan USDT di TON",

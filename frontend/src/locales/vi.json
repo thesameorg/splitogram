@@ -215,7 +215,8 @@
     "deleteConfirmFinal": "CÓ, TÔI CHẮC CHẮN — XÓA",
     "deletedTitle": "Tài khoản đã xóa",
     "deletedMessage": "Tài khoản của bạn đã bị xóa. Bạn có thể đóng ứng dụng ngay bây giờ.",
-    "closeApp": "Đóng"
+    "closeApp": "Đóng",
+    "walletNetworkMismatch": "Ví này ở sai mạng. Vui lòng kết nối ví {{network}}."
   },
   "settlement": {
     "payWithUsdt": "Thanh toán bằng USDT trên TON",

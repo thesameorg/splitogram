@@ -227,7 +227,8 @@
     "deleteConfirmFinal": "YES, I'M SURE — DELETE",
     "deletedTitle": "Account Deleted",
     "deletedMessage": "Your account has been deleted. You can close this app now.",
-    "closeApp": "Close"
+    "closeApp": "Close",
+    "walletNetworkMismatch": "This wallet is on the wrong network. Please connect a {{network}} wallet."
   },
   "settlement": {
     "payWithUsdt": "Pay with USDT on TON",

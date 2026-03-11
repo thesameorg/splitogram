@@ -217,7 +217,8 @@
     "deleteConfirmFinal": "SIM, TENHO CERTEZA — EXCLUIR",
     "deletedTitle": "Conta excluída",
     "deletedMessage": "Sua conta foi excluída. Você pode fechar o app agora.",
-    "closeApp": "Fechar"
+    "closeApp": "Fechar",
+    "walletNetworkMismatch": "Esta carteira está na rede errada. Conecte uma carteira {{network}}."
   },
   "settlement": {
     "payWithUsdt": "Pagar com USDT na TON",

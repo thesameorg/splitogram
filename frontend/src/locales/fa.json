@@ -217,7 +217,8 @@
     "deleteConfirmFinal": "بله، مطمئنم — حذف کن",
     "deletedTitle": "حساب حذف شد",
     "deletedMessage": "حساب شما حذف شده است. اکنون می‌توانید برنامه را ببندید.",
-    "closeApp": "بستن"
+    "closeApp": "بستن",
+    "walletNetworkMismatch": "این کیف پول در شبکه اشتباهی است. لطفاً یک کیف پول {{network}} متصل کنید."
   },
   "settlement": {
     "payWithUsdt": "پرداخت با USDT در TON",

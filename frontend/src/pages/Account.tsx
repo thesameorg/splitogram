@@ -68,6 +68,8 @@ export function Account() {
     friendlyAddress,
     openModal,
     disconnect,
+    networkMismatch,
+    clearNetworkMismatch,
   } = useTonWallet();
 
   const [walletVersion, setWalletVersion] = useState<string | null>(null);
@@ -353,6 +355,14 @@ export function Account() {
 
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
       {success && <SuccessBanner message={success} onDismiss={() => setSuccess(null)} />}
+      {networkMismatch && (
+        <ErrorBanner
+          message={t('account.walletNetworkMismatch', {
+            network: config.tonNetwork === 'mainnet' ? 'mainnet' : 'testnet',
+          })}
+          onDismiss={clearNetworkMismatch}
+        />
+      )}
 
       {/* Avatar */}
       <div className="flex flex-col items-center mb-6">

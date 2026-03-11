@@ -217,7 +217,8 @@
     "deleteConfirmFinal": "SÍ, ESTOY SEGURO — ELIMINAR",
     "deletedTitle": "Cuenta eliminada",
     "deletedMessage": "Tu cuenta ha sido eliminada. Puedes cerrar la app ahora.",
-    "closeApp": "Cerrar"
+    "closeApp": "Cerrar",
+    "walletNetworkMismatch": "Esta billetera está en la red incorrecta. Conecta una billetera {{network}}."
   },
   "settlement": {
     "payWithUsdt": "Pagar con USDT en TON",

@@ -219,7 +219,8 @@
     "deleteConfirmFinal": "ДА, Я УВЕРЕН — УДАЛИТЬ",
     "deletedTitle": "Аккаунт удалён",
     "deletedMessage": "Ваш аккаунт был удалён. Теперь вы можете закрыть приложение.",
-    "closeApp": "Закрыть"
+    "closeApp": "Закрыть",
+    "walletNetworkMismatch": "Этот кошелёк в неправильной сети. Подключите кошелёк {{network}}."
   },
   "settlement": {
     "payWithUsdt": "Оплатить в USDT через TON",

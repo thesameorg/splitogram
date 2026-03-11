@@ -219,7 +219,8 @@
     "deleteConfirmFinal": "ТАК, Я ВПЕВНЕНИЙ — ВИДАЛИТИ",
     "deletedTitle": "Акаунт видалено",
     "deletedMessage": "Ваш акаунт було видалено. Тепер ви можете закрити додаток.",
-    "closeApp": "Закрити"
+    "closeApp": "Закрити",
+    "walletNetworkMismatch": "Цей гаманець у неправильній мережі. Підключіть гаманець {{network}}."
   },
   "settlement": {
     "payWithUsdt": "Оплатити в USDT через TON",
