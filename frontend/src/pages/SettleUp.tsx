@@ -44,12 +44,15 @@ export function SettleUp() {
   const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
   const [reportImageKey, setReportImageKey] = useState<string | null>(null);
   const [showCryptoInfo, setShowCryptoInfo] = useState(false);
+  const [manualSuccess, setManualSuccess] = useState(false);
+  const [paidAmountStr, setPaidAmountStr] = useState(''); // formatted amount shown on success screen
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Crypto settlement state
   const [cryptoState, setCryptoState] = useState<CryptoState>('idle');
   const [cryptoError, setCryptoError] = useState<string | null>(null);
   const [txParams, setTxParams] = useState<SettlementTxParams | null>(null);
+  const [cryptoCustomAmount, setCryptoCustomAmount] = useState<number | undefined>(undefined);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const {
@@ -136,7 +139,9 @@ export function SettleUp() {
         await api.uploadSettlementReceipt(settlementId, processed.blob, thumb.blob);
       }
       setSettlement((prev) => (prev ? { ...prev, status: 'settled_external' as const } : prev));
-      setTimeout(() => navigate(-1), 1000);
+      setPaidAmountStr(formatAmount(microAmount, settlement!.currency));
+      setManualSuccess(true);
+      setTimeout(() => navigate(-1), 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to mark as settled');
     } finally {
@@ -146,17 +151,35 @@ export function SettleUp() {
 
   // --- Crypto settlement flow ---
 
+  // Parse current amountStr to micro-units; returns undefined if same as settlement amount
+  function getCustomAmountMicro(): number | undefined {
+    const parsed = parseFloat(amountStr);
+    if (isNaN(parsed) || parsed <= 0) return undefined;
+    const micro = Math.round(parsed * 1_000_000);
+    return micro !== settlement!.amount ? micro : undefined;
+  }
+
   async function handlePayWithUsdt() {
     setCryptoError(null);
+
+    // Validate amount before proceeding
+    const parsed = parseFloat(amountStr);
+    if (isNaN(parsed) || parsed <= 0) {
+      setCryptoError(t('settleUp.invalidAmount'));
+      setCryptoState('error');
+      return;
+    }
 
     if (!walletConnected || !rawAddress) {
       openModal();
       return;
     }
 
+    const customAmount = getCustomAmountMicro();
+    setCryptoCustomAmount(customAmount);
     setCryptoState('preflight');
     try {
-      const params = await api.getSettlementTx(settlementId, rawAddress);
+      const params = await api.getSettlementTx(settlementId, rawAddress, customAmount);
       console.log('[settlement:preflight]', {
         settlementId,
         from: rawAddress,
@@ -239,7 +262,7 @@ export function SettleUp() {
 
       // Transaction sent — notify backend and start polling
       try {
-        await api.verifySettlement(settlementId, result.boc);
+        await api.verifySettlement(settlementId, result.boc, cryptoCustomAmount);
       } catch {
         // Backend may fail to receive, but tx is already on-chain
       }
@@ -329,6 +352,7 @@ export function SettleUp() {
     setCryptoState('idle');
     setCryptoError(null);
     setTxParams(null);
+    setCryptoCustomAmount(undefined);
   }
 
   async function handleCancelPending() {
@@ -524,6 +548,17 @@ export function SettleUp() {
 
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
+      {/* Manual settlement success */}
+      {manualSuccess && (
+        <div className="bg-app-positive-bg p-8 rounded-2xl text-center mb-6">
+          <div className="text-5xl mb-3">&#127881;</div>
+          <div className="text-app-positive font-bold text-xl mb-1">{t('settleUp.settled')}</div>
+          <div className="text-app-positive/70 text-sm">
+            {paidAmountStr}
+          </div>
+        </div>
+      )}
+
       {/* Crypto settlement section — debtor only, not settled */}
       {!isSettled && isDebtor && (
         <div className="mb-6">
@@ -542,6 +577,10 @@ export function SettleUp() {
             isTestnet={isTestnet}
             pollElapsed={pollElapsed}
             pendingSince={isPending ? settlement.updatedAt : null}
+            amountStr={amountStr}
+            onAmountChange={(v) => setAmountStr(sanitizeDecimalInput(v))}
+            currencySymbol={getCurrency(settlement.currency).symbol}
+            debtAmount={formatAmount(settlement.amount, settlement.currency)}
             onPay={handlePayWithUsdt}
             onConfirm={handleConfirmPayment}
             onRetry={handleRetry}
@@ -563,26 +602,29 @@ export function SettleUp() {
             </div>
           )}
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1 text-tg-hint">
-                {t('settleUp.amount')}
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-tg-hint">
-                  {getCurrency(settlement.currency).symbol}
-                </span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={amountStr}
-                  onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
-                  className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
-                />
+            {/* Amount input — only for creditor; debtor sees it in the crypto section above */}
+            {!isDebtor && (
+              <div>
+                <label className="block text-sm font-medium mb-1 text-tg-hint">
+                  {t('settleUp.amount')}
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-tg-hint">
+                    {getCurrency(settlement.currency).symbol}
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={amountStr}
+                    onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
+                    className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
+                  />
+                </div>
+                <div className="text-xs text-tg-hint mt-1">
+                  {t('settleUp.debtAmount')}: {formatAmount(settlement.amount, settlement.currency)}
+                </div>
               </div>
-              <div className="text-xs text-tg-hint mt-1">
-                {t('settleUp.debtAmount')}: {formatAmount(settlement.amount, settlement.currency)}
-              </div>
-            </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-1 text-tg-hint">
@@ -596,6 +638,11 @@ export function SettleUp() {
                 className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
                 maxLength={500}
               />
+              {!comment.trim() && !receiptFile && (
+                <div className="text-xs text-tg-hint mt-1">
+                  {t('settleUp.noteOrReceiptRequired')}
+                </div>
+              )}
             </div>
 
             {/* Receipt attachment */}
@@ -641,7 +688,7 @@ export function SettleUp() {
                   : t('settleUp.confirmMarkReceived');
                 if (window.confirm(msg)) handleMarkSettled();
               }}
-              disabled={submitting}
+              disabled={submitting || (!comment.trim() && !receiptFile)}
               className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium disabled:opacity-50"
             >
               {submitting
@@ -731,6 +778,10 @@ function CryptoSettlementUI({
   isTestnet: testnet,
   pollElapsed,
   pendingSince,
+  amountStr,
+  onAmountChange,
+  currencySymbol,
+  debtAmount,
   onPay,
   onConfirm,
   onRetry,
@@ -754,6 +805,10 @@ function CryptoSettlementUI({
   isTestnet: boolean;
   pollElapsed: number;
   pendingSince: string | null;
+  amountStr: string;
+  onAmountChange: (value: string) => void;
+  currencySymbol: string;
+  debtAmount: string;
   onPay: () => void;
   onConfirm: () => void;
   onRetry: () => void;
@@ -768,7 +823,6 @@ function CryptoSettlementUI({
   const canCancel =
     pendingSince && Date.now() - new Date(pendingSince).getTime() > CANCEL_THRESHOLD_MS;
   if (state === 'success') {
-    // TODO: replace with Lottie celebration animation
     return (
       <div className="bg-app-positive-bg p-8 rounded-2xl text-center">
         <div className="text-5xl mb-3">&#127881;</div>
@@ -923,7 +977,29 @@ function CryptoSettlementUI({
 
   // idle state
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {/* Editable amount */}
+      <div>
+        <label className="block text-sm font-medium mb-1 text-tg-hint">
+          {t('settleUp.amount')}
+        </label>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-tg-hint">
+            {currencySymbol}
+          </span>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={amountStr}
+            onChange={(e) => onAmountChange(e.target.value)}
+            className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
+          />
+        </div>
+        <div className="text-xs text-tg-hint mt-1">
+          {t('settleUp.debtAmount')}: {debtAmount}
+        </div>
+      </div>
+
       <div className="flex gap-2">
         <button
           onClick={onPay}

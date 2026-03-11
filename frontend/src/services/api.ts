@@ -489,13 +489,16 @@ export const api = {
       method: 'DELETE',
     }),
 
-  getSettlementTx: (id: number, senderAddress: string) =>
-    apiRequest<SettlementTxParams>(`/api/v1/settlements/${id}/tx?senderAddress=${senderAddress}`),
+  getSettlementTx: (id: number, senderAddress: string, customAmount?: number) => {
+    let url = `/api/v1/settlements/${id}/tx?senderAddress=${senderAddress}`;
+    if (customAmount != null) url += `&amount=${customAmount}`;
+    return apiRequest<SettlementTxParams>(url);
+  },
 
-  verifySettlement: (id: number, boc: string) =>
+  verifySettlement: (id: number, boc: string, customAmount?: number) =>
     apiRequest<{ status: string; detail?: string; settlementId: number }>(
       `/api/v1/settlements/${id}/verify`,
-      { method: 'POST', body: JSON.stringify({ boc }) },
+      { method: 'POST', body: JSON.stringify({ boc, amount: customAmount }) },
     ),
 
   confirmSettlement: (id: number, txHash?: string) =>

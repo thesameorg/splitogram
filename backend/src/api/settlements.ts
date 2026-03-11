@@ -264,6 +264,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   const session = c.get('session');
   const settlementId = parseInt(c.req.param('id'), 10);
   const senderAddress = c.req.query('senderAddress');
+  const customAmountStr = c.req.query('amount');
 
   if (isNaN(settlementId)) {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
@@ -271,6 +272,15 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
 
   if (!senderAddress) {
     return c.json({ error: 'missing_param', detail: 'senderAddress query param required' }, 400);
+  }
+
+  // Optional custom amount override (micro-units in group currency)
+  let customAmount: number | undefined;
+  if (customAmountStr) {
+    customAmount = parseInt(customAmountStr, 10);
+    if (isNaN(customAmount) || customAmount <= 0) {
+      return c.json({ error: 'invalid_amount', detail: 'Amount must be a positive integer' }, 400);
+    }
   }
 
   const currentUserId = session.userId;
@@ -325,8 +335,11 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
 
   const groupCurrency = group?.currency ?? 'USD';
 
+  // Use custom amount if provided, otherwise use settlement amount
+  const effectiveAmount = customAmount ?? settlement.amount;
+
   // Convert group currency amount to USDT (micro-units)
-  let settlementAmountUsdt = settlement.amount; // default: same as group amount (USD groups)
+  let settlementAmountUsdt = effectiveAmount; // default: same as group amount (USD groups)
   if (groupCurrency !== 'USD') {
     const ratesData = await getExchangeRates(c.env.KV);
     if (!ratesData) {
@@ -335,7 +348,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
         503,
       );
     }
-    const converted = convertToMicroUsdt(settlement.amount, groupCurrency, ratesData.rates);
+    const converted = convertToMicroUsdt(effectiveAmount, groupCurrency, ratesData.rates);
     if (converted === null) {
       return c.json(
         { error: 'unsupported_currency', detail: `Cannot convert ${groupCurrency} to USDT` },
@@ -514,7 +527,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     amount: settlementAmountUsdt, // micro-USDT (debt converted to USD)
     totalAmount, // micro-USDT (debt + commission — what payer sends)
     commission, // micro-USDT
-    originalAmount: settlement.amount, // micro-units in group currency
+    originalAmount: effectiveAmount, // micro-units in group currency
     originalCurrency: groupCurrency,
     recipientAddress: creditor.walletAddress,
     contractAddress,
@@ -532,13 +545,14 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
 // --- Verify settlement on-chain ---
 const verifySchema = z.object({
   boc: z.string().optional(),
+  amount: z.number().int().positive().optional(), // custom amount override (micro-units, group currency)
 });
 
 settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
   const settlementId = parseInt(c.req.param('id'), 10);
-  const { boc } = c.req.valid('json');
+  const { boc, amount: customAmount } = c.req.valid('json');
 
   if (isNaN(settlementId)) {
     return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
@@ -567,20 +581,29 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
     );
   }
 
+  const effectiveAmount = customAmount ?? settlement.amount;
+
   console.log('[settlement:verify]', {
     settlementId,
     fromUser: settlement.fromUser,
     toUser: settlement.toUser,
-    amount: settlement.amount,
+    amount: effectiveAmount,
+    originalAmount: settlement.amount,
+    customAmount: customAmount ?? null,
     currentStatus: settlement.status,
     hasBoc: !!boc,
   });
 
   // Atomic conditional update — only transition from 'open' to 'payment_pending'
+  // If custom amount provided, also update settlement amount
   if (settlement.status === 'open') {
     const updated = await db
       .update(settlements)
-      .set({ status: 'payment_pending', updatedAt: new Date().toISOString() })
+      .set({
+        status: 'payment_pending',
+        amount: effectiveAmount,
+        updatedAt: new Date().toISOString(),
+      })
       .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'open')))
       .returning({ id: settlements.id });
 
