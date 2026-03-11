@@ -17,7 +17,6 @@
 import {
   verifyByEventId,
   verifySettlementOnChain,
-  verifyViaTrace,
   tonapiBaseUrl,
   tonapiHeaders,
   parseTxHash,
@@ -107,11 +106,8 @@ async function fetchEvent(eventId: string) {
     }
   }
 
-  // If in_progress, also run trace verification
   if (event.in_progress) {
-    console.log(`\n  ** Event is in_progress — running trace fallback **`);
-    const trace = await verifyViaTrace(env, eventId);
-    console.log(`  Trace: allSucceeded=${trace.allSucceeded}  txCount=${trace.txCount}`);
+    console.log(`\n  ** Event is in_progress — verification will be blocked **`);
   }
 
   return event;
