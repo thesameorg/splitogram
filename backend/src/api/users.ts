@@ -463,14 +463,30 @@ app.delete('/me', async (c) => {
     // Create ONE dummy user with deterministic telegramId for re-claim
     const dummyTelegramId = -Math.abs(user.telegramId);
     const dummyDisplayName = `(${user.displayName})`;
-    const [dummyUser] = await db
-      .insert(users)
-      .values({
-        telegramId: dummyTelegramId,
-        displayName: dummyDisplayName,
-        isDummy: true,
-      })
-      .returning();
+
+    // Reuse existing dummy if one already exists (e.g., previous deletion cycle)
+    const [existingDummy] = await db
+      .select()
+      .from(users)
+      .where(eq(users.telegramId, dummyTelegramId));
+
+    let dummyUser: typeof existingDummy;
+    if (existingDummy) {
+      await db
+        .update(users)
+        .set({ displayName: dummyDisplayName })
+        .where(eq(users.id, existingDummy.id));
+      dummyUser = { ...existingDummy, displayName: dummyDisplayName };
+    } else {
+      [dummyUser] = await db
+        .insert(users)
+        .values({
+          telegramId: dummyTelegramId,
+          displayName: dummyDisplayName,
+          isDummy: true,
+        })
+        .returning();
+    }
 
     // Add dummy to all remaining groups
     for (const m of remainingMemberships) {
