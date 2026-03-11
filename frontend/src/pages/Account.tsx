@@ -655,15 +655,49 @@ export function Account() {
 
       {/* DEBUG: Temporary env check — remove next build */}
       {userCtx?.isAdmin && (
-        <div className="mt-4 p-3 bg-gray-100 rounded-xl text-xs font-mono break-all space-y-1">
-          <div className="font-bold text-gray-600 mb-2">Build-time env vars:</div>
-          <div>VITE_TG_ANALYTICS_TOKEN: <span className="text-blue-600">{import.meta.env.VITE_TG_ANALYTICS_TOKEN || '(empty)'}</span></div>
-          <div>VITE_WORKER_URL: <span className="text-blue-600">{import.meta.env.VITE_WORKER_URL || '(empty)'}</span></div>
-          <div>VITE_TELEGRAM_BOT_USERNAME: <span className="text-blue-600">{import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '(empty)'}</span></div>
-          <div>VITE_TON_NETWORK: <span className="text-blue-600">{import.meta.env.VITE_TON_NETWORK || '(empty)'}</span></div>
-          <div>MODE: <span className="text-blue-600">{import.meta.env.MODE}</span></div>
-          <div>PROD: <span className="text-blue-600">{String(import.meta.env.PROD)}</span></div>
-          <div>window.telegramAnalytics: <span className="text-blue-600">{typeof (window as any).telegramAnalytics}</span></div>
+        <div className="mt-4 rounded-xl overflow-hidden border border-tg-separator">
+          <div className="bg-tg-secondary-bg px-3 py-2 text-xs font-bold text-tg-hint">Debug Info</div>
+          <div className="divide-y divide-tg-separator text-xs">
+            {[
+              ['Analytics token', import.meta.env.VITE_TG_ANALYTICS_TOKEN
+                ? `${import.meta.env.VITE_TG_ANALYTICS_TOKEN.slice(0, 20)}...`
+                : '(empty)'],
+              ['Analytics SDK', (() => {
+                const ta = (window as any).telegramAnalytics;
+                if (!ta) return 'not loaded';
+                return `loaded (keys: ${Object.keys(ta).join(', ')})`;
+              })()],
+              ['Worker URL', import.meta.env.VITE_WORKER_URL || '(empty)'],
+              ['Bot username', import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '(empty)'],
+              ['TON network', import.meta.env.VITE_TON_NETWORK || '(empty)'],
+              ['Build mode', `${import.meta.env.MODE} (prod=${import.meta.env.PROD})`],
+              ['TG WebApp', window.Telegram?.WebApp ? 'loaded' : 'missing'],
+              ['TG version', (window.Telegram?.WebApp as any)?.version ?? 'n/a'],
+              ['TG platform', (window.Telegram?.WebApp as any)?.platform ?? 'n/a'],
+              ['TG initData', window.Telegram?.WebApp?.initData
+                ? `${window.Telegram.WebApp.initData.length} chars`
+                : '(empty)'],
+              ['TonConnect', (() => {
+                try {
+                  const tc = (window as any).tonConnectUI;
+                  if (tc) return `instance found, connected=${tc.connected}`;
+                  return 'no global instance';
+                } catch { return 'error checking'; }
+              })()],
+              ['Wallet', walletConnected
+                ? `${walletVersion ?? '?'} ${friendlyAddress?.slice(0, 8)}...`
+                : 'not connected'],
+              ['User agent', navigator.userAgent.slice(0, 60) + '...'],
+              ['Screen', `${window.innerWidth}x${window.innerHeight} (dpr ${window.devicePixelRatio})`],
+              ['Locale', `${navigator.language} / i18n=${i18n.language}`],
+              ['Time', new Date().toISOString()],
+            ].map(([label, value]) => (
+              <div key={label as string} className="flex justify-between gap-2 px-3 py-2">
+                <span className="text-tg-hint shrink-0">{label}</span>
+                <span className="text-tg-text text-right break-all font-mono">{value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
