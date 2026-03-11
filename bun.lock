@@ -5,6 +5,7 @@
     "": {
       "name": "splitogram",
       "devDependencies": {
+        "@ton/crypto": "^3.3.0",
         "prettier": "^3.8.1",
         "wrangler": "^4.43.0",
       },
@@ -24,6 +25,7 @@
       },
       "devDependencies": {
         "@cloudflare/workers-types": "^4.20251014.0",
+        "@ton/crypto": "^3.3.0",
         "drizzle-kit": "^0.31.5",
         "typescript": "^5.9.3",
         "vitest": "^3.2.4",

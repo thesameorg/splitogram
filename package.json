@@ -39,6 +39,7 @@
     "webhook:status": "./scripts/webhook.sh status"
   },
   "devDependencies": {
+    "@ton/crypto": "^3.3.0",
     "prettier": "^3.8.1",
     "wrangler": "^4.43.0"
   }
