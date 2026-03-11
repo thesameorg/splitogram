@@ -502,29 +502,26 @@ Mainnet deploy scripts live in `contracts/splitogram-contract/scripts/mainnet/`:
 
 ---
 
-## 11. Security Checklist
+## 11. Security
 
-### Critical
+### What we did
 
-- [ ] **Verify Jetton Wallet sender**: on first transfer, verify the sender is the real Jetton Wallet for this contract by querying the Jetton Master's `get_wallet_address`. Do not blindly trust the first sender.
-- [ ] **Handle bounced messages**: if the outgoing transfer to the recipient fails (wrong address, contract doesn't accept), the Jettons bounce back. Implement `bounced(msg: Slice)` handler to refund the original sender or at least not lose the funds.
-- [ ] **Integer overflow/underflow**: always use `as coins` or explicit serialization types. Never use bare `Int` for amounts.
-- [ ] **Commission calculation**: ensure `remainder > 0` after commission. Guard against amounts smaller than minimum commission.
-- [ ] **Reentrancy-like issues**: TON is async (actor model), so traditional reentrancy doesn't apply. But concurrent messages can arrive in any order — ensure state updates are safe.
-- [ ] **Gas management**: each outgoing message costs TON. If the contract runs out of TON, it can't send outgoing messages. Keep a TON reserve and monitor balance.
+- **Jetton Wallet verification**: `SetJettonWallet` (owner-only) must be called before the contract accepts any settlements. Every `TokenNotification` checks `sender() == self.usdt_wallet`. No trust-on-first-use.
+- **Bounce handler**: `bounced(src: bounced<TokenTransfer>)` catches failed outgoing transfers. Tokens stay in the contract's jetton wallet for manual owner recovery. Stats are already incremented — treat as exception.
+- **Safe integer types**: all amounts use `as coins`, commission uses `as uint16`, settlement count uses `as uint32`. No bare `Int` for money.
+- **Commission guard**: `require(remainder > 0)` rejects amounts too small to settle after commission. Min/max clamp (0.1–1.0 USDT) applied before the check.
+- **State-before-send**: stats are updated (lines 98-100) before outgoing sends (lines 103-106). TON's actor model means no traditional reentrancy, and ordering is safe.
+- **Gas management**: `GAS_PER_TRANSFER` constant (0.15 TON per outgoing message), `WithdrawTon` for owner to reclaim excess TON, backend gas estimation via TONAPI trace emulation with empirical fallback.
+- **Payload validation**: `require(op == 0)` + `loadAddress()` rejects malformed or unexpected `forward_payload` structures.
 
-### Important
+### What we decided not to do (and why)
 
-- [ ] **Owner key security**: owner can change commission and withdraw TON. Use a hardware wallet or multisig.
-- [ ] **Upgrade path**: TON contracts are immutable once deployed. If you need upgradeability, implement a proxy pattern or a migration mechanism (new contract + redirect).
-- [ ] **Rate limiting**: consider if you need protection against someone flooding the contract with tiny settlements.
-- [ ] **Forward_payload validation**: strictly validate the payload structure. Reject anything unexpected.
-
-### Nice to have
-
-- [ ] **Events/logging**: emit events (external messages) for off-chain indexing.
-- [ ] **Admin pause**: ability for owner to pause the contract in case of emergency.
-- [ ] **Professional audit**: for contracts handling >$10K, strongly recommended.
+- **Hardware wallet / multisig for owner**: overkill at current volume. Owner is a W5R1 wallet. Revisit when monthly volume exceeds $10K.
+- **Upgrade / proxy pattern**: not needed. TON contracts are immutable by design. Upgrade path is deploying a new contract + updating `SETTLEMENT_CONTRACT_ADDRESS` in wrangler.toml (already done once: v3→v4).
+- **Rate limiting**: economically self-protecting. Each settlement costs the sender ~0.035 TON in gas, and the contract always profits via min commission (0.1 USDT). Flooding is unprofitable for attackers.
+- **On-chain events**: redundant. Off-chain tracking via TONAPI event verification + `activity_log` DB + admin dashboard with Tonviewer links covers all needs.
+- **Admin pause**: `SetJettonWallet` to a bogus address effectively pauses the contract. A dedicated `paused` flag would be cleaner but isn't worth a redeploy.
+- **Professional audit**: not yet justified. 17 sandbox tests cover critical paths. Revisit when volume exceeds $10K/month (audit cost: $5–15K for TON).
 
 ---
 
