@@ -322,7 +322,7 @@ async function fetchWalletId(
 /** Build V4R2 external message body (zero signature — use with ignore_signature_check) */
 function buildV4R2Body(seqno: number, internalMsgCell: Cell): Cell {
   return beginCell()
-    .storeBuffer(Buffer.alloc(64)) // zero signature (512 bits)
+    .storeUint(0n, 512) // zero signature (512 bits)
     .storeUint(V4R2_SUBWALLET_ID, 32)
     .storeUint(Math.floor(Date.now() / 1000) + 120, 32)
     .storeUint(seqno, 32)
@@ -367,7 +367,7 @@ function buildV5R1Body(seqno: number, internalMsgCell: Cell, walletId: number): 
       .storeRef(c5Actions)
       // No extended actions
       .storeBit(false)
-      .storeBuffer(Buffer.alloc(64)) // signature at the END (512 zero bits)
+      .storeUint(0n, 512) // signature at the END (512 zero bits)
       .endCell()
   );
 }
