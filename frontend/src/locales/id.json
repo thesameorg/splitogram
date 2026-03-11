@@ -240,6 +240,7 @@
     "gasAttach": "Gas: ~{{amount}} TON terlampir",
     "gasAttachShort": "~{{amount}} TON gas",
     "gasRefund": "Gas yang tidak terpakai otomatis dikembalikan ke dompet Anda",
+    "walletActivation": "Termasuk biaya aktivasi dompet (transaksi pertama)",
     "infoTitle": "Cara kerjanya",
     "infoHow": "Pembayaran Anda melalui smart contract di blockchain TON. Kontrak menerima USDT Anda, memotong komisi kecil, dan meneruskan sisanya langsung ke dompet penerima.",
     "infoCommission": "Komisi 1% dari jumlah pembayaran, minimum 0.10 USDT dan maksimum 1.00 USDT.",

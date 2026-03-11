@@ -410,10 +410,14 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   // forward_ton_amount: contract needs this for 2 outgoing Jetton transfers (0.15 TON each)
   const FORWARD_TON = 300_000_000; // 0.3 TON
 
-  // Try TONAPI emulate for precise gas; fall back to empirical if it fails.
-  // Fetch TON balance + wallet interfaces (for emulate) in one call.
+  // Gas components (nanoTON). See work_docs/tonfees.md for derivation.
+  const EMPIRICAL_JETTON_CHAIN = 40_000_000; // 0.04 TON — Jetton transfer chain (11 msgs)
+  const WALLET_DEPLOY_GAS = 10_000_000; // 0.01 TON — first outgoing tx deploys wallet contract
+
+  // Fetch TON balance + wallet info (for emulate + uninit detection) in one call.
   let tonBalance = 0;
   let walletInterfaces: string[] = [];
+  let walletUninit = false;
   try {
     const resp = await fetch(`${baseUrl}/v2/accounts/${senderAddress}`, {
       headers: tonapiHeaders(c.env),
@@ -423,13 +427,14 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
       const data = (await resp.json()) as any;
       tonBalance = parseInt(data.balance ?? '0', 10); // nanoTON
       walletInterfaces = data.interfaces ?? [];
+      walletUninit = data.status === 'uninit' || data.status === 'nonexist';
     }
   } catch {
     // TONAPI unavailable — proceed with empirical gas
   }
 
   // Emulate: builds external message, sends to TONAPI, sums trace fees.
-  // Returns null on any failure (unsupported wallet, TONAPI down, etc.)
+  // Returns null on any failure (uninit wallet, unsupported version, TONAPI down, etc.)
   const emulatedFees = await estimateSettlementGas({
     env: c.env,
     senderAddress,
@@ -441,12 +446,21 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     walletInterfaces,
   });
 
-  // Empirical fallback if emulate fails. Emulated gas is ~0.035 TON, but we use
-  // 0.1 TON as conservative fallback (excess refunded). See work_docs/tonfees.md.
-  const EMPIRICAL_FEES = 100_000_000; // 0.1 TON
-  const estimatedFees = emulatedFees ?? EMPIRICAL_FEES;
-  const CONTINGENCY_PCT = emulatedFees ? 0.15 : 0.25; // tighter buffer when emulate succeeded
-  const gasBuffer = Math.ceil(estimatedFees * CONTINGENCY_PCT);
+  // Gas calculation with explicit components:
+  // - Emulate succeeded: use precise fees + 15% buffer
+  // - Emulate failed (uninit, unknown wallet, TONAPI down): named empirical components + 20% buffer
+  //   uninit wallets: add WALLET_DEPLOY_GAS (first outgoing tx deploys wallet contract)
+  // Excess always refunded via response_destination. See work_docs/tonfees.md.
+  let estimatedFees: number;
+  let contingencyPct: number;
+  if (emulatedFees) {
+    estimatedFees = emulatedFees;
+    contingencyPct = 0.15;
+  } else {
+    estimatedFees = EMPIRICAL_JETTON_CHAIN + (walletUninit ? WALLET_DEPLOY_GAS : 0);
+    contingencyPct = 0.2;
+  }
+  const gasBuffer = Math.ceil(estimatedFees * contingencyPct);
   const gasAttach = FORWARD_TON + estimatedFees + gasBuffer;
   // Round up to nearest 0.05 TON for cleaner display
   const gasAttachRounded = Math.ceil(gasAttach / 50_000_000) * 50_000_000;
@@ -479,6 +493,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     gasAttach: String(gasAttachRounded), // nanoTON
     forwardTonAmount: String(FORWARD_TON), // nanoTON
     network, // "-3" testnet, "-239" mainnet
+    walletUninit, // true if wallet never sent a tx (first tx deploys wallet contract)
   });
 });
 

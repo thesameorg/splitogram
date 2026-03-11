@@ -253,10 +253,12 @@ estimateSettlementGas()
   → returns nanoTON or null on failure
 
 gasAttach = FORWARD_TON (0.3 TON) + emulated_fees + 15% buffer
-          (if emulate fails: FORWARD_TON + EMPIRICAL_FEES (0.1 TON) + 25% buffer)
+          (if emulate fails: FORWARD_TON + EMPIRICAL_JETTON_CHAIN (0.04) + [WALLET_DEPLOY (0.01)] + 20% buffer)
 ```
 
-**If transactions fail with out-of-gas and emulate is working:** The emulate should catch network gas changes automatically. If emulate is failing (returning null) and empirical fallback is too low, increase `EMPIRICAL_FEES` in `settlements.ts`. Check a recent failed tx on Tonviewer → compute gas burn (attached - excess). See `work_docs/tonfees.md` for full troubleshooting.
+Uninit wallets (never sent a tx): detected via `status === 'uninit'` from TONAPI account info. Emulation impossible (no seqno/interfaces), so empirical fallback adds `WALLET_DEPLOY_GAS` (0.01 TON) surcharge. Frontend shows "wallet activation fee" note on confirm screen. The `walletUninit` flag is returned in the preflight response.
+
+**If transactions fail with out-of-gas and emulate is working:** The emulate should catch network gas changes automatically. If emulate is failing (returning null) and empirical fallback is too low, increase `EMPIRICAL_JETTON_CHAIN` in `settlements.ts`. Check a recent failed tx on Tonviewer → compute gas burn (attached - excess). See `work_docs/tonfees.md` for full troubleshooting.
 
 Excess TON is always refunded — `response_destination` points to sender's wallet. Overpaying gas is safe (user gets it back), underpaying causes tx failure.
 

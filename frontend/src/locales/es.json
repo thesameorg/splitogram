@@ -242,6 +242,7 @@
     "gasAttach": "Gas: ~{{amount}} TON adjunto",
     "gasAttachShort": "~{{amount}} TON gas",
     "gasRefund": "El gas no utilizado se devuelve automáticamente a tu billetera",
+    "walletActivation": "Incluye tarifa de activación de billetera (primera transacción)",
     "infoTitle": "Cómo funciona",
     "infoHow": "Tu pago pasa por un contrato inteligente en la blockchain TON. El contrato recibe tu USDT, deduce una pequeña comisión y envía el resto a la billetera del destinatario.",
     "infoCommission": "La comisión es del 1% del monto, con un mínimo de 0.10 USDT y un máximo de 1.00 USDT.",

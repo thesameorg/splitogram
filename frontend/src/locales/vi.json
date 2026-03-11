@@ -240,6 +240,7 @@
     "gasAttach": "Gas: ~{{amount}} TON đính kèm",
     "gasAttachShort": "~{{amount}} TON gas",
     "gasRefund": "Gas chưa sử dụng sẽ được tự động trả lại ví của bạn",
+    "walletActivation": "Bao gồm phí kích hoạt ví (giao dịch đầu tiên)",
     "infoTitle": "Cách hoạt động",
     "infoHow": "Thanh toán của bạn đi qua hợp đồng thông minh trên blockchain TON. Hợp đồng nhận USDT của bạn, trừ một khoản hoa hồng nhỏ và chuyển phần còn lại trực tiếp đến ví người nhận.",
     "infoCommission": "Hoa hồng là 1% số tiền thanh toán, tối thiểu 0.10 USDT và tối đa 1.00 USDT.",

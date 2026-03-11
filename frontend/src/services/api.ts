@@ -190,6 +190,7 @@ export interface SettlementTxParams {
   gasAttach: string; // nanoTON — total attached (temporarily frozen, excess refunded)
   forwardTonAmount: string; // nanoTON
   network: string; // CHAIN.TESTNET ("-3") or CHAIN.MAINNET ("-239")
+  walletUninit?: boolean; // true if wallet never sent a tx (first tx deploys wallet)
 }
 
 export interface SettlementListItem {

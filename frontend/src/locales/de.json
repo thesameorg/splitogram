@@ -242,6 +242,7 @@
     "gasAttach": "Gas: ~{{amount}} TON angehängt",
     "gasAttachShort": "~{{amount}} TON Gas",
     "gasRefund": "Ungenutztes Gas wird automatisch an Ihre Wallet zurückgegeben",
+    "walletActivation": "Enthält Wallet-Aktivierungsgebühr (erste Transaktion)",
     "infoTitle": "So funktioniert es",
     "infoHow": "Ihre Zahlung läuft über einen Smart Contract auf der TON-Blockchain. Der Vertrag empfängt Ihr USDT, zieht eine kleine Provision ab und leitet den Rest direkt an die Wallet des Empfängers weiter.",
     "infoCommission": "Die Provision beträgt 1% des Zahlungsbetrags, mindestens 0,10 USDT und maximal 1,00 USDT.",

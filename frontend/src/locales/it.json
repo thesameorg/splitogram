@@ -242,6 +242,7 @@
     "gasAttach": "Gas: ~{{amount}} TON allegato",
     "gasAttachShort": "~{{amount}} TON gas",
     "gasRefund": "Il gas inutilizzato viene restituito automaticamente al tuo portafoglio",
+    "walletActivation": "Include la commissione di attivazione del portafoglio (prima transazione)",
     "infoTitle": "Come funziona",
     "infoHow": "Il tuo pagamento passa attraverso uno smart contract sulla blockchain TON. Il contratto riceve i tuoi USDT, detrae una piccola commissione e inoltra il resto direttamente al portafoglio del destinatario.",
     "infoCommission": "La commissione è l'1% dell'importo, con un minimo di 0,10 USDT e un massimo di 1,00 USDT.",

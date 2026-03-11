@@ -497,6 +497,7 @@ export function SettleUp() {
             conversionNote={conversionNote}
             recipientName={settlement.to?.displayName ?? ''}
             gasAttachDisplay={gasAttachDisplay}
+            walletUninit={txParams?.walletUninit ?? false}
             isTestnet={isTestnet}
             pollElapsed={pollElapsed}
             onPay={handlePayWithUsdt}
@@ -682,6 +683,7 @@ function CryptoSettlementUI({
   commission,
   conversionNote,
   gasAttachDisplay,
+  walletUninit,
   recipientName,
   isTestnet: testnet,
   pollElapsed,
@@ -702,6 +704,7 @@ function CryptoSettlementUI({
   commission: string;
   conversionNote: string | null;
   gasAttachDisplay: string | null;
+  walletUninit: boolean;
   recipientName: string;
   isTestnet: boolean;
   pollElapsed: number;
@@ -785,6 +788,9 @@ function CryptoSettlementUI({
               <span className="text-tg-hint">~{gasAttachDisplay} TON</span>
             </div>
             <div className="text-tg-hint/60 mt-1">{t('settlement.gasRefund')}</div>
+            {walletUninit && (
+              <div className="text-tg-hint/60 mt-0.5">{t('settlement.walletActivation')}</div>
+            )}
           </div>
         )}
 
