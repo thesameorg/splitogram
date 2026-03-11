@@ -250,6 +250,15 @@ export function Account() {
     setDeleting(true);
     setError(null);
     try {
+      // Disconnect TonConnect wallet first to clear browser storage,
+      // otherwise the old wallet gets restored on re-registration
+      if (walletConnected) {
+        try {
+          await disconnect();
+        } catch {
+          // Ignore disconnect errors — deletion should proceed
+        }
+      }
       await api.deleteAccount();
       setShowDeleteFlow(false);
       setDeleted(true);
