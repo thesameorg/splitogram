@@ -387,6 +387,7 @@ export function Account() {
           accept="image/jpeg,image/png,image/webp"
           onChange={handleAvatarUpload}
           className="hidden"
+          aria-label={t('account.changePhoto')}
         />
       </div>
 
@@ -846,6 +847,7 @@ export function Account() {
                   <button
                     onClick={() => setFeedbackFiles((prev) => prev.filter((_, j) => j !== i))}
                     className="text-tg-destructive font-bold"
+                    aria-label={`Remove ${file.name}`}
                   >
                     ×
                   </button>
@@ -859,6 +861,7 @@ export function Account() {
               <button
                 onClick={() => feedbackFileInputRef.current?.click()}
                 className="px-4 py-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
+                aria-label="Attach file"
               >
                 📎
               </button>
@@ -878,6 +881,7 @@ export function Account() {
             accept="image/*,application/pdf,.doc,.docx,.txt"
             onChange={handleFeedbackFileSelect}
             className="hidden"
+            aria-label="Attach file"
           />
         </div>
       </BottomSheet>

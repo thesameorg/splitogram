@@ -678,6 +678,7 @@ export function SettleUp() {
                 accept="image/jpeg,image/png,image/webp"
                 onChange={handleReceiptSelect}
                 className="hidden"
+                aria-label={t('settleUp.attachReceipt')}
               />
             </div>
 

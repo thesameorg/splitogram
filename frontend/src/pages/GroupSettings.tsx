@@ -420,6 +420,7 @@ export function GroupSettings() {
           accept="image/jpeg,image/png,image/webp"
           onChange={handleGroupAvatarUpload}
           className="hidden"
+          aria-label="Upload group photo"
         />
       </div>
 

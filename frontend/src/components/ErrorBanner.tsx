@@ -6,7 +6,7 @@ export function ErrorBanner({ message, onDismiss }: { message: string; onDismiss
       <div className="bg-app-negative text-white p-3 rounded-xl text-sm flex justify-between items-start mx-auto max-w-lg shadow-lg">
         <span className="drop-shadow-sm">{message}</span>
         {onDismiss && (
-          <button onClick={onDismiss} className="ml-2 opacity-70 font-bold">
+          <button onClick={onDismiss} className="ml-2 opacity-70 font-bold" aria-label="Dismiss">
             &times;
           </button>
         )}

@@ -55,6 +55,7 @@ export function MonthSelector({ availableMonths, selected, onChange }: MonthSele
           onClick={goNewer}
           disabled={!canGoNewer}
           className={`text-lg px-2 ${canGoNewer ? 'text-tg-link' : 'text-tg-separator'}`}
+          aria-label="Previous month"
         >
           &lsaquo;
         </button>
@@ -65,6 +66,7 @@ export function MonthSelector({ availableMonths, selected, onChange }: MonthSele
           onClick={goOlder}
           disabled={!canGoOlder}
           className={`text-lg px-2 ${canGoOlder ? 'text-tg-link' : 'text-tg-separator'}`}
+          aria-label="Next month"
         >
           &rsaquo;
         </button>

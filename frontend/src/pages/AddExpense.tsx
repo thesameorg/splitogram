@@ -499,6 +499,7 @@ export function AddExpense() {
           accept="image/jpeg,image/png,image/webp"
           onChange={handleReceiptSelect}
           className="hidden"
+          aria-label={t('addExpense.attachReceipt')}
         />
       </div>
 

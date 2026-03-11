@@ -45,6 +45,7 @@ export function CurrencyPicker({
         onChange={(e) => setQuery(e.target.value)}
         className="w-full p-3 border border-tg-separator rounded-xl mb-3 bg-transparent"
         autoFocus
+        aria-label={t('currencyPicker.search')}
       />
       <div className="max-h-[50vh] overflow-y-auto -mx-2">
         {results.length === 0 ? (
