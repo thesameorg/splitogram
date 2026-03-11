@@ -257,7 +257,11 @@
     "infoContract": "Die Zahlung wird vom Splitogram Smart Contract im TON-Netzwerk verarbeitet. Transaktionen sind endgültig und on-chain verifizierbar.",
     "commissionLabel": "Gebühr",
     "settledByLabel": "Beglichen von {{name}}",
-    "testnetWarning": "TESTNET — Testtokens, kein echtes Geld"
+    "testnetWarning": "TESTNET — Testtokens, kein echtes Geld",
+    "pendingYouPay": "Zahlung an {{name}} ausstehend...",
+    "pendingPayYou": "Zahlung von {{name}} ausstehend...",
+    "pendingPay": "Zahlung {{from}} → {{to}} ausstehend...",
+    "tapToCheck": "Tippen, um den Status zu prüfen"
   },
   "activity": {
     "title": "Aktivität",

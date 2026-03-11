@@ -95,7 +95,7 @@ async function verifyByEventId(
   debtorWallet: string | null,
   creditorWallet: string,
   debtUsdt: number,
-): Promise<{ verified: boolean; txHash?: string }> {
+): Promise<{ verified: boolean; txHash?: string; failed?: boolean }> {
   const baseUrl = tonapiBaseUrl(env);
   try {
     const resp = await fetch(`${baseUrl}/v2/events/${eventId}`, {
@@ -108,9 +108,13 @@ async function verifyByEventId(
     const event = (await resp.json()) as any;
     if (!event.actions) return { verified: false };
 
-    const jettonActions = event.actions.filter(
-      (a: any) => a.type === 'JettonTransfer' && a.status === 'ok',
-    );
+    const allJettonActions = event.actions.filter((a: any) => a.type === 'JettonTransfer');
+    const jettonActions = allJettonActions.filter((a: any) => a.status === 'ok');
+
+    // Detect failed transactions
+    if (jettonActions.length === 0 && allJettonActions.length > 0) {
+      return { verified: false, failed: true };
+    }
 
     // Validate debtor if wallet known
     if (debtorWallet) {
@@ -155,7 +159,7 @@ async function verifySettlementOnChain(
   debtorWallet: string | null,
   creditorWallet: string,
   usdtAmount?: number, // micro-USDT (if already converted)
-): Promise<{ verified: boolean; txHash?: string }> {
+): Promise<{ verified: boolean; txHash?: string; failed?: boolean }> {
   const contractAddress = env.SETTLEMENT_CONTRACT_ADDRESS;
   if (!contractAddress) return { verified: false };
 
@@ -176,10 +180,30 @@ async function verifySettlementOnChain(
     for (const event of events) {
       if (!event.actions) continue;
 
-      // Look for JettonTransfer actions in this event
-      const jettonActions = event.actions.filter(
-        (a: any) => a.type === 'JettonTransfer' && a.status === 'ok',
-      );
+      // Check if this event involves the debtor (to detect failed txns)
+      const allJettonActions = event.actions.filter((a: any) => a.type === 'JettonTransfer');
+
+      // Look for successful JettonTransfer actions
+      const jettonActions = allJettonActions.filter((a: any) => a.status === 'ok');
+
+      // Detect failed/bounced transactions from the debtor
+      // If we see a failed JettonTransfer from the debtor to the contract, the tx failed
+      if (debtorWallet && jettonActions.length === 0 && allJettonActions.length > 0) {
+        const debtorNorm = normalizeAddress(debtorWallet);
+        const hasFailed = allJettonActions.some((a: any) => {
+          const transfer = a.JettonTransfer;
+          if (!transfer) return false;
+          const senderAddr = normalizeAddress(transfer.sender?.address ?? '');
+          return senderAddr === debtorNorm && a.status !== 'ok';
+        });
+        if (hasFailed) {
+          console.log('[settlement:verify] detected failed/bounced tx', {
+            eventId: event.event_id,
+            settlementId: settlement.id,
+          });
+          return { verified: false, txHash: event.event_id, failed: true };
+        }
+      }
 
       // We need to find TWO matching transfers in the same event:
       // 1. Incoming: debtor → contract (amount = debt + commission)
@@ -472,4 +496,5 @@ export {
   verifyByEventId,
   verifySettlementOnChain,
   estimateSettlementGas,
+  detectWalletVersion,
 };

@@ -156,6 +156,17 @@ export function SettleUp() {
     setCryptoState('preflight');
     try {
       const params = await api.getSettlementTx(settlementId, rawAddress);
+      console.log('[settlement:preflight]', {
+        settlementId,
+        from: rawAddress,
+        to: params.recipientAddress,
+        walletVersion: params.walletVersion,
+        walletUninit: params.walletUninit,
+        amountUsdt: params.amount,
+        totalUsdt: params.totalAmount,
+        commission: params.commission,
+        gasAttach: params.gasAttach,
+      });
       setTxParams(params);
       setCryptoState('confirm');
     } catch (err: any) {
@@ -201,6 +212,13 @@ export function SettleUp() {
     try {
       const payload = buildSettlementBody(txParams);
 
+      console.log('[settlement:sending]', {
+        settlementId,
+        to: toFriendly(txParams.senderJettonWallet),
+        gasAttach: txParams.gasAttach,
+        walletVersion: txParams.walletVersion,
+      });
+
       const result = await tonConnectUI.sendTransaction({
         validUntil: Math.floor(Date.now() / 1000) + 300,
         network: txParams.network as any,
@@ -211,6 +229,11 @@ export function SettleUp() {
             payload,
           },
         ],
+      });
+
+      console.log('[settlement:sent]', {
+        settlementId,
+        bocLength: result.boc?.length,
       });
 
       // Transaction sent — notify backend and start polling
@@ -252,8 +275,11 @@ export function SettleUp() {
       try {
         const result = await api.confirmSettlement(settlementId);
 
+        console.log('[settlement:poll]', { settlementId, elapsed, status: result.status });
+
         if (result.status === 'settled_onchain') {
           if (pollingRef.current) clearInterval(pollingRef.current);
+          console.log('[settlement:confirmed]', { settlementId, txHash: result.txHash });
           setSettlement((prev) =>
             prev ? { ...prev, status: 'settled_onchain', txHash: result.txHash ?? null } : prev,
           );
@@ -262,6 +288,7 @@ export function SettleUp() {
         } else if (result.status === 'open') {
           // Rolled back (timeout)
           if (pollingRef.current) clearInterval(pollingRef.current);
+          console.log('[settlement:rolled-back]', { settlementId });
           setSettlement((prev) => (prev ? { ...prev, status: 'open' } : prev));
           setCryptoError(t('settlement.txFailed'));
           setCryptoState('error');

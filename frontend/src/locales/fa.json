@@ -257,7 +257,11 @@
     "infoContract": "پرداخت توسط قرارداد هوشمند Splitogram در شبکه TON پردازش می‌شود. تراکنش‌ها نهایی و قابل تأیید در بلاکچین هستند.",
     "commissionLabel": "کارمزد",
     "settledByLabel": "تسویه شده توسط {{name}}",
-    "testnetWarning": "TESTNET — از توکن‌های آزمایشی استفاده می‌شود، پول واقعی نیست"
+    "testnetWarning": "TESTNET — از توکن‌های آزمایشی استفاده می‌شود، پول واقعی نیست",
+    "pendingYouPay": "پرداخت به {{name}} در انتظار...",
+    "pendingPayYou": "پرداخت از {{name}} در انتظار...",
+    "pendingPay": "پرداخت {{from}} → {{to}} در انتظار...",
+    "tapToCheck": "برای بررسی وضعیت ضربه بزنید"
   },
   "activity": {
     "title": "فعالیت",

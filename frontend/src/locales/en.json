@@ -267,7 +267,11 @@
     "infoContract": "Settlement is processed by the Splitogram smart contract on the TON network. Transactions are final and verifiable on-chain.",
     "commissionLabel": "Commission",
     "settledByLabel": "Settled by {{name}}",
-    "testnetWarning": "TESTNET — using test tokens, not real money"
+    "testnetWarning": "TESTNET — using test tokens, not real money",
+    "pendingYouPay": "Payment to {{name}} pending...",
+    "pendingPayYou": "Payment from {{name}} pending...",
+    "pendingPay": "Payment {{from}} → {{to}} pending...",
+    "tapToCheck": "Tap to check payment status"
   },
   "activity": {
     "title": "Activity",

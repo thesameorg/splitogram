@@ -22,6 +22,7 @@ import {
   verifyByEventId,
   verifySettlementOnChain,
   estimateSettlementGas,
+  detectWalletVersion,
 } from '../services/tonapi';
 import { calculateCommission } from '../utils/commission';
 import { makeNotifyCtx } from '../utils/notify-ctx';
@@ -141,14 +142,14 @@ settlementsApp.get('/groups/:id/settlements', async (c) => {
     return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
   }
 
-  // Fetch completed settlements
+  // Fetch completed + pending settlements
   const rows = await db
     .select()
     .from(settlements)
     .where(
       and(
         eq(settlements.groupId, groupId),
-        sql`${settlements.status} IN ('settled_external', 'settled_onchain')`,
+        sql`${settlements.status} IN ('settled_external', 'settled_onchain', 'payment_pending')`,
       ),
     )
     .orderBy(desc(settlements.createdAt))
@@ -433,6 +434,8 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     // TONAPI unavailable — proceed with empirical gas
   }
 
+  const walletVersion = detectWalletVersion(walletInterfaces);
+
   // Emulate: builds external message, sends to TONAPI, sums trace fees.
   // Returns null on any failure (uninit wallet, unsupported version, TONAPI down, etc.)
   const emulatedFees = await estimateSettlementGas({
@@ -478,6 +481,23 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     );
   }
 
+  const walletVersionLabel =
+    walletVersion === 'v5' ? 'W5' : walletVersion === 'v4' ? 'V4R2' : 'unknown';
+
+  console.log('[settlement:preflight]', {
+    settlementId: settlement.id,
+    from: senderAddress,
+    to: creditor.walletAddress,
+    walletVersion: walletVersionLabel,
+    walletUninit,
+    amountUsdt: settlementAmountUsdt,
+    totalUsdt: totalAmount,
+    commission,
+    gasAttach: gasAttachRounded,
+    emulatedFees,
+    empiricalFallback: !emulatedFees,
+  });
+
   return c.json({
     settlementId: settlement.id,
     amount: settlementAmountUsdt, // micro-USDT (debt converted to USD)
@@ -494,6 +514,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     forwardTonAmount: String(FORWARD_TON), // nanoTON
     network, // "-3" testnet, "-239" mainnet
     walletUninit, // true if wallet never sent a tx (first tx deploys wallet contract)
+    walletVersion: walletVersionLabel, // "V4R2", "W5", or "unknown"
   });
 });
 
@@ -534,6 +555,15 @@ settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema),
       400,
     );
   }
+
+  console.log('[settlement:verify]', {
+    settlementId,
+    fromUser: settlement.fromUser,
+    toUser: settlement.toUser,
+    amount: settlement.amount,
+    currentStatus: settlement.status,
+    hasBoc: !!boc,
+  });
 
   // Atomic conditional update — only transition from 'open' to 'payment_pending'
   if (settlement.status === 'open') {
@@ -680,14 +710,29 @@ settlementsApp.post(
         );
 
     if (!verification.verified) {
-      // Only rollback to open after timeout AND failed on-chain check
       const pendingSince = new Date(settlement.updatedAt).getTime();
+      const pendingMinutes = Math.round((Date.now() - pendingSince) / 60000);
       const PENDING_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
-      if (Date.now() - pendingSince > PENDING_TIMEOUT_MS) {
+
+      // Immediate rollback if transaction failed/bounced on-chain
+      const shouldRollback = verification.failed || Date.now() - pendingSince > PENDING_TIMEOUT_MS;
+
+      console.log('[settlement:confirm] not verified', {
+        settlementId,
+        pendingMinutes,
+        failed: !!verification.failed,
+        willRollback: shouldRollback,
+      });
+
+      if (shouldRollback) {
         await db
           .update(settlements)
           .set({ status: 'open', updatedAt: new Date().toISOString() })
           .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')));
+        console.log('[settlement:confirm] rolled back to open', {
+          settlementId,
+          reason: verification.failed ? 'tx_failed' : 'timeout',
+        });
         return c.json({ status: 'open', settlementId });
       }
       return c.json({ status: 'payment_pending', settlementId });
@@ -754,6 +799,13 @@ settlementsApp.post(
         }),
       ]),
     );
+
+    console.log('[settlement:confirmed]', {
+      settlementId,
+      txHash: verification.txHash,
+      usdtAmount: debtUsdt,
+      commission: settledCommission,
+    });
 
     return c.json({ status: 'settled_onchain', settlementId, txHash: verification.txHash });
   },

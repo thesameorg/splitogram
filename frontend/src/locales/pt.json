@@ -257,7 +257,11 @@
     "infoContract": "O pagamento é processado pelo contrato inteligente Splitogram na rede TON. As transações são finais e verificáveis on-chain.",
     "commissionLabel": "Comissão",
     "settledByLabel": "Acertado por {{name}}",
-    "testnetWarning": "TESTNET — usando tokens de teste, não dinheiro real"
+    "testnetWarning": "TESTNET — usando tokens de teste, não dinheiro real",
+    "pendingYouPay": "Pagamento para {{name}} pendente...",
+    "pendingPayYou": "Pagamento de {{name}} pendente...",
+    "pendingPay": "Pagamento {{from}} → {{to}} pendente...",
+    "tapToCheck": "Toque para verificar o estado"
   },
   "activity": {
     "title": "Atividade",

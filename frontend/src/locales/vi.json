@@ -255,7 +255,11 @@
     "infoContract": "Thanh toán được xử lý bởi hợp đồng thông minh Splitogram trên mạng TON. Giao dịch là cuối cùng và có thể xác minh on-chain.",
     "commissionLabel": "Phí",
     "settledByLabel": "Thanh toán bởi {{name}}",
-    "testnetWarning": "TESTNET — sử dụng token thử nghiệm, không phải tiền thật"
+    "testnetWarning": "TESTNET — sử dụng token thử nghiệm, không phải tiền thật",
+    "pendingYouPay": "Thanh toán cho {{name}} đang chờ...",
+    "pendingPayYou": "Thanh toán từ {{name}} đang chờ...",
+    "pendingPay": "Thanh toán {{from}} → {{to}} đang chờ...",
+    "tapToCheck": "Nhấn để kiểm tra trạng thái"
   },
   "activity": {
     "title": "Hoạt động",

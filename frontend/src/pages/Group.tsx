@@ -104,6 +104,26 @@ export function Group() {
     loadData();
   }, [loadData]);
 
+  // Auto-check pending settlements (trigger confirmation check in background)
+  useEffect(() => {
+    if (loading || transactions.length === 0) return;
+    const pendingSettlements = transactions.filter(
+      (tx): tx is TransactionItem & { type: 'settlement' } =>
+        tx.type === 'settlement' && tx.data.status === 'payment_pending',
+    );
+    if (pendingSettlements.length === 0) return;
+
+    // Fire-and-forget confirm calls — if any resolves, reload data
+    Promise.all(
+      pendingSettlements.map((tx) => api.confirmSettlement(tx.data.id).catch(() => null)),
+    ).then((results) => {
+      const changed = results.some(
+        (r) => r && (r.status === 'settled_onchain' || r.status === 'open'),
+      );
+      if (changed) loadData();
+    });
+  }, [loading, transactions, loadData]);
+
   // Load activity when feed tab is selected
   useEffect(() => {
     if (tab !== 'feed' || activityItems.length > 0 || activityLoading || isNaN(groupId)) return;
@@ -281,9 +301,21 @@ export function Group() {
   function renderSettlementCard(settlement: SettlementListItem) {
     const isFromMe = currentUserId === settlement.fromUser;
     const isToMe = currentUserId === settlement.toUser;
+    const isPending = settlement.status === 'payment_pending';
 
     let label: string;
-    if (isFromMe) {
+    if (isPending) {
+      if (isFromMe) {
+        label = t('settlement.pendingYouPay', { name: settlement.toUserName });
+      } else if (isToMe) {
+        label = t('settlement.pendingPayYou', { name: settlement.fromUserName });
+      } else {
+        label = t('settlement.pendingPay', {
+          from: settlement.fromUserName,
+          to: settlement.toUserName,
+        });
+      }
+    } else if (isFromMe) {
       label = t('group.youPaid', { name: settlement.toUserName });
     } else if (isToMe) {
       label = t('group.paidYou', { name: settlement.fromUserName });
@@ -291,24 +323,34 @@ export function Group() {
       label = t('group.paid', { from: settlement.fromUserName, to: settlement.toUserName });
     }
 
-    // A3: Settlement amount color — red if you paid, green if paid to you
-    const amountColor = isFromMe ? 'text-app-negative' : 'text-app-positive';
+    const amountColor = isPending
+      ? 'text-app-warning'
+      : isFromMe
+        ? 'text-app-negative'
+        : 'text-app-positive';
+    const bgColor = isPending ? 'bg-app-warning-bg' : 'bg-app-positive-bg';
+    const borderColor = isPending ? 'border-app-warning/20' : 'border-app-positive/20';
+    const textColor = isPending ? 'text-app-warning' : 'text-app-positive';
 
     return (
       <button
         key={`s-${settlement.id}`}
-        onClick={() => setSelectedSettlement(settlement)}
-        className="w-full text-left bg-app-positive-bg p-4 rounded-xl border border-app-positive/20"
+        onClick={() =>
+          isPending ? navigate(`/settle/${settlement.id}`) : setSelectedSettlement(settlement)
+        }
+        className={`w-full text-left ${bgColor} p-4 rounded-xl border ${borderColor}`}
       >
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
-            {settlement.status === 'settled_onchain' ? (
+            {isPending ? (
+              <div className="w-[18px] h-[18px] border-2 border-app-warning border-t-transparent rounded-full animate-spin" />
+            ) : settlement.status === 'settled_onchain' ? (
               <IconTon size={18} className="text-app-positive" />
             ) : (
               <IconCheck size={18} className="text-app-positive" />
             )}
             <div>
-              <div className="font-medium text-app-positive">{label}</div>
+              <div className={`font-medium ${textColor}`}>{label}</div>
               <div className="text-sm text-tg-hint">{timeAgo(settlement.createdAt)}</div>
             </div>
           </div>
@@ -328,6 +370,9 @@ export function Group() {
             </div>
           </div>
         </div>
+        {isPending && (
+          <div className="mt-2 text-xs text-app-warning">{t('settlement.tapToCheck')}</div>
+        )}
         {settlement.status === 'settled_onchain' && settlement.explorerUrl && (
           <div className="mt-2 text-xs">
             <a

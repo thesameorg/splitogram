@@ -62,7 +62,15 @@ export function Account() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const feedbackFileInputRef = useRef<HTMLInputElement>(null);
 
-  const { connected: walletConnected, friendlyAddress, openModal, disconnect } = useTonWallet();
+  const {
+    connected: walletConnected,
+    rawAddress,
+    friendlyAddress,
+    openModal,
+    disconnect,
+  } = useTonWallet();
+
+  const [walletVersion, setWalletVersion] = useState<string | null>(null);
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
@@ -76,6 +84,27 @@ export function Account() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  // Fetch wallet version from TONAPI when wallet is connected
+  useEffect(() => {
+    if (!rawAddress) {
+      setWalletVersion(null);
+      return;
+    }
+    const tonapiBase =
+      config.tonNetwork === 'mainnet' ? 'https://tonapi.io' : 'https://testnet.tonapi.io';
+    fetch(`${tonapiBase}/v2/accounts/${rawAddress}`, { signal: AbortSignal.timeout(5000) })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: any) => {
+        if (!data?.interfaces) return;
+        const ifaces: string[] = data.interfaces;
+        if (ifaces.some((i) => i.includes('wallet_v5'))) setWalletVersion('W5');
+        else if (ifaces.some((i) => i.includes('wallet_v4'))) setWalletVersion('V4R2');
+        else if (ifaces.some((i) => i.includes('wallet_v3'))) setWalletVersion('V3');
+        else setWalletVersion(null);
+      })
+      .catch(() => setWalletVersion(null));
+  }, [rawAddress]);
 
   async function handleSave() {
     if (!editName.trim() || saving) return;
@@ -373,6 +402,11 @@ export function Account() {
           <div className="flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator">
             <div>
               <span className="font-medium">{truncateAddress(friendlyAddress)}</span>
+              {walletVersion && (
+                <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-tg-secondary-bg text-tg-hint">
+                  {walletVersion}
+                </span>
+              )}
               {config.tonNetwork === 'testnet' && (
                 <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-app-warning-bg text-app-warning">
                   testnet

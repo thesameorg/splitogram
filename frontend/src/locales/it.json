@@ -257,7 +257,11 @@
     "infoContract": "Il pagamento è elaborato dallo smart contract Splitogram sulla rete TON. Le transazioni sono definitive e verificabili on-chain.",
     "commissionLabel": "Commissione",
     "settledByLabel": "Saldato da {{name}}",
-    "testnetWarning": "TESTNET — token di prova, non denaro reale"
+    "testnetWarning": "TESTNET — token di prova, non denaro reale",
+    "pendingYouPay": "Pagamento a {{name}} in sospeso...",
+    "pendingPayYou": "Pagamento da {{name}} in sospeso...",
+    "pendingPay": "Pagamento {{from}} → {{to}} in sospeso...",
+    "tapToCheck": "Tocca per controllare lo stato"
   },
   "activity": {
     "title": "Attività",

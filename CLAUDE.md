@@ -231,11 +231,17 @@ Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-
    - Checks USDT balance ≥ debt + commission
    - Estimates gas via TONAPI emulate (builds external message BOC, emulates full trace, sums fees) — falls back to empirical if emulate fails
    - Checks TON balance ≥ gas attach
-   - Returns `SettlementTxParams` (amounts, addresses, gas values)
+   - Detects wallet version (V4R2/W5) and returns it in response
+   - Returns `SettlementTxParams` (amounts, addresses, gas values, `walletVersion`)
 2. Frontend shows confirm screen with line-item breakdown (recipient, commission, total in USDT, gas in TON)
 3. User confirms → frontend builds Jetton transfer BOC (`frontend/src/utils/ton.ts`) → sends via TON Connect
-4. Backend transitions settlement to `payment_pending`, polls for on-chain confirmation
-5. `POST /api/v1/settlements/:id/confirm` verifies the transfer on-chain via TONAPI events
+4. Backend transitions settlement to `payment_pending` via `POST /api/v1/settlements/:id/verify`
+5. Frontend polls `POST /api/v1/settlements/:id/confirm` every 3s for up to 2 minutes
+6. Backend verifies the transfer on-chain via TONAPI events. Three outcomes:
+   - **Confirmed**: matching JettonTransfer found → `settled_onchain`
+   - **Failed/bounced**: failed JettonTransfer detected → immediate rollback to `open`
+   - **Timeout**: no matching event after 10 min → rollback to `open`
+7. Group page shows `payment_pending` settlements with yellow card + spinner. Auto-checks on page load. Tapping navigates to SettleUp page which resumes polling.
 
 ### Gas Estimation (`services/tonapi.ts`)
 
@@ -295,6 +301,9 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - Per-group mute: `group_members.muted` flag, muted users skip expense notifications
 - Health endpoint `GET /api/health` excluded from auth
 - Settlements created on demand when user taps "Settle up" (not pre-created)
+- **Settlement logging** — structured `console.log` with `[settlement:*]` prefix on both backend (`preflight`, `verify`, `confirm`, `confirmed`) and frontend (`preflight`, `sending`, `sent`, `poll`, `confirmed`, `rolled-back`). Logs wallet version, amounts, fees, addresses, timing.
+- **Pending settlement visibility** — `payment_pending` settlements included in group settlement list. Group page shows yellow card with spinner, auto-checks on load. SettleUp page auto-resumes polling on revisit.
+- **Wallet version display** — Account page fetches wallet version from TONAPI, shows V4R2/W5/V3 badge next to address. Preflight response includes `walletVersion` field.
 - **Group soft-delete** — `groups.deleted_at` set on deletion. Expenses, participants, activity_log, debt_reminders, group_members, and non-onchain settlements are hard-deleted. On-chain settlements (`settled_onchain`) and the group row are retained for commission accounting and Tonviewer audit trail. GDPR-compliant: on-chain txs are public blockchain records (legal basis: legitimate interest). Invite/join endpoints filter `deleted_at IS NULL`. User-facing group list filters via `group_members` join (members removed on delete).
 - Shared currency utilities in `@splitogram/shared` (`packages/shared/src/currencies.ts` + `format.ts`). Backend/frontend `utils/` re-export from shared package.
 - Dev auth bypass via `DEV_AUTH_BYPASS_ENABLED` env var (skips TG initData validation, auto-creates mock user from `backend/src/dev/mock-user.ts`)

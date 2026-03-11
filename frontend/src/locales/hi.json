@@ -257,7 +257,11 @@
     "infoContract": "भुगतान TON नेटवर्क पर Splitogram स्मार्ट कॉन्ट्रैक्ट द्वारा प्रोसेस किया जाता है। लेनदेन अंतिम और ऑन-चेन सत्यापन योग्य हैं।",
     "commissionLabel": "कमीशन",
     "settledByLabel": "{{name}} द्वारा निपटाया",
-    "testnetWarning": "TESTNET — टेस्ट टोकन का उपयोग, असली पैसे नहीं"
+    "testnetWarning": "TESTNET — टेस्ट टोकन का उपयोग, असली पैसे नहीं",
+    "pendingYouPay": "{{name}} को भुगतान लंबित...",
+    "pendingPayYou": "{{name}} से भुगतान लंबित...",
+    "pendingPay": "भुगतान {{from}} → {{to}} लंबित...",
+    "tapToCheck": "स्थिति जाँचने के लिए टैप करें"
   },
   "activity": {
     "title": "गतिविधि",
