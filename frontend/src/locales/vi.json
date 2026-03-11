@@ -274,7 +274,8 @@
     "memberJoined": "{{actor}} đã tham gia nhóm",
     "memberLeft": "{{actor}} đã rời nhóm",
     "memberKicked": "{{actor}} đã xóa {{target}}",
-    "placeholderClaimed": "{{actor}} đã nhận tài khoản của \"{{dummyName}}\""
+    "placeholderClaimed": "{{actor}} đã nhận tài khoản của \"{{dummyName}}\"",
+    "memberDeleted": "{{originalName}} đã xóa tài khoản, được thay thế bằng {{dummyName}}"
   },
   "feed": {
     "title": "Bảng tin"

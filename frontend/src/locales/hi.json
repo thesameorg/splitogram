@@ -276,7 +276,8 @@
     "memberJoined": "{{actor}} समूह में शामिल हुए",
     "memberLeft": "{{actor}} ने समूह छोड़ दिया",
     "memberKicked": "{{actor}} ने {{target}} को हटाया",
-    "placeholderClaimed": "{{actor}} ने \"{{dummyName}}\" का अकाउंट ले लिया"
+    "placeholderClaimed": "{{actor}} ने \"{{dummyName}}\" का अकाउंट ले लिया",
+    "memberDeleted": "{{originalName}} ने अपना अकाउंट हटाया, {{dummyName}} से बदला गया"
   },
   "feed": {
     "title": "फ़ीड"

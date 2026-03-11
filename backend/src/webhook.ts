@@ -4,6 +4,7 @@ import { createDatabase } from './db';
 import { users, groups, groupMembers, expenses, settlements, imageReports } from './db/schema';
 import { eq, and, sql, isNull } from 'drizzle-orm';
 import { logActivity } from './services/activity';
+import { reclaimDeletionDummy } from './services/deletion-reclaim';
 import { refreshGroupBalances } from './api/balances';
 import { removeImage } from './services/moderation';
 import type { Env } from './env';
@@ -126,6 +127,9 @@ function getOrCreateBot(botToken: string): Bot {
         actorId: user.id,
         type: 'member_joined',
       });
+
+      // Auto-reclaim deletion dummy if one exists for this user in this group
+      await reclaimDeletionDummy(db, user.id, telegramId, group.id);
 
       // Count members after join
       const [{ count: memberCount }] = await db

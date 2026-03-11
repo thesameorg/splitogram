@@ -276,7 +276,8 @@
     "memberJoined": "{{actor}} entrou no grupo",
     "memberLeft": "{{actor}} saiu do grupo",
     "memberKicked": "{{actor}} removeu {{target}}",
-    "placeholderClaimed": "{{actor}} reivindicou a conta de \"{{dummyName}}\""
+    "placeholderClaimed": "{{actor}} reivindicou a conta de \"{{dummyName}}\"",
+    "memberDeleted": "{{originalName}} excluiu sua conta, substituído por {{dummyName}}"
   },
   "feed": {
     "title": "Feed"

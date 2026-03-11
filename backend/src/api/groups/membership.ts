@@ -7,6 +7,7 @@ import { computeGroupBalances, refreshGroupBalances } from '../balances';
 import { simplifyDebts } from '../../services/debt-solver';
 import { notify } from '../../services/notifications';
 import { logActivity } from '../../services/activity';
+import { reclaimDeletionDummy } from '../../services/deletion-reclaim';
 import { makeNotifyCtx } from '../../utils/notify-ctx';
 import { generateInviteCode } from './core';
 import type { GroupEnv } from './types';
@@ -251,6 +252,10 @@ membershipApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) =
     actorId: userId,
     type: 'member_joined',
   });
+
+  // Auto-reclaim deletion dummy: if this user previously deleted their account
+  // and a dummy placeholder exists in this group, merge it back automatically
+  await reclaimDeletionDummy(db, userId, session.telegramId, groupId);
 
   // Fire-and-forget notification
   const notifyCtx = makeNotifyCtx(c.env, db);

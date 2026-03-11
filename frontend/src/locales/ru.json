@@ -278,7 +278,8 @@
     "memberJoined": "{{actor}} присоединился(-лась) к группе",
     "memberLeft": "{{actor}} покинул(а) группу",
     "memberKicked": "{{actor}} удалил(а) {{target}}",
-    "placeholderClaimed": "{{actor}} забрал(а) аккаунт «{{dummyName}}»"
+    "placeholderClaimed": "{{actor}} забрал(а) аккаунт «{{dummyName}}»",
+    "memberDeleted": "{{originalName}} удалил(а) аккаунт, заменён на {{dummyName}}"
   },
   "feed": {
     "title": "Лента"

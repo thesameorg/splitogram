@@ -15,6 +15,7 @@ import {
 import { eq, and, sql, isNull } from 'drizzle-orm';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import { refreshGroupBalances } from './balances';
+import { logActivity } from '../services/activity';
 import { notify } from '../services/notifications';
 import { invalidateAuthCache } from '../middleware/auth';
 import type { AuthContext } from '../middleware/auth';
@@ -461,12 +462,12 @@ app.delete('/me', async (c) => {
   if (hasDanglingRefs) {
     // Create ONE dummy user with deterministic telegramId for re-claim
     const dummyTelegramId = -Math.abs(user.telegramId);
+    const dummyDisplayName = `(${user.displayName})`;
     const [dummyUser] = await db
       .insert(users)
       .values({
         telegramId: dummyTelegramId,
-        displayName: user.displayName,
-        avatarKey: user.avatarKey, // keep for history display
+        displayName: dummyDisplayName,
         isDummy: true,
       })
       .returning();
@@ -510,13 +511,29 @@ app.delete('/me', async (c) => {
       db.delete(groupMembers).where(eq(groupMembers.userId, user.id)),
     ]);
 
+    // Log member_deleted activity in each affected group
+    for (const m of remainingMemberships) {
+      await logActivity(db, {
+        groupId: m.groupId,
+        actorId: dummyUser.id,
+        type: 'member_deleted',
+        metadata: {
+          originalName: user.displayName,
+          dummyName: dummyDisplayName,
+        },
+      });
+    }
+
     // Refresh cached balances for all affected groups
     for (const m of remainingMemberships) {
       await refreshGroupBalances(db, m.groupId);
     }
   }
 
-  // Do NOT delete R2 avatar — dummy keeps the avatarKey for history display
+  // Delete R2 avatar (dummy doesn't keep it)
+  if (user.avatarKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, user.avatarKey));
+  }
 
   // Delete image reports by this user
   await db.delete(imageReports).where(eq(imageReports.reporterTelegramId, user.telegramId));

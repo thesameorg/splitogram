@@ -278,7 +278,8 @@
     "memberJoined": "{{actor}} приєднався(-лася) до групи",
     "memberLeft": "{{actor}} покинув(ла) групу",
     "memberKicked": "{{actor}} видалив(ла) {{target}}",
-    "placeholderClaimed": "{{actor}} забрав(ла) акаунт «{{dummyName}}»"
+    "placeholderClaimed": "{{actor}} забрав(ла) акаунт «{{dummyName}}»",
+    "memberDeleted": "{{originalName}} видалив(ла) акаунт, замінено на {{dummyName}}"
   },
   "feed": {
     "title": "Стрічка"

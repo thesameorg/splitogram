@@ -276,7 +276,8 @@
     "memberJoined": "{{actor}} ist der Gruppe beigetreten",
     "memberLeft": "{{actor}} hat die Gruppe verlassen",
     "memberKicked": "{{actor}} hat {{target}} entfernt",
-    "placeholderClaimed": "{{actor}} hat das Konto von \"{{dummyName}}\" übernommen"
+    "placeholderClaimed": "{{actor}} hat das Konto von \"{{dummyName}}\" übernommen",
+    "memberDeleted": "{{originalName}} hat das Konto gelöscht, ersetzt durch {{dummyName}}"
   },
   "feed": {
     "title": "Feed"

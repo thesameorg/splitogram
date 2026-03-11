@@ -287,7 +287,8 @@
     "memberJoined": "{{actor}} joined the group",
     "memberLeft": "{{actor}} left the group",
     "memberKicked": "{{actor}} removed {{target}}",
-    "placeholderClaimed": "{{actor}} claimed the account of \"{{dummyName}}\""
+    "placeholderClaimed": "{{actor}} claimed the account of \"{{dummyName}}\"",
+    "memberDeleted": "{{originalName}} deleted their account, replaced with {{dummyName}}"
   },
   "feed": {
     "title": "Feed"

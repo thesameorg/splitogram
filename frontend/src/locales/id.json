@@ -274,7 +274,8 @@
     "memberJoined": "{{actor}} bergabung ke grup",
     "memberLeft": "{{actor}} keluar dari grup",
     "memberKicked": "{{actor}} mengeluarkan {{target}}",
-    "placeholderClaimed": "{{actor}} mengklaim akun \"{{dummyName}}\""
+    "placeholderClaimed": "{{actor}} mengklaim akun \"{{dummyName}}\"",
+    "memberDeleted": "{{originalName}} menghapus akunnya, diganti dengan {{dummyName}}"
   },
   "feed": {
     "title": "Feed"

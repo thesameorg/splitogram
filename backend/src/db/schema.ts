@@ -144,6 +144,7 @@ export const activityLog = sqliteTable(
         'member_left',
         'member_kicked',
         'placeholder_claimed',
+        'member_deleted',
       ],
     }).notNull(),
     targetUserId: integer('target_user_id').references(() => users.id),

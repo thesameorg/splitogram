@@ -276,7 +276,8 @@
     "memberJoined": "{{actor}} به گروه پیوست",
     "memberLeft": "{{actor}} گروه را ترک کرد",
     "memberKicked": "{{actor}} {{target}} را حذف کرد",
-    "placeholderClaimed": "{{actor}} حساب «{{dummyName}}» را تصاحب کرد"
+    "placeholderClaimed": "{{actor}} حساب «{{dummyName}}» را تصاحب کرد",
+    "memberDeleted": "{{originalName}} حساب خود را حذف کرد، جایگزین شد با {{dummyName}}"
   },
   "feed": {
     "title": "فید"

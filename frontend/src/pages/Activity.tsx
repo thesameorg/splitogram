@@ -53,6 +53,11 @@ function getActivityText(
         actor,
         dummyName: (meta?.dummyName as string) ?? '',
       });
+    case 'member_deleted':
+      return t('activity.memberDeleted', {
+        originalName: (meta?.originalName as string) ?? '',
+        dummyName: (meta?.dummyName as string) ?? '',
+      });
     default:
       return item.type;
   }
