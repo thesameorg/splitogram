@@ -42,6 +42,7 @@ app.get('/me', async (c) => {
     displayName: user.displayName,
     username: user.username,
     avatarKey: user.avatarKey,
+    walletAddress: user.walletAddress,
   });
 });
 

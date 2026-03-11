@@ -216,7 +216,9 @@
     "deletedTitle": "Akun Dihapus",
     "deletedMessage": "Akun Anda telah dihapus. Anda bisa menutup aplikasi sekarang.",
     "closeApp": "Tutup",
-    "walletNetworkMismatch": "Dompet ini ada di jaringan yang salah. Hubungkan dompet {{network}}."
+    "walletNetworkMismatch": "Dompet ini ada di jaringan yang salah. Hubungkan dompet {{network}}.",
+    "walletMismatch": "Dompet lokal berbeda dari yang tersimpan",
+    "walletMismatchHint": "Perangkat ini memiliki dompet berbeda dari yang tersimpan di profil Anda. Pembayaran akan menggunakan dompet tempat Anda mengirim."
   },
   "settlement": {
     "payWithUsdt": "Bayar dengan USDT di TON",

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import { api } from '../services/api';
 import { config } from '../config';
@@ -15,6 +15,9 @@ function isTestnetAddress(friendlyAddr: string): boolean {
  * Thin wrapper around TON Connect hooks.
  * Syncs wallet address to backend on connect/disconnect.
  * Rejects testnet wallets when running on mainnet.
+ *
+ * Only calls deleteWallet on explicit user disconnect — not when TON Connect
+ * has no local session (e.g. different device, cleared storage).
  */
 export function useTonWallet() {
   const [tonConnectUI] = useTonConnectUI();
@@ -23,6 +26,8 @@ export function useTonWallet() {
   const connected = !!rawAddress;
   const prevAddress = useRef<string | null>(null);
   const [networkMismatch, setNetworkMismatch] = useState(false);
+  // Track whether disconnect was triggered by user action (not session loss)
+  const userDisconnecting = useRef(false);
 
   // Sync wallet address to backend when it changes
   useEffect(() => {
@@ -46,9 +51,18 @@ export function useTonWallet() {
       });
     } else if (!rawAddress && prevAddress.current) {
       prevAddress.current = null;
-      api.deleteWallet().catch(() => {});
+      // Only delete from backend if user explicitly disconnected
+      if (userDisconnecting.current) {
+        userDisconnecting.current = false;
+        api.deleteWallet().catch(() => {});
+      }
     }
   }, [rawAddress, friendlyAddress]);
+
+  const handleDisconnect = useCallback(() => {
+    userDisconnecting.current = true;
+    return tonConnectUI.disconnect();
+  }, [tonConnectUI]);
 
   return {
     tonConnectUI,
@@ -56,7 +70,7 @@ export function useTonWallet() {
     rawAddress,
     friendlyAddress,
     openModal: () => tonConnectUI.openModal(),
-    disconnect: () => tonConnectUI.disconnect(),
+    disconnect: handleDisconnect,
     networkMismatch,
     clearNetworkMismatch: () => setNetworkMismatch(false),
   };

@@ -216,7 +216,9 @@
     "deletedTitle": "Tài khoản đã xóa",
     "deletedMessage": "Tài khoản của bạn đã bị xóa. Bạn có thể đóng ứng dụng ngay bây giờ.",
     "closeApp": "Đóng",
-    "walletNetworkMismatch": "Ví này ở sai mạng. Vui lòng kết nối ví {{network}}."
+    "walletNetworkMismatch": "Ví này ở sai mạng. Vui lòng kết nối ví {{network}}.",
+    "walletMismatch": "Ví trên thiết bị khác với ví đã lưu",
+    "walletMismatchHint": "Thiết bị này có ví khác với ví đã lưu trong hồ sơ của bạn. Thanh toán sẽ sử dụng ví mà bạn gửi từ đó."
   },
   "settlement": {
     "payWithUsdt": "Thanh toán bằng USDT trên TON",

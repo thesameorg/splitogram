@@ -218,7 +218,9 @@
     "deletedTitle": "Account eliminato",
     "deletedMessage": "Il tuo account è stato eliminato. Puoi chiudere l'app ora.",
     "closeApp": "Chiudi",
-    "walletNetworkMismatch": "Questo wallet è sulla rete sbagliata. Collega un wallet {{network}}."
+    "walletNetworkMismatch": "Questo wallet è sulla rete sbagliata. Collega un wallet {{network}}.",
+    "walletMismatch": "Il wallet locale è diverso da quello salvato",
+    "walletMismatchHint": "Questo dispositivo ha un wallet diverso da quello salvato nel tuo profilo. I pagamenti useranno il wallet da cui invii."
   },
   "settlement": {
     "payWithUsdt": "Paga con USDT su TON",

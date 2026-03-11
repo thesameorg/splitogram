@@ -228,7 +228,9 @@
     "deletedTitle": "Account Deleted",
     "deletedMessage": "Your account has been deleted. You can close this app now.",
     "closeApp": "Close",
-    "walletNetworkMismatch": "This wallet is on the wrong network. Please connect a {{network}} wallet."
+    "walletNetworkMismatch": "This wallet is on the wrong network. Please connect a {{network}} wallet.",
+    "walletMismatch": "Local wallet differs from your saved wallet",
+    "walletMismatchHint": "This device has a different wallet connected than the one saved in your profile. Settlements will use whichever wallet you send from."
   },
   "settlement": {
     "payWithUsdt": "Pay with USDT on TON",

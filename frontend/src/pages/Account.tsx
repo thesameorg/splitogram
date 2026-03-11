@@ -363,6 +363,12 @@ export function Account() {
           onDismiss={clearNetworkMismatch}
         />
       )}
+      {walletConnected && user?.walletAddress && rawAddress && rawAddress !== user.walletAddress && (
+        <div className="mb-4 p-3 rounded-xl border border-app-warning/30 bg-app-warning-bg text-sm">
+          <p className="text-app-warning font-medium">{t('account.walletMismatch')}</p>
+          <p className="text-tg-hint text-xs mt-1">{t('account.walletMismatchHint')}</p>
+        </div>
+      )}
 
       {/* Avatar */}
       <div className="flex flex-col items-center mb-6">

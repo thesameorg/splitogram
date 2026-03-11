@@ -218,7 +218,9 @@
     "deletedTitle": "Conta excluída",
     "deletedMessage": "Sua conta foi excluída. Você pode fechar o app agora.",
     "closeApp": "Fechar",
-    "walletNetworkMismatch": "Esta carteira está na rede errada. Conecte uma carteira {{network}}."
+    "walletNetworkMismatch": "Esta carteira está na rede errada. Conecte uma carteira {{network}}.",
+    "walletMismatch": "Carteira local difere da salva",
+    "walletMismatchHint": "Este dispositivo tem uma carteira diferente da salva no seu perfil. Os pagamentos usarão a carteira de onde você enviar."
   },
   "settlement": {
     "payWithUsdt": "Pagar com USDT na TON",

@@ -247,6 +247,7 @@ export interface UserProfile {
   displayName: string;
   username: string | null;
   avatarKey: string | null;
+  walletAddress: string | null;
 }
 
 // --- API Functions ---

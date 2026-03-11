@@ -218,7 +218,9 @@
     "deletedTitle": "Cuenta eliminada",
     "deletedMessage": "Tu cuenta ha sido eliminada. Puedes cerrar la app ahora.",
     "closeApp": "Cerrar",
-    "walletNetworkMismatch": "Esta billetera está en la red incorrecta. Conecta una billetera {{network}}."
+    "walletNetworkMismatch": "Esta billetera está en la red incorrecta. Conecta una billetera {{network}}.",
+    "walletMismatch": "La billetera local difiere de la guardada",
+    "walletMismatchHint": "Este dispositivo tiene una billetera diferente a la guardada en tu perfil. Los pagos usarán la billetera desde la que envíes."
   },
   "settlement": {
     "payWithUsdt": "Pagar con USDT en TON",
