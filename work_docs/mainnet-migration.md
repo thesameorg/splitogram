@@ -6,9 +6,9 @@ Checklist for switching Splitogram's on-chain USDT settlement from TON testnet t
 
 ## Pre-migration
 
-- [ ] Review open CODE_REVIEW items (especially #9 response_destination, #10 fixed gas, #11 dedup)
-- [ ] Decide on `response_destination` fix — set to sender's address so excess gas refunds correctly
-- [ ] Decide on gas display — show expected refund in confirmation UI, or keep simple "~0.5 TON for gas"
+- [x] Review open CODE_REVIEW items (especially #9 response_destination, #10 fixed gas, #11 dedup)
+- [x] Decide on `response_destination` fix — set to sender's address so excess gas refunds correctly
+- [x] Decide on gas display — show expected refund in confirmation UI, or keep simple "~0.5 TON for gas"
 
 ---
 
@@ -16,21 +16,21 @@ Checklist for switching Splitogram's on-chain USDT settlement from TON testnet t
 
 ### 1.1 Prepare owner wallet
 
-- [ ] Choose a mainnet wallet for the contract owner (receives commission + can admin the contract)
-- [ ] Fund it with ~2 TON for deploy + SetJettonWallet gas
-- [ ] **Record the owner address** — this is permanent (contract is immutable)
+- [x] Choose a mainnet wallet for the contract owner (receives commission + can admin the contract)
+- [x] Fund it with ~2 TON for deploy + SetJettonWallet gas
+- [x] **Record the owner address** — `UQCZRBAItQRFbE3HkfTZerfOgcGiucYSL3ZAd3x0eyAIfxqe` (W5R1)
 
 ### 1.2 Build & deploy
 
 ```bash
 cd contracts/splitogram-contract
 npx blueprint build
-npx blueprint run deploySplitogramSettlement --tonconnect
+npx blueprint run mainnet/deploySplitogramSettlement --tonconnect
 # Mainnet mode (no --testnet flag)
 # Confirm in wallet app
 ```
 
-- [ ] **Save the new mainnet contract address**
+- [x] **Contract address:** `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq`
 
 ### 1.3 Configure Jetton Wallet
 
@@ -45,8 +45,8 @@ npx blueprint run setJettonWallet --tonconnect
 # Confirm with owner wallet
 ```
 
-- [ ] Call `SetJettonWallet` with the correct USDT Jetton Wallet address
-- [ ] Verify via contract getter that `usdt_wallet` is set
+- [x] Call `SetJettonWallet` with the correct USDT Jetton Wallet address
+- [x] Verify via contract getter that `usdt_wallet` is set — `EQAjosp5oiyrp9yClBOcPT2fFxOwO8t1LLJW7z79evsYUZGn`
 
 ### 1.4 Validate with small settlement
 
@@ -64,7 +64,7 @@ npx blueprint run setJettonWallet --tonconnect
 [vars]
 TON_NETWORK = "mainnet"
 USDT_MASTER_ADDRESS = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs"
-SETTLEMENT_CONTRACT_ADDRESS = "<new mainnet contract address>"
+SETTLEMENT_CONTRACT_ADDRESS = "EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq"
 ```
 
 ### 2.2 GitHub variables
@@ -111,8 +111,9 @@ Or just push to `main` — CI handles everything.
 | Item                | Testnet                                            | Mainnet                                            |
 | ------------------- | -------------------------------------------------- | -------------------------------------------------- |
 | USDT Jetton Master  | `kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7` | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
-| Settlement Contract | `EQDtl5xbPS-xn1NmAVevO8ahWWO8GZmGh5KuTywZjYQOFuPW` | TBD                                                |
-| Owner Wallet        | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` | TBD                                                |
+| Settlement Contract | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` |
+| Owner Wallet        | `0QAoBJzd06D3xzxrdCiF38ZnVyOVDCTZPKmQnrWO-2RfU9pq` | `UQCZRBAItQRFbE3HkfTZerfOgcGiucYSL3ZAd3x0eyAIfxqe` |
+| Contract Jetton Wallet | `0:dcda54490e86ba8f7d55cd19955915611dfe026e9d75f13f9f45480bb896c047` | `0:23a2ca79a22caba7dc8294139c3d3d9f1713b03bcb752cb256ef3efd7afb1851` |
 | Commission          | 1% (100 bps), min 0.1, max 1.0 USDT                | Same                                               |
 
 ---
