@@ -7,9 +7,6 @@ on:
         description: 'URL of the deployed worker'
         value: ${{ jobs.deploy-worker.outputs.worker_url }}
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   deploy-worker:
     name: Deploy Worker
@@ -19,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
