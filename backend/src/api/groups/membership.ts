@@ -290,6 +290,71 @@ membershipApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) =
   return c.json({ joined: true, groupId, groupName: group.name });
 });
 
+// --- Transfer admin role ---
+const transferAdminSchema = z.object({
+  newAdminUserId: z.number().int().positive(),
+});
+
+membershipApp.post('/:id/transfer-admin', zValidator('json', transferAdminSchema), async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const groupId = parseInt(c.req.param('id'), 10);
+  const { newAdminUserId } = c.req.valid('json');
+
+  if (isNaN(groupId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
+  }
+
+  const userId = session.userId;
+
+  // Check caller is admin
+  const [membership] = await db
+    .select({ role: groupMembers.role })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
+    .limit(1);
+
+  if (!membership || membership.role !== 'admin') {
+    return c.json({ error: 'not_admin', detail: 'Only group admins can transfer admin role' }, 403);
+  }
+
+  // Verify target is a real (non-dummy) member
+  const [target] = await db
+    .select({ role: groupMembers.role, isDummy: users.isDummy })
+    .from(groupMembers)
+    .innerJoin(users, eq(users.id, groupMembers.userId))
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, newAdminUserId)))
+    .limit(1);
+
+  if (!target) {
+    return c.json(
+      { error: 'target_not_member', detail: 'User is not a member of this group' },
+      404,
+    );
+  }
+
+  if (target.isDummy) {
+    return c.json(
+      { error: 'target_is_dummy', detail: 'Cannot transfer admin to a placeholder' },
+      400,
+    );
+  }
+
+  // Transfer: promote target, demote caller
+  await db.batch([
+    db
+      .update(groupMembers)
+      .set({ role: 'admin' })
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, newAdminUserId))),
+    db
+      .update(groupMembers)
+      .set({ role: 'member' })
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId))),
+  ]);
+
+  return c.json({ transferred: true, groupId, newAdminUserId });
+});
+
 // --- Send debt reminder ---
 const reminderSchema = z.object({
   toUserId: z.number().int().positive(),

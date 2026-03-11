@@ -278,6 +278,20 @@ export const api = {
   deleteAvatar: () =>
     apiRequest<{ deleted: boolean }>('/api/v1/users/me/avatar', { method: 'DELETE' }),
   deleteAccount: () => apiRequest<{ deleted: boolean }>('/api/v1/users/me', { method: 'DELETE' }),
+  deletionPreflight: () =>
+    apiRequest<{
+      groups: Array<{
+        id: number;
+        name: string;
+        candidates: Array<{ userId: number; displayName: string }>;
+      }>;
+    }>('/api/v1/users/me/deletion-preflight'),
+
+  transferAdmin: (groupId: number, newAdminUserId: number) =>
+    apiRequest<{ transferred: boolean; groupId: number; newAdminUserId: number }>(
+      `/api/v1/groups/${groupId}/transfer-admin`,
+      { method: 'POST', body: JSON.stringify({ newAdminUserId }) },
+    ),
   sendFeedback: (message: string, files?: File[]) => {
     const formData = new FormData();
     formData.append('message', message);

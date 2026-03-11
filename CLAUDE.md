@@ -261,17 +261,18 @@ Uninit wallets (never sent a tx): detected via `status === 'uninit'` from TONAPI
 Older wallets (V3 and below): emulation not supported, empirical fallback used. Transaction still works (TON Connect handles wallet-specific wrapping). No need to block older wallets.
 
 **Troubleshooting out-of-gas:**
+
 - If emulate is working: it catches network gas changes automatically. If still failing, increase `contingencyPct` in `settlements.ts`.
 - If emulate returns null (uninit, unknown wallet, TONAPI down): empirical fallback is used. Check a failed tx on Tonviewer → compute gas burn (attached - excess) → update `EMPIRICAL_JETTON_CHAIN` if too low.
 - Emulate diagnostics: wallet not V4/V5 → `interfaces` empty or other version; TONAPI unavailable → check `TONAPI_KEY`; W5 message format outdated → check `tonkeeper/w5` repo.
 
-| Cause | Handled by emulate? | Action if not |
-|---|---|---|
-| Validators raise `gas_price` (Config 21/25) | Yes, automatically | Increase `EMPIRICAL_JETTON_CHAIN` |
-| Forward fee increase from network load | Yes, automatically | Increase `EMPIRICAL_JETTON_CHAIN` |
-| Contract structure change (new version) | Yes, if deployed | Re-measure on testnet |
-| New wallet version (V6+) | No | Add `buildV6Body()` in `tonapi.ts` |
-| Adding third recipient to contract | Yes, automatically | `FORWARD_TON` += 150_000_000 |
+| Cause                                       | Handled by emulate? | Action if not                      |
+| ------------------------------------------- | ------------------- | ---------------------------------- |
+| Validators raise `gas_price` (Config 21/25) | Yes, automatically  | Increase `EMPIRICAL_JETTON_CHAIN`  |
+| Forward fee increase from network load      | Yes, automatically  | Increase `EMPIRICAL_JETTON_CHAIN`  |
+| Contract structure change (new version)     | Yes, if deployed    | Re-measure on testnet              |
+| New wallet version (V6+)                    | No                  | Add `buildV6Body()` in `tonapi.ts` |
+| Adding third recipient to contract          | Yes, automatically  | `FORWARD_TON` += 150_000_000       |
 
 **Re-measuring fallback constants:** do a test settlement on testnet, find the tx on Tonviewer, compute `gas_burn = attached - sum(excess)`, update `EMPIRICAL_JETTON_CHAIN = ceil(gas_burn / 10_000_000) * 10_000_000`.
 

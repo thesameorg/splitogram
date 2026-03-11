@@ -12,7 +12,7 @@ import {
   debtReminders,
   imageReports,
 } from '../db/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, isNull } from 'drizzle-orm';
 import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
 import { refreshGroupBalances } from './balances';
 import { notify } from '../services/notifications';
@@ -263,7 +263,76 @@ app.delete('/me/wallet', async (c) => {
   return c.json({ walletAddress: null });
 });
 
-// DELETE /api/v1/users/me — delete account (reverse-claim: replace user with placeholders in all groups)
+// GET /api/v1/users/me/deletion-preflight — groups where user is sole admin
+app.get('/me/deletion-preflight', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+
+  // Get all non-deleted groups where user is admin
+  const adminGroups = await db
+    .select({
+      groupId: groupMembers.groupId,
+      groupName: groups.name,
+    })
+    .from(groupMembers)
+    .innerJoin(groups, eq(groups.id, groupMembers.groupId))
+    .where(
+      and(
+        eq(groupMembers.userId, session.userId),
+        eq(groupMembers.role, 'admin'),
+        isNull(groups.deletedAt),
+      ),
+    );
+
+  const result: Array<{
+    id: number;
+    name: string;
+    candidates: Array<{ userId: number; displayName: string }>;
+  }> = [];
+
+  for (const ag of adminGroups) {
+    // Check if there are other admins
+    const [otherAdmin] = await db
+      .select({ userId: groupMembers.userId })
+      .from(groupMembers)
+      .where(
+        and(
+          eq(groupMembers.groupId, ag.groupId),
+          eq(groupMembers.role, 'admin'),
+          sql`${groupMembers.userId} != ${session.userId}`,
+        ),
+      )
+      .limit(1);
+
+    if (otherAdmin) continue; // Not sole admin, skip
+
+    // Find real (non-dummy) members who could become admin
+    const candidates = await db
+      .select({
+        userId: groupMembers.userId,
+        displayName: users.displayName,
+      })
+      .from(groupMembers)
+      .innerJoin(users, eq(users.id, groupMembers.userId))
+      .where(
+        and(
+          eq(groupMembers.groupId, ag.groupId),
+          eq(users.isDummy, false),
+          sql`${groupMembers.userId} != ${session.userId}`,
+        ),
+      );
+
+    result.push({
+      id: ag.groupId,
+      name: ag.groupName,
+      candidates,
+    });
+  }
+
+  return c.json({ groups: result });
+});
+
+// DELETE /api/v1/users/me — delete account (single dummy with -telegramId for auto-reclaim)
 app.delete('/me', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
@@ -274,7 +343,7 @@ app.delete('/me', async (c) => {
     return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
   }
 
-  // Get all groups where the user is a member
+  // Get all groups where user is a member (including soft-deleted for FK cleanup)
   const memberships = await db
     .select({
       groupId: groupMembers.groupId,
@@ -283,251 +352,149 @@ app.delete('/me', async (c) => {
     .from(groupMembers)
     .where(eq(groupMembers.userId, user.id));
 
-  // For each group, create a placeholder and transfer all FK references (reverse-claim)
-  for (const membership of memberships) {
-    const groupId = membership.groupId;
+  // Pre-check: verify no sole-admin groups with real members remain unresolved
+  for (const m of memberships) {
+    if (m.role !== 'admin') continue;
 
-    // Create a dummy user to replace the real user in this group
-    const fakeTelegramId = -(Date.now() * 1000 + Math.floor(Math.random() * 1000));
+    // Check if another admin exists in this group
+    const [otherAdmin] = await db
+      .select({ userId: groupMembers.userId })
+      .from(groupMembers)
+      .where(
+        and(
+          eq(groupMembers.groupId, m.groupId),
+          eq(groupMembers.role, 'admin'),
+          sql`${groupMembers.userId} != ${user.id}`,
+        ),
+      )
+      .limit(1);
+
+    if (otherAdmin) continue; // Another admin exists, fine
+
+    // Sole admin — check if there are real (non-dummy) members
+    const [realMember] = await db
+      .select({ userId: groupMembers.userId })
+      .from(groupMembers)
+      .innerJoin(users, eq(users.id, groupMembers.userId))
+      .where(
+        and(
+          eq(groupMembers.groupId, m.groupId),
+          eq(users.isDummy, false),
+          sql`${groupMembers.userId} != ${user.id}`,
+        ),
+      )
+      .limit(1);
+
+    if (realMember) {
+      return c.json(
+        {
+          error: 'unresolved_admin_groups',
+          detail: 'Transfer admin role or delete groups first',
+        },
+        400,
+      );
+    }
+
+    // Sole admin with only dummies — soft-delete the group
+    // (replicates group delete logic from core.ts)
+    const groupExpenses = await db
+      .select({ id: expenses.id })
+      .from(expenses)
+      .where(eq(expenses.groupId, m.groupId));
+
+    if (groupExpenses.length > 0) {
+      const expenseIds = groupExpenses.map((e) => e.id);
+      await db.delete(expenseParticipants).where(
+        sql`${expenseParticipants.expenseId} IN (${sql.join(
+          expenseIds.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      );
+    }
+
+    await db.delete(expenses).where(eq(expenses.groupId, m.groupId));
+    await db
+      .delete(settlements)
+      .where(
+        and(eq(settlements.groupId, m.groupId), sql`${settlements.status} != 'settled_onchain'`),
+      );
+    await db.delete(activityLog).where(eq(activityLog.groupId, m.groupId));
+    await db.delete(debtReminders).where(eq(debtReminders.groupId, m.groupId));
+    await db.delete(groupMembers).where(eq(groupMembers.groupId, m.groupId));
+    await db
+      .update(groups)
+      .set({ deletedAt: new Date().toISOString() })
+      .where(eq(groups.id, m.groupId));
+  }
+
+  // Re-fetch memberships (some groups may have been soft-deleted above)
+  const remainingMemberships = await db
+    .select({
+      groupId: groupMembers.groupId,
+      role: groupMembers.role,
+    })
+    .from(groupMembers)
+    .where(eq(groupMembers.userId, user.id));
+
+  if (remainingMemberships.length > 0) {
+    // Create ONE dummy user with deterministic telegramId for re-claim
+    const dummyTelegramId = -Math.abs(user.telegramId);
     const [dummyUser] = await db
       .insert(users)
       .values({
-        telegramId: fakeTelegramId,
+        telegramId: dummyTelegramId,
         displayName: user.displayName,
+        avatarKey: user.avatarKey, // keep for history display
         isDummy: true,
       })
       .returning();
 
-    // Add dummy as member with same role
-    await db.insert(groupMembers).values({
-      groupId,
-      userId: dummyUser.id,
-      role: membership.role,
-    });
-
-    // If user was admin and sole admin, promote another real member (if any)
-    if (membership.role === 'admin') {
-      const otherRealMembers = await db
-        .select({ userId: groupMembers.userId })
-        .from(groupMembers)
-        .innerJoin(users, eq(users.id, groupMembers.userId))
-        .where(
-          and(
-            eq(groupMembers.groupId, groupId),
-            eq(users.isDummy, false),
-            sql`${groupMembers.userId} != ${user.id}`,
-          ),
-        )
-        .limit(1);
-
-      if (otherRealMembers.length > 0) {
-        await db
-          .update(groupMembers)
-          .set({ role: 'admin' })
-          .where(
-            and(
-              eq(groupMembers.groupId, groupId),
-              eq(groupMembers.userId, otherRealMembers[0].userId),
-            ),
-          );
-      }
+    // Add dummy to all remaining groups
+    for (const m of remainingMemberships) {
+      await db.insert(groupMembers).values({
+        groupId: m.groupId,
+        userId: dummyUser.id,
+        role: m.role,
+      });
     }
 
-    // Transfer all FK references from real user to dummy in this group
-    const groupExpenseIds = await db
-      .select({ id: expenses.id })
-      .from(expenses)
-      .where(eq(expenses.groupId, groupId));
-    const expIds = groupExpenseIds.map((e) => e.id);
-    const expIdsSql =
-      expIds.length > 0
-        ? sql`${expenseParticipants.expenseId} IN (${sql.join(
-            expIds.map((id) => sql`${id}`),
-            sql`, `,
-          )})`
-        : null;
-
-    if (expIdsSql) {
-      await db.batch([
-        // expense_participants: transfer real user's rows to dummy
-        db
-          .update(expenseParticipants)
-          .set({ userId: dummyUser.id })
-          .where(and(expIdsSql, eq(expenseParticipants.userId, user.id))),
-        // expenses.paid_by
-        db
-          .update(expenses)
-          .set({ paidBy: dummyUser.id })
-          .where(and(eq(expenses.groupId, groupId), eq(expenses.paidBy, user.id))),
-        // settlements — from, to, settledBy
-        db
-          .update(settlements)
-          .set({ fromUser: dummyUser.id })
-          .where(and(eq(settlements.groupId, groupId), eq(settlements.fromUser, user.id))),
-        db
-          .update(settlements)
-          .set({ toUser: dummyUser.id })
-          .where(and(eq(settlements.groupId, groupId), eq(settlements.toUser, user.id))),
-        db
-          .update(settlements)
-          .set({ settledBy: dummyUser.id })
-          .where(and(eq(settlements.groupId, groupId), eq(settlements.settledBy, user.id))),
-        // activity_log
-        db
-          .update(activityLog)
-          .set({ actorId: dummyUser.id })
-          .where(and(eq(activityLog.groupId, groupId), eq(activityLog.actorId, user.id))),
-        db
-          .update(activityLog)
-          .set({ targetUserId: dummyUser.id })
-          .where(and(eq(activityLog.groupId, groupId), eq(activityLog.targetUserId, user.id))),
-        // debt_reminders — delete (ephemeral)
-        db
-          .delete(debtReminders)
-          .where(
-            and(
-              eq(debtReminders.groupId, groupId),
-              sql`(${debtReminders.fromUserId} = ${user.id} OR ${debtReminders.toUserId} = ${user.id})`,
-            ),
-          ),
-        // Remove real user's membership
-        db
-          .delete(groupMembers)
-          .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id))),
-      ]);
-    } else {
-      await db.batch([
-        db
-          .update(settlements)
-          .set({ fromUser: dummyUser.id })
-          .where(and(eq(settlements.groupId, groupId), eq(settlements.fromUser, user.id))),
-        db
-          .update(settlements)
-          .set({ toUser: dummyUser.id })
-          .where(and(eq(settlements.groupId, groupId), eq(settlements.toUser, user.id))),
-        db
-          .update(settlements)
-          .set({ settledBy: dummyUser.id })
-          .where(and(eq(settlements.groupId, groupId), eq(settlements.settledBy, user.id))),
-        db
-          .update(activityLog)
-          .set({ actorId: dummyUser.id })
-          .where(and(eq(activityLog.groupId, groupId), eq(activityLog.actorId, user.id))),
-        db
-          .update(activityLog)
-          .set({ targetUserId: dummyUser.id })
-          .where(and(eq(activityLog.groupId, groupId), eq(activityLog.targetUserId, user.id))),
-        db
-          .delete(debtReminders)
-          .where(
-            and(
-              eq(debtReminders.groupId, groupId),
-              sql`(${debtReminders.fromUserId} = ${user.id} OR ${debtReminders.toUserId} = ${user.id})`,
-            ),
-          ),
-        db
-          .delete(groupMembers)
-          .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id))),
-      ]);
-    }
-
-    // Update groups.createdBy if this user created the group
-    await db
-      .update(groups)
-      .set({ createdBy: dummyUser.id })
-      .where(and(eq(groups.id, groupId), eq(groups.createdBy, user.id)));
-
-    // Refresh cached balances
-    await refreshGroupBalances(db, groupId);
-  }
-
-  // Final sweep: handle any remaining FK references to this user that weren't covered above.
-  // This catches orphaned refs from soft-deleted groups (members removed during group deletion,
-  // but groups.createdBy and on-chain settlements still reference this user).
-  // Create a single ghost dummy for all remaining references.
-  const hasOrphanedRefs =
-    (
-      await db
-        .select({ id: groups.id })
-        .from(groups)
-        .where(eq(groups.createdBy, user.id))
-        .limit(1)
-    ).length > 0 ||
-    (
-      await db
-        .select({ id: settlements.id })
-        .from(settlements)
-        .where(
-          sql`(${settlements.fromUser} = ${user.id} OR ${settlements.toUser} = ${user.id} OR ${settlements.settledBy} = ${user.id})`,
-        )
-        .limit(1)
-    ).length > 0 ||
-    (
-      await db
-        .select({ id: expenses.id })
-        .from(expenses)
-        .where(eq(expenses.paidBy, user.id))
-        .limit(1)
-    ).length > 0 ||
-    (
-      await db
-        .select({ id: expenseParticipants.id })
-        .from(expenseParticipants)
-        .where(eq(expenseParticipants.userId, user.id))
-        .limit(1)
-    ).length > 0;
-
-  if (hasOrphanedRefs) {
-    const ghostTelegramId = -(Date.now() * 1000 + Math.floor(Math.random() * 1000));
-    const [ghostUser] = await db
-      .insert(users)
-      .values({
-        telegramId: ghostTelegramId,
-        displayName: user.displayName,
-        isDummy: true,
-      })
-      .returning();
-
+    // Global FK transfer — one batch for ALL groups (no per-group scoping needed)
     await db.batch([
-      db.update(groups).set({ createdBy: ghostUser.id }).where(eq(groups.createdBy, user.id)),
-      db
-        .update(settlements)
-        .set({ fromUser: ghostUser.id })
-        .where(eq(settlements.fromUser, user.id)),
-      db
-        .update(settlements)
-        .set({ toUser: ghostUser.id })
-        .where(eq(settlements.toUser, user.id)),
-      db
-        .update(settlements)
-        .set({ settledBy: ghostUser.id })
-        .where(eq(settlements.settledBy, user.id)),
-      db.update(expenses).set({ paidBy: ghostUser.id }).where(eq(expenses.paidBy, user.id)),
+      db.update(expenses).set({ paidBy: dummyUser.id }).where(eq(expenses.paidBy, user.id)),
       db
         .update(expenseParticipants)
-        .set({ userId: ghostUser.id })
+        .set({ userId: dummyUser.id })
         .where(eq(expenseParticipants.userId, user.id)),
+      db
+        .update(settlements)
+        .set({ fromUser: dummyUser.id })
+        .where(eq(settlements.fromUser, user.id)),
+      db.update(settlements).set({ toUser: dummyUser.id }).where(eq(settlements.toUser, user.id)),
+      db
+        .update(settlements)
+        .set({ settledBy: dummyUser.id })
+        .where(eq(settlements.settledBy, user.id)),
+      db.update(activityLog).set({ actorId: dummyUser.id }).where(eq(activityLog.actorId, user.id)),
+      db
+        .update(activityLog)
+        .set({ targetUserId: dummyUser.id })
+        .where(eq(activityLog.targetUserId, user.id)),
+      db.update(groups).set({ createdBy: dummyUser.id }).where(eq(groups.createdBy, user.id)),
+      db
+        .delete(debtReminders)
+        .where(
+          sql`(${debtReminders.fromUserId} = ${user.id} OR ${debtReminders.toUserId} = ${user.id})`,
+        ),
+      db.delete(groupMembers).where(eq(groupMembers.userId, user.id)),
     ]);
+
+    // Refresh cached balances for all affected groups
+    for (const m of remainingMemberships) {
+      await refreshGroupBalances(db, m.groupId);
+    }
   }
 
-  // Clean up activity_log references (actorId is NOT NULL, so delete; targetUserId is nullable)
-  await db.delete(activityLog).where(eq(activityLog.actorId, user.id));
-  await db
-    .update(activityLog)
-    .set({ targetUserId: null })
-    .where(eq(activityLog.targetUserId, user.id));
-
-  // Clean up debt reminders
-  await db
-    .delete(debtReminders)
-    .where(
-      sql`(${debtReminders.fromUserId} = ${user.id} OR ${debtReminders.toUserId} = ${user.id})`,
-    );
-
-  // Clean up R2 images (best-effort, fire-and-forget)
-  if (user.avatarKey) {
-    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, user.avatarKey));
-  }
+  // Do NOT delete R2 avatar — dummy keeps the avatarKey for history display
 
   // Delete image reports by this user
   await db.delete(imageReports).where(eq(imageReports.reporterTelegramId, user.telegramId));

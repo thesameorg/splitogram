@@ -45,8 +45,18 @@ export function Account() {
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackFiles, setFeedbackFiles] = useState<File[]>([]);
   const [sendingFeedback, setSendingFeedback] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteConfirmStep, setDeleteConfirmStep] = useState(0); // 0 = not started, 1 = first confirm, 2 = deleting
+  const [showDeleteFlow, setShowDeleteFlow] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<'warning' | 'groups' | 'confirm'>('warning');
+  const [preflightGroups, setPreflightGroups] = useState<
+    Array<{
+      id: number;
+      name: string;
+      candidates: Array<{ userId: number; displayName: string }>;
+    }>
+  >([]);
+  const [resolvedGroupIds, setResolvedGroupIds] = useState<Set<number>>(new Set());
+  const [selectedAdmins, setSelectedAdmins] = useState<Record<number, number>>({});
+  const [actionLoading, setActionLoading] = useState<number | null>(null); // groupId being acted on
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -158,19 +168,65 @@ export function Account() {
     setFeedbackFiles((prev) => [...prev, ...Array.from(files)].slice(0, 5));
   }
 
+  async function handleDeletePreflight() {
+    setError(null);
+    setActionLoading(-1); // loading indicator for "Continue" button
+    try {
+      const result = await api.deletionPreflight();
+      if (result.groups.length === 0) {
+        setDeleteStep('confirm');
+      } else {
+        setPreflightGroups(result.groups);
+        setResolvedGroupIds(new Set());
+        setSelectedAdmins({});
+        setDeleteStep('groups');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to check account');
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleTransferAdmin(groupId: number) {
+    const newAdminId = selectedAdmins[groupId];
+    if (!newAdminId) return;
+    setActionLoading(groupId);
+    setError(null);
+    try {
+      await api.transferAdmin(groupId, newAdminId);
+      setResolvedGroupIds((prev) => new Set([...prev, groupId]));
+    } catch (err: any) {
+      setError(err.message || 'Failed to transfer admin');
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleDeleteGroupForDeletion(groupId: number) {
+    setActionLoading(groupId);
+    setError(null);
+    try {
+      await api.deleteGroup(groupId, true);
+      setResolvedGroupIds((prev) => new Set([...prev, groupId]));
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete group');
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
   async function handleDeleteAccount() {
     if (deleting) return;
     setDeleting(true);
     setError(null);
     try {
       await api.deleteAccount();
-      setShowDeleteConfirm(false);
+      setShowDeleteFlow(false);
       setDeleted(true);
     } catch (err: any) {
       setError(err.message || 'Failed to delete account');
       setDeleting(false);
-      setShowDeleteConfirm(false);
-      setDeleteConfirmStep(0);
     }
   }
 
@@ -419,8 +475,11 @@ export function Account() {
       <div className="mb-4 mt-8">
         <button
           onClick={() => {
-            setShowDeleteConfirm(true);
-            setDeleteConfirmStep(0);
+            setShowDeleteFlow(true);
+            setDeleteStep('warning');
+            setPreflightGroups([]);
+            setResolvedGroupIds(new Set());
+            setSelectedAdmins({});
           }}
           className="w-full p-3 rounded-xl border border-tg-destructive/30 text-tg-destructive text-sm font-medium"
         >
@@ -459,30 +518,121 @@ export function Account() {
         </div>
       </BottomSheet>
 
-      {/* Delete Account Confirmation Bottom Sheet */}
+      {/* Delete Account Flow */}
       <BottomSheet
-        open={showDeleteConfirm}
+        open={showDeleteFlow}
         onClose={() => {
           if (!deleting) {
-            setShowDeleteConfirm(false);
-            setDeleteConfirmStep(0);
+            setShowDeleteFlow(false);
           }
         }}
         title={t('account.deleteAccount')}
       >
         <div className="space-y-4">
-          {deleteConfirmStep === 0 && (
+          {deleteStep === 'warning' && (
             <>
               <p className="text-sm text-tg-hint">{t('account.deleteWarning')}</p>
               <button
-                onClick={() => setDeleteConfirmStep(1)}
-                className="w-full py-3 rounded-xl bg-tg-destructive text-white font-medium"
+                onClick={handleDeletePreflight}
+                disabled={actionLoading === -1}
+                className="w-full py-3 rounded-xl bg-tg-destructive text-white font-medium disabled:opacity-50"
               >
-                {t('account.deleteConfirmFirst')}
+                {actionLoading === -1 ? '...' : t('account.deleteContinue')}
+              </button>
+              <button
+                onClick={() => setShowDeleteFlow(false)}
+                className="w-full py-3 rounded-xl border border-tg-separator font-medium"
+              >
+                {t('account.cancel')}
               </button>
             </>
           )}
-          {deleteConfirmStep === 1 && (
+
+          {deleteStep === 'groups' && (
+            <>
+              <p className="text-sm text-tg-hint font-medium">
+                {t('account.deleteGroupsSubtitle')}
+              </p>
+
+              <div className="space-y-3">
+                {preflightGroups.map((group) => {
+                  const resolved = resolvedGroupIds.has(group.id);
+                  const isLoading = actionLoading === group.id;
+
+                  return (
+                    <div
+                      key={group.id}
+                      className={`p-3 rounded-xl border ${resolved ? 'border-app-positive/30 bg-app-positive-bg' : 'border-tg-separator bg-tg-section'}`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-sm">{group.name}</span>
+                        {resolved && (
+                          <span className="text-app-positive text-xs font-medium">&#10003;</span>
+                        )}
+                      </div>
+
+                      {!resolved && (
+                        <>
+                          {group.candidates.length > 0 ? (
+                            <div className="flex gap-2">
+                              <select
+                                value={selectedAdmins[group.id] ?? ''}
+                                onChange={(e) =>
+                                  setSelectedAdmins((prev) => ({
+                                    ...prev,
+                                    [group.id]: parseInt(e.target.value, 10),
+                                  }))
+                                }
+                                className="flex-1 p-2 text-sm rounded-lg border border-tg-separator bg-transparent"
+                              >
+                                <option value="">{t('account.selectNewAdmin')}</option>
+                                {group.candidates.map((c) => (
+                                  <option key={c.userId} value={c.userId}>
+                                    {c.displayName}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={() => handleTransferAdmin(group.id)}
+                                disabled={!selectedAdmins[group.id] || isLoading}
+                                className="px-3 py-2 text-sm rounded-lg bg-tg-button text-tg-button-text font-medium disabled:opacity-50"
+                              >
+                                {isLoading ? '...' : t('account.transferAdmin')}
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleDeleteGroupForDeletion(group.id)}
+                              disabled={isLoading}
+                              className="w-full py-2 text-sm rounded-lg border border-tg-destructive/30 text-tg-destructive font-medium disabled:opacity-50"
+                            >
+                              {isLoading ? '...' : t('account.deleteGroupButton')}
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setDeleteStep('confirm')}
+                disabled={resolvedGroupIds.size < preflightGroups.length}
+                className="w-full py-3 rounded-xl bg-tg-destructive text-white font-medium disabled:opacity-50"
+              >
+                {t('account.deleteContinue')}
+              </button>
+              <button
+                onClick={() => setShowDeleteFlow(false)}
+                className="w-full py-3 rounded-xl border border-tg-separator font-medium"
+              >
+                {t('account.cancel')}
+              </button>
+            </>
+          )}
+
+          {deleteStep === 'confirm' && (
             <>
               <p className="text-sm text-tg-destructive font-medium">
                 {t('account.deleteFinalWarning')}
@@ -494,18 +644,15 @@ export function Account() {
               >
                 {deleting ? '...' : t('account.deleteConfirmFinal')}
               </button>
+              {!deleting && (
+                <button
+                  onClick={() => setShowDeleteFlow(false)}
+                  className="w-full py-3 rounded-xl border border-tg-separator font-medium"
+                >
+                  {t('account.cancel')}
+                </button>
+              )}
             </>
-          )}
-          {!deleting && (
-            <button
-              onClick={() => {
-                setShowDeleteConfirm(false);
-                setDeleteConfirmStep(0);
-              }}
-              className="w-full py-3 rounded-xl border border-tg-separator font-medium"
-            >
-              {t('account.cancel')}
-            </button>
           )}
         </div>
       </BottomSheet>
