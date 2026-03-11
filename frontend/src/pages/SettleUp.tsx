@@ -14,6 +14,7 @@ import {
   processReceiptThumbnail,
   imageUrl,
 } from '../utils/image';
+import { sanitizeDecimalInput } from '../utils/input';
 import { config } from '../config';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
@@ -559,7 +560,7 @@ export function SettleUp() {
                   type="text"
                   inputMode="decimal"
                   value={amountStr}
-                  onChange={(e) => setAmountStr(e.target.value)}
+                  onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
                   className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
                 />
               </div>

@@ -86,6 +86,61 @@ function tonapiHeaders(env: Env): Record<string, string> {
 }
 
 /**
+ * Verify all transactions in a trace succeeded.
+ * Returns true only if every node in the tree has success=true && aborted=false.
+ * Used as fallback when event is in_progress (uninit wallet deploys).
+ */
+function isTraceFullySuccessful(trace: any): boolean {
+  const tx = trace?.transaction;
+  if (!tx) return false;
+  if (tx.success !== true || tx.aborted !== false) return false;
+  if (Array.isArray(trace.children)) {
+    for (const child of trace.children) {
+      if (!isTraceFullySuccessful(child)) return false;
+    }
+  }
+  return true;
+}
+
+/** Count total transaction nodes in a trace tree */
+function countTraceNodes(trace: any): number {
+  let count = trace?.transaction ? 1 : 0;
+  if (Array.isArray(trace.children)) {
+    for (const child of trace.children) {
+      count += countTraceNodes(child);
+    }
+  }
+  return count;
+}
+
+/**
+ * Fetch trace and verify all transactions succeeded.
+ * Fallback for in_progress events (uninit wallet first tx — ContractDeploy keeps
+ * event in_progress on TONAPI for minutes, then event gets pruned to 404,
+ * even though all on-chain transactions actually completed).
+ */
+async function verifyViaTrace(
+  env: Env,
+  eventId: string,
+): Promise<{ allSucceeded: boolean; txCount: number }> {
+  const baseUrl = tonapiBaseUrl(env);
+  try {
+    const resp = await fetch(`${baseUrl}/v2/traces/${eventId}`, {
+      headers: tonapiHeaders(env),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!resp.ok) return { allSucceeded: false, txCount: 0 };
+    const trace = (await resp.json()) as any;
+    const txCount = countTraceNodes(trace);
+    // Settlement trace has 11 transactions; require at least 8 to avoid matching partial traces
+    if (txCount < 8) return { allSucceeded: false, txCount };
+    return { allSucceeded: isTraceFullySuccessful(trace), txCount };
+  } catch {
+    return { allSucceeded: false, txCount: 0 };
+  }
+}
+
+/**
  * Verify a settlement by looking up a specific TONAPI event.
  * Used when the user provides a transaction hash/link.
  */
@@ -107,6 +162,20 @@ async function verifyByEventId(
 
     const event = (await resp.json()) as any;
     if (!event.actions) return { verified: false };
+
+    // Event still being processed (common with uninit wallet first tx — ContractDeploy).
+    // Don't trust event actions yet — fall back to trace verification.
+    if (event.in_progress) {
+      const trace = await verifyViaTrace(env, eventId);
+      if (trace.allSucceeded) {
+        console.log('[settlement:verify] in_progress event verified via trace', {
+          eventId,
+          txCount: trace.txCount,
+        });
+        return { verified: true, txHash: eventId };
+      }
+      return { verified: false };
+    }
 
     const allJettonActions = event.actions.filter((a: any) => a.type === 'JettonTransfer');
     const jettonActions = allJettonActions.filter((a: any) => a.status === 'ok');
@@ -179,6 +248,21 @@ async function verifySettlementOnChain(
 
     for (const event of events) {
       if (!event.actions) continue;
+
+      // Event still being processed (common with uninit wallet first tx).
+      // Fall back to trace verification instead of skipping entirely.
+      if (event.in_progress) {
+        const trace = await verifyViaTrace(env, event.event_id);
+        if (trace.allSucceeded) {
+          console.log('[settlement:verify] in_progress contract event verified via trace', {
+            eventId: event.event_id,
+            settlementId: settlement.id,
+            txCount: trace.txCount,
+          });
+          return { verified: true, txHash: event.event_id };
+        }
+        continue;
+      }
 
       // Check if this event involves the debtor (to detect failed txns)
       const allJettonActions = event.actions.filter((a: any) => a.type === 'JettonTransfer');
@@ -495,6 +579,7 @@ export {
   normalizeAddress,
   verifyByEventId,
   verifySettlementOnChain,
+  verifyViaTrace,
   estimateSettlementGas,
   detectWalletVersion,
 };

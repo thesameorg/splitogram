@@ -9,6 +9,7 @@ import {
   processReceiptThumbnail,
   imageUrl,
 } from '../utils/image';
+import { sanitizeDecimalInput } from '../utils/input';
 import { resolveCurrentUser } from '../hooks/useCurrentUser';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { useTelegramMainButton } from '../hooks/useTelegramMainButton';
@@ -300,7 +301,7 @@ export function AddExpense() {
           inputMode="decimal"
           placeholder="0.00"
           value={amountStr}
-          onChange={(e) => setAmountStr(e.target.value)}
+          onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
           className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-2xl"
         />
         {splitMode === 'equal' && selectedParticipants.size > 0 && amountMicro > 0 && (
@@ -416,7 +417,9 @@ export function AddExpense() {
                     placeholder="0"
                     value={shares.get(m.userId) || ''}
                     onChange={(e) =>
-                      setShares((prev) => new Map(prev).set(m.userId, e.target.value))
+                      setShares((prev) =>
+                        new Map(prev).set(m.userId, sanitizeDecimalInput(e.target.value))
+                      )
                     }
                     className="w-20 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"
                   />
@@ -449,7 +452,11 @@ export function AddExpense() {
                   inputMode="decimal"
                   placeholder="0.00"
                   value={shares.get(m.userId) || ''}
-                  onChange={(e) => setShares((prev) => new Map(prev).set(m.userId, e.target.value))}
+                  onChange={(e) =>
+                    setShares((prev) =>
+                      new Map(prev).set(m.userId, sanitizeDecimalInput(e.target.value))
+                    )
+                  }
                   className="w-28 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"
                 />
                 <span className="text-sm text-tg-hint w-10">{group.currency}</span>
