@@ -253,6 +253,8 @@
     "txLinkPlaceholder": "Paste Tonviewer or Tonscan link...",
     "verifyTx": "Verify Transaction",
     "viewWalletTxns": "View wallet transactions",
+    "cancelPending": "Cancel payment",
+    "confirmCancel": "Cancel this pending payment? You can try again afterwards.",
     "txNotFound": "Could not verify this transaction. Check the link and try again.",
     "tryAgain": "Try Again",
     "apiUnavailable": "Blockchain API is temporarily unavailable. You can still try to pay.",

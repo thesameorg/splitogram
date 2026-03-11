@@ -243,6 +243,8 @@
     "txLinkPlaceholder": "Tonviewer- oder Tonscan-Link einfügen...",
     "verifyTx": "Transaktion überprüfen",
     "viewWalletTxns": "Wallet-Transaktionen",
+    "cancelPending": "Zahlung abbrechen",
+    "confirmCancel": "Diese ausstehende Zahlung abbrechen? Du kannst es danach erneut versuchen.",
     "txNotFound": "Diese Transaktion konnte nicht verifiziert werden. Überprüfe den Link und versuche es erneut.",
     "tryAgain": "Erneut versuchen",
     "apiUnavailable": "Blockchain-API ist vorübergehend nicht verfügbar. Du kannst trotzdem versuchen zu bezahlen.",

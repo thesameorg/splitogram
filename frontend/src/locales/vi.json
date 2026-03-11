@@ -241,6 +241,8 @@
     "txLinkPlaceholder": "Dán liên kết Tonviewer hoặc Tonscan...",
     "verifyTx": "Xác minh Giao dịch",
     "viewWalletTxns": "Xem giao dịch ví",
+    "cancelPending": "Hủy thanh toán",
+    "confirmCancel": "Hủy thanh toán đang chờ này? Bạn có thể thử lại sau.",
     "txNotFound": "Không thể xác minh giao dịch này. Kiểm tra liên kết và thử lại.",
     "tryAgain": "Thử Lại",
     "apiUnavailable": "API blockchain tạm thời không khả dụng. Bạn vẫn có thể thử thanh toán.",

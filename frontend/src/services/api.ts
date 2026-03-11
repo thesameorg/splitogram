@@ -155,6 +155,7 @@ export interface Settlement {
   usdtAmount: number | null;
   commission: number | null;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface SettlementDetail extends Settlement {
@@ -501,6 +502,12 @@ export const api = {
     apiRequest<{ status: string; settlementId: number; txHash?: string }>(
       `/api/v1/settlements/${id}/confirm`,
       { method: 'POST', body: JSON.stringify(txHash ? { txHash } : {}) },
+    ),
+
+  cancelSettlement: (id: number) =>
+    apiRequest<{ status: string; settlementId: number }>(
+      `/api/v1/settlements/${id}/cancel`,
+      { method: 'POST' },
     ),
 
   // Wallet

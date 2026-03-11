@@ -434,20 +434,16 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     // TONAPI unavailable — proceed with empirical gas
   }
 
-  // TODO(test): uninit block temporarily disabled to test real UI flow with uninit wallets.
-  // Original assumption was that TONAPI keeps events in_progress indefinitely for
-  // first-tx ContractDeploy — but local script test showed in_progress:false.
-  // Testing via real UI to reproduce the original issue.
-  // if (walletUninit) {
-  //   return c.json(
-  //     {
-  //       error: 'wallet_uninit',
-  //       detail:
-  //         'Your wallet has never sent a transaction. Please send any small TON transfer first to activate it, then try again.',
-  //     },
-  //     400,
-  //   );
-  // }
+  // Uninit wallets CAN send Jetton settlements (wallet deploys as part of first tx).
+  // TONAPI indexes these correctly (in_progress resolves, ContractDeploy + JettonTransfer actions).
+  // However, TON Connect / Tonkeeper may intermittently fail to broadcast from uninit wallets
+  // on testnet (tx appears to send but never lands on-chain). Log a warning; the generic
+  // 10-min payment_pending timeout handles phantom txns regardless of cause.
+  if (walletUninit) {
+    console.log('[settlement:preflight] uninit wallet — may be flaky on testnet', {
+      senderAddress,
+    });
+  }
 
   const walletVersion = detectWalletVersion(walletInterfaces);
 
@@ -825,6 +821,55 @@ settlementsApp.post(
     return c.json({ status: 'settled_onchain', settlementId, txHash: verification.txHash });
   },
 );
+
+// --- Cancel pending on-chain settlement (debtor only, after 10 min) ---
+
+settlementsApp.post('/settlements/:id/cancel', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+  const settlementId = parseInt(c.req.param('id'), 10);
+
+  if (isNaN(settlementId)) {
+    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
+  }
+
+  const [settlement] = await db
+    .select()
+    .from(settlements)
+    .where(eq(settlements.id, settlementId))
+    .limit(1);
+
+  if (!settlement) {
+    return c.json({ error: 'settlement_not_found', detail: 'Settlement not found' }, 404);
+  }
+
+  if (settlement.fromUser !== session.userId) {
+    return c.json({ error: 'not_debtor', detail: 'Only the debtor can cancel' }, 403);
+  }
+
+  if (settlement.status !== 'payment_pending') {
+    return c.json({ error: 'invalid_status', detail: 'Settlement is not pending' }, 400);
+  }
+
+  const CANCEL_MIN_MS = 10 * 60 * 1000; // 10 minutes
+  const pendingSince = new Date(settlement.updatedAt).getTime();
+  if (Date.now() - pendingSince < CANCEL_MIN_MS) {
+    const remainingSec = Math.ceil((CANCEL_MIN_MS - (Date.now() - pendingSince)) / 1000);
+    return c.json(
+      { error: 'too_soon', detail: `Please wait ${remainingSec} more seconds before cancelling.` },
+      400,
+    );
+  }
+
+  await db
+    .update(settlements)
+    .set({ status: 'open', updatedAt: new Date().toISOString() })
+    .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')));
+
+  console.log('[settlement:cancel]', { settlementId, byUser: session.userId });
+
+  return c.json({ status: 'open', settlementId });
+});
 
 // --- Mark as settled externally (either party) ---
 // Max amount: 10 million units (10,000,000 * 1,000,000 micro-units = 10 trillion)

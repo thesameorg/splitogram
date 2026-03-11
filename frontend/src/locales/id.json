@@ -241,6 +241,8 @@
     "txLinkPlaceholder": "Tempel tautan Tonviewer atau Tonscan...",
     "verifyTx": "Verifikasi Transaksi",
     "viewWalletTxns": "Lihat transaksi dompet",
+    "cancelPending": "Batalkan pembayaran",
+    "confirmCancel": "Batalkan pembayaran tertunda ini? Anda bisa mencoba lagi nanti.",
     "txNotFound": "Tidak dapat memverifikasi transaksi ini. Periksa tautan dan coba lagi.",
     "tryAgain": "Coba Lagi",
     "apiUnavailable": "API blockchain sementara tidak tersedia. Anda tetap bisa mencoba membayar.",

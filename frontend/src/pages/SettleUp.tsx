@@ -331,6 +331,19 @@ export function SettleUp() {
     setTxParams(null);
   }
 
+  async function handleCancelPending() {
+    if (!window.confirm(t('settlement.confirmCancel'))) return;
+    try {
+      await api.cancelSettlement(settlementId);
+      setSettlement((prev) => (prev ? { ...prev, status: 'open' } : prev));
+      setCryptoState('idle');
+      setCryptoError(null);
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    } catch (err: any) {
+      setCryptoError(err.message || 'Failed to cancel');
+    }
+  }
+
   async function handleManualVerify(txLink: string) {
     setCryptoState('polling');
     setCryptoError(null);
@@ -528,11 +541,13 @@ export function SettleUp() {
             walletUninit={txParams?.walletUninit ?? false}
             isTestnet={isTestnet}
             pollElapsed={pollElapsed}
+            pendingSince={isPending ? settlement.updatedAt : null}
             onPay={handlePayWithUsdt}
             onConfirm={handleConfirmPayment}
             onRetry={handleRetry}
             onRefresh={() => startPolling()}
             onManualVerify={handleManualVerify}
+            onCancel={handleCancelPending}
             onInfo={() => setShowCryptoInfo(true)}
             t={t}
           />
@@ -715,11 +730,13 @@ function CryptoSettlementUI({
   recipientName,
   isTestnet: testnet,
   pollElapsed,
+  pendingSince,
   onPay,
   onConfirm,
   onRetry,
   onRefresh,
   onManualVerify,
+  onCancel,
   onInfo,
   t,
 }: {
@@ -736,15 +753,20 @@ function CryptoSettlementUI({
   recipientName: string;
   isTestnet: boolean;
   pollElapsed: number;
+  pendingSince: string | null;
   onPay: () => void;
   onConfirm: () => void;
   onRetry: () => void;
   onRefresh: () => void;
   onManualVerify: (txLink: string) => void;
+  onCancel: () => void;
   onInfo: () => void;
   t: (key: string, opts?: Record<string, string>) => string;
 }) {
   const testnetBadge = testnet ? ' (TESTNET)' : '';
+  const CANCEL_THRESHOLD_MS = 10 * 60 * 1000;
+  const canCancel =
+    pendingSince && Date.now() - new Date(pendingSince).getTime() > CANCEL_THRESHOLD_MS;
   if (state === 'success') {
     // TODO: replace with Lottie celebration animation
     return (
@@ -779,6 +801,14 @@ function CryptoSettlementUI({
             <IconTon size={10} />
             {t('settlement.viewWalletTxns')}
           </a>
+        )}
+        {canCancel && (
+          <button
+            onClick={onCancel}
+            className="mt-3 text-sm text-tg-destructive"
+          >
+            {t('settlement.cancelPending')}
+          </button>
         )}
       </div>
     );
@@ -868,6 +898,14 @@ function CryptoSettlementUI({
             className="w-full border border-tg-separator py-3 rounded-xl font-medium text-sm"
           >
             {t('settlement.tryAgain')}
+          </button>
+        )}
+        {canCancel && (
+          <button
+            onClick={onCancel}
+            className="w-full py-3 rounded-xl text-sm text-tg-destructive"
+          >
+            {t('settlement.cancelPending')}
           </button>
         )}
       </div>
