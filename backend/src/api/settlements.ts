@@ -434,19 +434,20 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     // TONAPI unavailable — proceed with empirical gas
   }
 
-  // Block uninit wallets — first outbound tx includes ContractDeploy which causes
-  // TONAPI to keep the event in_progress indefinitely (speculative trace data, no reliable
-  // verification possible). User must activate wallet with any transaction first.
-  if (walletUninit) {
-    return c.json(
-      {
-        error: 'wallet_uninit',
-        detail:
-          'Your wallet has never sent a transaction. Please send any small TON transfer first to activate it, then try again.',
-      },
-      400,
-    );
-  }
+  // TODO(test): uninit block temporarily disabled to test real UI flow with uninit wallets.
+  // Original assumption was that TONAPI keeps events in_progress indefinitely for
+  // first-tx ContractDeploy — but local script test showed in_progress:false.
+  // Testing via real UI to reproduce the original issue.
+  // if (walletUninit) {
+  //   return c.json(
+  //     {
+  //       error: 'wallet_uninit',
+  //       detail:
+  //         'Your wallet has never sent a transaction. Please send any small TON transfer first to activate it, then try again.',
+  //     },
+  //     400,
+  //   );
+  // }
 
   const walletVersion = detectWalletVersion(walletInterfaces);
 
