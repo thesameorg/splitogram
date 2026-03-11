@@ -204,7 +204,10 @@
     "deleteWarning": "Tài khoản của bạn sẽ bị xóa vĩnh viễn. Dữ liệu trong các nhóm sẽ được giữ lại như thành viên giữ chỗ, nhưng hồ sơ, ví và ảnh đại diện sẽ bị xóa. Không thể hoàn tác.",
     "deleteConfirmFirst": "CÓ, TÔI CHẮC CHẮN",
     "deleteFinalWarning": "Đây là cơ hội cuối cùng. Tài khoản của bạn sẽ bị xóa vĩnh viễn. Bạn có chắc chắn không?",
-    "deleteConfirmFinal": "CÓ, TÔI CHẮC CHẮN — XÓA"
+    "deleteConfirmFinal": "CÓ, TÔI CHẮC CHẮN — XÓA",
+    "deletedTitle": "Tài khoản đã xóa",
+    "deletedMessage": "Tài khoản của bạn đã bị xóa. Bạn có thể đóng ứng dụng ngay bây giờ.",
+    "closeApp": "Đóng"
   },
   "settlement": {
     "payWithUsdt": "Thanh toán bằng USDT trên TON",

@@ -441,6 +441,89 @@ app.delete('/me', async (c) => {
     await refreshGroupBalances(db, groupId);
   }
 
+  // Final sweep: handle any remaining FK references to this user that weren't covered above.
+  // This catches orphaned refs from soft-deleted groups (members removed during group deletion,
+  // but groups.createdBy and on-chain settlements still reference this user).
+  // Create a single ghost dummy for all remaining references.
+  const hasOrphanedRefs =
+    (
+      await db
+        .select({ id: groups.id })
+        .from(groups)
+        .where(eq(groups.createdBy, user.id))
+        .limit(1)
+    ).length > 0 ||
+    (
+      await db
+        .select({ id: settlements.id })
+        .from(settlements)
+        .where(
+          sql`(${settlements.fromUser} = ${user.id} OR ${settlements.toUser} = ${user.id} OR ${settlements.settledBy} = ${user.id})`,
+        )
+        .limit(1)
+    ).length > 0 ||
+    (
+      await db
+        .select({ id: expenses.id })
+        .from(expenses)
+        .where(eq(expenses.paidBy, user.id))
+        .limit(1)
+    ).length > 0 ||
+    (
+      await db
+        .select({ id: expenseParticipants.id })
+        .from(expenseParticipants)
+        .where(eq(expenseParticipants.userId, user.id))
+        .limit(1)
+    ).length > 0;
+
+  if (hasOrphanedRefs) {
+    const ghostTelegramId = -(Date.now() * 1000 + Math.floor(Math.random() * 1000));
+    const [ghostUser] = await db
+      .insert(users)
+      .values({
+        telegramId: ghostTelegramId,
+        displayName: user.displayName,
+        isDummy: true,
+      })
+      .returning();
+
+    await db.batch([
+      db.update(groups).set({ createdBy: ghostUser.id }).where(eq(groups.createdBy, user.id)),
+      db
+        .update(settlements)
+        .set({ fromUser: ghostUser.id })
+        .where(eq(settlements.fromUser, user.id)),
+      db
+        .update(settlements)
+        .set({ toUser: ghostUser.id })
+        .where(eq(settlements.toUser, user.id)),
+      db
+        .update(settlements)
+        .set({ settledBy: ghostUser.id })
+        .where(eq(settlements.settledBy, user.id)),
+      db.update(expenses).set({ paidBy: ghostUser.id }).where(eq(expenses.paidBy, user.id)),
+      db
+        .update(expenseParticipants)
+        .set({ userId: ghostUser.id })
+        .where(eq(expenseParticipants.userId, user.id)),
+    ]);
+  }
+
+  // Clean up activity_log references (actorId is NOT NULL, so delete; targetUserId is nullable)
+  await db.delete(activityLog).where(eq(activityLog.actorId, user.id));
+  await db
+    .update(activityLog)
+    .set({ targetUserId: null })
+    .where(eq(activityLog.targetUserId, user.id));
+
+  // Clean up debt reminders
+  await db
+    .delete(debtReminders)
+    .where(
+      sql`(${debtReminders.fromUserId} = ${user.id} OR ${debtReminders.toUserId} = ${user.id})`,
+    );
+
   // Clean up R2 images (best-effort, fire-and-forget)
   if (user.avatarKey) {
     c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, user.avatarKey));

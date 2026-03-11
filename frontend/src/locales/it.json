@@ -206,7 +206,10 @@
     "deleteWarning": "Il tuo account verrà eliminato permanentemente. I dati nei gruppi verranno conservati come membro segnaposto, ma il tuo profilo, portafoglio e avatar verranno rimossi. Non è possibile annullare.",
     "deleteConfirmFirst": "SÌ, SONO SICURO",
     "deleteFinalWarning": "Questa è la tua ultima possibilità. Il tuo account verrà eliminato definitivamente. Sei assolutamente sicuro?",
-    "deleteConfirmFinal": "SÌ, SONO SICURO — ELIMINA"
+    "deleteConfirmFinal": "SÌ, SONO SICURO — ELIMINA",
+    "deletedTitle": "Account eliminato",
+    "deletedMessage": "Il tuo account è stato eliminato. Puoi chiudere l'app ora.",
+    "closeApp": "Chiudi"
   },
   "settlement": {
     "payWithUsdt": "Paga con USDT su TON",

@@ -216,7 +216,10 @@
     "deleteWarning": "This will permanently delete your account. Your data in groups will be preserved as a placeholder member, but your profile, wallet, and avatar will be removed. You cannot undo this.",
     "deleteConfirmFirst": "YES, I'M SURE",
     "deleteFinalWarning": "This is your last chance. Your account will be permanently deleted. Are you absolutely sure?",
-    "deleteConfirmFinal": "YES, I'M SURE — DELETE"
+    "deleteConfirmFinal": "YES, I'M SURE — DELETE",
+    "deletedTitle": "Account Deleted",
+    "deletedMessage": "Your account has been deleted. You can close this app now.",
+    "closeApp": "Close"
   },
   "settlement": {
     "payWithUsdt": "Pay with USDT on TON",

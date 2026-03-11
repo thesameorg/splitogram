@@ -206,7 +206,10 @@
     "deleteWarning": "Sua conta será excluída permanentemente. Os dados nos grupos serão mantidos como membro marcador, mas seu perfil, carteira e avatar serão removidos. Isso não pode ser desfeito.",
     "deleteConfirmFirst": "SIM, TENHO CERTEZA",
     "deleteFinalWarning": "Esta é sua última chance. Sua conta será excluída permanentemente. Tem certeza absoluta?",
-    "deleteConfirmFinal": "SIM, TENHO CERTEZA — EXCLUIR"
+    "deleteConfirmFinal": "SIM, TENHO CERTEZA — EXCLUIR",
+    "deletedTitle": "Conta excluída",
+    "deletedMessage": "Sua conta foi excluída. Você pode fechar o app agora.",
+    "closeApp": "Fechar"
   },
   "settlement": {
     "payWithUsdt": "Pagar com USDT na TON",

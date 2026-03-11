@@ -48,6 +48,7 @@ export function Account() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmStep, setDeleteConfirmStep] = useState(0); // 0 = not started, 1 = first confirm, 2 = deleting
   const [deleting, setDeleting] = useState(false);
+  const [deleted, setDeleted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const feedbackFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -163,18 +164,36 @@ export function Account() {
     setError(null);
     try {
       await api.deleteAccount();
-      // Close the mini app or reload to force re-auth (user is gone)
-      if (window.Telegram?.WebApp?.close) {
-        window.Telegram.WebApp.close();
-      } else {
-        window.location.reload();
-      }
+      setShowDeleteConfirm(false);
+      setDeleted(true);
     } catch (err: any) {
       setError(err.message || 'Failed to delete account');
       setDeleting(false);
       setShowDeleteConfirm(false);
       setDeleteConfirmStep(0);
     }
+  }
+
+  if (deleted) {
+    return (
+      <PageLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+          <div className="text-5xl mb-6">&#128075;</div>
+          <h1 className="text-xl font-bold mb-3">{t('account.deletedTitle')}</h1>
+          <p className="text-tg-hint text-sm mb-8">{t('account.deletedMessage')}</p>
+          <button
+            onClick={() => {
+              if (window.Telegram?.WebApp?.close) {
+                window.Telegram.WebApp.close();
+              }
+            }}
+            className="px-8 py-3 bg-tg-button text-tg-button-text rounded-xl font-medium"
+          >
+            {t('account.closeApp')}
+          </button>
+        </div>
+      </PageLayout>
+    );
   }
 
   if (loading) return <LoadingScreen />;
