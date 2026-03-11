@@ -410,7 +410,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   // forward_ton_amount: contract needs this for 2 outgoing Jetton transfers (0.15 TON each)
   const FORWARD_TON = 300_000_000; // 0.3 TON
 
-  // Gas components (nanoTON). See work_docs/tonfees.md for derivation.
+  // Gas components (nanoTON). Derived from testnet measurements (V4R2/V5R1 ~0.035 TON).
   const EMPIRICAL_JETTON_CHAIN = 40_000_000; // 0.04 TON — Jetton transfer chain (11 msgs)
   const WALLET_DEPLOY_GAS = 10_000_000; // 0.01 TON — first outgoing tx deploys wallet contract
 
@@ -450,7 +450,7 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
   // - Emulate succeeded: use precise fees + 15% buffer
   // - Emulate failed (uninit, unknown wallet, TONAPI down): named empirical components + 20% buffer
   //   uninit wallets: add WALLET_DEPLOY_GAS (first outgoing tx deploys wallet contract)
-  // Excess always refunded via response_destination. See work_docs/tonfees.md.
+  // Excess always refunded via response_destination.
   let estimatedFees: number;
   let contingencyPct: number;
   if (emulatedFees) {

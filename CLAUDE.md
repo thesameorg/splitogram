@@ -258,7 +258,24 @@ gasAttach = FORWARD_TON (0.3 TON) + emulated_fees + 15% buffer
 
 Uninit wallets (never sent a tx): detected via `status === 'uninit'` from TONAPI account info. Emulation impossible (no seqno/interfaces), so empirical fallback adds `WALLET_DEPLOY_GAS` (0.01 TON) surcharge. Frontend shows "wallet activation fee" note on confirm screen. The `walletUninit` flag is returned in the preflight response.
 
-**If transactions fail with out-of-gas and emulate is working:** The emulate should catch network gas changes automatically. If emulate is failing (returning null) and empirical fallback is too low, increase `EMPIRICAL_JETTON_CHAIN` in `settlements.ts`. Check a recent failed tx on Tonviewer → compute gas burn (attached - excess). See `work_docs/tonfees.md` for full troubleshooting.
+Older wallets (V3 and below): emulation not supported, empirical fallback used. Transaction still works (TON Connect handles wallet-specific wrapping). No need to block older wallets.
+
+**Troubleshooting out-of-gas:**
+- If emulate is working: it catches network gas changes automatically. If still failing, increase `contingencyPct` in `settlements.ts`.
+- If emulate returns null (uninit, unknown wallet, TONAPI down): empirical fallback is used. Check a failed tx on Tonviewer → compute gas burn (attached - excess) → update `EMPIRICAL_JETTON_CHAIN` if too low.
+- Emulate diagnostics: wallet not V4/V5 → `interfaces` empty or other version; TONAPI unavailable → check `TONAPI_KEY`; W5 message format outdated → check `tonkeeper/w5` repo.
+
+| Cause | Handled by emulate? | Action if not |
+|---|---|---|
+| Validators raise `gas_price` (Config 21/25) | Yes, automatically | Increase `EMPIRICAL_JETTON_CHAIN` |
+| Forward fee increase from network load | Yes, automatically | Increase `EMPIRICAL_JETTON_CHAIN` |
+| Contract structure change (new version) | Yes, if deployed | Re-measure on testnet |
+| New wallet version (V6+) | No | Add `buildV6Body()` in `tonapi.ts` |
+| Adding third recipient to contract | Yes, automatically | `FORWARD_TON` += 150_000_000 |
+
+**Re-measuring fallback constants:** do a test settlement on testnet, find the tx on Tonviewer, compute `gas_burn = attached - sum(excess)`, update `EMPIRICAL_JETTON_CHAIN = ceil(gas_burn / 10_000_000) * 10_000_000`.
+
+**Debug scripts:** `cd backend && bun run tests/_debug_emulate_v4.ts` (V4R2) and `tests/_debug_emulate_v5.ts` (V5R1). Import `estimateSettlementGas` from project codebase, verify emulation works with testnet wallets.
 
 Excess TON is always refunded — `response_destination` points to sender's wallet. Overpaying gas is safe (user gets it back), underpaying causes tx failure.
 
