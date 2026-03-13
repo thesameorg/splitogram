@@ -1,6 +1,5 @@
 # Go Live!
 
-- добавить аналитику таки, чтобы понимать что вообще происходит.
 - хули так долго открывает приложение?
 - выверить русский + ширину элементов поправить
 - сделать картинки, описания, скрины
@@ -23,3 +22,4 @@
 - add bot notification language: off, en, ru ...
 - add "image loading" placeholder
 - who should be able to edit \ delete whose records?
+
