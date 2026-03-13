@@ -169,20 +169,29 @@ async function generalTab(c: any, db: Database) {
     .from(groups)
     .where(sql`${groups.deletedAt} IS NOT NULL`);
 
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
   const [{ total: expenseCount }] = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(expenses)
+    .where(sql`${expenses.createdAt} > ${thirtyDaysAgo}`);
+  const [{ total: expenseCountAll }] = await db
     .select({ total: sql<number>`count(*)` })
     .from(expenses);
   const [{ total: settlementCount }] = await db
     .select({ total: sql<number>`count(*)` })
+    .from(settlements)
+    .where(sql`${settlements.createdAt} > ${thirtyDaysAgo}`);
+  const [{ total: settlementCountAll }] = await db
+    .select({ total: sql<number>`count(*)` })
     .from(settlements);
 
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const [{ total: activeGroups30d }] = await db
     .select({ total: sql<number>`count(distinct ${expenses.groupId})` })
     .from(expenses)
     .where(sql`${expenses.createdAt} > ${thirtyDaysAgo}`);
 
-  // On-chain stats
+  // On-chain stats (all-time — these are rare enough to show total)
   const [onchainStats] = await db
     .select({
       count: sql<number>`count(*)`,
@@ -276,20 +285,19 @@ async function generalTab(c: any, db: Database) {
   const viewerBase = tonviewerBase(c.env);
 
   const cards = `
+    <h2 class="text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">Last 30 days</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      ${card('Active Groups', activeGroups30d, `${activeGroupCount} total`)}
+      ${card('Expenses', expenseCount, `${expenseCountAll} total`)}
+      ${card('Settlements', settlementCount, `${settlementCountAll} total`)}
+      ${card('Tracked', trackedStr, trackedByCurrency.length > 1 ? trackedByCurrency.join(' · ') : undefined)}
+    </div>
+    <h2 class="text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">Totals</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       ${card('Users', realUsers, dummyUsers > 0 ? `+${dummyUsers} placeholders` : undefined)}
       ${card('Groups', activeGroupCount, deletedGroupCount > 0 ? `+${deletedGroupCount} deleted` : undefined)}
-      ${card('Active (30d)', activeGroups30d)}
-      ${card('Expenses', expenseCount)}
-    </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      ${card('Settlements', settlementCount)}
       ${card('On-chain TXs', onchainStats.count)}
-      ${card('Volume (USDT)', '~' + formatAmount(onchainStats.volume, 'USD'))}
-      ${card('Fees Earned', '~' + formatAmount(onchainStats.fees, 'USD'))}
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-      ${card('Tracked (30d)', trackedStr, trackedByCurrency.length > 1 ? trackedByCurrency.join(' · ') : undefined)}
+      ${card('Volume / Fees', '~' + formatAmount(onchainStats.volume, 'USD'), 'fees: ~' + formatAmount(onchainStats.fees, 'USD'))}
     </div>`;
 
   // TX table
@@ -379,6 +387,10 @@ async function groupsTab(c: any, db: Database) {
         sql<number>`(select count(*) from expenses where expenses.group_id = groups.id)`.as(
           'expense_count',
         ),
+      imageCount:
+        sql<number>`(select count(*) from expenses where expenses.group_id = groups.id and expenses.receipt_key is not null)`.as(
+          'image_count',
+        ),
       lastActivity:
         sql<string>`(select max(created_at) from activity_log where activity_log.group_id = groups.id)`.as(
           'last_activity',
@@ -405,6 +417,7 @@ async function groupsTab(c: any, db: Database) {
     <th class="py-2 px-3 text-left">${sortHeader('Name', 'name', sort, dir, baseUrl)}</th>
     <th class="py-2 px-3 text-center">${sortHeader('Members', 'members', sort, dir, baseUrl)}</th>
     <th class="py-2 px-3 text-center">${sortHeader('Expenses', 'expenses', sort, dir, baseUrl)}</th>
+    <th class="py-2 px-3 text-center">Imgs</th>
     <th class="py-2 px-3 text-center">Currency</th>
     <th class="py-2 px-3 text-left">${sortHeader('Created', 'created', sort, dir, baseUrl)}</th>
     <th class="py-2 px-3 text-left">${sortHeader('Last Activity', 'activity', sort, dir, baseUrl)}</th>
@@ -419,6 +432,7 @@ async function groupsTab(c: any, db: Database) {
         <td class="py-2 px-3">${nameHtml}</td>
         <td class="py-2 px-3 text-center">${g.memberCount}</td>
         <td class="py-2 px-3 text-center">${g.expenseCount}</td>
+        <td class="py-2 px-3 text-center text-gray-400">${g.imageCount || '-'}</td>
         <td class="py-2 px-3 text-center">${esc(g.currency)}</td>
         <td class="py-2 px-3 text-gray-500 text-sm">${dateStr(g.createdAt)}</td>
         <td class="py-2 px-3 text-gray-500 text-sm">${timeAgo(g.lastActivity)}</td>
