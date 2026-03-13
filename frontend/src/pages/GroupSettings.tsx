@@ -539,21 +539,20 @@ export function GroupSettings() {
                 key={m.userId}
                 className="flex items-center justify-between bg-tg-section p-3 rounded-xl border border-tg-separator"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
-                  <span className="font-medium">{m.displayName}</span>
-                  {m.isDummy && (
-                    <span className="text-sm" title={t('groupSettings.placeholderBadge')}>
-                      {'\uD83D\uDC7B'}
-                    </span>
-                  )}
-                  {m.role === 'admin' && <IconCrown size={14} className="text-app-warning" />}
+                  <span className="font-medium truncate">{m.displayName}</span>
+                  {m.role === 'admin' && <IconCrown size={14} className="text-app-warning shrink-0" />}
                   {m.userId === currentUserId && (
-                    <span className="text-xs text-tg-hint">{t('groupSettings.you')}</span>
+                    <span className="text-xs text-tg-hint shrink-0">{t('groupSettings.you')}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  {m.username && <span className="text-sm text-tg-hint">@{m.username}</span>}
+                <div className="flex items-center gap-2 shrink-0">
+                  {m.isDummy ? (
+                    <span className="text-sm" title={t('groupSettings.placeholderBadge')}>&#128123;</span>
+                  ) : m.username ? (
+                    <span className="text-sm text-tg-hint">@{m.username}</span>
+                  ) : null}
                   {isAdmin && m.isDummy && (
                     <>
                       <button
