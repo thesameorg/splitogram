@@ -494,6 +494,26 @@ async function estimateSettlementGas(params: {
   }
 }
 
+/**
+ * Fetch total gas fees for a TONAPI event by fetching its trace and summing total_fees.
+ * Returns nanoTON or null on failure.
+ */
+async function fetchEventTotalFees(env: Env, eventId: string): Promise<number | null> {
+  const baseUrl = tonapiBaseUrl(env);
+  try {
+    const resp = await fetch(`${baseUrl}/v2/traces/${eventId}`, {
+      headers: tonapiHeaders(env),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!resp.ok) return null;
+    const trace = (await resp.json()) as any;
+    const total = sumTraceFees(trace);
+    return total > 0 ? total : null;
+  } catch {
+    return null;
+  }
+}
+
 export {
   tonExplorerUrl,
   tonapiBaseUrl,
@@ -505,4 +525,5 @@ export {
   verifySettlementOnChain,
   estimateSettlementGas,
   detectWalletVersion,
+  fetchEventTotalFees,
 };

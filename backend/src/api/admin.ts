@@ -197,6 +197,7 @@ async function generalTab(c: any, db: Database) {
       count: sql<number>`count(*)`,
       volume: sql<number>`coalesce(sum(${settlements.usdtAmount}), 0)`,
       fees: sql<number>`coalesce(sum(${settlements.commission}), 0)`,
+      gasBurned: sql<number>`coalesce(sum(${settlements.tonGasBurned}), 0)`,
     })
     .from(settlements)
     .where(eq(settlements.status, 'settled_onchain'));
@@ -261,6 +262,7 @@ async function generalTab(c: any, db: Database) {
       txHash: settlements.txHash,
       usdtAmount: settlements.usdtAmount,
       commission: settlements.commission,
+      tonGasBurned: settlements.tonGasBurned,
       fromUser: settlements.fromUser,
       toUser: settlements.toUser,
       groupId: settlements.groupId,
@@ -293,11 +295,12 @@ async function generalTab(c: any, db: Database) {
       ${card('Tracked', trackedStr, trackedByCurrency.length > 1 ? trackedByCurrency.join(' · ') : undefined)}
     </div>
     <h2 class="text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">Totals</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
       ${card('Users', realUsers, dummyUsers > 0 ? `+${dummyUsers} placeholders` : undefined)}
       ${card('Groups', activeGroupCount, deletedGroupCount > 0 ? `+${deletedGroupCount} deleted` : undefined)}
       ${card('On-chain TXs', onchainStats.count)}
       ${card('Volume / Fees', '~' + formatAmount(onchainStats.volume, 'USD'), 'fees: ~' + formatAmount(onchainStats.fees, 'USD'))}
+      ${card('Gas Burned', onchainStats.gasBurned > 0 ? (onchainStats.gasBurned / 1e9).toFixed(3) + ' TON' : '-', onchainStats.count > 0 && onchainStats.gasBurned > 0 ? 'avg: ' + (onchainStats.gasBurned / onchainStats.count / 1e9).toFixed(4) + ' TON/tx' : undefined)}
     </div>`;
 
   // TX table
@@ -305,6 +308,7 @@ async function generalTab(c: any, db: Database) {
     .map((tx) => {
       const amount = tx.usdtAmount != null ? formatAmount(tx.usdtAmount, 'USD') : '-';
       const fee = tx.commission != null ? formatAmount(tx.commission, 'USD') : '-';
+      const gas = tx.tonGasBurned != null ? (tx.tonGasBurned / 1e9).toFixed(4) : '-';
       const from = userMap.get(tx.fromUser) ?? `#${tx.fromUser}`;
       const to = userMap.get(tx.toUser) ?? `#${tx.toUser}`;
       const gName = groupMap.get(tx.groupId);
@@ -320,6 +324,7 @@ async function generalTab(c: any, db: Database) {
         <td class="py-2 px-3"><a href="/admin/users/${tx.toUser}" class="hover:underline">${esc(to)}</a></td>
         <td class="py-2 px-3 text-right">${esc(amount)}</td>
         <td class="py-2 px-3 text-right">${esc(fee)}</td>
+        <td class="py-2 px-3 text-right">${esc(gas)}</td>
         <td class="py-2 px-3">${groupHtml}</td>
         <td class="py-2 px-3 text-gray-500 text-sm">${dateStr(tx.updatedAt)}</td>
       </tr>`;
@@ -337,6 +342,7 @@ async function generalTab(c: any, db: Database) {
           <th class="py-2 px-3 text-left">To</th>
           <th class="py-2 px-3 text-right">USDT</th>
           <th class="py-2 px-3 text-right">Fee</th>
+          <th class="py-2 px-3 text-right">Gas (TON)</th>
           <th class="py-2 px-3 text-left">Group</th>
           <th class="py-2 px-3 text-left">Date</th>
         </tr></thead>

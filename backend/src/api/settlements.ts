@@ -23,6 +23,7 @@ import {
   verifySettlementOnChain,
   estimateSettlementGas,
   detectWalletVersion,
+  fetchEventTotalFees,
 } from '../services/tonapi';
 import { calculateCommission } from '../utils/commission';
 import { makeNotifyCtx } from '../utils/notify-ctx';
@@ -773,6 +774,13 @@ settlementsApp.post(
     }
 
     const settledCommission = calculateCommission(debtUsdt);
+
+    // Fetch actual gas burned from the event trace (best-effort, non-blocking for DB update)
+    let tonGasBurned: number | null = null;
+    if (verification.txHash) {
+      tonGasBurned = await fetchEventTotalFees(c.env, verification.txHash);
+    }
+
     // Atomic conditional update — only settle if still payment_pending
     const confirmed = await db
       .update(settlements)
@@ -781,6 +789,7 @@ settlementsApp.post(
         txHash: verification.txHash ?? null,
         usdtAmount: debtUsdt,
         commission: settledCommission,
+        tonGasBurned,
         updatedAt: new Date().toISOString(),
       })
       .where(and(eq(settlements.id, settlementId), eq(settlements.status, 'payment_pending')))
@@ -839,6 +848,7 @@ settlementsApp.post(
       txHash: verification.txHash,
       usdtAmount: debtUsdt,
       commission: settledCommission,
+      tonGasBurned,
     });
 
     return c.json({ status: 'settled_onchain', settlementId, txHash: verification.txHash });

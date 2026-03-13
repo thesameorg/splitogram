@@ -1,0 +1,1 @@
+ALTER TABLE `settlements` ADD `ton_gas_burned` integer;

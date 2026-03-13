@@ -225,6 +225,7 @@ export const settlements = sqliteTable(
     txHash: text('tx_hash'),
     usdtAmount: integer('usdt_amount'), // micro-USDT (converted amount sent on-chain, null for external)
     commission: integer('commission'), // micro-USDT (fee taken by contract, null for external)
+    tonGasBurned: integer('ton_gas_burned'), // nanoTON (actual gas burned on-chain, null for external)
     comment: text('comment'),
     settledBy: integer('settled_by').references(() => users.id),
     receiptKey: text('receipt_key'),
