@@ -217,10 +217,15 @@ function getOrCreateBot(botToken: string): Bot {
       .from(settlements);
 
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const [{ total: activeGroups7d }] = await db
       .select({ total: sql<number>`count(distinct ${expenses.groupId})` })
       .from(expenses)
       .where(sql`${expenses.createdAt} > ${sevenDaysAgo}`);
+    const [{ total: activeGroups30d }] = await db
+      .select({ total: sql<number>`count(distinct ${expenses.groupId})` })
+      .from(expenses)
+      .where(sql`${expenses.createdAt} > ${thirtyDaysAgo}`);
 
     // TON on-chain settlement stats (uses stored usdt_amount + commission)
     const [onchainStats] = await db
@@ -244,7 +249,7 @@ function getOrCreateBot(botToken: string): Bot {
         `Groups: <b>${groupCount}</b>${deletedGroupCount > 0 ? ` (+${deletedGroupCount} deleted)` : ''}\n` +
         `Expenses: <b>${expenseCount}</b>\n` +
         `Settlements: <b>${settlementCount}</b>\n` +
-        `Active groups (7d): <b>${activeGroups7d}</b>\n\n` +
+        `Active groups: <b>${activeGroups7d}</b> (7d) / <b>${activeGroups30d}</b> (30d)\n\n` +
         `<b>TON Settlements</b> [${network}]\n` +
         `On-chain: <b>${onchainCount}</b>\n` +
         `Volume: <b>~$${volumeStr}</b>\n` +

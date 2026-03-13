@@ -1,13 +1,15 @@
 # Go Live!
 
+- admin dash update
+- добавить аналитику таки, чтобы понимать что вообще происходит.
+- хули так долго открывает приложение?
 - выверить русский + ширину элементов поправить
 - сделать картинки, описания, скрины
-- добавить СВОЮ аналитику таки, чтобы понимать что вообще происходит.
--
+- подвигать дизайн туда-сюда
+- показать рекламу при settlemetn вне TON-сети.
+- 
 
 # Later | manual
-
-- **Cron: pending settlement checker** — Add a Cloudflare Workers [scheduled trigger](https://developers.cloudflare.com/workers/configuration/cron-triggers/) (e.g. every 5 min) that queries all `payment_pending` settlements and verifies them on-chain via TONAPI. Safety net for cases where the user closes the app before confirmation completes. Would catch stuck settlements that neither polling nor manual tx link verification resolved.
 
 - check naming everywhere
 - update APP icons
