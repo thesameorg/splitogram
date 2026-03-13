@@ -970,8 +970,7 @@ function CryptoSettlementUI({
   if (state === 'preflight') {
     return (
       <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
-        <div className="w-6 h-6 border-2 border-tg-button border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-        <div className="text-sm text-tg-hint">{t('loading')}</div>
+        <div className="w-6 h-6 border-2 border-tg-button border-t-transparent rounded-full animate-spin mx-auto" />
       </div>
     );
   }

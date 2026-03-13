@@ -161,7 +161,9 @@ export function Activity() {
               disabled={loadingMore}
               className="w-full py-3 text-sm text-tg-link font-medium"
             >
-              {loadingMore ? t('loading') : t('activity.loadMore')}
+              {loadingMore ? (
+                <div className="w-5 h-5 border-2 border-tg-link/30 border-t-tg-link rounded-full animate-spin mx-auto" />
+              ) : t('activity.loadMore')}
             </button>
           )}
         </div>

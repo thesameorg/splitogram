@@ -602,7 +602,7 @@ export function Group() {
       {tab === 'feed' && (
         <div className="space-y-2">
           {activityLoading ? (
-            <p className="text-center text-tg-hint py-8">{t('loading')}</p>
+            <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-tg-hint/30 border-t-tg-hint rounded-full animate-spin" /></div>
           ) : activityItems.length === 0 ? (
             <p className="text-center text-tg-hint py-8">{t('activity.empty')}</p>
           ) : (
@@ -807,7 +807,7 @@ export function Group() {
       {tab === 'stats' && (
         <div className="space-y-4">
           {statsLoading ? (
-            <p className="text-center text-tg-hint py-8">{t('loading')}</p>
+            <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-tg-hint/30 border-t-tg-hint rounded-full animate-spin" /></div>
           ) : !stats ? null : (
             <>
               {/* Donut chart */}
