@@ -595,11 +595,22 @@ async function usersTab(c: any, db: Database) {
 
 // --- Images Tab ---
 async function imagesTab(c: any, db: Database) {
+  const page = Math.max(1, parseInt(c.req.query('page') ?? '1', 10) || 1);
+  const perPage = 30;
+  const offset = (page - 1) * perPage;
+
   const reports = await db
     .select()
     .from(imageReports)
     .orderBy(desc(imageReports.createdAt))
-    .limit(50);
+    .limit(perPage)
+    .offset(offset);
+
+  const [{ total: totalReports }] = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(imageReports);
+
+  const hasMore = reports.length === perPage;
 
   const rows = reports
     .map((r) => {
@@ -621,9 +632,15 @@ async function imagesTab(c: any, db: Database) {
     })
     .join('');
 
+  const pagination = `<div class="flex gap-4 mt-4">
+    ${page > 1 ? `<a href="/admin?tab=images&page=${page - 1}" class="text-blue-600 hover:underline">← Prev</a>` : ''}
+    <span class="text-gray-500">Page ${page}</span>
+    ${hasMore ? `<a href="/admin?tab=images&page=${page + 1}" class="text-blue-600 hover:underline">Next →</a>` : ''}
+  </div>`;
+
   const body =
     reports.length > 0
-      ? `<h2 class="text-lg font-semibold mb-3">Image Reports</h2>
+      ? `<h2 class="text-lg font-semibold mb-3">Image Reports <span class="text-sm font-normal text-gray-500">(${totalReports} total)</span></h2>
     <div class="bg-white rounded-lg border overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-gray-100"><tr>
@@ -634,7 +651,8 @@ async function imagesTab(c: any, db: Database) {
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
-    </div>`
+    </div>
+    ${pagination}`
       : '<p class="text-gray-500">No image reports yet.</p>';
 
   return c.html(layout('Images', body, c.env, 'images'));
@@ -651,6 +669,7 @@ app.get('/groups/:id', async (c) => {
 
   const isDeleted = group.deletedAt != null;
 
+  const memberLimit = 100;
   const members = await db
     .select({
       userId: groupMembers.userId,
@@ -662,7 +681,8 @@ app.get('/groups/:id', async (c) => {
     })
     .from(groupMembers)
     .innerJoin(users, eq(groupMembers.userId, users.id))
-    .where(eq(groupMembers.groupId, groupId));
+    .where(eq(groupMembers.groupId, groupId))
+    .limit(memberLimit);
 
   const recentExpenses = await db
     .select({
@@ -804,7 +824,7 @@ app.get('/groups/:id', async (c) => {
 
     ${
       members.length > 0
-        ? `<h2 class="text-lg font-semibold mb-3">Members (${members.length})</h2>
+        ? `<h2 class="text-lg font-semibold mb-3">Members (${members.length}${members.length >= memberLimit ? '+' : ''})</h2>
     <div class="bg-white rounded-lg border overflow-x-auto mb-6">
       <table class="w-full text-sm">
         <thead class="bg-gray-100"><tr>
@@ -820,7 +840,7 @@ app.get('/groups/:id', async (c) => {
 
     ${
       recentExpenses.length > 0
-        ? `<h2 class="text-lg font-semibold mb-3">Expenses (${recentExpenses.length})</h2>
+        ? `<h2 class="text-lg font-semibold mb-3">Expenses${recentExpenses.length >= 50 ? ' (last 50)' : ` (${recentExpenses.length})`}</h2>
     <div class="bg-white rounded-lg border overflow-x-auto mb-6">
       <table class="w-full text-sm">
         <thead class="bg-gray-100"><tr>
@@ -837,7 +857,7 @@ app.get('/groups/:id', async (c) => {
 
     ${
       groupSettlements.length > 0
-        ? `<h2 class="text-lg font-semibold mb-3">Settlements (${groupSettlements.length})</h2>
+        ? `<h2 class="text-lg font-semibold mb-3">Settlements${groupSettlements.length >= 50 ? ' (last 50)' : ` (${groupSettlements.length})`}</h2>
     <div class="bg-white rounded-lg border overflow-x-auto mb-6">
       <table class="w-full text-sm">
         <thead class="bg-gray-100"><tr>
@@ -872,6 +892,7 @@ app.get('/users/:id', async (c) => {
   if (!user) return c.text('User not found', 404);
 
   // User's groups
+  const groupLimit = 100;
   const userGroups = await db
     .select({
       groupId: groupMembers.groupId,
@@ -883,7 +904,8 @@ app.get('/users/:id', async (c) => {
     })
     .from(groupMembers)
     .innerJoin(groups, eq(groupMembers.groupId, groups.id))
-    .where(eq(groupMembers.userId, userId));
+    .where(eq(groupMembers.userId, userId))
+    .limit(groupLimit);
 
   // User's recent expenses
   const userExpenses = await db
@@ -1013,7 +1035,7 @@ app.get('/users/:id', async (c) => {
 
     ${
       userGroups.length > 0
-        ? `<h2 class="text-lg font-semibold mb-3">Groups (${userGroups.length})</h2>
+        ? `<h2 class="text-lg font-semibold mb-3">Groups (${userGroups.length}${userGroups.length >= groupLimit ? '+' : ''})</h2>
     <div class="bg-white rounded-lg border overflow-x-auto mb-6">
       <table class="w-full text-sm">
         <thead class="bg-gray-100"><tr>
