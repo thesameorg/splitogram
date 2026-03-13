@@ -340,21 +340,23 @@ export function Group() {
         }
         className={`w-full text-left ${bgColor} p-4 rounded-xl border ${borderColor}`}
       >
-        <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2">
-            {isPending ? (
-              <div className="w-[18px] h-[18px] border-2 border-app-warning border-t-transparent rounded-full animate-spin" />
-            ) : settlement.status === 'settled_onchain' ? (
-              <IconTon size={18} className="text-app-positive" />
-            ) : (
-              <IconCheck size={18} className="text-app-positive" />
-            )}
-            <div>
-              <div className={`font-medium ${textColor}`}>{label}</div>
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="shrink-0">
+              {isPending ? (
+                <div className="w-[18px] h-[18px] border-2 border-app-warning border-t-transparent rounded-full animate-spin" />
+              ) : settlement.status === 'settled_onchain' ? (
+                <IconTon size={18} className="text-app-positive" />
+              ) : (
+                <IconCheck size={18} className="text-app-positive" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <div className={`font-medium ${textColor} truncate`}>{label}</div>
               <div className="text-sm text-tg-hint">{timeAgo(settlement.createdAt)}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {settlement.receiptThumbKey && (
               <img
                 src={imageUrl(settlement.receiptThumbKey)}
@@ -405,14 +407,14 @@ export function Group() {
         onClick={() => setSelectedExpense(exp)}
         className="w-full text-left bg-tg-section p-4 rounded-xl border border-tg-separator"
       >
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="font-medium">{exp.description}</div>
-            <div className="text-sm text-tg-hint">
+        <div className="flex justify-between items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="font-medium truncate">{exp.description}</div>
+            <div className="text-sm text-tg-hint truncate">
               {t('group.paidBy', { name: exp.payerName })} &middot; {timeAgo(exp.createdAt)}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {exp.receiptThumbKey && (
               <img
                 src={imageUrl(exp.receiptThumbKey)}
@@ -428,7 +430,7 @@ export function Group() {
             </div>
           </div>
         </div>
-        <div className="mt-2 text-xs text-tg-hint">
+        <div className="mt-2 text-xs text-tg-hint truncate">
           {exp.participants.length > 3
             ? t('group.splitAmong', { count: exp.participants.length })
             : `${t('group.splitAmong', { count: exp.participants.length })}: ${exp.participants.map((p) => p.displayName).join(', ')}`}
@@ -443,8 +445,8 @@ export function Group() {
     <PageLayout>
       {/* Header */}
       <div className="mb-6">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
+          <div className="shrink-0">
             {group.avatarKey ? (
               <button onClick={() => setShowGroupAvatar(true)}>
                 <Avatar
@@ -462,15 +464,15 @@ export function Group() {
                 size="lg"
               />
             )}
-            <div>
-              <h1 className="text-xl font-bold">{group.name}</h1>
-              <div className="text-sm text-tg-hint">
-                {t('group.member', { count: group.members.length })} &middot;{' '}
-                {getCurrency(group.currency).symbol}
-              </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold truncate">{group.name}</h1>
+            <div className="text-sm text-tg-hint">
+              {t('group.member', { count: group.members.length })} &middot;{' '}
+              {getCurrency(group.currency).symbol}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 shrink-0">
             <button
               onClick={() => shareInviteLink(group.inviteCode, group.name, group.members.length)}
               className="text-tg-link text-sm font-medium px-3 py-1 border border-tg-link rounded-lg"
@@ -479,13 +481,25 @@ export function Group() {
             </button>
             <button
               onClick={() => navigate(`/groups/${groupId}/settings`)}
-              className={`text-sm font-medium px-3 py-1 border rounded-lg ${
+              className={`p-1.5 border rounded-lg ${
                 currentUserRole === 'admin'
                   ? 'text-tg-link border-tg-link'
                   : 'text-tg-hint border-tg-separator'
               }`}
+              aria-label={currentUserRole === 'admin' ? t('group.settings') : t('group.info')}
             >
-              {currentUserRole === 'admin' ? t('group.settings') : t('group.info')}
+              {currentUserRole === 'admin' ? (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+              )}
             </button>
           </div>
         </div>
@@ -601,7 +615,7 @@ export function Group() {
                   <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
                   <div className="flex-1 min-w-0">
                     <div
-                      className={`text-sm ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
+                      className={`text-sm line-clamp-2 ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
                     >
                       {getActivityText(item, t, currentUserId, group?.currency)}
                     </div>

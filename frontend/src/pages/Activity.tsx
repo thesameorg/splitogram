@@ -124,12 +124,12 @@ export function Activity() {
               <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
               <div className="flex-1 min-w-0">
                 <div
-                  className={`text-sm ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
+                  className={`text-sm line-clamp-2 ${item.type === 'expense_deleted' ? 'text-tg-hint line-through' : ''}`}
                 >
                   {getActivityText(item, t, currentUserId, item.currency)}
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs text-tg-hint bg-tg-secondary-bg px-2 py-0.5 rounded-full truncate">
+                  <span className="text-xs text-tg-hint bg-tg-secondary-bg px-2 py-0.5 rounded-full truncate max-w-[40%]">
                     {item.groupName}
                   </span>
                   <span className="text-xs text-tg-hint">{timeAgo(item.createdAt)}</span>
