@@ -227,7 +227,18 @@
     "closeApp": "بستن",
     "walletNetworkMismatch": "این کیف پول در شبکه اشتباهی است. لطفاً یک کیف پول {{network}} متصل کنید.",
     "walletMismatch": "کیف پول محلی با کیف پول ذخیره‌شده متفاوت است",
-    "walletMismatchHint": "این دستگاه کیف پول متفاوتی نسبت به پروفایل شما دارد. پرداخت‌ها از کیف پولی که ارسال می‌کنید انجام می‌شود."
+    "walletMismatchHint": "این دستگاه کیف پول متفاوتی نسبت به پروفایل شما دارد. پرداخت‌ها از کیف پولی که ارسال می‌کنید انجام می‌شود.",
+    "paymentInfo": "اطلاعات پرداخت",
+    "paymentLink": "لینک پرداخت",
+    "paymentLinkPlaceholder": "مثلاً لینک بانک، PayPal، Revolut...",
+    "paymentLinkSaved": "لینک پرداخت ذخیره شد",
+    "paymentLinkRemoved": "لینک پرداخت حذف شد",
+    "paymentQr": "کد QR پرداخت",
+    "addPaymentQr": "افزودن کد QR",
+    "changePaymentQr": "تغییر QR",
+    "removePaymentQr": "حذف QR",
+    "paymentQrUpdated": "کد QR پرداخت به‌روز شد",
+    "paymentQrRemoved": "کد QR پرداخت حذف شد"
   },
   "settlement": {
     "payWithUsdt": "پرداخت با USDT در TON",
@@ -278,7 +289,10 @@
     "pendingYouPay": "پرداخت به {{name}} در انتظار...",
     "pendingPayYou": "پرداخت از {{name}} در انتظار...",
     "pendingPay": "پرداخت {{from}} → {{to}} در انتظار...",
-    "tapToCheck": "برای بررسی وضعیت ضربه بزنید"
+    "tapToCheck": "برای بررسی وضعیت ضربه بزنید",
+    "recipientPaymentInfo": "جزئیات پرداخت {{name}}",
+    "openPaymentLink": "باز کردن لینک پرداخت",
+    "noPaymentInfo": "اطلاعات پرداختی ارائه نشده است"
   },
   "activity": {
     "title": "فعالیت",

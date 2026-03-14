@@ -229,7 +229,18 @@
     "closeApp": "Закрыть",
     "walletNetworkMismatch": "Этот кошелёк в неправильной сети. Подключите кошелёк {{network}}.",
     "walletMismatch": "Локальный кошелёк отличается от сохранённого",
-    "walletMismatchHint": "На этом устройстве подключён другой кошелёк. Расчёты будут использовать тот кошелёк, с которого вы отправляете."
+    "walletMismatchHint": "На этом устройстве подключён другой кошелёк. Расчёты будут использовать тот кошелёк, с которого вы отправляете.",
+    "paymentInfo": "Платёжные данные",
+    "paymentLink": "Платёжная ссылка",
+    "paymentLinkPlaceholder": "напр., ссылка на банк, PayPal, Revolut...",
+    "paymentLinkSaved": "Платёжная ссылка сохранена",
+    "paymentLinkRemoved": "Платёжная ссылка удалена",
+    "paymentQr": "QR-код для оплаты",
+    "addPaymentQr": "Добавить QR-код",
+    "changePaymentQr": "Изменить QR",
+    "removePaymentQr": "Удалить QR",
+    "paymentQrUpdated": "QR-код для оплаты обновлён",
+    "paymentQrRemoved": "QR-код для оплаты удалён"
   },
   "settlement": {
     "payWithUsdt": "Оплатить в USDT через TON",
@@ -280,7 +291,10 @@
     "pendingYouPay": "Платёж для {{name}} в обработке...",
     "pendingPayYou": "Платёж от {{name}} в обработке...",
     "pendingPay": "Платёж {{from}} → {{to}} в обработке...",
-    "tapToCheck": "Нажмите, чтобы проверить статус"
+    "tapToCheck": "Нажмите, чтобы проверить статус",
+    "recipientPaymentInfo": "Платёжные данные {{name}}",
+    "openPaymentLink": "Открыть платёжную ссылку",
+    "noPaymentInfo": "Платёжные данные не указаны"
   },
   "activity": {
     "title": "Активность",

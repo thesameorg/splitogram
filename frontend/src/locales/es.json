@@ -227,7 +227,18 @@
     "closeApp": "Cerrar",
     "walletNetworkMismatch": "Esta billetera está en la red incorrecta. Conecta una billetera {{network}}.",
     "walletMismatch": "La billetera local difiere de la guardada",
-    "walletMismatchHint": "Este dispositivo tiene una billetera diferente a la guardada en tu perfil. Los pagos usarán la billetera desde la que envíes."
+    "walletMismatchHint": "Este dispositivo tiene una billetera diferente a la guardada en tu perfil. Los pagos usarán la billetera desde la que envíes.",
+    "paymentInfo": "Datos de pago",
+    "paymentLink": "Enlace de pago",
+    "paymentLinkPlaceholder": "ej., enlace bancario, PayPal, Revolut...",
+    "paymentLinkSaved": "Enlace de pago guardado",
+    "paymentLinkRemoved": "Enlace de pago eliminado",
+    "paymentQr": "Código QR de pago",
+    "addPaymentQr": "Añadir código QR",
+    "changePaymentQr": "Cambiar QR",
+    "removePaymentQr": "Eliminar QR",
+    "paymentQrUpdated": "Código QR de pago actualizado",
+    "paymentQrRemoved": "Código QR de pago eliminado"
   },
   "settlement": {
     "payWithUsdt": "Pagar con USDT en TON",
@@ -278,7 +289,10 @@
     "pendingYouPay": "Pago a {{name}} pendiente...",
     "pendingPayYou": "Pago de {{name}} pendiente...",
     "pendingPay": "Pago {{from}} → {{to}} pendiente...",
-    "tapToCheck": "Toca para comprobar el estado"
+    "tapToCheck": "Toca para comprobar el estado",
+    "recipientPaymentInfo": "Datos de pago de {{name}}",
+    "openPaymentLink": "Abrir enlace de pago",
+    "noPaymentInfo": "No se proporcionaron datos de pago"
   },
   "activity": {
     "title": "Actividad",

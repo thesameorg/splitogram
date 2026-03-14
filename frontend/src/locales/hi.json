@@ -227,7 +227,18 @@
     "closeApp": "बंद करें",
     "walletNetworkMismatch": "यह वॉलेट गलत नेटवर्क पर है। कृपया {{network}} वॉलेट कनेक्ट करें।",
     "walletMismatch": "स्थानीय वॉलेट सहेजे गए वॉलेट से अलग है",
-    "walletMismatchHint": "इस डिवाइस पर आपकी प्रोफ़ाइल में सहेजे गए वॉलेट से अलग वॉलेट जुड़ा है। भुगतान उस वॉलेट से होगा जिससे आप भेजते हैं।"
+    "walletMismatchHint": "इस डिवाइस पर आपकी प्रोफ़ाइल में सहेजे गए वॉलेट से अलग वॉलेट जुड़ा है। भुगतान उस वॉलेट से होगा जिससे आप भेजते हैं।",
+    "paymentInfo": "भुगतान जानकारी",
+    "paymentLink": "भुगतान लिंक",
+    "paymentLinkPlaceholder": "जैसे, बैंक लिंक, PayPal, Revolut...",
+    "paymentLinkSaved": "भुगतान लिंक सहेजा गया",
+    "paymentLinkRemoved": "भुगतान लिंक हटाया गया",
+    "paymentQr": "भुगतान QR कोड",
+    "addPaymentQr": "QR कोड जोड़ें",
+    "changePaymentQr": "QR बदलें",
+    "removePaymentQr": "QR हटाएँ",
+    "paymentQrUpdated": "भुगतान QR कोड अपडेट हो गया",
+    "paymentQrRemoved": "भुगतान QR कोड हटाया गया"
   },
   "settlement": {
     "payWithUsdt": "TON पर USDT से भुगतान करें",
@@ -278,7 +289,10 @@
     "pendingYouPay": "{{name}} को भुगतान लंबित...",
     "pendingPayYou": "{{name}} से भुगतान लंबित...",
     "pendingPay": "भुगतान {{from}} → {{to}} लंबित...",
-    "tapToCheck": "स्थिति जाँचने के लिए टैप करें"
+    "tapToCheck": "स्थिति जाँचने के लिए टैप करें",
+    "recipientPaymentInfo": "{{name}} के भुगतान विवरण",
+    "openPaymentLink": "भुगतान लिंक खोलें",
+    "noPaymentInfo": "कोई भुगतान विवरण प्रदान नहीं किया गया"
   },
   "activity": {
     "title": "गतिविधि",

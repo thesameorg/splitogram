@@ -227,7 +227,18 @@
     "closeApp": "Fechar",
     "walletNetworkMismatch": "Esta carteira está na rede errada. Conecte uma carteira {{network}}.",
     "walletMismatch": "Carteira local difere da salva",
-    "walletMismatchHint": "Este dispositivo tem uma carteira diferente da salva no seu perfil. Os pagamentos usarão a carteira de onde você enviar."
+    "walletMismatchHint": "Este dispositivo tem uma carteira diferente da salva no seu perfil. Os pagamentos usarão a carteira de onde você enviar.",
+    "paymentInfo": "Dados de pagamento",
+    "paymentLink": "Link de pagamento",
+    "paymentLinkPlaceholder": "ex., link bancário, PayPal, Revolut...",
+    "paymentLinkSaved": "Link de pagamento salvo",
+    "paymentLinkRemoved": "Link de pagamento removido",
+    "paymentQr": "QR code de pagamento",
+    "addPaymentQr": "Adicionar QR code",
+    "changePaymentQr": "Alterar QR",
+    "removePaymentQr": "Remover QR",
+    "paymentQrUpdated": "QR code de pagamento atualizado",
+    "paymentQrRemoved": "QR code de pagamento removido"
   },
   "settlement": {
     "payWithUsdt": "Pagar com USDT na TON",
@@ -278,7 +289,10 @@
     "pendingYouPay": "Pagamento para {{name}} pendente...",
     "pendingPayYou": "Pagamento de {{name}} pendente...",
     "pendingPay": "Pagamento {{from}} → {{to}} pendente...",
-    "tapToCheck": "Toque para verificar o estado"
+    "tapToCheck": "Toque para verificar o estado",
+    "recipientPaymentInfo": "Dados de pagamento de {{name}}",
+    "openPaymentLink": "Abrir link de pagamento",
+    "noPaymentInfo": "Nenhum dado de pagamento fornecido"
   },
   "activity": {
     "title": "Atividade",

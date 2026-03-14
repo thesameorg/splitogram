@@ -225,7 +225,18 @@
     "closeApp": "Đóng",
     "walletNetworkMismatch": "Ví này ở sai mạng. Vui lòng kết nối ví {{network}}.",
     "walletMismatch": "Ví trên thiết bị khác với ví đã lưu",
-    "walletMismatchHint": "Thiết bị này có ví khác với ví đã lưu trong hồ sơ của bạn. Thanh toán sẽ sử dụng ví mà bạn gửi từ đó."
+    "walletMismatchHint": "Thiết bị này có ví khác với ví đã lưu trong hồ sơ của bạn. Thanh toán sẽ sử dụng ví mà bạn gửi từ đó.",
+    "paymentInfo": "Thông tin thanh toán",
+    "paymentLink": "Liên kết thanh toán",
+    "paymentLinkPlaceholder": "VD: liên kết ngân hàng, PayPal, Revolut...",
+    "paymentLinkSaved": "Đã lưu liên kết thanh toán",
+    "paymentLinkRemoved": "Đã xóa liên kết thanh toán",
+    "paymentQr": "Mã QR thanh toán",
+    "addPaymentQr": "Thêm mã QR",
+    "changePaymentQr": "Đổi QR",
+    "removePaymentQr": "Xóa QR",
+    "paymentQrUpdated": "Đã cập nhật mã QR thanh toán",
+    "paymentQrRemoved": "Đã xóa mã QR thanh toán"
   },
   "settlement": {
     "payWithUsdt": "Thanh toán bằng USDT trên TON",
@@ -276,7 +287,10 @@
     "pendingYouPay": "Thanh toán cho {{name}} đang chờ...",
     "pendingPayYou": "Thanh toán từ {{name}} đang chờ...",
     "pendingPay": "Thanh toán {{from}} → {{to}} đang chờ...",
-    "tapToCheck": "Nhấn để kiểm tra trạng thái"
+    "tapToCheck": "Nhấn để kiểm tra trạng thái",
+    "recipientPaymentInfo": "Chi tiết thanh toán của {{name}}",
+    "openPaymentLink": "Mở liên kết thanh toán",
+    "noPaymentInfo": "Chưa có thông tin thanh toán"
   },
   "activity": {
     "title": "Hoạt động",

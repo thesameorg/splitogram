@@ -229,7 +229,18 @@
     "closeApp": "Закрити",
     "walletNetworkMismatch": "Цей гаманець у неправильній мережі. Підключіть гаманець {{network}}.",
     "walletMismatch": "Локальний гаманець відрізняється від збереженого",
-    "walletMismatchHint": "На цьому пристрої підключено інший гаманець. Розрахунки використовуватимуть той гаманець, з якого ви надсилаєте."
+    "walletMismatchHint": "На цьому пристрої підключено інший гаманець. Розрахунки використовуватимуть той гаманець, з якого ви надсилаєте.",
+    "paymentInfo": "Платіжні дані",
+    "paymentLink": "Платіжне посилання",
+    "paymentLinkPlaceholder": "напр., посилання на банк, PayPal, Revolut...",
+    "paymentLinkSaved": "Платіжне посилання збережено",
+    "paymentLinkRemoved": "Платіжне посилання видалено",
+    "paymentQr": "QR-код для оплати",
+    "addPaymentQr": "Додати QR-код",
+    "changePaymentQr": "Змінити QR",
+    "removePaymentQr": "Видалити QR",
+    "paymentQrUpdated": "QR-код для оплати оновлено",
+    "paymentQrRemoved": "QR-код для оплати видалено"
   },
   "settlement": {
     "payWithUsdt": "Оплатити в USDT через TON",
@@ -280,7 +291,10 @@
     "pendingYouPay": "Платіж для {{name}} в обробці...",
     "pendingPayYou": "Платіж від {{name}} в обробці...",
     "pendingPay": "Платіж {{from}} → {{to}} в обробці...",
-    "tapToCheck": "Натисніть, щоб перевірити статус"
+    "tapToCheck": "Натисніть, щоб перевірити статус",
+    "recipientPaymentInfo": "Платіжні дані {{name}}",
+    "openPaymentLink": "Відкрити платіжне посилання",
+    "noPaymentInfo": "Платіжні дані не вказані"
   },
   "activity": {
     "title": "Активність",

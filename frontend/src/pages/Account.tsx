@@ -7,7 +7,7 @@ import { ErrorBanner } from '../components/ErrorBanner';
 import { SuccessBanner } from '../components/SuccessBanner';
 import { BottomSheet } from '../components/BottomSheet';
 import { Avatar } from '../components/Avatar';
-import { validateImageFile, processAvatar } from '../utils/image';
+import { validateImageFile, processAvatar, imageUrl } from '../utils/image';
 import { truncateAddress } from '../utils/ton';
 import { useTonWallet } from '../hooks/useTonWallet';
 import { useUser } from '../contexts/UserContext';
@@ -59,8 +59,13 @@ export function Account() {
   const [actionLoading, setActionLoading] = useState<number | null>(null); // groupId being acted on
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [paymentLink, setPaymentLink] = useState('');
+  const [editingPaymentLink, setEditingPaymentLink] = useState(false);
+  const [savingPaymentLink, setSavingPaymentLink] = useState(false);
+  const [uploadingQr, setUploadingQr] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const feedbackFileInputRef = useRef<HTMLInputElement>(null);
+  const qrFileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     connected: walletConnected,
@@ -86,6 +91,7 @@ export function Account() {
       .then((data) => {
         setUser(data);
         setEditName(data.displayName);
+        setPaymentLink(data.paymentLink ?? '');
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -168,12 +174,13 @@ export function Account() {
     setSaving(true);
     setError(null);
     try {
-      const result = await api.updateMe({ displayName: editName.trim() });
-      setUser((prev) => (prev ? { ...prev, displayName: result.displayName } : prev));
+      const name = editName.trim();
+      await api.updateMe({ displayName: name });
+      setUser((prev) => (prev ? { ...prev, displayName: name } : prev));
       setUserContext((prev) =>
         prev
-          ? { ...prev, displayName: result.displayName }
-          : { displayName: result.displayName, avatarKey: null, isAdmin: false },
+          ? { ...prev, displayName: name }
+          : { displayName: name, avatarKey: null, isAdmin: false },
       );
       setEditing(false);
       setSuccess(t('account.nameUpdated'));
@@ -224,6 +231,63 @@ export function Account() {
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to remove avatar');
+    }
+  }
+
+  async function handleSavePaymentLink() {
+    if (savingPaymentLink) return;
+    setSavingPaymentLink(true);
+    setError(null);
+    try {
+      const link = paymentLink.trim() || null;
+      await api.updateMe({ paymentLink: link });
+      setUser((prev) => (prev ? { ...prev, paymentLink: link } : prev));
+      setEditingPaymentLink(false);
+      setSuccess(t(link ? 'account.paymentLinkSaved' : 'account.paymentLinkRemoved'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save payment link');
+    } finally {
+      setSavingPaymentLink(false);
+    }
+  }
+
+  async function handleQrUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setUploadingQr(true);
+    setError(null);
+    try {
+      const processed = await processAvatar(file);
+      const result = await api.uploadPaymentQr(processed.blob);
+      setUser((prev) => (prev ? { ...prev, paymentQrKey: result.paymentQrKey } : prev));
+      setSuccess(t('account.paymentQrUpdated'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload QR');
+    } finally {
+      setUploadingQr(false);
+    }
+  }
+
+  async function handleQrDelete() {
+    if (!user?.paymentQrKey) return;
+    setError(null);
+    try {
+      await api.deletePaymentQr();
+      setUser((prev) => (prev ? { ...prev, paymentQrKey: null } : prev));
+      setSuccess(t('account.paymentQrRemoved'));
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove QR');
     }
   }
 
@@ -554,6 +618,107 @@ export function Account() {
             {t('account.connectWallet')}
           </button>
         )}
+      </div>
+
+      {/* Payment Info */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1 text-tg-hint">
+          {t('account.paymentInfo')}
+        </label>
+        <div className="bg-tg-section rounded-xl border border-tg-separator p-3 space-y-3">
+          {/* Payment Link */}
+          <div>
+            <div className="text-xs text-tg-hint mb-1">{t('account.paymentLink')}</div>
+            {editingPaymentLink ? (
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={paymentLink}
+                  onChange={(e) => setPaymentLink(e.target.value)}
+                  placeholder={t('account.paymentLinkPlaceholder')}
+                  className="flex-1 p-2 border border-tg-separator rounded-lg bg-transparent text-sm"
+                  autoFocus
+                  maxLength={500}
+                />
+                <button
+                  onClick={handleSavePaymentLink}
+                  disabled={savingPaymentLink}
+                  className="px-3 py-2 bg-tg-button text-tg-button-text rounded-lg text-sm font-medium disabled:opacity-50"
+                >
+                  {savingPaymentLink ? '...' : t('account.save')}
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingPaymentLink(false);
+                    setPaymentLink(user?.paymentLink ?? '');
+                  }}
+                  className="px-3 py-2 border border-tg-separator rounded-lg text-sm"
+                >
+                  {t('account.cancel')}
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-between items-center">
+                <span className="text-sm truncate flex-1">
+                  {user?.paymentLink || (
+                    <span className="text-tg-hint">{t('account.paymentLinkPlaceholder')}</span>
+                  )}
+                </span>
+                <button
+                  onClick={() => setEditingPaymentLink(true)}
+                  className="text-tg-link text-sm font-medium ml-2 shrink-0"
+                >
+                  {t('account.edit')}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Payment QR */}
+          <div className="pt-2 border-t border-tg-separator">
+            <div className="text-xs text-tg-hint mb-2">{t('account.paymentQr')}</div>
+            {user?.paymentQrKey ? (
+              <div className="flex items-start gap-3">
+                <img
+                  src={imageUrl(user.paymentQrKey)}
+                  alt="Payment QR"
+                  className="w-24 h-24 rounded-lg object-cover border border-tg-separator"
+                />
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => qrFileInputRef.current?.click()}
+                    disabled={uploadingQr}
+                    className="text-tg-link text-sm font-medium disabled:opacity-50"
+                  >
+                    {t('account.changePaymentQr')}
+                  </button>
+                  <button
+                    onClick={handleQrDelete}
+                    className="text-tg-destructive text-sm font-medium"
+                  >
+                    {t('account.removePaymentQr')}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => qrFileInputRef.current?.click()}
+                disabled={uploadingQr}
+                className="w-full p-3 border border-dashed border-tg-separator rounded-lg text-sm text-tg-hint disabled:opacity-50"
+              >
+                {uploadingQr ? '...' : t('account.addPaymentQr')}
+              </button>
+            )}
+            <input
+              ref={qrFileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleQrUpload}
+              className="hidden"
+              aria-label={t('account.paymentQr')}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Channel */}

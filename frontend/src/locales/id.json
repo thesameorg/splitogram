@@ -225,7 +225,18 @@
     "closeApp": "Tutup",
     "walletNetworkMismatch": "Dompet ini ada di jaringan yang salah. Hubungkan dompet {{network}}.",
     "walletMismatch": "Dompet lokal berbeda dari yang tersimpan",
-    "walletMismatchHint": "Perangkat ini memiliki dompet berbeda dari yang tersimpan di profil Anda. Pembayaran akan menggunakan dompet tempat Anda mengirim."
+    "walletMismatchHint": "Perangkat ini memiliki dompet berbeda dari yang tersimpan di profil Anda. Pembayaran akan menggunakan dompet tempat Anda mengirim.",
+    "paymentInfo": "Info Pembayaran",
+    "paymentLink": "Tautan pembayaran",
+    "paymentLinkPlaceholder": "mis., tautan bank, PayPal, Revolut...",
+    "paymentLinkSaved": "Tautan pembayaran disimpan",
+    "paymentLinkRemoved": "Tautan pembayaran dihapus",
+    "paymentQr": "Kode QR pembayaran",
+    "addPaymentQr": "Tambah kode QR",
+    "changePaymentQr": "Ubah QR",
+    "removePaymentQr": "Hapus QR",
+    "paymentQrUpdated": "Kode QR pembayaran diperbarui",
+    "paymentQrRemoved": "Kode QR pembayaran dihapus"
   },
   "settlement": {
     "payWithUsdt": "Bayar dengan USDT di TON",
@@ -276,7 +287,10 @@
     "pendingYouPay": "Pembayaran ke {{name}} tertunda...",
     "pendingPayYou": "Pembayaran dari {{name}} tertunda...",
     "pendingPay": "Pembayaran {{from}} → {{to}} tertunda...",
-    "tapToCheck": "Ketuk untuk cek status"
+    "tapToCheck": "Ketuk untuk cek status",
+    "recipientPaymentInfo": "Detail pembayaran {{name}}",
+    "openPaymentLink": "Buka tautan pembayaran",
+    "noPaymentInfo": "Tidak ada detail pembayaran yang diberikan"
   },
   "activity": {
     "title": "Aktivitas",

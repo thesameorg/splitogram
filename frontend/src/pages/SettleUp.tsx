@@ -8,12 +8,7 @@ import { formatAmount } from '../utils/format';
 import { calculateCommission } from '../utils/commission';
 import { getCurrency } from '../utils/currencies';
 import { buildSettlementBody, truncateAddress, toFriendly } from '../utils/ton';
-import {
-  validateImageFile,
-  processReceipt,
-  processReceiptThumbnail,
-  imageUrl,
-} from '../utils/image';
+import { validateImageFile, processReceipt, processReceiptThumbnail, imageUrl } from '../utils/image';
 import { sanitizeDecimalInput } from '../utils/input';
 import { config } from '../config';
 import { PageLayout } from '../components/PageLayout';
@@ -681,6 +676,47 @@ export function SettleUp() {
                 aria-label={t('settleUp.attachReceipt')}
               />
             </div>
+
+            {/* Recipient payment info — shown to debtor during manual settlement */}
+            {isDebtor && (settlement.to?.paymentLink || settlement.to?.paymentQrKey) && (
+              <div className="bg-tg-secondary-bg p-4 rounded-xl space-y-3">
+                <div className="text-sm font-medium">
+                  {t('settlement.recipientPaymentInfo', {
+                    name: settlement.to?.displayName ?? '',
+                  })}
+                </div>
+                {settlement.to?.paymentQrKey && (
+                  <img
+                    src={imageUrl(settlement.to.paymentQrKey)}
+                    alt="Payment QR"
+                    className="w-40 h-40 rounded-lg object-cover border border-tg-separator mx-auto"
+                  />
+                )}
+                {settlement.to?.paymentLink && (
+                  <a
+                    href={settlement.to.paymentLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 text-tg-link text-sm font-medium"
+                  >
+                    {t('settlement.openPaymentLink')}
+                    <svg
+                      className="w-3.5 h-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            )}
 
             <button
               onClick={() => {

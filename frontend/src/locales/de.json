@@ -227,7 +227,18 @@
     "closeApp": "Schließen",
     "walletNetworkMismatch": "Diese Wallet ist im falschen Netzwerk. Bitte verbinde eine {{network}}-Wallet.",
     "walletMismatch": "Lokale Wallet weicht von gespeicherter ab",
-    "walletMismatchHint": "Auf diesem Gerät ist eine andere Wallet verbunden als in deinem Profil gespeichert. Zahlungen verwenden die Wallet, von der du sendest."
+    "walletMismatchHint": "Auf diesem Gerät ist eine andere Wallet verbunden als in deinem Profil gespeichert. Zahlungen verwenden die Wallet, von der du sendest.",
+    "paymentInfo": "Zahlungsdaten",
+    "paymentLink": "Zahlungslink",
+    "paymentLinkPlaceholder": "z.B. Banklink, PayPal, Revolut...",
+    "paymentLinkSaved": "Zahlungslink gespeichert",
+    "paymentLinkRemoved": "Zahlungslink entfernt",
+    "paymentQr": "Zahlungs-QR-Code",
+    "addPaymentQr": "QR-Code hinzufügen",
+    "changePaymentQr": "QR ändern",
+    "removePaymentQr": "QR entfernen",
+    "paymentQrUpdated": "Zahlungs-QR-Code aktualisiert",
+    "paymentQrRemoved": "Zahlungs-QR-Code entfernt"
   },
   "settlement": {
     "payWithUsdt": "Mit USDT auf TON bezahlen",
@@ -278,7 +289,10 @@
     "pendingYouPay": "Zahlung an {{name}} ausstehend...",
     "pendingPayYou": "Zahlung von {{name}} ausstehend...",
     "pendingPay": "Zahlung {{from}} → {{to}} ausstehend...",
-    "tapToCheck": "Tippen, um den Status zu prüfen"
+    "tapToCheck": "Tippen, um den Status zu prüfen",
+    "recipientPaymentInfo": "Zahlungsdaten von {{name}}",
+    "openPaymentLink": "Zahlungslink öffnen",
+    "noPaymentInfo": "Keine Zahlungsdaten angegeben"
   },
   "activity": {
     "title": "Aktivität",

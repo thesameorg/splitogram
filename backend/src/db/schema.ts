@@ -15,6 +15,8 @@ export const users = sqliteTable(
     botStarted: integer('bot_started', { mode: 'boolean' }).notNull().default(false),
     avatarKey: text('avatar_key'),
     isDummy: integer('is_dummy', { mode: 'boolean' }).notNull().default(false),
+    paymentLink: text('payment_link'),
+    paymentQrKey: text('payment_qr_key'),
     updatedAt: text('updated_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

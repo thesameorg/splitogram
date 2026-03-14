@@ -227,7 +227,18 @@
     "closeApp": "Chiudi",
     "walletNetworkMismatch": "Questo wallet è sulla rete sbagliata. Collega un wallet {{network}}.",
     "walletMismatch": "Il wallet locale è diverso da quello salvato",
-    "walletMismatchHint": "Questo dispositivo ha un wallet diverso da quello salvato nel tuo profilo. I pagamenti useranno il wallet da cui invii."
+    "walletMismatchHint": "Questo dispositivo ha un wallet diverso da quello salvato nel tuo profilo. I pagamenti useranno il wallet da cui invii.",
+    "paymentInfo": "Dati di pagamento",
+    "paymentLink": "Link di pagamento",
+    "paymentLinkPlaceholder": "es., link bancario, PayPal, Revolut...",
+    "paymentLinkSaved": "Link di pagamento salvato",
+    "paymentLinkRemoved": "Link di pagamento rimosso",
+    "paymentQr": "Codice QR di pagamento",
+    "addPaymentQr": "Aggiungi codice QR",
+    "changePaymentQr": "Cambia QR",
+    "removePaymentQr": "Rimuovi QR",
+    "paymentQrUpdated": "Codice QR di pagamento aggiornato",
+    "paymentQrRemoved": "Codice QR di pagamento rimosso"
   },
   "settlement": {
     "payWithUsdt": "Paga con USDT su TON",
@@ -278,7 +289,10 @@
     "pendingYouPay": "Pagamento a {{name}} in sospeso...",
     "pendingPayYou": "Pagamento da {{name}} in sospeso...",
     "pendingPay": "Pagamento {{from}} → {{to}} in sospeso...",
-    "tapToCheck": "Tocca per controllare lo stato"
+    "tapToCheck": "Tocca per controllare lo stato",
+    "recipientPaymentInfo": "Dati di pagamento di {{name}}",
+    "openPaymentLink": "Apri link di pagamento",
+    "noPaymentInfo": "Nessun dato di pagamento fornito"
   },
   "activity": {
     "title": "Attività",

@@ -167,12 +167,16 @@ export interface SettlementDetail extends Settlement {
     displayName: string;
     username: string | null;
     walletAddress: string | null;
+    paymentLink: string | null;
+    paymentQrKey: string | null;
   };
   to: {
     userId: number;
     displayName: string;
     username: string | null;
     walletAddress: string | null;
+    paymentLink: string | null;
+    paymentQrKey: string | null;
   };
 }
 
@@ -248,6 +252,8 @@ export interface UserProfile {
   username: string | null;
   avatarKey: string | null;
   walletAddress: string | null;
+  paymentLink: string | null;
+  paymentQrKey: string | null;
 }
 
 // --- API Functions ---
@@ -264,8 +270,8 @@ export const api = {
 
   // Users
   getMe: () => apiRequest<UserProfile>('/api/v1/users/me'),
-  updateMe: (data: { displayName: string }) =>
-    apiRequest<{ displayName: string }>('/api/v1/users/me', {
+  updateMe: (data: { displayName?: string; paymentLink?: string | null }) =>
+    apiRequest<{ displayName?: string; paymentLink?: string | null }>('/api/v1/users/me', {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -280,6 +286,17 @@ export const api = {
   },
   deleteAvatar: () =>
     apiRequest<{ deleted: boolean }>('/api/v1/users/me/avatar', { method: 'DELETE' }),
+  uploadPaymentQr: (blob: Blob) => {
+    const formData = new FormData();
+    formData.append('qr', blob, 'qr.jpg');
+    return apiRequest<{ paymentQrKey: string }>('/api/v1/users/me/payment-qr', {
+      method: 'POST',
+      headers: {},
+      body: formData,
+    });
+  },
+  deletePaymentQr: () =>
+    apiRequest<{ deleted: boolean }>('/api/v1/users/me/payment-qr', { method: 'DELETE' }),
   deleteAccount: () => apiRequest<{ deleted: boolean }>('/api/v1/users/me', { method: 'DELETE' }),
   deletionPreflight: () =>
     apiRequest<{

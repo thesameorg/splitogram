@@ -230,7 +230,18 @@
     "closeApp": "Close",
     "walletNetworkMismatch": "This wallet is on the wrong network. Please connect a {{network}} wallet.",
     "walletMismatch": "Local wallet differs from your saved wallet",
-    "walletMismatchHint": "This device has a different wallet connected than the one saved in your profile. Settlements will use whichever wallet you send from."
+    "walletMismatchHint": "This device has a different wallet connected than the one saved in your profile. Settlements will use whichever wallet you send from.",
+    "paymentInfo": "Payment Info",
+    "paymentLink": "Payment link",
+    "paymentLinkPlaceholder": "e.g., bank link, PayPal, Revolut...",
+    "paymentLinkSaved": "Payment link saved",
+    "paymentLinkRemoved": "Payment link removed",
+    "paymentQr": "Payment QR code",
+    "addPaymentQr": "Add QR code",
+    "changePaymentQr": "Change QR",
+    "removePaymentQr": "Remove QR",
+    "paymentQrUpdated": "Payment QR updated",
+    "paymentQrRemoved": "Payment QR removed"
   },
   "settlement": {
     "payWithUsdt": "Pay with USDT on TON",
@@ -281,7 +292,10 @@
     "pendingYouPay": "Payment to {{name}} pending...",
     "pendingPayYou": "Payment from {{name}} pending...",
     "pendingPay": "Payment {{from}} → {{to}} pending...",
-    "tapToCheck": "Tap to check payment status"
+    "tapToCheck": "Tap to check payment status",
+    "recipientPaymentInfo": "{{name}}'s payment details",
+    "openPaymentLink": "Open payment link",
+    "noPaymentInfo": "No payment details provided"
   },
   "activity": {
     "title": "Activity",

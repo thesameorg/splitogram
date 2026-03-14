@@ -227,6 +227,8 @@ settlementsApp.get('/settlements/:id', async (c) => {
         displayName: users.displayName,
         username: users.username,
         walletAddress: users.walletAddress,
+        paymentLink: users.paymentLink,
+        paymentQrKey: users.paymentQrKey,
       })
       .from(users)
       .where(eq(users.id, settlement.fromUser))
@@ -236,6 +238,8 @@ settlementsApp.get('/settlements/:id', async (c) => {
         displayName: users.displayName,
         username: users.username,
         walletAddress: users.walletAddress,
+        paymentLink: users.paymentLink,
+        paymentQrKey: users.paymentQrKey,
       })
       .from(users)
       .where(eq(users.id, settlement.toUser))

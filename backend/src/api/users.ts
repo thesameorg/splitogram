@@ -43,10 +43,12 @@ app.get('/me', async (c) => {
     username: user.username,
     avatarKey: user.avatarKey,
     walletAddress: user.walletAddress,
+    paymentLink: user.paymentLink,
+    paymentQrKey: user.paymentQrKey,
   });
 });
 
-// PUT /api/v1/users/me — update display name
+// PUT /api/v1/users/me — update display name and/or payment link
 app.put(
   '/me',
   zValidator(
@@ -57,20 +59,23 @@ app.put(
         .trim()
         .min(1)
         .max(64)
-        .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, '')),
+        .transform((s) => s.replace(/[\x00-\x1f\x7f]/g, ''))
+        .optional(),
+      paymentLink: z.string().trim().max(500).nullable().optional(),
     }),
   ),
   async (c) => {
     const db = c.get('db');
     const session = c.get('session');
-    const { displayName } = c.req.valid('json');
+    const data = c.req.valid('json');
 
-    await db
-      .update(users)
-      .set({ displayName, updatedAt: new Date().toISOString() })
-      .where(eq(users.id, session.userId));
+    const set: Record<string, unknown> = { updatedAt: new Date().toISOString() };
+    if (data.displayName !== undefined) set.displayName = data.displayName;
+    if (data.paymentLink !== undefined) set.paymentLink = data.paymentLink || null;
 
-    return c.json({ displayName });
+    await db.update(users).set(set).where(eq(users.id, session.userId));
+
+    return c.json({ displayName: data.displayName, paymentLink: data.paymentLink });
   },
 );
 
@@ -144,6 +149,78 @@ app.delete('/me/avatar', async (c) => {
   await db
     .update(users)
     .set({ avatarKey: null, updatedAt: new Date().toISOString() })
+    .where(eq(users.id, user.id));
+
+  return c.json({ deleted: true });
+});
+
+// POST /api/v1/users/me/payment-qr — upload payment QR code
+app.post('/me/payment-qr', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+
+  const body = await c.req.parseBody();
+  const file = body['qr'];
+  if (!(file instanceof File)) {
+    return c.json({ error: 'missing_file', detail: 'No QR file provided' }, 400);
+  }
+
+  const validationError = validateUpload(file);
+  if (validationError) {
+    return c.json({ error: 'invalid_file', detail: validationError }, 400);
+  }
+
+  const [user] = await db
+    .select({ id: users.id, paymentQrKey: users.paymentQrKey })
+    .from(users)
+    .where(eq(users.id, session.userId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  const key = generateR2Key('payment-qr', user.id);
+  await c.env.IMAGES.put(key, await file.arrayBuffer(), {
+    httpMetadata: { contentType: 'image/jpeg' },
+  });
+
+  if (user.paymentQrKey) {
+    c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, user.paymentQrKey));
+  }
+
+  await db
+    .update(users)
+    .set({ paymentQrKey: key, updatedAt: new Date().toISOString() })
+    .where(eq(users.id, user.id));
+
+  return c.json({ paymentQrKey: key });
+});
+
+// DELETE /api/v1/users/me/payment-qr — remove payment QR code
+app.delete('/me/payment-qr', async (c) => {
+  const db = c.get('db');
+  const session = c.get('session');
+
+  const [user] = await db
+    .select({ id: users.id, paymentQrKey: users.paymentQrKey })
+    .from(users)
+    .where(eq(users.id, session.userId))
+    .limit(1);
+
+  if (!user) {
+    return c.json({ error: 'user_not_found', detail: 'User not found' }, 404);
+  }
+
+  if (!user.paymentQrKey) {
+    return c.json({ error: 'no_qr', detail: 'No QR code to delete' }, 400);
+  }
+
+  c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, user.paymentQrKey));
+
+  await db
+    .update(users)
+    .set({ paymentQrKey: null, updatedAt: new Date().toISOString() })
     .where(eq(users.id, user.id));
 
   return c.json({ deleted: true });
