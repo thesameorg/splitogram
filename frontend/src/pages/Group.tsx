@@ -487,11 +487,7 @@ export function Group() {
             </button>
             <button
               onClick={() => navigate(`/groups/${groupId}/settings`)}
-              className={`p-1.5 border rounded-lg ${
-                currentUserRole === 'admin'
-                  ? 'text-tg-link border-tg-link'
-                  : 'text-tg-hint border-tg-separator'
-              }`}
+              className="p-1.5 border rounded-lg text-tg-link border-tg-link"
               aria-label={currentUserRole === 'admin' ? t('group.settings') : t('group.info')}
             >
               {currentUserRole === 'admin' ? (
