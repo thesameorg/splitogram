@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api, type GroupSummary } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatAmount, formatSignedAmount } from '../utils/format';
+import { getCurrency } from '../utils/currencies';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { BottomSheet } from '../components/BottomSheet';
@@ -182,6 +183,8 @@ export function Home() {
                     <div className="font-medium">{group.name}</div>
                     <div className="text-sm text-tg-hint">
                       {t('home.member', { count: group.memberCount })}
+                      {' · '}
+                      {getCurrency(group.currency).symbol}
                     </div>
                   </div>
                 </div>
