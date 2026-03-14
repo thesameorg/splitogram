@@ -11,20 +11,17 @@ import { BottomSheet } from '../components/BottomSheet';
 import { CurrencyPicker, CurrencyButton } from '../components/CurrencyPicker';
 import { Avatar } from '../components/Avatar';
 
-function computeTotalUsd(
+function computeNetUsd(
   balancesByCurrency: Record<string, { owed: number; owe: number }>,
   rates: Record<string, number>,
-): { totalOwed: number; totalOwe: number } | null {
-  let totalOwed = 0;
-  let totalOwe = 0;
+): number | null {
+  let net = 0;
   for (const [currency, bal] of Object.entries(balancesByCurrency)) {
     const rate = currency === 'USD' ? 1 : rates[currency];
     if (!rate || rate <= 0) return null; // can't convert
-    totalOwed += bal.owed / rate;
-    totalOwe += bal.owe / rate;
+    net += (bal.owed - bal.owe) / rate;
   }
-  // Convert back to micro-units (amounts are already in micro-units, rate converts micro→micro)
-  return { totalOwed: Math.round(totalOwed), totalOwe: Math.round(totalOwe) };
+  return Math.round(net);
 }
 
 export function Home() {
@@ -96,8 +93,8 @@ export function Home() {
   );
   const hasBalances = Object.values(balancesByCurrency).some((b) => b.owed > 0 || b.owe > 0);
   const currencyCount = Object.keys(balancesByCurrency).length;
-  const totalUsd =
-    currencyCount > 1 && exchangeRates ? computeTotalUsd(balancesByCurrency, exchangeRates) : null;
+  const netUsd =
+    currencyCount > 1 && exchangeRates ? computeNetUsd(balancesByCurrency, exchangeRates) : null;
 
   if (loading) return <LoadingScreen />;
 
@@ -107,9 +104,9 @@ export function Home() {
       <div className="mb-6">
         <h1 className="text-xl font-bold mb-3">{t('tabs.groups')}</h1>
         {hasBalances && (
-          <div className="flex gap-4 text-sm flex-wrap">
+          <div className="flex gap-2 items-center text-sm flex-wrap">
             {Object.entries(balancesByCurrency).map(([currency, bal]) => (
-              <div key={currency} className="flex gap-2">
+              <div key={currency} className="flex gap-1">
                 {bal.owed > 0 && (
                   <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
                     <span className="text-app-positive font-medium">
@@ -126,27 +123,10 @@ export function Home() {
                 )}
               </div>
             ))}
-            {totalUsd && (totalUsd.totalOwed > 0 || totalUsd.totalOwe > 0) && (
-              <>
-                <span className="text-tg-separator self-center text-lg">|</span>
-                <div className="flex gap-2 items-center">
-                  <span className="text-tg-hint text-xs">≈</span>
-                  {totalUsd.totalOwed > 0 && (
-                    <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
-                      <span className="text-app-positive font-bold">
-                        +{formatAmount(totalUsd.totalOwed, 'USD')}
-                      </span>
-                    </div>
-                  )}
-                  {totalUsd.totalOwe > 0 && (
-                    <div className="bg-app-negative-bg px-3 py-2 rounded-lg">
-                      <span className="text-app-negative font-bold">
-                        -{formatAmount(totalUsd.totalOwe, 'USD')}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </>
+            {netUsd !== null && netUsd !== 0 && (
+              <span className="text-tg-hint text-xs whitespace-nowrap">
+                ≈&nbsp;{formatSignedAmount(netUsd, 'USD')}
+              </span>
             )}
           </div>
         )}
