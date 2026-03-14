@@ -36,9 +36,7 @@ import { WalletContractV4 } from '@ton/ton';
 
 // Mnemonic for the UNINIT test wallet (24 words, space-separated)
 // You can also set MNEMONIC env var
-const MNEMONIC =
-  process.env.MNEMONIC ||
-  'your 24 word mnemonic here';
+const MNEMONIC = process.env.MNEMONIC || 'your 24 word mnemonic here';
 
 // Splitogram testnet contract
 const CONTRACT_ADDRESS = 'EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu';
@@ -77,29 +75,27 @@ function buildJettonTransferBody(params: {
   forwardTonAmount: bigint;
   recipientAddress: string;
 }): Cell {
-  return beginCell()
-    .storeUint(0xf8a7ea5, 32) // op: jetton_transfer
-    .storeUint(0, 64) // query_id
-    .storeCoins(BigInt(params.totalAmount)) // jetton amount = debt + commission
-    .storeAddress(Address.parse(params.contractAddress)) // destination: settlement contract
-    .storeAddress(Address.parse(params.senderAddress)) // response_destination: excess TON back
-    .storeBit(false) // no custom_payload
-    .storeCoins(params.forwardTonAmount) // forward_ton_amount (gas for contract)
-    // inline forward_payload (no Either bit, no ref — validated on testnet)
-    .storeUint(0, 32) // op = 0 (settlement)
-    .storeAddress(Address.parse(params.recipientAddress)) // who receives remainder
-    .endCell();
+  return (
+    beginCell()
+      .storeUint(0xf8a7ea5, 32) // op: jetton_transfer
+      .storeUint(0, 64) // query_id
+      .storeCoins(BigInt(params.totalAmount)) // jetton amount = debt + commission
+      .storeAddress(Address.parse(params.contractAddress)) // destination: settlement contract
+      .storeAddress(Address.parse(params.senderAddress)) // response_destination: excess TON back
+      .storeBit(false) // no custom_payload
+      .storeCoins(params.forwardTonAmount) // forward_ton_amount (gas for contract)
+      // inline forward_payload (no Either bit, no ref — validated on testnet)
+      .storeUint(0, 32) // op = 0 (settlement)
+      .storeAddress(Address.parse(params.recipientAddress)) // who receives remainder
+      .endCell()
+  );
 }
 
 /**
  * Build V4R2 signed external message body — mirrors backend/src/services/tonapi.ts buildV4R2Body
  * but with REAL signature instead of zero
  */
-function buildV4R2SignedBody(
-  seqno: number,
-  internalMsgCell: Cell,
-  secretKey: Buffer,
-): Cell {
+function buildV4R2SignedBody(seqno: number, internalMsgCell: Cell, secretKey: Buffer): Cell {
   const { sign } = require('@ton/crypto');
 
   const V4R2_SUBWALLET_ID = 698983191;
@@ -166,7 +162,13 @@ async function main() {
   }
   const acct = (await acctResp.json()) as any;
   console.log('Status:    ', acct.status);
-  console.log('Balance:   ', acct.balance, 'nanoTON =', (Number(acct.balance) / 1e9).toFixed(4), 'TON');
+  console.log(
+    'Balance:   ',
+    acct.balance,
+    'nanoTON =',
+    (Number(acct.balance) / 1e9).toFixed(4),
+    'TON',
+  );
   console.log('Interfaces:', acct.interfaces ?? '(none — uninit)');
 
   const isUninit = acct.status === 'uninit' || acct.status === 'nonexist';
@@ -174,7 +176,7 @@ async function main() {
 
   if (!isUninit) {
     console.log('\nWARNING: Wallet is already initialized. This test is meant for uninit wallets.');
-    console.log('The transaction will still work, but won\'t test the uninit→init transition.');
+    console.log("The transaction will still work, but won't test the uninit→init transition.");
     console.log('To test properly, use a fresh wallet that has never sent a transaction.');
   }
 
@@ -235,12 +237,13 @@ async function main() {
     const jResp = await fetch(`${TONAPI_BASE}/v2/accounts/${walletAddressRaw}/jettons`);
     if (jResp.ok) {
       const jData = (await jResp.json()) as any;
-      const usdtEntry = jData.balances?.find(
-        (b: any) => {
-          try { return Address.parse(b.jetton.address).equals(Address.parse(TUSDT_MASTER)); }
-          catch { return false; }
-        },
-      );
+      const usdtEntry = jData.balances?.find((b: any) => {
+        try {
+          return Address.parse(b.jetton.address).equals(Address.parse(TUSDT_MASTER));
+        } catch {
+          return false;
+        }
+      });
       if (usdtEntry) {
         senderJettonWallet = usdtEntry.wallet_address.address;
         console.log('tUSDT balance:', usdtEntry.balance, '(micro-units)');
@@ -260,24 +263,34 @@ async function main() {
   console.log('\n--- Checking tUSDT balance ---');
   const jBalResp = await fetch(`${TONAPI_BASE}/v2/accounts/${walletAddressRaw}/jettons`);
   const jBalData = (await jBalResp.json()) as any;
-  const usdtBal = jBalData.balances?.find(
-    (b: any) => {
-      try {
-        return Address.parse(b.jetton.address).equals(Address.parse(TUSDT_MASTER));
-      } catch { return false; }
-    },
-  );
+  const usdtBal = jBalData.balances?.find((b: any) => {
+    try {
+      return Address.parse(b.jetton.address).equals(Address.parse(TUSDT_MASTER));
+    } catch {
+      return false;
+    }
+  });
   const usdtBalance = parseInt(usdtBal?.balance ?? '0', 10);
-  console.log('tUSDT balance:', usdtBalance, 'micro-units =', (usdtBalance / 1e6).toFixed(2), 'USDT');
+  console.log(
+    'tUSDT balance:',
+    usdtBalance,
+    'micro-units =',
+    (usdtBalance / 1e6).toFixed(2),
+    'USDT',
+  );
 
   if (usdtBalance < TOTAL_AMOUNT) {
-    console.error(`ERROR: Insufficient tUSDT. Need ${TOTAL_AMOUNT} (${TOTAL_AMOUNT / 1e6} USDT), have ${usdtBalance}`);
+    console.error(
+      `ERROR: Insufficient tUSDT. Need ${TOTAL_AMOUNT} (${TOTAL_AMOUNT / 1e6} USDT), have ${usdtBalance}`,
+    );
     process.exit(1);
   }
 
   const tonBalance = Number(acct.balance ?? 0);
   if (tonBalance < Number(GAS_ATTACH) + 50_000_000) {
-    console.error(`ERROR: Insufficient TON for gas. Need ~${Number(GAS_ATTACH) / 1e9} TON, have ${tonBalance / 1e9} TON`);
+    console.error(
+      `ERROR: Insufficient TON for gas. Need ~${Number(GAS_ATTACH) / 1e9} TON, have ${tonBalance / 1e9} TON`,
+    );
     process.exit(1);
   }
 
@@ -383,9 +396,7 @@ async function main() {
     }
 
     // Check via events API (this is what the app uses)
-    const evtResp = await fetch(
-      `${TONAPI_BASE}/v2/accounts/${walletAddressRaw}/events?limit=5`,
-    );
+    const evtResp = await fetch(`${TONAPI_BASE}/v2/accounts/${walletAddressRaw}/events?limit=5`);
     if (evtResp.ok) {
       const evtData = (await evtResp.json()) as any;
       const events = evtData.events ?? [];
@@ -393,7 +404,9 @@ async function main() {
       for (const evt of events) {
         console.log(`  Event: ${evt.event_id}`);
         console.log(`    in_progress: ${evt.in_progress}`);
-        console.log(`    actions: ${evt.actions?.map((a: any) => `${a.type}(${a.status})`).join(', ')}`);
+        console.log(
+          `    actions: ${evt.actions?.map((a: any) => `${a.type}(${a.status})`).join(', ')}`,
+        );
 
         // If we find a completed event, check it
         if (!evt.in_progress) {
@@ -426,7 +439,9 @@ async function main() {
       console.log(`  Contract events: ${cEvents.length}`);
       for (const evt of cEvents) {
         console.log(`  Contract Event: ${evt.event_id}, in_progress: ${evt.in_progress}`);
-        console.log(`    actions: ${evt.actions?.map((a: any) => `${a.type}(${a.status})`).join(', ')}`);
+        console.log(
+          `    actions: ${evt.actions?.map((a: any) => `${a.type}(${a.status})`).join(', ')}`,
+        );
       }
     }
 
@@ -444,7 +459,9 @@ async function main() {
   }
 
   console.log('\n=== TIMEOUT: Transaction not confirmed after 2 minutes ===');
-  console.log('This is the expected behavior for uninit wallets if TONAPI keeps events in_progress.');
+  console.log(
+    'This is the expected behavior for uninit wallets if TONAPI keeps events in_progress.',
+  );
   console.log('Check manually on Tonviewer:');
   console.log(`  https://testnet.tonviewer.com/${walletAddressStr}`);
 }

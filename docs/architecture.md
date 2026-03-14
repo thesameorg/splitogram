@@ -235,11 +235,11 @@ See `work_docs/research/5-i18n-approach.md` for full analysis.
 
 **Key addresses (mainnet — live since 2026-03-12):**
 
-| Entity              | Address                                            |
-| ------------------- | -------------------------------------------------- |
-| Contract            | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` |
-| USDT Jetton Master  | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
-| Owner               | `UQCZRBAItQRFbE3HkfTZerfOgcGiucYSL3ZAd3x0eyAIfxqe` |
+| Entity             | Address                                            |
+| ------------------ | -------------------------------------------------- |
+| Contract           | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` |
+| USDT Jetton Master | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
+| Owner              | `UQCZRBAItQRFbE3HkfTZerfOgcGiucYSL3ZAd3x0eyAIfxqe` |
 
 **Testnet contract (v4):** `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu`
 

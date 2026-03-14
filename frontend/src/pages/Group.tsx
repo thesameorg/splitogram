@@ -257,10 +257,10 @@ export function Group() {
     }
   }
 
-  async function handleSettleUp(debt: DebtEntry) {
+  async function handleSettleUp(debt: DebtEntry, mode: 'manual' | 'ton') {
     try {
       const result = await api.createSettlement(groupId, debt.from.userId, debt.to.userId);
-      navigate(`/settle/${result.settlement.id}`);
+      navigate(`/settle/${result.settlement.id}/${mode}`);
     } catch (err) {
       console.error('Failed to create settlement:', err);
     }
@@ -334,7 +334,7 @@ export function Group() {
       <button
         key={`s-${settlement.id}`}
         onClick={() =>
-          isPending ? navigate(`/settle/${settlement.id}`) : setSelectedSettlement(settlement)
+          isPending ? navigate(`/settle/${settlement.id}/ton`) : setSelectedSettlement(settlement)
         }
         className={`w-full text-left ${bgColor} p-4 rounded-xl border ${borderColor}`}
       >
@@ -476,7 +476,15 @@ export function Group() {
               className="p-1.5 border border-tg-link rounded-lg text-tg-link"
               aria-label={t('group.invite')}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                 <circle cx="8.5" cy="7" r="4" />
                 <line x1="20" y1="8" x2="20" y2="14" />
@@ -489,12 +497,28 @@ export function Group() {
               aria-label={currentUserRole === 'admin' ? t('group.settings') : t('group.info')}
             >
               {currentUserRole === 'admin' ? (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <circle cx="12" cy="12" r="3" />
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="16" x2="12" y2="12" />
                   <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -596,7 +620,9 @@ export function Group() {
       {tab === 'feed' && (
         <div className="space-y-2">
           {activityLoading ? (
-            <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-tg-hint/30 border-t-tg-hint rounded-full animate-spin" /></div>
+            <div className="flex justify-center py-8">
+              <div className="w-6 h-6 border-2 border-tg-hint/30 border-t-tg-hint rounded-full animate-spin" />
+            </div>
           ) : activityItems.length === 0 ? (
             <p className="text-center text-tg-hint py-8">{t('activity.empty')}</p>
           ) : (
@@ -733,21 +759,29 @@ export function Group() {
                       </button>
                     )}
                   </div>
-                  {/* Settle up action — I owe this person */}
+                  {/* Settle up actions — I owe this person */}
                   {debtIOwe && (
-                    <button
-                      onClick={() => handleSettleUp(debtIOwe)}
-                      className="mt-3 w-full bg-tg-button text-tg-button-text py-2 rounded-lg text-sm font-medium"
-                    >
-                      {t('group.settleUp')} &middot;{' '}
-                      {formatAmount(debtIOwe.amount, group?.currency)}
-                    </button>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => handleSettleUp(debtIOwe, 'ton')}
+                        className="flex-1 bg-tg-button text-tg-button-text py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5"
+                      >
+                        <IconTon size={14} />
+                        {t('group.payUsdt')}
+                      </button>
+                      <button
+                        onClick={() => handleSettleUp(debtIOwe, 'manual')}
+                        className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
+                      >
+                        {t('group.settleManually')}
+                      </button>
+                    </div>
                   )}
                   {/* Actions — this person owes me */}
                   {debtOwesMe && (
                     <div className="flex gap-2 mt-3">
                       <button
-                        onClick={() => handleSettleUp(debtOwesMe)}
+                        onClick={() => handleSettleUp(debtOwesMe, 'manual')}
                         className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
                       >
                         {t('group.markAsSettled')}
@@ -801,7 +835,9 @@ export function Group() {
       {tab === 'stats' && (
         <div className="space-y-4">
           {statsLoading ? (
-            <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-tg-hint/30 border-t-tg-hint rounded-full animate-spin" /></div>
+            <div className="flex justify-center py-8">
+              <div className="w-6 h-6 border-2 border-tg-hint/30 border-t-tg-hint rounded-full animate-spin" />
+            </div>
           ) : !stats ? null : (
             <>
               {/* Donut chart */}

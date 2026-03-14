@@ -35,7 +35,10 @@ export function useTonWallet() {
       // Reject testnet wallets on mainnet (and vice versa)
       const walletIsTestnet = friendlyAddress ? isTestnetAddress(friendlyAddress) : false;
       const appIsMainnet = config.tonNetwork === 'mainnet';
-      if ((appIsMainnet && walletIsTestnet) || (!appIsMainnet && !walletIsTestnet && friendlyAddress)) {
+      if (
+        (appIsMainnet && walletIsTestnet) ||
+        (!appIsMainnet && !walletIsTestnet && friendlyAddress)
+      ) {
         setNetworkMismatch(true);
         tonConnectUI.disconnect().catch(() => {});
         return;

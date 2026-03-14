@@ -43,6 +43,8 @@
     "owe": "देते हैं",
     "owes": "देते हैं",
     "settleUp": "हिसाब करें",
+    "payUsdt": "USDT भुगतान",
+    "settleManually": "मैन्युअल रूप से",
     "markAsSettled": "भुगतान हुआ",
     "youPaid": "आपने {{name}} को भुगतान किया",
     "paidYou": "{{name}} ने आपको भुगतान किया",

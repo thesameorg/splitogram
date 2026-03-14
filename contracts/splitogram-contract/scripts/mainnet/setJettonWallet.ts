@@ -18,7 +18,8 @@ import { NetworkProvider } from '@ton/blueprint';
 export async function run(provider: NetworkProvider) {
   const CONTRACT_ADDRESS = 'EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq';
   // Contract's USDT Jetton Wallet (from mainnet USDT Master get_wallet_address)
-  const JETTON_WALLET_ADDRESS = '0:23a2ca79a22caba7dc8294139c3d3d9f1713b03bcb752cb256ef3efd7afb1851';
+  const JETTON_WALLET_ADDRESS =
+    '0:23a2ca79a22caba7dc8294139c3d3d9f1713b03bcb752cb256ef3efd7afb1851';
 
   const contractAddress = Address.parse(CONTRACT_ADDRESS);
   const contract = provider.open(SplitogramSettlement.fromAddress(contractAddress));

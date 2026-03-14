@@ -43,6 +43,8 @@
     "owe": "deve a",
     "owes": "deve a",
     "settleUp": "Salda",
+    "payUsdt": "Paga USDT",
+    "settleManually": "Salda manualmente",
     "markAsSettled": "Segna come saldato",
     "youPaid": "Hai pagato {{name}}",
     "paidYou": "{{name}} ti ha pagato",

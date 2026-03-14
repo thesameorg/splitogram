@@ -5,18 +5,18 @@
 
 ## Summary
 
-| # | Area | Status | Risk |
-|---|------|--------|------|
-| 1 | Privacy Policy | Compliant | Low |
-| 2 | User Deletion | Partial | Medium |
-| 3 | Data Collection | Compliant | Low |
-| 4 | **Consent** | **Non-compliant** | **Critical** |
-| 5 | Data Retention | Non-compliant | High |
-| 6 | Third-party Services | Partial | Medium |
-| 7 | Data Portability | Partial | Medium |
-| 8 | Right to be Forgotten | Partial | High |
-| 9 | Security | Compliant | Low |
-| 10 | Terms of Service | Compliant | Low |
+| #   | Area                  | Status            | Risk         |
+| --- | --------------------- | ----------------- | ------------ |
+| 1   | Privacy Policy        | Compliant         | Low          |
+| 2   | User Deletion         | Partial           | Medium       |
+| 3   | Data Collection       | Compliant         | Low          |
+| 4   | **Consent**           | **Non-compliant** | **Critical** |
+| 5   | Data Retention        | Non-compliant     | High         |
+| 6   | Third-party Services  | Partial           | Medium       |
+| 7   | Data Portability      | Partial           | Medium       |
+| 8   | Right to be Forgotten | Partial           | High         |
+| 9   | Security              | Compliant         | Low          |
+| 10  | Terms of Service      | Compliant         | Low          |
 
 ---
 
@@ -123,6 +123,7 @@ No issues found.
 Users are **NOT asked to accept Privacy Policy or Terms of Service** before data processing begins.
 
 **Current flow:**
+
 1. User opens Mini App
 2. Frontend immediately calls `POST /api/v1/auth` → upserts user into D1
 3. Data processing starts **without any consent**
@@ -177,16 +178,16 @@ Privacy Policy says "Activity logs are retained indefinitely for audit purposes"
 
 - [ ] Define and document retention schedule:
 
-| Data Type | Retention | Reason |
-|-----------|-----------|--------|
-| User Profile | Deleted immediately on account deletion | User request |
-| Expenses (active groups) | Group lifetime + 7 years | Tax/accounting |
-| Expense Receipts | 7 years | Tax audit trail |
-| Settlements (manual) | 7 years | Accounting/dispute |
-| Settlements (on-chain) | Indefinite | Blockchain immutable record |
-| Activity Logs | 7 years | Audit trail |
-| Debt Reminders | Deleted on user/group deletion | No separate need |
-| Image Reports | 1 year | Moderation records |
+| Data Type                | Retention                               | Reason                      |
+| ------------------------ | --------------------------------------- | --------------------------- |
+| User Profile             | Deleted immediately on account deletion | User request                |
+| Expenses (active groups) | Group lifetime + 7 years                | Tax/accounting              |
+| Expense Receipts         | 7 years                                 | Tax audit trail             |
+| Settlements (manual)     | 7 years                                 | Accounting/dispute          |
+| Settlements (on-chain)   | Indefinite                              | Blockchain immutable record |
+| Activity Logs            | 7 years                                 | Audit trail                 |
+| Debt Reminders           | Deleted on user/group deletion          | No separate need            |
+| Image Reports            | 1 year                                  | Moderation records          |
 
 - [ ] Implement periodic cleanup job (monthly):
   - Delete activity_log entries older than 7 years
@@ -199,13 +200,13 @@ Privacy Policy says "Activity logs are retained indefinitely for audit purposes"
 
 **Status: PARTIALLY COMPLIANT**
 
-| Service | Data Sent | DPA Status |
-|---------|-----------|-----------|
-| Telegram Bot API | User ID, group name, amounts | Telegram ToS applies |
-| TONAPI | Wallet address, tx hashes, balances | **No DPA documented** |
-| open.er-api.com | Currency codes only (no PII) | No DPA needed |
-| Cloudflare (D1/R2/Pages) | All data | Standard DPA |
-| jsdelivr | Currency codes only | No DPA needed |
+| Service                  | Data Sent                           | DPA Status            |
+| ------------------------ | ----------------------------------- | --------------------- |
+| Telegram Bot API         | User ID, group name, amounts        | Telegram ToS applies  |
+| TONAPI                   | Wallet address, tx hashes, balances | **No DPA documented** |
+| open.er-api.com          | Currency codes only (no PII)        | No DPA needed         |
+| Cloudflare (D1/R2/Pages) | All data                            | Standard DPA          |
+| jsdelivr                 | Currency codes only                 | No DPA needed         |
 
 ### Issues
 

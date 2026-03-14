@@ -431,12 +431,15 @@ export function Account() {
           onDismiss={clearNetworkMismatch}
         />
       )}
-      {walletConnected && user?.walletAddress && rawAddress && rawAddress !== user.walletAddress && (
-        <div className="mb-4 p-3 rounded-xl border border-app-warning/30 bg-app-warning-bg text-sm">
-          <p className="text-app-warning font-medium">{t('account.walletMismatch')}</p>
-          <p className="text-tg-hint text-xs mt-1">{t('account.walletMismatchHint')}</p>
-        </div>
-      )}
+      {walletConnected &&
+        user?.walletAddress &&
+        rawAddress &&
+        rawAddress !== user.walletAddress && (
+          <div className="mb-4 p-3 rounded-xl border border-app-warning/30 bg-app-warning-bg text-sm">
+            <p className="text-app-warning font-medium">{t('account.walletMismatch')}</p>
+            <p className="text-tg-hint text-xs mt-1">{t('account.walletMismatchHint')}</p>
+          </div>
+        )}
 
       {/* Avatar */}
       <div className="flex flex-col items-center mb-6">
@@ -568,14 +571,30 @@ export function Account() {
                   title={showBalances ? t('account.hideBalances') : t('account.showBalances')}
                 >
                   {showBalances ? (
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
                       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
                       <line x1="1" y1="1" x2="23" y2="23" />
                       <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
@@ -843,17 +862,25 @@ export function Account() {
       {/* DEBUG: Temporary env check — remove next build */}
       {userCtx?.isAdmin && (
         <div className="mt-4 rounded-xl overflow-hidden border border-tg-separator">
-          <div className="bg-tg-secondary-bg px-3 py-2 text-xs font-bold text-tg-hint">Debug Info</div>
+          <div className="bg-tg-secondary-bg px-3 py-2 text-xs font-bold text-tg-hint">
+            Debug Info
+          </div>
           <div className="divide-y divide-tg-separator text-xs">
             {[
-              ['Analytics token', import.meta.env.VITE_TG_ANALYTICS_TOKEN
-                ? `${import.meta.env.VITE_TG_ANALYTICS_TOKEN.slice(0, 20)}...`
-                : '(empty)'],
-              ['Analytics SDK', (() => {
-                const ta = (window as any).telegramAnalytics;
-                if (!ta) return 'not loaded';
-                return `loaded (keys: ${Object.keys(ta).join(', ')})`;
-              })()],
+              [
+                'Analytics token',
+                import.meta.env.VITE_TG_ANALYTICS_TOKEN
+                  ? `${import.meta.env.VITE_TG_ANALYTICS_TOKEN.slice(0, 20)}...`
+                  : '(empty)',
+              ],
+              [
+                'Analytics SDK',
+                (() => {
+                  const ta = (window as any).telegramAnalytics;
+                  if (!ta) return 'not loaded';
+                  return `loaded (keys: ${Object.keys(ta).join(', ')})`;
+                })(),
+              ],
               ['Worker URL', import.meta.env.VITE_WORKER_URL || '(empty)'],
               ['Bot username', import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '(empty)'],
               ['TON network', import.meta.env.VITE_TON_NETWORK || '(empty)'],
@@ -861,21 +888,35 @@ export function Account() {
               ['TG WebApp', window.Telegram?.WebApp ? 'loaded' : 'missing'],
               ['TG version', (window.Telegram?.WebApp as any)?.version ?? 'n/a'],
               ['TG platform', (window.Telegram?.WebApp as any)?.platform ?? 'n/a'],
-              ['TG initData', window.Telegram?.WebApp?.initData
-                ? `${window.Telegram.WebApp.initData.length} chars`
-                : '(empty)'],
-              ['TonConnect', (() => {
-                try {
-                  const tc = (window as any).tonConnectUI;
-                  if (tc) return `instance found, connected=${tc.connected}`;
-                  return 'no global instance';
-                } catch { return 'error checking'; }
-              })()],
-              ['Wallet', walletConnected
-                ? `${walletVersion ?? '?'} ${friendlyAddress?.slice(0, 8)}...`
-                : 'not connected'],
+              [
+                'TG initData',
+                window.Telegram?.WebApp?.initData
+                  ? `${window.Telegram.WebApp.initData.length} chars`
+                  : '(empty)',
+              ],
+              [
+                'TonConnect',
+                (() => {
+                  try {
+                    const tc = (window as any).tonConnectUI;
+                    if (tc) return `instance found, connected=${tc.connected}`;
+                    return 'no global instance';
+                  } catch {
+                    return 'error checking';
+                  }
+                })(),
+              ],
+              [
+                'Wallet',
+                walletConnected
+                  ? `${walletVersion ?? '?'} ${friendlyAddress?.slice(0, 8)}...`
+                  : 'not connected',
+              ],
               ['User agent', navigator.userAgent.slice(0, 60) + '...'],
-              ['Screen', `${window.innerWidth}x${window.innerHeight} (dpr ${window.devicePixelRatio})`],
+              [
+                'Screen',
+                `${window.innerWidth}x${window.innerHeight} (dpr ${window.devicePixelRatio})`,
+              ],
               ['Locale', `${navigator.language} / i18n=${i18n.language}`],
               ['Time', new Date().toISOString()],
             ].map(([label, value]) => (

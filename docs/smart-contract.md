@@ -478,12 +478,12 @@ async function getUserJettonWallet(userAddress: Address, client: TonClient): Pro
 
 ### Mainnet addresses
 
-| Entity              | Address                                            |
-| ------------------- | -------------------------------------------------- |
-| Contract            | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` |
+| Entity                 | Address                                            |
+| ---------------------- | -------------------------------------------------- |
+| Contract               | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` |
 | Contract Jetton Wallet | `EQAjosp5oiyrp9yClBOcPT2fFxOwO8t1LLJW7z79evsYUZGn` |
-| USDT Jetton Master  | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
-| Owner (W5R1)        | `UQCZRBAItQRFbE3HkfTZerfOgcGiucYSL3ZAd3x0eyAIfxqe` |
+| USDT Jetton Master     | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
+| Owner (W5R1)           | `UQCZRBAItQRFbE3HkfTZerfOgcGiucYSL3ZAd3x0eyAIfxqe` |
 
 ### USDT Master addresses
 
@@ -495,6 +495,7 @@ Testnet: kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7  (tUSDT — "test USDT
 ### Deploy scripts
 
 Mainnet deploy scripts live in `contracts/splitogram-contract/scripts/mainnet/`:
+
 - `deploySplitogramSettlement.ts` — deploy with mainnet owner
 - `setJettonWallet.ts` — configure trusted USDT jetton wallet
 - `verifyState.ts` — read contract state

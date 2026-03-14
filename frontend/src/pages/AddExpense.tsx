@@ -419,7 +419,7 @@ export function AddExpense() {
                     value={shares.get(m.userId) || ''}
                     onChange={(e) =>
                       setShares((prev) =>
-                        new Map(prev).set(m.userId, sanitizeDecimalInput(e.target.value))
+                        new Map(prev).set(m.userId, sanitizeDecimalInput(e.target.value)),
                       )
                     }
                     className="w-20 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"
@@ -455,7 +455,7 @@ export function AddExpense() {
                   value={shares.get(m.userId) || ''}
                   onChange={(e) =>
                     setShares((prev) =>
-                      new Map(prev).set(m.userId, sanitizeDecimalInput(e.target.value))
+                      new Map(prev).set(m.userId, sanitizeDecimalInput(e.target.value)),
                     )
                   }
                   className="w-28 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"

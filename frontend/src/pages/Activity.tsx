@@ -163,7 +163,9 @@ export function Activity() {
             >
               {loadingMore ? (
                 <div className="w-5 h-5 border-2 border-tg-link/30 border-t-tg-link rounded-full animate-spin mx-auto" />
-              ) : t('activity.loadMore')}
+              ) : (
+                t('activity.loadMore')
+              )}
             </button>
           )}
         </div>

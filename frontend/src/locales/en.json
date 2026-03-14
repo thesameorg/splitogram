@@ -43,6 +43,8 @@
     "owe": "owe",
     "owes": "owes",
     "settleUp": "Settle Up",
+    "payUsdt": "Pay USDT",
+    "settleManually": "Settle Manually",
     "markAsSettled": "Mark as Settled",
     "youPaid": "You paid {{name}}",
     "paidYou": "{{name}} paid you",

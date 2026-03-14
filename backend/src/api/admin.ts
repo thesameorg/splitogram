@@ -553,9 +553,7 @@ async function usersTab(c: any, db: Database) {
       const badge = u.isDummy
         ? ' <span class="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">placeholder</span>'
         : '';
-      const wallet = u.walletAddress
-        ? ' <span class="text-xs text-green-600">💎</span>'
-        : '';
+      const wallet = u.walletAddress ? ' <span class="text-xs text-green-600">💎</span>' : '';
       return `<tr class="border-b hover:bg-gray-50">
         <td class="py-2 px-3"><a href="/admin/users/${u.id}" class="text-blue-600 hover:underline">${esc(u.displayName)}</a>${badge}${wallet}</td>
         <td class="py-2 px-3 text-gray-500">${u.username ? '@' + esc(u.username) : '-'}</td>

@@ -14,7 +14,8 @@ import { Group } from './pages/Group';
 import { Activity } from './pages/Activity';
 import { Account } from './pages/Account';
 import { AddExpense } from './pages/AddExpense';
-import { SettleUp } from './pages/SettleUp';
+import { SettleManual } from './pages/SettleManual';
+import { SettleCrypto } from './pages/SettleCrypto';
 import { GroupSettings } from './pages/GroupSettings';
 import './index.css';
 
@@ -106,7 +107,7 @@ function AppContent() {
       }
     } else if (startParam.startsWith('settle_')) {
       const id = startParam.slice('settle_'.length);
-      if (id) navigate(`/settle/${id}`);
+      if (id) navigate(`/settle/${id}/manual`);
     } else if (startParam.startsWith('expense_')) {
       navigate('/');
     }
@@ -149,7 +150,8 @@ function AppContent() {
       <Route path="/groups/:id/settings" element={<GroupSettings />} />
       <Route path="/groups/:id/add-expense" element={<AddExpense />} />
       <Route path="/groups/:id/edit-expense/:expenseId" element={<AddExpense />} />
-      <Route path="/settle/:id" element={<SettleUp />} />
+      <Route path="/settle/:id/manual" element={<SettleManual />} />
+      <Route path="/settle/:id/ton" element={<SettleCrypto />} />
     </Routes>
   );
 }

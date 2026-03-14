@@ -543,14 +543,18 @@ export function GroupSettings() {
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
                   <span className="font-medium truncate">{m.displayName}</span>
-                  {m.role === 'admin' && <IconCrown size={14} className="text-app-warning shrink-0" />}
+                  {m.role === 'admin' && (
+                    <IconCrown size={14} className="text-app-warning shrink-0" />
+                  )}
                   {m.userId === currentUserId && (
                     <span className="text-xs text-tg-hint shrink-0">{t('groupSettings.you')}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {m.isDummy ? (
-                    <span className="text-sm" title={t('groupSettings.placeholderBadge')}>&#128123;</span>
+                    <span className="text-sm" title={t('groupSettings.placeholderBadge')}>
+                      &#128123;
+                    </span>
                   ) : m.username ? (
                     <span className="text-sm text-tg-hint">@{m.username}</span>
                   ) : null}

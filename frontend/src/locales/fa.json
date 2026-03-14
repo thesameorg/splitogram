@@ -43,6 +43,8 @@
     "owe": "بدهکار است",
     "owes": "بدهکار است",
     "settleUp": "تسویه",
+    "payUsdt": "پرداخت USDT",
+    "settleManually": "تسویه دستی",
     "markAsSettled": "تسویه شد",
     "youPaid": "شما به {{name}} پرداخت کردید",
     "paidYou": "{{name}} به شما پرداخت کرد",

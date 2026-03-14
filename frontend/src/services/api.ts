@@ -527,10 +527,9 @@ export const api = {
     ),
 
   cancelSettlement: (id: number) =>
-    apiRequest<{ status: string; settlementId: number }>(
-      `/api/v1/settlements/${id}/cancel`,
-      { method: 'POST' },
-    ),
+    apiRequest<{ status: string; settlementId: number }>(`/api/v1/settlements/${id}/cancel`, {
+      method: 'POST',
+    }),
 
   // Wallet
   setWallet: (address: string) =>

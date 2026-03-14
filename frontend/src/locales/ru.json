@@ -44,6 +44,8 @@
     "owe": "должен(на)",
     "owes": "должен(на)",
     "settleUp": "Рассчитаться",
+    "payUsdt": "Оплатить USDT",
+    "settleManually": "Вручную",
     "markAsSettled": "Отметить оплату",
     "youPaid": "Вы заплатили {{name}}",
     "paidYou": "{{name}} заплатил(а) вам",

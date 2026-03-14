@@ -68,10 +68,10 @@ This is a public on-chain address — not a secret.
 
 The deployed Splitogram settlement smart contract. Receives USDT, takes 1% commission (min 0.1, max 1.0 USDT), forwards remainder to recipient.
 
-| Network    | Address                                            | Notes                            |
-| ---------- | -------------------------------------------------- | -------------------------------- |
-| Testnet v4 | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` | Testnet, validated               |
-| Mainnet    | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` | Live since 2026-03-12            |
+| Network    | Address                                            | Notes                 |
+| ---------- | -------------------------------------------------- | --------------------- |
+| Testnet v4 | `EQBWECX8nJ3lk-90IdgLHoINEYvpmACCGnrqT0rTYH0mjgRu` | Testnet, validated    |
+| Mainnet    | `EQBVVph-sYX2BI165SLXHdqluawmjXx5RWZZymeGvQ5hTDgq` | Live since 2026-03-12 |
 
 **Where to set:**
 

@@ -42,6 +42,8 @@
     "owe": "nợ",
     "owes": "nợ",
     "settleUp": "Thanh toán",
+    "payUsdt": "Thanh toán USDT",
+    "settleManually": "Thanh toán thủ công",
     "markAsSettled": "Đánh dấu đã trả",
     "youPaid": "Bạn đã trả {{name}}",
     "paidYou": "{{name}} đã trả bạn",

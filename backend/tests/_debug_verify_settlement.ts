@@ -274,7 +274,9 @@ async function main() {
   let recipient = RECIPIENT;
   let debt = DEBT_USDT;
   if (event?.actions && !process.env.SENDER) {
-    const jettons = event.actions.filter((a: any) => a.type === 'JettonTransfer' && a.status === 'ok');
+    const jettons = event.actions.filter(
+      (a: any) => a.type === 'JettonTransfer' && a.status === 'ok',
+    );
     // Action[0] = sender → contract (incoming), Action[1] = contract → recipient (outgoing)
     if (jettons.length >= 2) {
       const incoming = jettons[0]?.JettonTransfer;

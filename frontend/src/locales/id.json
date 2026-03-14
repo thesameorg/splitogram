@@ -42,6 +42,8 @@
     "owe": "berutang",
     "owes": "berutang",
     "settleUp": "Lunasi",
+    "payUsdt": "Bayar USDT",
+    "settleManually": "Selesaikan manual",
     "markAsSettled": "Tandai Lunas",
     "youPaid": "Anda membayar {{name}}",
     "paidYou": "{{name}} membayar Anda",
