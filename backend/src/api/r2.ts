@@ -26,6 +26,7 @@ r2App.get('/*', async (c) => {
   const headers = new Headers();
   headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   headers.set('Content-Type', object.httpMetadata?.contentType || 'image/jpeg');
+  headers.set('Access-Control-Allow-Origin', '*');
   if (object.size) {
     headers.set('Content-Length', object.size.toString());
   }

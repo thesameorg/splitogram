@@ -33,6 +33,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
   const response = await fetch(`${config.apiBaseUrl}${endpoint}`, {
     ...options,
     headers,
+    cache: 'no-store' as RequestCache,
     signal: options.signal ?? AbortSignal.timeout(30_000),
   });
 

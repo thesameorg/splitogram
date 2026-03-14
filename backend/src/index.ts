@@ -26,11 +26,16 @@ const app = new Hono<{ Bindings: Env }>();
 app.use('*', prettyJSON());
 app.use('*', dbMiddleware);
 
-// Security headers
+// Security headers + prevent WebView/browser caching of API responses
 app.use('*', async (c, next) => {
   await next();
   c.res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   c.res.headers.set('X-Content-Type-Options', 'nosniff');
+  // Prevent Telegram WebView (WKWebView) from caching API JSON responses
+  // R2 images have their own Cache-Control (immutable), so skip those
+  if (!c.req.path.startsWith('/r2/')) {
+    c.res.headers.set('Cache-Control', 'no-store');
+  }
 });
 
 // CORS for API endpoints
