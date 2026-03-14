@@ -318,6 +318,9 @@
     "search": "Buscar monedas...",
     "noResults": "No se encontraron monedas"
   },
+  "imageViewer": {
+    "download": "Descargar"
+  },
   "loading": "Cargando...",
   "time": {
     "justNow": "ahora",

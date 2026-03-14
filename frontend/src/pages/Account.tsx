@@ -6,6 +6,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { SuccessBanner } from '../components/SuccessBanner';
 import { BottomSheet } from '../components/BottomSheet';
+import { ImageViewer } from '../components/ImageViewer';
 import { Avatar } from '../components/Avatar';
 import { validateImageFile, processAvatar, imageUrl } from '../utils/image';
 import { truncateAddress } from '../utils/ton';
@@ -63,6 +64,7 @@ export function Account() {
   const [editingPaymentLink, setEditingPaymentLink] = useState(false);
   const [savingPaymentLink, setSavingPaymentLink] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
+  const [viewImageKey, setViewImageKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const feedbackFileInputRef = useRef<HTMLInputElement>(null);
   const qrFileInputRef = useRef<HTMLInputElement>(null);
@@ -679,11 +681,13 @@ export function Account() {
             <div className="text-xs text-tg-hint mb-2">{t('account.paymentQr')}</div>
             {user?.paymentQrKey ? (
               <div className="flex items-start gap-3">
-                <img
-                  src={imageUrl(user.paymentQrKey)}
-                  alt="Payment QR"
-                  className="w-24 h-24 rounded-lg object-cover border border-tg-separator"
-                />
+                <button onClick={() => setViewImageKey(user.paymentQrKey)}>
+                  <img
+                    src={imageUrl(user.paymentQrKey!)}
+                    alt="Payment QR"
+                    className="w-24 h-24 rounded-lg object-cover border border-tg-separator"
+                  />
+                </button>
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => qrFileInputRef.current?.click()}
@@ -1114,6 +1118,13 @@ export function Account() {
           />
         </div>
       </BottomSheet>
+
+      {/* Image viewer (payment QR) */}
+      <ImageViewer
+        imageKey={viewImageKey}
+        open={!!viewImageKey}
+        onClose={() => setViewImageKey(null)}
+      />
     </PageLayout>
   );
 }

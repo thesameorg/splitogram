@@ -335,6 +335,9 @@
     "search": "Search currencies...",
     "noResults": "No currencies found"
   },
+  "imageViewer": {
+    "download": "Download"
+  },
   "loading": "Loading...",
   "time": {
     "justNow": "just now",

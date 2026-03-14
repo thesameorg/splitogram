@@ -320,6 +320,9 @@
     "search": "Поиск валюты...",
     "noResults": "Валюта не найдена"
   },
+  "imageViewer": {
+    "download": "Скачать"
+  },
   "loading": "Загрузка...",
   "time": {
     "justNow": "только что",

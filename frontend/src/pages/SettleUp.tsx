@@ -15,7 +15,7 @@ import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { BottomSheet } from '../components/BottomSheet';
-import { ReportImage } from '../components/ReportImage';
+import { ImageViewer } from '../components/ImageViewer';
 import { IconTon } from '../icons';
 
 const isTestnet = config.tonNetwork !== 'mainnet';
@@ -36,8 +36,7 @@ export function SettleUp() {
   const [submitting, setSubmitting] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
-  const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
-  const [reportImageKey, setReportImageKey] = useState<string | null>(null);
+  const [viewImageKey, setViewImageKey] = useState<string | null>(null);
   const [showCryptoInfo, setShowCryptoInfo] = useState(false);
   const [manualSuccess, setManualSuccess] = useState(false);
   const [paidAmountStr, setPaidAmountStr] = useState(''); // formatted amount shown on success screen
@@ -686,11 +685,13 @@ export function SettleUp() {
                   })}
                 </div>
                 {settlement.to?.paymentQrKey && (
-                  <img
-                    src={imageUrl(settlement.to.paymentQrKey)}
-                    alt="Payment QR"
-                    className="w-40 h-40 rounded-lg object-cover border border-tg-separator mx-auto"
-                  />
+                  <button onClick={() => setViewImageKey(settlement.to!.paymentQrKey)}>
+                    <img
+                      src={imageUrl(settlement.to.paymentQrKey)}
+                      alt="Payment QR"
+                      className="w-40 h-40 rounded-lg object-cover border border-tg-separator mx-auto"
+                    />
+                  </button>
                 )}
                 {settlement.to?.paymentLink && (
                   <a
@@ -740,7 +741,7 @@ export function SettleUp() {
 
       {/* Settled receipt thumbnail */}
       {isSettled && settlement.receiptThumbKey && (
-        <button onClick={() => setReceiptViewKey(settlement.receiptKey)} className="mt-4">
+        <button onClick={() => setViewImageKey(settlement.receiptKey)} className="mt-4">
           <img
             src={imageUrl(settlement.receiptThumbKey)}
             alt="Receipt"
@@ -749,36 +750,11 @@ export function SettleUp() {
         </button>
       )}
 
-      {/* Receipt viewer */}
-      <BottomSheet open={!!receiptViewKey} onClose={() => setReceiptViewKey(null)} title="">
-        {receiptViewKey && (
-          <div>
-            <img
-              src={imageUrl(receiptViewKey)}
-              alt="Receipt"
-              className="w-full rounded-xl"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            <button
-              onClick={() => {
-                setReportImageKey(receiptViewKey);
-                setReceiptViewKey(null);
-              }}
-              className="mt-3 text-xs text-tg-hint"
-            >
-              ⚠️ {t('report.button')}
-            </button>
-          </div>
-        )}
-      </BottomSheet>
-
-      {/* Report image */}
-      <ReportImage
-        imageKey={reportImageKey}
-        open={!!reportImageKey}
-        onClose={() => setReportImageKey(null)}
+      {/* Image viewer (receipts, payment QR) */}
+      <ImageViewer
+        imageKey={viewImageKey}
+        open={!!viewImageKey}
+        onClose={() => setViewImageKey(null)}
       />
 
       {/* Crypto info */}

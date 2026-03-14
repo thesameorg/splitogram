@@ -318,6 +318,9 @@
     "search": "Buscar moedas...",
     "noResults": "Nenhuma moeda encontrada"
   },
+  "imageViewer": {
+    "download": "Baixar"
+  },
   "loading": "Carregando...",
   "time": {
     "justNow": "agora",

@@ -318,6 +318,9 @@
     "search": "मुद्रा खोजें...",
     "noResults": "कोई मुद्रा नहीं मिली"
   },
+  "imageViewer": {
+    "download": "डाउनलोड"
+  },
   "loading": "लोड हो रहा है...",
   "time": {
     "justNow": "अभी",

@@ -316,6 +316,9 @@
     "search": "Cari mata uang...",
     "noResults": "Mata uang tidak ditemukan"
   },
+  "imageViewer": {
+    "download": "Unduh"
+  },
   "loading": "Memuat...",
   "time": {
     "justNow": "baru saja",

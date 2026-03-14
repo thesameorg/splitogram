@@ -318,6 +318,9 @@
     "search": "Währungen suchen...",
     "noResults": "Keine Währungen gefunden"
   },
+  "imageViewer": {
+    "download": "Herunterladen"
+  },
   "loading": "Laden...",
   "time": {
     "justNow": "gerade",

@@ -316,6 +316,9 @@
     "search": "Tìm tiền tệ...",
     "noResults": "Không tìm thấy tiền tệ"
   },
+  "imageViewer": {
+    "download": "Tải xuống"
+  },
   "loading": "Đang tải...",
   "time": {
     "justNow": "vừa xong",

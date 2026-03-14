@@ -318,6 +318,9 @@
     "search": "جستجوی ارز...",
     "noResults": "ارزی یافت نشد"
   },
+  "imageViewer": {
+    "download": "دانلود"
+  },
   "loading": "در حال بارگذاری...",
   "time": {
     "justNow": "الان",

@@ -318,6 +318,9 @@
     "search": "Cerca valute...",
     "noResults": "Nessuna valuta trovata"
   },
+  "imageViewer": {
+    "download": "Scarica"
+  },
   "loading": "Caricamento...",
   "time": {
     "justNow": "adesso",

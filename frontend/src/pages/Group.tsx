@@ -24,7 +24,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { Avatar } from '../components/Avatar';
 import { BottomSheet } from '../components/BottomSheet';
 import { SuccessBanner } from '../components/SuccessBanner';
-import { ReportImage } from '../components/ReportImage';
+import { ImageViewer } from '../components/ImageViewer';
 import { DonutChart } from '../components/DonutChart';
 import { MonthSelector } from '../components/MonthSelector';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -50,17 +50,15 @@ export function Group() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [currentUserJoinedAt, setCurrentUserJoinedAt] = useState<string | null>(null);
-  const [receiptViewKey, setReceiptViewKey] = useState<string | null>(null);
   const [reminderSuccess, setReminderSuccess] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [selectedSettlement, setSelectedSettlement] = useState<SettlementListItem | null>(null);
-  const [reportImageKey, setReportImageKey] = useState<string | null>(null);
+  const [viewImageKey, setViewImageKey] = useState<string | null>(null);
   const [stats, setStats] = useState<GroupStats | null>(null);
   const [statsPeriod, setStatsPeriod] = useState<string>('all');
   const [statsLoading, setStatsLoading] = useState(false);
   const [showClaimPrompt, setShowClaimPrompt] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
-  const [showGroupAvatar, setShowGroupAvatar] = useState(false);
   const [userHasClaimed, setUserHasClaimed] = useState(() => {
     try {
       return localStorage.getItem(`claimed_placeholder_${groupId}`) === '1';
@@ -448,7 +446,7 @@ export function Group() {
         <div className="flex items-center gap-3">
           <div className="shrink-0">
             {group.avatarKey ? (
-              <button onClick={() => setShowGroupAvatar(true)}>
+              <button onClick={() => group.avatarKey && setViewImageKey(group.avatarKey)}>
                 <Avatar
                   avatarKey={group.avatarKey}
                   emoji={group.avatarEmoji}
@@ -967,7 +965,7 @@ export function Group() {
             {selectedExpense.receiptThumbKey && (
               <button
                 onClick={() => {
-                  setReceiptViewKey(selectedExpense.receiptKey);
+                  setViewImageKey(selectedExpense.receiptKey);
                   setSelectedExpense(null);
                 }}
               >
@@ -1057,7 +1055,7 @@ export function Group() {
             {selectedSettlement.receiptThumbKey && (
               <button
                 onClick={() => {
-                  setReceiptViewKey(selectedSettlement.receiptKey);
+                  setViewImageKey(selectedSettlement.receiptKey);
                   setSelectedSettlement(null);
                 }}
                 className="mx-auto block"
@@ -1077,62 +1075,12 @@ export function Group() {
         )}
       </BottomSheet>
 
-      {/* Receipt viewer */}
-      <BottomSheet open={!!receiptViewKey} onClose={() => setReceiptViewKey(null)} title="">
-        {receiptViewKey && (
-          <div>
-            <img
-              src={imageUrl(receiptViewKey)}
-              alt="Receipt"
-              className="w-full rounded-xl"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            <button
-              onClick={() => {
-                setReportImageKey(receiptViewKey);
-                setReceiptViewKey(null);
-              }}
-              className="mt-3 text-xs text-tg-hint"
-            >
-              ⚠️ {t('report.button')}
-            </button>
-          </div>
-        )}
-      </BottomSheet>
-
-      {/* Report image */}
-      <ReportImage
-        imageKey={reportImageKey}
-        open={!!reportImageKey}
-        onClose={() => setReportImageKey(null)}
+      {/* Image viewer (receipts, group avatar) */}
+      <ImageViewer
+        imageKey={viewImageKey}
+        open={!!viewImageKey}
+        onClose={() => setViewImageKey(null)}
       />
-
-      {/* Group avatar viewer */}
-      <BottomSheet open={showGroupAvatar} onClose={() => setShowGroupAvatar(false)} title="">
-        {group.avatarKey && (
-          <div>
-            <img
-              src={imageUrl(group.avatarKey)}
-              alt={group.name}
-              className="w-full rounded-xl"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            <button
-              onClick={() => {
-                setReportImageKey(group.avatarKey);
-                setShowGroupAvatar(false);
-              }}
-              className="mt-3 text-xs text-tg-hint"
-            >
-              ⚠️ {t('report.button')}
-            </button>
-          </div>
-        )}
-      </BottomSheet>
 
       {/* Claim placeholder prompt */}
       <BottomSheet

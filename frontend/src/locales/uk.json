@@ -320,6 +320,9 @@
     "search": "Пошук валюти...",
     "noResults": "Валюту не знайдено"
   },
+  "imageViewer": {
+    "download": "Завантажити"
+  },
   "loading": "Завантаження...",
   "time": {
     "justNow": "щойно",
