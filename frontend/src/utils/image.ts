@@ -71,6 +71,11 @@ export function processReceipt(file: File): Promise<ProcessedImage> {
   return processImage(file, 1200, 0.85);
 }
 
+/** Process payment QR code: 800px max, 0.92 quality (needs to stay scannable) */
+export function processPaymentQr(file: File): Promise<ProcessedImage> {
+  return processImage(file, 800, 0.92);
+}
+
 /** Process receipt thumbnail: 200px max, 0.75 quality */
 export function processReceiptThumbnail(file: File): Promise<ProcessedImage> {
   return processImage(file, 200, 0.75);

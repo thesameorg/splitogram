@@ -100,16 +100,14 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
         displayName,
       });
     } else {
-      // Only write if fields actually changed (avoids unnecessary D1 writes)
-      const needsUpdate =
-        existing[0].displayName !== displayName ||
-        existing[0].username !== (tgUser.username ?? null);
+      // Only sync username from TG (TG-controlled handle).
+      // Do NOT overwrite displayName — users can customize it in Account.
+      const needsUpdate = existing[0].username !== (tgUser.username ?? null);
       if (needsUpdate) {
         await db
           .update(users)
           .set({
             username: tgUser.username ?? null,
-            displayName,
             updatedAt: new Date().toISOString(),
           })
           .where(eq(users.telegramId, tgUser.id));

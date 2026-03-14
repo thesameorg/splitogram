@@ -8,7 +8,7 @@ import { SuccessBanner } from '../components/SuccessBanner';
 import { BottomSheet } from '../components/BottomSheet';
 import { ImageViewer } from '../components/ImageViewer';
 import { Avatar } from '../components/Avatar';
-import { validateImageFile, processAvatar, imageUrl } from '../utils/image';
+import { validateImageFile, processAvatar, processPaymentQr, imageUrl } from '../utils/image';
 import { truncateAddress } from '../utils/ton';
 import { useTonWallet } from '../hooks/useTonWallet';
 import { useUser } from '../contexts/UserContext';
@@ -268,7 +268,7 @@ export function Account() {
     setUploadingQr(true);
     setError(null);
     try {
-      const processed = await processAvatar(file);
+      const processed = await processPaymentQr(file);
       const result = await api.uploadPaymentQr(processed.blob);
       setUser((prev) => (prev ? { ...prev, paymentQrKey: result.paymentQrKey } : prev));
       setSuccess(t('account.paymentQrUpdated'));
