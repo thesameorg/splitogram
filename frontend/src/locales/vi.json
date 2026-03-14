@@ -106,6 +106,7 @@
     "emojiPicker": "Chọn emoji",
     "groupPhotoUpdated": "Đã cập nhật ảnh nhóm",
     "groupPhotoRemoved": "Đã xóa ảnh nhóm",
+    "removePhotoConfirm": "Xóa ảnh nhóm?",
     "copyInvite": "Sao chép liên kết",
     "linkCopied": "Đã sao chép liên kết mời",
     "currencyLocked": "Không thể thay đổi tiền tệ sau khi đã thêm chi phí",
@@ -152,6 +153,7 @@
     "attachReceipt": "Đính kèm hóa đơn",
     "receiptAttached": "Đã đính kèm hóa đơn",
     "removeReceipt": "Xóa",
+    "removeReceiptConfirm": "Xóa biên lai?",
     "splitMode": "Cách chia",
     "splitEqual": "Đều nhau",
     "splitPercentage": "Phần trăm",
@@ -192,6 +194,7 @@
     "nameUpdated": "Đã cập nhật tên",
     "avatarUpdated": "Đã cập nhật ảnh",
     "avatarRemoved": "Đã xóa ảnh",
+    "removePhotoConfirm": "Xóa ảnh của bạn?",
     "addPhoto": "Thêm ảnh",
     "changePhoto": "Đổi ảnh",
     "removePhoto": "Xóa",
@@ -236,7 +239,8 @@
     "changePaymentQr": "Đổi QR",
     "removePaymentQr": "Xóa QR",
     "paymentQrUpdated": "Đã cập nhật mã QR thanh toán",
-    "paymentQrRemoved": "Đã xóa mã QR thanh toán"
+    "paymentQrRemoved": "Đã xóa mã QR thanh toán",
+    "removeQrConfirm": "Xóa mã QR thanh toán?"
   },
   "settlement": {
     "payWithUsdt": "Thanh toán bằng USDT trên TON",

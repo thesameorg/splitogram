@@ -239,6 +239,7 @@ export function AddExpense() {
   }
 
   function handleRemoveReceipt() {
+    if (!confirm(t('addExpense.removeReceiptConfirm'))) return;
     setReceiptFile(null);
     if (receiptPreview && !existingReceipt) {
       URL.revokeObjectURL(receiptPreview);
@@ -293,7 +294,7 @@ export function AddExpense() {
 
       {/* Amount + Paid By — side by side */}
       <div className="mb-4 flex gap-3">
-        <div className="flex-1 min-w-0">
+        <div className="w-[35%] min-w-0">
           <label className="block text-sm font-medium mb-1 text-tg-hint">
             {t('addExpense.amountWithCurrency', { currency: group.currency })}
           </label>
@@ -303,10 +304,10 @@ export function AddExpense() {
             placeholder="0.00"
             value={amountStr}
             onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
-            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-2xl"
+            className="w-full px-3 py-2 border border-tg-separator rounded-xl bg-transparent text-2xl"
           />
         </div>
-        <div className="w-[40%] min-w-0">
+        <div className="flex-1 min-w-0">
           <label className="block text-sm font-medium mb-1 text-tg-hint">
             {t('addExpense.paidBy')}
           </label>

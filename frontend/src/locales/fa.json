@@ -108,6 +108,7 @@
     "emojiPicker": "انتخاب ایموجی",
     "groupPhotoUpdated": "عکس گروه به‌روز شد",
     "groupPhotoRemoved": "عکس گروه حذف شد",
+    "removePhotoConfirm": "عکس گروه حذف شود؟",
     "copyInvite": "کپی لینک",
     "linkCopied": "لینک دعوت کپی شد",
     "currencyLocked": "پس از افزودن هزینه، ارز قابل تغییر نیست",
@@ -154,6 +155,7 @@
     "attachReceipt": "پیوست رسید",
     "receiptAttached": "رسید پیوست شد",
     "removeReceipt": "حذف",
+    "removeReceiptConfirm": "رسید حذف شود؟",
     "splitMode": "نحوه تقسیم",
     "splitEqual": "مساوی",
     "splitPercentage": "درصدی",
@@ -194,6 +196,7 @@
     "nameUpdated": "نام به‌روز شد",
     "avatarUpdated": "عکس به‌روز شد",
     "avatarRemoved": "عکس حذف شد",
+    "removePhotoConfirm": "عکس خود را حذف کنید؟",
     "addPhoto": "افزودن عکس",
     "changePhoto": "تغییر عکس",
     "removePhoto": "حذف",
@@ -238,7 +241,8 @@
     "changePaymentQr": "تغییر QR",
     "removePaymentQr": "حذف QR",
     "paymentQrUpdated": "کد QR پرداخت به‌روز شد",
-    "paymentQrRemoved": "کد QR پرداخت حذف شد"
+    "paymentQrRemoved": "کد QR پرداخت حذف شد",
+    "removeQrConfirm": "QR پرداخت خود را حذف کنید؟"
   },
   "settlement": {
     "payWithUsdt": "پرداخت با USDT در TON",

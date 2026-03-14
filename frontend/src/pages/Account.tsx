@@ -224,6 +224,7 @@ export function Account() {
 
   async function handleAvatarDelete() {
     if (!user?.avatarKey) return;
+    if (!confirm(t('account.removePhotoConfirm'))) return;
     setError(null);
     try {
       await api.deleteAvatar();
@@ -282,6 +283,7 @@ export function Account() {
 
   async function handleQrDelete() {
     if (!user?.paymentQrKey) return;
+    if (!confirm(t('account.removeQrConfirm'))) return;
     setError(null);
     try {
       await api.deletePaymentQr();

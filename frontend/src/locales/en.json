@@ -108,6 +108,7 @@
     "emojiPicker": "Choose emoji",
     "groupPhotoUpdated": "Group photo updated",
     "groupPhotoRemoved": "Group photo removed",
+    "removePhotoConfirm": "Remove group photo?",
     "copyInvite": "Copy link",
     "linkCopied": "Invite link copied",
     "currencyLocked": "Currency cannot be changed after expenses have been added",
@@ -154,6 +155,7 @@
     "attachReceipt": "Attach receipt",
     "receiptAttached": "Receipt attached",
     "removeReceipt": "Remove",
+    "removeReceiptConfirm": "Remove the receipt?",
     "splitMode": "Split mode",
     "splitEqual": "Equal",
     "splitPercentage": "Percent",
@@ -197,6 +199,7 @@
     "nameUpdated": "Name updated",
     "avatarUpdated": "Photo updated",
     "avatarRemoved": "Photo removed",
+    "removePhotoConfirm": "Remove your photo?",
     "addPhoto": "Add photo",
     "changePhoto": "Change photo",
     "removePhoto": "Remove",
@@ -241,7 +244,8 @@
     "changePaymentQr": "Change QR",
     "removePaymentQr": "Remove QR",
     "paymentQrUpdated": "Payment QR updated",
-    "paymentQrRemoved": "Payment QR removed"
+    "paymentQrRemoved": "Payment QR removed",
+    "removeQrConfirm": "Remove your payment QR?"
   },
   "settlement": {
     "payWithUsdt": "Pay with USDT on TON",

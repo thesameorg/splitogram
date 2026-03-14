@@ -218,6 +218,7 @@ export function GroupSettings() {
   }
 
   async function handleRemoveGroupAvatar() {
+    if (!confirm(t('groupSettings.removePhotoConfirm'))) return;
     setError(null);
     try {
       if (group?.avatarKey) {

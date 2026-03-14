@@ -108,6 +108,7 @@
     "emojiPicker": "Emoji wählen",
     "groupPhotoUpdated": "Gruppenfoto aktualisiert",
     "groupPhotoRemoved": "Gruppenfoto entfernt",
+    "removePhotoConfirm": "Gruppenfoto entfernen?",
     "copyInvite": "Link kopieren",
     "linkCopied": "Einladungslink kopiert",
     "currencyLocked": "Die Währung kann nach dem Hinzufügen von Ausgaben nicht mehr geändert werden",
@@ -154,6 +155,7 @@
     "attachReceipt": "Beleg anhängen",
     "receiptAttached": "Beleg angehängt",
     "removeReceipt": "Entfernen",
+    "removeReceiptConfirm": "Beleg entfernen?",
     "splitMode": "Aufteilungsmodus",
     "splitEqual": "Gleichmäßig",
     "splitPercentage": "Prozent",
@@ -194,6 +196,7 @@
     "nameUpdated": "Name aktualisiert",
     "avatarUpdated": "Foto aktualisiert",
     "avatarRemoved": "Foto entfernt",
+    "removePhotoConfirm": "Ihr Foto entfernen?",
     "addPhoto": "Foto hinzufügen",
     "changePhoto": "Foto ändern",
     "removePhoto": "Entfernen",
@@ -238,7 +241,8 @@
     "changePaymentQr": "QR ändern",
     "removePaymentQr": "QR entfernen",
     "paymentQrUpdated": "Zahlungs-QR-Code aktualisiert",
-    "paymentQrRemoved": "Zahlungs-QR-Code entfernt"
+    "paymentQrRemoved": "Zahlungs-QR-Code entfernt",
+    "removeQrConfirm": "Ihren Zahlungs-QR entfernen?"
   },
   "settlement": {
     "payWithUsdt": "Mit USDT auf TON bezahlen",

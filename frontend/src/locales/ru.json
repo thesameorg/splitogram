@@ -110,6 +110,7 @@
     "emojiPicker": "Выберите эмодзи",
     "groupPhotoUpdated": "Фото группы обновлено",
     "groupPhotoRemoved": "Фото группы удалено",
+    "removePhotoConfirm": "Удалить фото группы?",
     "copyInvite": "Копировать ссылку",
     "linkCopied": "Ссылка-приглашение скопирована",
     "currencyLocked": "Валюту нельзя изменить после добавления расходов",
@@ -156,6 +157,7 @@
     "attachReceipt": "Прикрепить чек",
     "receiptAttached": "Чек прикреплён",
     "removeReceipt": "Удалить",
+    "removeReceiptConfirm": "Удалить чек?",
     "splitMode": "Режим разделения",
     "splitEqual": "Поровну",
     "splitPercentage": "Проценты",
@@ -196,6 +198,7 @@
     "nameUpdated": "Имя обновлено",
     "avatarUpdated": "Фото обновлено",
     "avatarRemoved": "Фото удалено",
+    "removePhotoConfirm": "Удалить фото?",
     "addPhoto": "Добавить фото",
     "changePhoto": "Изменить фото",
     "removePhoto": "Удалить",
@@ -240,7 +243,8 @@
     "changePaymentQr": "Изменить QR",
     "removePaymentQr": "Удалить QR",
     "paymentQrUpdated": "QR-код для оплаты обновлён",
-    "paymentQrRemoved": "QR-код для оплаты удалён"
+    "paymentQrRemoved": "QR-код для оплаты удалён",
+    "removeQrConfirm": "Удалить платёжный QR?"
   },
   "settlement": {
     "payWithUsdt": "Оплатить в USDT через TON",

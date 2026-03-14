@@ -108,6 +108,7 @@
     "emojiPicker": "इमोजी चुनें",
     "groupPhotoUpdated": "समूह फ़ोटो अपडेट हो गई",
     "groupPhotoRemoved": "समूह फ़ोटो हटा दी गई",
+    "removePhotoConfirm": "ग्रुप फ़ोटो हटाएँ?",
     "copyInvite": "लिंक कॉपी करें",
     "linkCopied": "आमंत्रण लिंक कॉपी हो गया",
     "currencyLocked": "खर्च जोड़ने के बाद मुद्रा नहीं बदली जा सकती",
@@ -154,6 +155,7 @@
     "attachReceipt": "रसीद संलग्न करें",
     "receiptAttached": "रसीद संलग्न है",
     "removeReceipt": "हटाएँ",
+    "removeReceiptConfirm": "रसीद हटाएँ?",
     "splitMode": "विभाजन मोड",
     "splitEqual": "बराबर",
     "splitPercentage": "प्रतिशत",
@@ -194,6 +196,7 @@
     "nameUpdated": "नाम अपडेट हो गया",
     "avatarUpdated": "फ़ोटो अपडेट हो गई",
     "avatarRemoved": "फ़ोटो हटा दी गई",
+    "removePhotoConfirm": "अपनी फ़ोटो हटाएँ?",
     "addPhoto": "फ़ोटो जोड़ें",
     "changePhoto": "फ़ोटो बदलें",
     "removePhoto": "हटाएँ",
@@ -238,7 +241,8 @@
     "changePaymentQr": "QR बदलें",
     "removePaymentQr": "QR हटाएँ",
     "paymentQrUpdated": "भुगतान QR कोड अपडेट हो गया",
-    "paymentQrRemoved": "भुगतान QR कोड हटाया गया"
+    "paymentQrRemoved": "भुगतान QR कोड हटाया गया",
+    "removeQrConfirm": "अपना पेमेंट QR हटाएँ?"
   },
   "settlement": {
     "payWithUsdt": "TON पर USDT से भुगतान करें",

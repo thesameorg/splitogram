@@ -106,6 +106,7 @@
     "emojiPicker": "Pilih emoji",
     "groupPhotoUpdated": "Foto grup diperbarui",
     "groupPhotoRemoved": "Foto grup dihapus",
+    "removePhotoConfirm": "Hapus foto grup?",
     "copyInvite": "Salin tautan",
     "linkCopied": "Tautan undangan disalin",
     "currencyLocked": "Mata uang tidak bisa diubah setelah pengeluaran ditambahkan",
@@ -152,6 +153,7 @@
     "attachReceipt": "Lampirkan struk",
     "receiptAttached": "Struk terlampir",
     "removeReceipt": "Hapus",
+    "removeReceiptConfirm": "Hapus struk?",
     "splitMode": "Mode pembagian",
     "splitEqual": "Sama rata",
     "splitPercentage": "Persen",
@@ -192,6 +194,7 @@
     "nameUpdated": "Nama diperbarui",
     "avatarUpdated": "Foto diperbarui",
     "avatarRemoved": "Foto dihapus",
+    "removePhotoConfirm": "Hapus foto Anda?",
     "addPhoto": "Tambah foto",
     "changePhoto": "Ubah foto",
     "removePhoto": "Hapus",
@@ -236,7 +239,8 @@
     "changePaymentQr": "Ubah QR",
     "removePaymentQr": "Hapus QR",
     "paymentQrUpdated": "Kode QR pembayaran diperbarui",
-    "paymentQrRemoved": "Kode QR pembayaran dihapus"
+    "paymentQrRemoved": "Kode QR pembayaran dihapus",
+    "removeQrConfirm": "Hapus QR pembayaran?"
   },
   "settlement": {
     "payWithUsdt": "Bayar dengan USDT di TON",

@@ -110,6 +110,7 @@
     "emojiPicker": "Оберіть емодзі",
     "groupPhotoUpdated": "Фото групи оновлено",
     "groupPhotoRemoved": "Фото групи видалено",
+    "removePhotoConfirm": "Видалити фото групи?",
     "copyInvite": "Копіювати посилання",
     "linkCopied": "Посилання-запрошення скопійовано",
     "currencyLocked": "Валюту не можна змінити після додавання витрат",
@@ -156,6 +157,7 @@
     "attachReceipt": "Прикріпити чек",
     "receiptAttached": "Чек прикріплено",
     "removeReceipt": "Видалити",
+    "removeReceiptConfirm": "Видалити чек?",
     "splitMode": "Режим поділу",
     "splitEqual": "Порівну",
     "splitPercentage": "Відсотки",
@@ -196,6 +198,7 @@
     "nameUpdated": "Ім'я оновлено",
     "avatarUpdated": "Фото оновлено",
     "avatarRemoved": "Фото видалено",
+    "removePhotoConfirm": "Видалити фото?",
     "addPhoto": "Додати фото",
     "changePhoto": "Змінити фото",
     "removePhoto": "Видалити",
@@ -240,7 +243,8 @@
     "changePaymentQr": "Змінити QR",
     "removePaymentQr": "Видалити QR",
     "paymentQrUpdated": "QR-код для оплати оновлено",
-    "paymentQrRemoved": "QR-код для оплати видалено"
+    "paymentQrRemoved": "QR-код для оплати видалено",
+    "removeQrConfirm": "Видалити платіжний QR?"
   },
   "settlement": {
     "payWithUsdt": "Оплатити в USDT через TON",
