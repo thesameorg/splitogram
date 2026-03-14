@@ -771,7 +771,7 @@ export function Group() {
                       </button>
                       <button
                         onClick={() => handleSettleUp(debtIOwe, 'manual')}
-                        className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
+                        className="flex-1 text-tg-text py-2 rounded-lg text-sm border border-tg-separator font-medium"
                       >
                         {t('group.settleManually')}
                       </button>

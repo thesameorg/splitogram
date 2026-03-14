@@ -13,7 +13,6 @@ import { config } from '../config';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
-import { BottomSheet } from '../components/BottomSheet';
 import { IconTon } from '../icons';
 
 const isTestnet = config.tonNetwork !== 'mainnet';
@@ -30,7 +29,6 @@ export function SettleCrypto() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [amountStr, setAmountStr] = useState('');
-  const [showCryptoInfo, setShowCryptoInfo] = useState(false);
 
   // Crypto settlement state
   const [cryptoState, setCryptoState] = useState<CryptoState>('idle');
@@ -368,13 +366,13 @@ export function SettleCrypto() {
       )}
 
       {/* Settlement info */}
-      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator mb-6 text-center">
-        <div className="text-sm text-tg-hint mb-2">
+      <div className="bg-tg-section px-4 py-3 rounded-xl border border-tg-separator mb-4 flex items-center justify-between">
+        <span className="text-sm text-tg-hint">
           {t('settleUp.youOwe', { name: settlement.to?.displayName })}
-        </div>
-        <div className="text-3xl font-bold mb-1">
+        </span>
+        <span className="text-lg font-bold">
           {formatAmount(settlement.amount, settlement.currency)}
-        </div>
+        </span>
       </div>
 
       {/* Settled status */}
@@ -454,30 +452,17 @@ export function SettleCrypto() {
           onAmountChange={(v) => setAmountStr(sanitizeDecimalInput(v))}
           currencySymbol={getCurrency(settlement.currency).symbol}
           debtAmount={formatAmount(settlement.amount, settlement.currency)}
+          senderHasWallet={!!walletConnected}
+          recipientHasWallet={!!settlement.to?.walletAddress}
           onPay={handlePayWithUsdt}
           onConfirm={handleConfirmPayment}
           onRetry={handleRetry}
           onRefresh={() => startPolling()}
           onManualVerify={handleManualVerify}
           onCancel={handleCancelPending}
-          onInfo={() => setShowCryptoInfo(true)}
           t={t}
         />
       )}
-
-      {/* Crypto info */}
-      <BottomSheet
-        open={showCryptoInfo}
-        onClose={() => setShowCryptoInfo(false)}
-        title={t('settlement.infoTitle')}
-      >
-        <div className="space-y-3 text-sm text-tg-text">
-          <p>{t('settlement.infoHow')}</p>
-          <p>{t('settlement.infoCommission')}</p>
-          <p>{t('settlement.infoGas')}</p>
-          <p className="text-tg-hint text-xs">{t('settlement.infoContract')}</p>
-        </div>
-      </BottomSheet>
     </PageLayout>
   );
 }
@@ -503,13 +488,14 @@ function CryptoSettlementUI({
   onAmountChange,
   currencySymbol,
   debtAmount,
+  senderHasWallet,
+  recipientHasWallet,
   onPay,
   onConfirm,
   onRetry,
   onRefresh,
   onManualVerify,
   onCancel,
-  onInfo,
   t,
 }: {
   state: CryptoState;
@@ -530,13 +516,14 @@ function CryptoSettlementUI({
   onAmountChange: (value: string) => void;
   currencySymbol: string;
   debtAmount: string;
+  senderHasWallet: boolean;
+  recipientHasWallet: boolean;
   onPay: () => void;
   onConfirm: () => void;
   onRetry: () => void;
   onRefresh: () => void;
   onManualVerify: (txLink: string) => void;
   onCancel: () => void;
-  onInfo: () => void;
   t: (key: string, opts?: Record<string, string>) => string;
 }) {
   const testnetBadge = testnet ? ' (TESTNET)' : '';
@@ -688,9 +675,26 @@ function CryptoSettlementUI({
     );
   }
 
+  const walletsReady = senderHasWallet && recipientHasWallet;
+
   // idle state
   return (
     <div className="space-y-3">
+      {/* Wallet requirement warning */}
+      {!walletsReady && (
+        <div className="bg-app-warning-bg border border-app-warning/20 rounded-xl px-4 py-3">
+          <p className="text-sm text-app-warning">{t('settlement.bothWalletsRequired')}</p>
+          {!senderHasWallet && (
+            <p className="text-xs text-app-warning/70 mt-1">{t('settlement.yourWalletMissing')}</p>
+          )}
+          {!recipientHasWallet && (
+            <p className="text-xs text-app-warning/70 mt-1">
+              {t('settlement.recipientWalletMissing', { name: recipientName })}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Editable amount */}
       <div>
         <label className="block text-sm font-medium mb-1 text-tg-hint">
@@ -713,30 +717,61 @@ function CryptoSettlementUI({
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={onPay}
-          className="flex-1 bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2"
-        >
-          <IconTon size={18} />
-          {walletConnected
-            ? `${t('settlement.payWithUsdt')}${testnetBadge}`
-            : t('account.connectWallet')}
-        </button>
-        <button
-          onClick={onInfo}
-          className="px-4 py-4 rounded-xl border border-tg-separator text-tg-hint font-medium text-sm"
-          aria-label="Info"
-        >
-          ?
-        </button>
-      </div>
+      <button
+        onClick={onPay}
+        disabled={!walletsReady}
+        className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+      >
+        <IconTon size={18} />
+        {walletConnected
+          ? `${t('settlement.payWithUsdt')}${testnetBadge}`
+          : t('account.connectWallet')}
+      </button>
       {walletConnected && (
         <div className="text-center text-xs text-tg-hint">
           {truncateAddress(friendlyAddress)}
           {gasAttachDisplay
             ? ` · ${t('settlement.gasAttachShort', { amount: gasAttachDisplay })}`
             : ` · ${t('settlement.gasNote')}`}
+        </div>
+      )}
+
+      {/* Inline help section */}
+      <HowItWorks t={t} />
+    </div>
+  );
+}
+
+// --- Collapsible "How it works" section ---
+
+function HowItWorks({ t }: { t: (key: string) => string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mt-4 rounded-xl border border-tg-separator overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm text-tg-hint"
+      >
+        <span>{t('settlement.infoTitle')}</span>
+        <svg
+          className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-2 text-xs text-tg-hint">
+          <p>{t('settlement.infoHow')}</p>
+          <p>{t('settlement.infoCommission')}</p>
+          <p>{t('settlement.infoGas')}</p>
+          <p className="text-tg-hint/60">{t('settlement.infoContract')}</p>
         </div>
       )}
     </div>

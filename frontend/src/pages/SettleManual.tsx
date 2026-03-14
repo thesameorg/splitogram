@@ -132,8 +132,8 @@ export function SettleManual() {
       <h1 className="text-xl font-bold mb-6">{t('settleUp.title')}</h1>
 
       {/* Settlement info */}
-      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator mb-6 text-center">
-        <div className="text-sm text-tg-hint mb-2">
+      <div className="bg-tg-section px-4 py-3 rounded-xl border border-tg-separator mb-4 flex items-center justify-between">
+        <span className="text-sm text-tg-hint">
           {isDebtor
             ? t('settleUp.youOwe', { name: settlement.to?.displayName })
             : isCreditor
@@ -142,10 +142,10 @@ export function SettleManual() {
                   from: settlement.from?.displayName,
                   to: settlement.to?.displayName,
                 })}
-        </div>
-        <div className="text-3xl font-bold mb-1">
+        </span>
+        <span className="text-lg font-bold">
           {formatAmount(settlement.amount, settlement.currency)}
-        </div>
+        </span>
       </div>
 
       {/* Settled status */}
