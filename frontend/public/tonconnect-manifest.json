@@ -1,7 +1,7 @@
 {
-  "url": "https://splitogram.pages.dev",
+  "url": "https://splitogram.dksg.qzz.io",
   "name": "Splitogram",
-  "iconUrl": "https://splitogram.pages.dev/icon-192.png",
-  "termsOfUseUrl": "https://splitogram.dksg87.workers.dev/terms",
-  "privacyPolicyUrl": "https://splitogram.dksg87.workers.dev/privacy"
+  "iconUrl": "https://splitogram-worker.dksg.qzz.io/r2/static/tonconnect-icon.png",
+  "termsOfUseUrl": "https://splitogram-worker.dksg.qzz.io/terms",
+  "privacyPolicyUrl": "https://splitogram-worker.dksg.qzz.io/privacy"
 }

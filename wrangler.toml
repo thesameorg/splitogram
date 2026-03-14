@@ -17,7 +17,7 @@ migrations_dir = "backend/drizzle/migrations"
 # Non-secret environment variables
 [vars]
 ENVIRONMENT = "production"
-PAGES_URL = "https://splitogram.pages.dev"
+PAGES_URL = "https://splitogram.dksg.qzz.io"
 # TON settlement (mainnet)
 TON_NETWORK = "mainnet"
 USDT_MASTER_ADDRESS = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs"
