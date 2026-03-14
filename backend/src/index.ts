@@ -26,6 +26,13 @@ const app = new Hono<{ Bindings: Env }>();
 app.use('*', prettyJSON());
 app.use('*', dbMiddleware);
 
+// Security headers
+app.use('*', async (c, next) => {
+  await next();
+  c.res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  c.res.headers.set('X-Content-Type-Options', 'nosniff');
+});
+
 // CORS for API endpoints
 app.use(
   '/api/*',
