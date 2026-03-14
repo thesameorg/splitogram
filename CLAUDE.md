@@ -338,7 +338,6 @@ Push to `main` triggers `.github/workflows/deploy-pipeline.yml` which orchestrat
 - `docs/architecture.md` — stack, architecture, key engineering principles
 - `docs/idea.md` — business overview and competitive landscape
 - `docs/smart-contract.md` — TON settlement contract manual
-- `docs/envs.md` — TON-related environment variables
 - `docs/envs.md` — TON environment variables and network switching guide
 - `docs/TWA-checklist.md` — Telegram Mini App listing requirements
 - `work_docs/CODE_REVIEW.md` — code review findings (3 critical + 7 major all fixed, 8 minor remaining)
