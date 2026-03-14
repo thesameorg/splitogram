@@ -291,47 +291,47 @@ export function AddExpense() {
         />
       </div>
 
-      {/* Amount — A4: show currency in label */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
-          {t('addExpense.amountWithCurrency', { currency: group.currency })}
-        </label>
-        <input
-          type="text"
-          inputMode="decimal"
-          placeholder="0.00"
-          value={amountStr}
-          onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
-          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-2xl"
-        />
-        {splitMode === 'equal' && selectedParticipants.size > 0 && amountMicro > 0 && (
-          <div className="text-sm text-tg-hint mt-1">
-            {t('addExpense.perPerson', {
-              amount: formatAmount(perPerson, group.currency),
-              count: selectedParticipants.size,
-            })}
-          </div>
-        )}
+      {/* Amount + Paid By — side by side */}
+      <div className="mb-4 flex gap-3">
+        <div className="flex-1 min-w-0">
+          <label className="block text-sm font-medium mb-1 text-tg-hint">
+            {t('addExpense.amountWithCurrency', { currency: group.currency })}
+          </label>
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder="0.00"
+            value={amountStr}
+            onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
+            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-2xl"
+          />
+        </div>
+        <div className="w-[40%] min-w-0">
+          <label className="block text-sm font-medium mb-1 text-tg-hint">
+            {t('addExpense.paidBy')}
+          </label>
+          <select
+            value={paidBy ?? ''}
+            onChange={(e) => setPaidBy(parseInt(e.target.value, 10))}
+            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-2xl"
+            disabled={isEditMode}
+          >
+            {group.members.map((m) => (
+              <option key={m.userId} value={m.userId}>
+                {m.isDummy ? `\uD83D\uDC7B ${m.displayName}` : m.displayName}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-
-      {/* Paid By */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
-          {t('addExpense.paidBy')}
-        </label>
-        <select
-          value={paidBy ?? ''}
-          onChange={(e) => setPaidBy(parseInt(e.target.value, 10))}
-          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
-          disabled={isEditMode}
-        >
-          {group.members.map((m) => (
-            <option key={m.userId} value={m.userId}>
-              {m.isDummy ? `\uD83D\uDC7B ${m.displayName}` : m.displayName}
-            </option>
-          ))}
-        </select>
-      </div>
+      {splitMode === 'equal' && selectedParticipants.size > 0 && amountMicro > 0 && (
+        <div className="text-sm text-tg-hint -mt-3 mb-4">
+          {t('addExpense.perPerson', {
+            amount: formatAmount(perPerson, group.currency),
+            count: selectedParticipants.size,
+          })}
+        </div>
+      )}
 
       {/* Split Among */}
       <div className="mb-4">

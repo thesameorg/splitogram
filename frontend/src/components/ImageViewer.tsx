@@ -26,15 +26,7 @@ export function ImageViewer({ imageKey, open, onClose, alt = '' }: ImageViewerPr
       <BottomSheet open={open && !reportKey} onClose={onClose} title="">
         {imageKey && (
           <div>
-            <img
-              src={imageUrl(imageKey)}
-              alt={alt}
-              className="w-full rounded-xl"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-            <div className="flex items-center justify-between mt-3">
+            <div className="flex items-center justify-between mb-3">
               <button
                 onClick={() => setReportKey(imageKey)}
                 className="p-2 rounded-lg text-tg-hint"
@@ -74,6 +66,14 @@ export function ImageViewer({ imageKey, open, onClose, alt = '' }: ImageViewerPr
                 </svg>
               </button>
             </div>
+            <img
+              src={imageUrl(imageKey)}
+              alt={alt}
+              className="w-full rounded-xl"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
           </div>
         )}
       </BottomSheet>
