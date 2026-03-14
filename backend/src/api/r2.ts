@@ -1,6 +1,13 @@
 import { Hono } from 'hono';
 import type { Env } from '../env';
 
+const COMMON_HEADERS: Record<string, string> = {
+  'Cache-Control': 'public, max-age=31536000, immutable',
+  'Access-Control-Allow-Origin': '*',
+  'X-Content-Type-Options': 'nosniff',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+};
+
 const r2App = new Hono<{ Bindings: Env }>();
 
 // GET /r2/:key+ — serve images from R2 with edge + browser caching
@@ -15,7 +22,13 @@ r2App.get('/*', async (c) => {
   const cacheKey = new Request(c.req.url);
   const cache = (caches as any).default as Cache;
   const cached = await cache.match(cacheKey);
-  if (cached) return cached;
+  if (cached) {
+    // Cache API returns immutable responses — clone to allow downstream header modifications
+    return new Response(cached.body, {
+      status: cached.status,
+      headers: new Headers(cached.headers),
+    });
+  }
 
   const object = await c.env.IMAGES.get(key);
 
@@ -23,10 +36,8 @@ r2App.get('/*', async (c) => {
     return c.notFound();
   }
 
-  const headers = new Headers();
-  headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+  const headers = new Headers(COMMON_HEADERS);
   headers.set('Content-Type', object.httpMetadata?.contentType || 'image/jpeg');
-  headers.set('Access-Control-Allow-Origin', '*');
   if (object.size) {
     headers.set('Content-Length', object.size.toString());
   }
