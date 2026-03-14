@@ -13,7 +13,7 @@ describe('formatAmount', () => {
   });
 
   it('formats large amounts', () => {
-    expect(formatAmount(999_999_000_000)).toBe('$999999.00');
+    expect(formatAmount(999_999_000_000)).toBe('$999 999.00');
   });
 
   it('formats fractional micro amounts', () => {
@@ -34,15 +34,15 @@ describe('formatAmount', () => {
   });
 
   it('formats zero-decimal currencies (VND)', () => {
-    expect(formatAmount(50_000_000_000, 'VND')).toBe('\u20AB50,000');
+    expect(formatAmount(50_000_000_000, 'VND')).toBe('\u20AB50 000');
   });
 
   it('formats zero-decimal currencies (JPY)', () => {
-    expect(formatAmount(1_000_000_000, 'JPY')).toBe('\u00A51,000');
+    expect(formatAmount(1_000_000_000, 'JPY')).toBe('\u00A51 000');
   });
 
   it('formats zero-decimal currencies (IDR)', () => {
-    expect(formatAmount(100_000_000_000, 'IDR')).toBe('Rp100,000');
+    expect(formatAmount(100_000_000_000, 'IDR')).toBe('Rp100 000');
   });
 
   it('falls back to USD for unknown currency', () => {
@@ -76,8 +76,8 @@ describe('formatSignedAmount', () => {
   });
 
   it('handles zero-decimal signed amounts', () => {
-    expect(formatSignedAmount(50_000_000_000, 'VND')).toBe('+\u20AB50,000');
-    expect(formatSignedAmount(-50_000_000_000, 'VND')).toBe('-\u20AB50,000');
+    expect(formatSignedAmount(50_000_000_000, 'VND')).toBe('+\u20AB50 000');
+    expect(formatSignedAmount(-50_000_000_000, 'VND')).toBe('-\u20AB50 000');
   });
 
   it('shows zero for zero-decimal currencies', () => {
