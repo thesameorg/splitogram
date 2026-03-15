@@ -277,33 +277,47 @@ app.post('/feedback', async (c) => {
     }
   }
 
+  console.log(
+    `[feedback] user=${user.displayName} message=${message.length}chars attachments=${attachments.length}`,
+    attachments.map((a) => `${a.name}(${a.type}, ${a.blob.size}b)`),
+  );
+
   c.executionCtx.waitUntil(
     (async () => {
       try {
         // Send text message first
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        const msgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ chat_id: chatId, text }),
           signal: AbortSignal.timeout(10000),
         });
+        if (!msgRes.ok) {
+          const err = await msgRes.text();
+          console.error('[feedback] sendMessage failed:', msgRes.status, err);
+        }
 
         // Forward each attachment
         for (const att of attachments) {
-          const formData = new FormData();
-          formData.append('chat_id', String(chatId));
+          const fd = new FormData();
+          fd.append('chat_id', String(chatId));
           const isImage = att.type.startsWith('image/');
           const endpoint = isImage ? 'sendPhoto' : 'sendDocument';
-          formData.append(isImage ? 'photo' : 'document', att.blob, att.name);
+          fd.append(isImage ? 'photo' : 'document', att.blob, att.name);
 
-          await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
+          console.log(`[feedback] sending ${endpoint}: ${att.name} (${att.type}, ${att.blob.size}b)`);
+          const res = await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
             method: 'POST',
-            body: formData,
+            body: fd,
             signal: AbortSignal.timeout(30000),
           });
+          if (!res.ok) {
+            const err = await res.text();
+            console.error(`[feedback] ${endpoint} failed:`, res.status, err);
+          }
         }
       } catch (e) {
-        console.error('Feedback notification failed:', e);
+        console.error('[feedback] notification failed:', e);
       }
     })(),
   );

@@ -319,8 +319,9 @@ export function Account() {
   function handleFeedbackFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files) return;
+    const snapshot = Array.from(files);
     e.target.value = '';
-    setFeedbackFiles((prev) => [...prev, ...Array.from(files)].slice(0, 5));
+    setFeedbackFiles((prev) => [...prev, ...snapshot].slice(0, 5));
   }
 
   async function handleDeletePreflight() {
