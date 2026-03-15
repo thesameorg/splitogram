@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
+import usertour from 'usertour.js';
 import { useAuth } from './hooks/useAuth';
 import { api, ApiError } from './services/api';
 import { UserProvider, useUser } from './contexts/UserContext';
@@ -44,7 +45,7 @@ function AppContent() {
     }
   }, []);
 
-  // Fetch user profile after auth to populate UserContext
+  // Fetch user profile after auth to populate UserContext + identify in Usertour
   useEffect(() => {
     if (!auth.authenticated) return;
     api
@@ -55,9 +56,22 @@ function AppContent() {
           displayName: profile.displayName,
           isAdmin: auth.isAdmin,
         });
+
+        // Initialize Usertour for user onboarding flows
+        const token = import.meta.env.VITE_USERTOUR_TOKEN;
+        if (token && auth.userId) {
+          usertour.init(token);
+          usertour.identify(String(auth.userId), {
+            name: profile.displayName || undefined,
+            email: `id${profile.telegramId}@t.me`,
+            telegram_id: profile.telegramId,
+            username: profile.username || undefined,
+            signed_up_at: auth.isNewUser ? new Date().toISOString() : undefined,
+          });
+        }
       })
       .catch(() => {});
-  }, [auth.authenticated, auth.isAdmin, setUser]);
+  }, [auth.authenticated, auth.isAdmin, auth.userId, auth.isNewUser, setUser]);
 
   // Deep link routing: read startParam after auth succeeds
   useEffect(() => {

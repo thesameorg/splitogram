@@ -22,6 +22,7 @@
     "react-dom": "^19.2.0",
     "react-i18next": "^16.5.4",
     "react-router-dom": "^7.9.3",
+    "usertour.js": "^0.0.16",
     "vite-plugin-node-polyfills": "^0.25.0"
   },
   "devDependencies": {

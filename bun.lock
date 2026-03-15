@@ -45,6 +45,7 @@
         "react-dom": "^19.2.0",
         "react-i18next": "^16.5.4",
         "react-router-dom": "^7.9.3",
+        "usertour.js": "^0.0.16",
         "vite-plugin-node-polyfills": "^0.25.0",
       },
       "devDependencies": {
@@ -1025,6 +1026,8 @@
     "url": ["url@0.11.4", "", { "dependencies": { "punycode": "^1.4.1", "qs": "^6.12.3" } }, "sha512-oCwdVC7mTuWiPyjLUz/COz5TLk6wgp0RCsN+wHZ2Ekneac9w8uuV0njcbbie2ME+Vs+d6duwmYuR3HgQXs1fOg=="],
 
     "use-sync-external-store": ["use-sync-external-store@1.6.0", "", { "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w=="],
+
+    "usertour.js": ["usertour.js@0.0.16", "", {}, "sha512-0KgLBv9tSUIuARF0ScIHS2qwTUOvIOj/vw0Nit2VVtFzsSdlv8nXRGpzps01Y8Q5x9uNG0SdUtU3i1x8O5np9w=="],
 
     "util": ["util@0.12.5", "", { "dependencies": { "inherits": "^2.0.3", "is-arguments": "^1.0.4", "is-generator-function": "^1.0.7", "is-typed-array": "^1.1.3", "which-typed-array": "^1.1.2" } }, "sha512-kZf/K6hEIrWHI6XqOFUiiMa+79wE/D8Q+NCNAWclkyg3b4d2k7s0QGepNjiABc+aR3N1PAyHL7p6UcLY6LmrnA=="],
 
