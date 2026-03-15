@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
@@ -9,6 +9,7 @@ import { config } from './config';
 import { AppLayout } from './components/AppLayout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingScreen } from './components/LoadingScreen';
+import { LanguagePickerModal } from './components/LanguagePickerModal';
 import { Home } from './pages/Home';
 import { Group } from './pages/Group';
 import { Activity } from './pages/Activity';
@@ -25,6 +26,14 @@ function AppContent() {
   const deepLinkHandled = useRef(false);
   const { t } = useTranslation();
   const { setUser } = useUser();
+  const [showLangPicker, setShowLangPicker] = useState(false);
+
+  // Show language picker modal for first-time users
+  useEffect(() => {
+    if (auth.authenticated && auth.isNewUser) {
+      setShowLangPicker(true);
+    }
+  }, [auth.authenticated, auth.isNewUser]);
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -137,22 +146,25 @@ function AppContent() {
   }
 
   return (
-    <Routes>
-      {/* Routes with bottom tabs */}
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/activity" element={<Activity />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/groups/:id" element={<Group />} />
-      </Route>
+    <>
+      {showLangPicker && <LanguagePickerModal onDone={() => setShowLangPicker(false)} />}
+      <Routes>
+        {/* Routes with bottom tabs */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/activity" element={<Activity />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/groups/:id" element={<Group />} />
+        </Route>
 
-      {/* Full-screen routes (no tabs) */}
-      <Route path="/groups/:id/settings" element={<GroupSettings />} />
-      <Route path="/groups/:id/add-expense" element={<AddExpense />} />
-      <Route path="/groups/:id/edit-expense/:expenseId" element={<AddExpense />} />
-      <Route path="/settle/:id/manual" element={<SettleManual />} />
-      <Route path="/settle/:id/ton" element={<SettleCrypto />} />
-    </Routes>
+        {/* Full-screen routes (no tabs) */}
+        <Route path="/groups/:id/settings" element={<GroupSettings />} />
+        <Route path="/groups/:id/add-expense" element={<AddExpense />} />
+        <Route path="/groups/:id/edit-expense/:expenseId" element={<AddExpense />} />
+        <Route path="/settle/:id/manual" element={<SettleManual />} />
+        <Route path="/settle/:id/ton" element={<SettleCrypto />} />
+      </Routes>
+    </>
   );
 }
 

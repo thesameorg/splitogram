@@ -93,7 +93,8 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
     // Upsert user into DB
     const existing = await db.select().from(users).where(eq(users.telegramId, tgUser.id)).limit(1);
 
-    if (existing.length === 0) {
+    const isNewUser = existing.length === 0;
+    if (isNewUser) {
       await db.insert(users).values({
         telegramId: tgUser.id,
         username: tgUser.username ?? null,
@@ -127,6 +128,7 @@ export async function authHandler(c: Context<{ Bindings: Env }>): Promise<Respon
       },
       locale,
       isAdmin,
+      isNewUser,
       source: 'initdata',
     });
   } catch (error) {

@@ -8,6 +8,7 @@ interface AuthState {
   userId: number | null;
   displayName: string | null;
   isAdmin: boolean;
+  isNewUser: boolean;
 }
 
 function applyLocale(locale: string) {
@@ -25,6 +26,7 @@ export function useAuth(): AuthState {
     userId: null,
     displayName: null,
     isAdmin: false,
+    isNewUser: false,
   });
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export function useAuth(): AuthState {
           userId: result.user.id,
           displayName: result.user.displayName,
           isAdmin: result.isAdmin ?? false,
+          isNewUser: result.isNewUser ?? false,
         });
         return;
       }
@@ -61,6 +64,7 @@ export function useAuth(): AuthState {
               userId: result.user.id,
               displayName: result.user.displayName,
               isAdmin: result.isAdmin ?? false,
+              isNewUser: result.isNewUser ?? false,
             });
             return;
           }
@@ -76,6 +80,7 @@ export function useAuth(): AuthState {
       userId: null,
       displayName: null,
       isAdmin: false,
+      isNewUser: false,
     });
   }
 
