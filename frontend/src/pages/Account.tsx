@@ -661,14 +661,14 @@ export function Account() {
                   value={paymentLink}
                   onChange={(e) => setPaymentLink(e.target.value)}
                   placeholder={t('account.paymentLinkPlaceholder')}
-                  className="flex-1 p-2 border border-tg-separator rounded-lg bg-transparent text-sm"
+                  className="flex-1 min-w-0 p-2 border border-tg-separator rounded-lg bg-transparent text-sm"
                   autoFocus
                   maxLength={500}
                 />
                 <button
                   onClick={handleSavePaymentLink}
                   disabled={savingPaymentLink}
-                  className="px-3 py-2 bg-tg-button text-tg-button-text rounded-lg text-sm font-medium disabled:opacity-50"
+                  className="px-3 py-2 bg-tg-button text-tg-button-text rounded-lg text-sm font-medium shrink-0 disabled:opacity-50"
                 >
                   {savingPaymentLink ? '...' : t('account.save')}
                 </button>
@@ -677,7 +677,7 @@ export function Account() {
                     setEditingPaymentLink(false);
                     setPaymentLink(user?.paymentLink ?? '');
                   }}
-                  className="px-3 py-2 border border-tg-separator rounded-lg text-sm"
+                  className="px-3 py-2 border border-tg-separator rounded-lg text-sm shrink-0"
                 >
                   {t('account.cancel')}
                 </button>
