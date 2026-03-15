@@ -1,6 +1,12 @@
 import { Hono } from 'hono';
 import { eq, and, sql } from 'drizzle-orm';
 import { expenses, expenseParticipants, settlements, groupMembers, users } from '../db/schema';
+import {
+  getMembership,
+  notMemberResponse,
+  parseIntParam,
+  invalidIdResponse,
+} from '../utils/auth-guards';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 
@@ -11,23 +17,13 @@ const statsApp = new Hono<StatsEnv>();
 statsApp.get('/', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const currentUserId = session.userId;
 
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  if (!(await getMembership(db, groupId, currentUserId))) return notMemberResponse(c);
 
   // Parse period filter
   const period = c.req.query('period') ?? 'all';

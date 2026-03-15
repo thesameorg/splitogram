@@ -108,7 +108,7 @@ app.post('/me/avatar', async (c) => {
   // Upload new avatar to R2
   const key = generateR2Key('avatars', user.id);
   await c.env.IMAGES.put(key, await file.arrayBuffer(), {
-    httpMetadata: { contentType: 'image/jpeg' },
+    httpMetadata: { contentType: file.type },
   });
 
   // Delete old avatar from R2 (best-effort)
@@ -182,7 +182,7 @@ app.post('/me/payment-qr', async (c) => {
 
   const key = generateR2Key('payment-qr', user.id);
   await c.env.IMAGES.put(key, await file.arrayBuffer(), {
-    httpMetadata: { contentType: 'image/jpeg' },
+    httpMetadata: { contentType: file.type },
   });
 
   if (user.paymentQrKey) {
@@ -305,7 +305,9 @@ app.post('/feedback', async (c) => {
           const endpoint = isImage ? 'sendPhoto' : 'sendDocument';
           fd.append(isImage ? 'photo' : 'document', att.blob, att.name);
 
-          console.log(`[feedback] sending ${endpoint}: ${att.name} (${att.type}, ${att.blob.size}b)`);
+          console.log(
+            `[feedback] sending ${endpoint}: ${att.name} (${att.type}, ${att.blob.size}b)`,
+          );
           const res = await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
             method: 'POST',
             body: fd,

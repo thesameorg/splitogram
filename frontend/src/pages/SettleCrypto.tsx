@@ -1,19 +1,27 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { api, type SettlementDetail, type SettlementTxParams } from '../services/api';
+import { api, type SettlementTxParams } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
+import { useSettlement } from '../hooks/useSettlement';
 import { useTonWallet } from '../hooks/useTonWallet';
 import { formatAmount } from '../utils/format';
 import { calculateCommission } from '../utils/commission';
 import { getCurrency } from '../utils/currencies';
-import { buildSettlementBody, truncateAddress, toFriendly } from '../utils/ton';
+import {
+  buildSettlementBody,
+  truncateAddress,
+  toFriendly,
+  formatUsdtAmount,
+  formatUsdtCommission,
+  formatTonAmount,
+} from '../utils/ton';
 import { sanitizeDecimalInput } from '../utils/input';
 import { config } from '../config';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
-import { IconTon } from '../icons';
+import { IconTon, IconExternalLink, IconChevron } from '../icons';
 import { openExternalLink } from '../utils/links';
 
 const isTestnet = config.tonNetwork !== 'mainnet';
@@ -26,10 +34,8 @@ export function SettleCrypto() {
   const { t } = useTranslation();
   const settlementId = parseInt(id ?? '', 10);
 
-  const [settlement, setSettlement] = useState<SettlementDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [amountStr, setAmountStr] = useState('');
+  const { settlement, setSettlement, loading, error, setError, amountStr, setAmountStr } =
+    useSettlement(settlementId);
 
   // Crypto settlement state
   const [cryptoState, setCryptoState] = useState<CryptoState>('idle');
@@ -55,27 +61,6 @@ export function SettleCrypto() {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, []);
-
-  useEffect(() => {
-    if (isNaN(settlementId)) return;
-    api
-      .getSettlement(settlementId)
-      .then((data) => {
-        setSettlement(data);
-        const currency = getCurrency(data.currency);
-        const display = data.amount / 1_000_000;
-        setAmountStr(
-          currency.decimals === 0
-            ? String(Math.round(display))
-            : display.toFixed(currency.decimals),
-        );
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [settlementId]);
 
   const isDebtor = settlement?.currentUserId === settlement?.fromUser;
   const isSettled =
@@ -418,19 +403,7 @@ export function SettleCrypto() {
                 >
                   <IconTon size={12} />
                   {t('settlement.viewTransaction')}
-                  <svg
-                    className="w-3 h-3"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
+                  <IconExternalLink size={12} />
                 </button>
               </div>
             )}
@@ -775,17 +748,7 @@ function HowItWorks({ t }: { t: (key: string) => string }) {
         className="w-full flex items-center justify-between px-4 py-3 text-sm text-tg-hint"
       >
         <span>{t('settlement.infoTitle')}</span>
-        <svg
-          className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <IconChevron size={16} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
         <div className="px-4 pb-4 space-y-2 text-xs text-tg-hint">
@@ -837,18 +800,4 @@ function TxLinkInput({
       </button>
     </div>
   );
-}
-
-// --- USDT formatting helpers ---
-
-function formatUsdtAmount(microAmount: number): string {
-  return (microAmount / 1_000_000).toFixed(2);
-}
-
-function formatUsdtCommission(microAmount: number): string {
-  return formatUsdtAmount(calculateCommission(microAmount));
-}
-
-function formatTonAmount(nanoTon: number): string {
-  return (nanoTon / 1_000_000_000).toFixed(2);
 }

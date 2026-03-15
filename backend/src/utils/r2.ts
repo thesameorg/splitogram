@@ -30,3 +30,40 @@ export function validateUpload(file: File | { size: number; type: string }): str
   }
   return null;
 }
+
+/** Upload receipt + optional thumbnail to R2. Returns keys or error string. */
+export async function uploadReceiptPair(
+  bucket: { put(key: string, value: ArrayBuffer, options?: any): Promise<any> },
+  entityId: number,
+  body: Record<string, unknown>,
+): Promise<{ receiptKey: string; thumbKey: string | null } | { error: string }> {
+  const receipt = body['receipt'];
+  const thumbnail = body['thumbnail'];
+
+  if (!(receipt instanceof File)) {
+    return { error: 'No receipt file provided' };
+  }
+
+  const validationError = validateUpload(receipt);
+  if (validationError) {
+    return { error: validationError };
+  }
+
+  const receiptKey = generateR2Key('receipts', entityId);
+  await bucket.put(receiptKey, await receipt.arrayBuffer(), {
+    httpMetadata: { contentType: receipt.type },
+  });
+
+  let thumbKey: string | null = null;
+  if (thumbnail instanceof File) {
+    const thumbError = validateUpload(thumbnail);
+    if (!thumbError) {
+      thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
+      await bucket.put(thumbKey, await thumbnail.arrayBuffer(), {
+        httpMetadata: { contentType: thumbnail.type },
+      });
+    }
+  }
+
+  return { receiptKey, thumbKey };
+}

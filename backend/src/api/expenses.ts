@@ -7,7 +7,14 @@ import { refreshGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
 import { makeNotifyCtx } from '../utils/notify-ctx';
-import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
+import { safeR2Delete, uploadReceiptPair } from '../utils/r2';
+import {
+  getMembership,
+  getMembershipRole,
+  notMemberResponse,
+  parseIntParam,
+  invalidIdResponse,
+} from '../utils/auth-guards';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
 
@@ -108,37 +115,20 @@ function calculateShares(
 expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const groupId = parseIntParam(c, 'id');
   const { amount, description, comment, paidBy, participantIds, splitMode, shares } =
     c.req.valid('json');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const currentUserId = session.userId;
 
-  // Check current user is member
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  if (!(await getMembership(db, groupId, currentUserId))) return notMemberResponse(c);
 
   const payerId = paidBy ?? currentUserId;
 
   // Verify payer is a group member
-  const [payerMembership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, payerId)))
-    .limit(1);
-
-  if (!payerMembership) {
+  if (!(await getMembership(db, groupId, payerId))) {
     return c.json({ error: 'payer_not_member', detail: 'Payer must be a group member' }, 400);
   }
 
@@ -272,24 +262,13 @@ expensesApp.post('/', zValidator('json', createExpenseSchema), async (c) => {
 expensesApp.get('/', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const currentUserId = session.userId;
 
-  // Check membership
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  if (!(await getMembership(db, groupId, currentUserId))) return notMemberResponse(c);
 
   // Pagination
   const limit = Math.min(Math.max(1, parseInt(c.req.query('limit') ?? '50', 10) || 50), 100);
@@ -389,13 +368,11 @@ const editExpenseSchema = z
 expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
-  const expenseId = parseInt(c.req.param('expenseId'), 10);
+  const groupId = parseIntParam(c, 'id');
+  const expenseId = parseIntParam(c, 'expenseId');
   const updates = c.req.valid('json');
 
-  if (isNaN(groupId) || isNaN(expenseId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
-  }
+  if (!groupId || !expenseId) return invalidIdResponse(c);
 
   const currentUserId = session.userId;
 
@@ -410,16 +387,8 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
     return c.json({ error: 'expense_not_found', detail: 'Expense not found' }, 404);
   }
 
-  // Only creator or group admin can edit
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, currentUserId);
+  if (!membership) return notMemberResponse(c);
 
   if (expense.paidBy !== currentUserId) {
     return c.json({ error: 'not_authorized', detail: 'Only the expense creator can edit' }, 403);
@@ -511,12 +480,10 @@ expensesApp.put('/:expenseId', zValidator('json', editExpenseSchema), async (c) 
 expensesApp.delete('/:expenseId', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
-  const expenseId = parseInt(c.req.param('expenseId'), 10);
+  const groupId = parseIntParam(c, 'id');
+  const expenseId = parseIntParam(c, 'expenseId');
 
-  if (isNaN(groupId) || isNaN(expenseId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
-  }
+  if (!groupId || !expenseId) return invalidIdResponse(c);
 
   const currentUserId = session.userId;
 
@@ -530,16 +497,8 @@ expensesApp.delete('/:expenseId', async (c) => {
     return c.json({ error: 'expense_not_found', detail: 'Expense not found' }, 404);
   }
 
-  // Only creator or group admin can delete
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, currentUserId);
+  if (!membership) return notMemberResponse(c);
 
   if (expense.paidBy !== currentUserId && membership.role !== 'admin') {
     return c.json(
@@ -579,12 +538,10 @@ expensesApp.delete('/:expenseId', async (c) => {
 expensesApp.post('/:expenseId/receipt', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
-  const expenseId = parseInt(c.req.param('expenseId'), 10);
+  const groupId = parseIntParam(c, 'id');
+  const expenseId = parseIntParam(c, 'expenseId');
 
-  if (isNaN(groupId) || isNaN(expenseId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
-  }
+  if (!groupId || !expenseId) return invalidIdResponse(c);
 
   const currentUserId = session.userId;
 
@@ -598,16 +555,8 @@ expensesApp.post('/:expenseId/receipt', async (c) => {
     return c.json({ error: 'expense_not_found', detail: 'Expense not found' }, 404);
   }
 
-  // Only creator or group admin can upload receipt
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, currentUserId);
+  if (!membership) return notMemberResponse(c);
 
   if (expense.paidBy !== currentUserId && membership.role !== 'admin') {
     return c.json(
@@ -620,34 +569,13 @@ expensesApp.post('/:expenseId/receipt', async (c) => {
   }
 
   const body = await c.req.parseBody();
-  const receipt = body['receipt'];
-  const thumbnail = body['thumbnail'];
-
-  if (!(receipt instanceof File)) {
-    return c.json({ error: 'missing_file', detail: 'No receipt file provided' }, 400);
-  }
-
-  const validationError = validateUpload(receipt);
-  if (validationError) {
-    return c.json({ error: 'invalid_file', detail: validationError }, 400);
-  }
-
-  // Upload receipt to R2
-  const receiptKey = generateR2Key('receipts', expenseId);
-  await c.env.IMAGES.put(receiptKey, await receipt.arrayBuffer(), {
-    httpMetadata: { contentType: 'image/jpeg' },
-  });
-
-  // Upload thumbnail if provided (validate to prevent oversized uploads)
-  let thumbKey: string | null = null;
-  if (thumbnail instanceof File) {
-    const thumbError = validateUpload(thumbnail);
-    if (!thumbError) {
-      thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
-      await c.env.IMAGES.put(thumbKey, await thumbnail.arrayBuffer(), {
-        httpMetadata: { contentType: 'image/jpeg' },
-      });
-    }
+  const result = await uploadReceiptPair(c.env.IMAGES, expenseId, body as Record<string, unknown>);
+  if ('error' in result) {
+    const isValidation = result.error.startsWith('Invalid') || result.error.startsWith('File');
+    return c.json(
+      { error: isValidation ? 'invalid_file' : 'missing_file', detail: result.error },
+      400,
+    );
   }
 
   // Delete old receipt from R2 (best-effort)
@@ -658,25 +586,22 @@ expensesApp.post('/:expenseId/receipt', async (c) => {
     c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, expense.receiptThumbKey));
   }
 
-  // Save keys in DB
   await db
     .update(expenses)
-    .set({ receiptKey, receiptThumbKey: thumbKey })
+    .set({ receiptKey: result.receiptKey, receiptThumbKey: result.thumbKey })
     .where(eq(expenses.id, expenseId));
 
-  return c.json({ receiptKey, receiptThumbKey: thumbKey });
+  return c.json({ receiptKey: result.receiptKey, receiptThumbKey: result.thumbKey });
 });
 
 // --- Delete receipt from expense ---
 expensesApp.delete('/:expenseId/receipt', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
-  const expenseId = parseInt(c.req.param('expenseId'), 10);
+  const groupId = parseIntParam(c, 'id');
+  const expenseId = parseIntParam(c, 'expenseId');
 
-  if (isNaN(groupId) || isNaN(expenseId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
-  }
+  if (!groupId || !expenseId) return invalidIdResponse(c);
 
   const currentUserId = session.userId;
 
@@ -690,15 +615,8 @@ expensesApp.delete('/:expenseId/receipt', async (c) => {
     return c.json({ error: 'expense_not_found', detail: 'Expense not found' }, 404);
   }
 
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, currentUserId);
+  if (!membership) return notMemberResponse(c);
 
   if (expense.paidBy !== currentUserId && membership.role !== 'admin') {
     return c.json(

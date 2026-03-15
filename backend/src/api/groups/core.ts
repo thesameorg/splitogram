@@ -16,6 +16,13 @@ import { computeGroupBalances } from '../balances';
 import { CURRENCY_CODES } from '../../utils/currencies';
 import { logActivity } from '../../services/activity';
 import { generateR2Key, safeR2Delete, validateUpload } from '../../utils/r2';
+import {
+  getMembership,
+  getMembershipRole,
+  notMemberResponse,
+  parseIntParam,
+  invalidIdResponse,
+} from '../../utils/auth-guards';
 import type { GroupEnv } from './types';
 
 export const coreApp = new Hono<GroupEnv>();
@@ -175,24 +182,14 @@ coreApp.get('/', async (c) => {
 coreApp.get('/:id', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  // Check membership
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembership(db, groupId, userId);
+  if (!membership) return notMemberResponse(c);
 
   const [group] = await db.select().from(groups).where(eq(groups.id, groupId)).limit(1);
 
@@ -259,25 +256,15 @@ const updateGroupSchema = z.object({
 coreApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
   const updates = c.req.valid('json');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  // Only admin can update group settings
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, userId);
+  if (!membership) return notMemberResponse(c);
 
   if (membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can update settings' }, 403);
@@ -321,23 +308,15 @@ coreApp.patch('/:id', zValidator('json', updateGroupSchema), async (c) => {
 coreApp.post('/:id/mute', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  const [membership] = await db
-    .select({ id: groupMembers.id, muted: groupMembers.muted })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  // Need full membership row for muted field
+  const membership = await getMembership(db, groupId, userId);
+  if (!membership) return notMemberResponse(c);
 
   const newMuted = !membership.muted;
   await db.update(groupMembers).set({ muted: newMuted }).where(eq(groupMembers.id, membership.id));
@@ -349,23 +328,14 @@ coreApp.post('/:id/mute', async (c) => {
 coreApp.post('/:id/regenerate-invite', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, userId);
+  if (!membership) return notMemberResponse(c);
 
   if (membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can regenerate invite' }, 403);
@@ -384,20 +354,13 @@ coreApp.post('/:id/regenerate-invite', async (c) => {
 coreApp.post('/:id/avatar', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
+  const membership = await getMembershipRole(db, groupId, userId);
   if (!membership || membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can change avatar' }, 403);
   }
@@ -422,7 +385,7 @@ coreApp.post('/:id/avatar', async (c) => {
 
   const key = generateR2Key('groups', groupId);
   await c.env.IMAGES.put(key, await file.arrayBuffer(), {
-    httpMetadata: { contentType: 'image/jpeg' },
+    httpMetadata: { contentType: file.type },
   });
 
   // Delete old avatar (best-effort)
@@ -443,20 +406,13 @@ coreApp.post('/:id/avatar', async (c) => {
 coreApp.delete('/:id/avatar', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
+  const membership = await getMembershipRole(db, groupId, userId);
   if (!membership || membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can change avatar' }, 403);
   }
@@ -483,23 +439,14 @@ coreApp.delete('/:id/avatar', async (c) => {
 coreApp.delete('/:id', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, userId);
+  if (!membership) return notMemberResponse(c);
 
   if (membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can delete the group' }, 403);

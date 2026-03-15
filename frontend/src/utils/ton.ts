@@ -1,4 +1,5 @@
 import { beginCell, Address } from '@ton/core';
+import { calculateCommission } from './commission';
 import type { SettlementTxParams } from '../services/api';
 
 /**
@@ -42,4 +43,19 @@ export function buildSettlementBody(params: SettlementTxParams): string {
 export function truncateAddress(address: string): string {
   if (address.length <= 12) return address;
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
+/** Format micro-USDT (6 decimals) to display string, e.g. "1.50" */
+export function formatUsdtAmount(microAmount: number): string {
+  return (microAmount / 1_000_000).toFixed(2);
+}
+
+/** Format micro-USDT amount's commission to display string */
+export function formatUsdtCommission(microAmount: number): string {
+  return formatUsdtAmount(calculateCommission(microAmount));
+}
+
+/** Format nanoTON (9 decimals) to display string, e.g. "0.35" */
+export function formatTonAmount(nanoTon: number): string {
+  return (nanoTon / 1_000_000_000).toFixed(2);
 }

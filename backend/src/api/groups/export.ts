@@ -8,6 +8,12 @@ import {
   expenseParticipants,
   settlements,
 } from '../../db/schema';
+import {
+  getMembership,
+  notMemberResponse,
+  parseIntParam,
+  invalidIdResponse,
+} from '../../utils/auth-guards';
 import type { GroupEnv } from './types';
 
 export const exportApp = new Hono<GroupEnv>();
@@ -16,23 +22,13 @@ export const exportApp = new Hono<GroupEnv>();
 exportApp.get('/:id/export', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  if (!(await getMembership(db, groupId, userId))) return notMemberResponse(c);
 
   const [group] = await db
     .select({ name: groups.name, currency: groups.currency })

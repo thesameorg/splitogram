@@ -9,6 +9,13 @@ import { notify } from '../../services/notifications';
 import { logActivity } from '../../services/activity';
 import { reclaimDeletionDummy } from '../../services/deletion-reclaim';
 import { makeNotifyCtx } from '../../utils/notify-ctx';
+import {
+  getMembership,
+  getMembershipRole,
+  notMemberResponse,
+  parseIntParam,
+  invalidIdResponse,
+} from '../../utils/auth-guards';
 import { generateInviteCode } from './core';
 import type { GroupEnv } from './types';
 
@@ -18,23 +25,14 @@ export const membershipApp = new Hono<GroupEnv>();
 membershipApp.post('/:id/leave', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, userId);
+  if (!membership) return notMemberResponse(c);
 
   if (membership.role === 'admin') {
     return c.json(
@@ -77,25 +75,15 @@ membershipApp.post('/:id/leave', async (c) => {
 membershipApp.delete('/:id/members/:userId', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
-  const targetUserId = parseInt(c.req.param('userId'), 10);
+  const groupId = parseIntParam(c, 'id');
+  const targetUserId = parseIntParam(c, 'userId');
 
-  if (isNaN(groupId) || isNaN(targetUserId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
-  }
+  if (!groupId || !targetUserId) return invalidIdResponse(c);
 
   const userId = session.userId;
 
-  // Check caller is admin
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  const membership = await getMembershipRole(db, groupId, userId);
+  if (!membership) return notMemberResponse(c);
 
   if (membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can kick members' }, 403);
@@ -189,12 +177,10 @@ const joinGroupSchema = z.object({
 membershipApp.post('/:id/join', zValidator('json', joinGroupSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
   const { inviteCode } = c.req.valid('json');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
@@ -303,22 +289,14 @@ const transferAdminSchema = z.object({
 membershipApp.post('/:id/transfer-admin', zValidator('json', transferAdminSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
   const { newAdminUserId } = c.req.valid('json');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  // Check caller is admin
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
+  const membership = await getMembershipRole(db, groupId, userId);
   if (!membership || membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can transfer admin role' }, 403);
   }
@@ -368,25 +346,14 @@ const reminderSchema = z.object({
 membershipApp.post('/:id/reminders', zValidator('json', reminderSchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
   const { toUserId } = c.req.valid('json');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const userId = session.userId;
 
-  // Check membership
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  if (!(await getMembership(db, groupId, userId))) return notMemberResponse(c);
 
   // Verify user is the creditor in the debt graph
   const netBalances = await computeGroupBalances(db, groupId);

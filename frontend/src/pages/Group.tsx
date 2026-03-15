@@ -28,9 +28,9 @@ import { ImageViewer } from '../components/ImageViewer';
 import { DonutChart } from '../components/DonutChart';
 import { MonthSelector } from '../components/MonthSelector';
 import { ErrorBanner } from '../components/ErrorBanner';
-import { IconCheck, IconTon } from '../icons';
+import { IconCheck, IconTon, IconUserPlus, IconSettings, IconInfo } from '../icons';
 import { openExternalLink } from '../utils/links';
-import { getActivityText } from './Activity';
+import { getActivityText } from '../utils/activity';
 
 export function Group() {
   const { id } = useParams<{ id: string }>();
@@ -481,54 +481,14 @@ export function Group() {
               className="p-1.5 border border-tg-link rounded-lg text-tg-link"
               aria-label={t('group.invite')}
             >
-              <svg
-                className="w-5 h-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="8.5" cy="7" r="4" />
-                <line x1="20" y1="8" x2="20" y2="14" />
-                <line x1="23" y1="11" x2="17" y2="11" />
-              </svg>
+              <IconUserPlus size={20} />
             </button>
             <button
               onClick={() => navigate(`/groups/${groupId}/settings`)}
               className="p-1.5 border rounded-lg text-tg-link border-tg-link"
               aria-label={currentUserRole === 'admin' ? t('group.settings') : t('group.info')}
             >
-              {currentUserRole === 'admin' ? (
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="16" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-              )}
+              {currentUserRole === 'admin' ? <IconSettings size={20} /> : <IconInfo size={20} />}
             </button>
           </div>
         </div>

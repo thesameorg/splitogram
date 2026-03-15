@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, type SettlementDetail } from '../services/api';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
+import { useSettlement } from '../hooks/useSettlement';
 import { formatAmount } from '../utils/format';
 import { getCurrency } from '../utils/currencies';
 import {
@@ -16,7 +17,7 @@ import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ImageViewer } from '../components/ImageViewer';
-import { IconTon } from '../icons';
+import { IconTon, IconCheck, IconExternalLink } from '../icons';
 import { openExternalLink } from '../utils/links';
 
 export function SettleManual() {
@@ -25,11 +26,9 @@ export function SettleManual() {
   const { t } = useTranslation();
   const settlementId = parseInt(id ?? '', 10);
 
-  const [settlement, setSettlement] = useState<SettlementDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { settlement, setSettlement, loading, error, setError, amountStr, setAmountStr } =
+    useSettlement(settlementId);
   const [comment, setComment] = useState('');
-  const [amountStr, setAmountStr] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
@@ -40,27 +39,6 @@ export function SettleManual() {
 
   const backPath = settlement ? `/groups/${settlement.groupId}?tab=balances` : undefined;
   useTelegramBackButton(true, backPath);
-
-  useEffect(() => {
-    if (isNaN(settlementId)) return;
-    api
-      .getSettlement(settlementId)
-      .then((data) => {
-        setSettlement(data);
-        const currency = getCurrency(data.currency);
-        const display = data.amount / 1_000_000;
-        setAmountStr(
-          currency.decimals === 0
-            ? String(Math.round(display))
-            : display.toFixed(currency.decimals),
-        );
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [settlementId]);
 
   const isDebtor = settlement?.currentUserId === settlement?.fromUser;
   const isCreditor = settlement?.currentUserId === settlement?.toUser;
@@ -160,17 +138,7 @@ export function SettleManual() {
             {settlement.status === 'settled_onchain' ? (
               <IconTon size={16} className="text-app-positive" />
             ) : (
-              <svg
-                className="w-4 h-4 text-app-positive"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+              <IconCheck size={16} className="text-app-positive" />
             )}
             <span className="text-app-positive font-medium text-lg">{t('settleUp.settled')}</span>
           </div>
@@ -315,19 +283,7 @@ export function SettleManual() {
                   className="flex items-center justify-center gap-1.5 text-tg-link text-sm font-medium"
                 >
                   {t('settlement.openPaymentLink')}
-                  <svg
-                    className="w-3.5 h-3.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
+                  <IconExternalLink size={14} />
                 </a>
               )}
             </div>
@@ -407,19 +363,7 @@ function SettledOnchainDetails({
             >
               <IconTon size={12} />
               {t('settlement.viewTransaction')}
-              <svg
-                className="w-3 h-3"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" y1="14" x2="21" y2="3" />
-              </svg>
+              <IconExternalLink size={12} />
             </button>
           ) : (
             <div className="text-xs text-tg-hint">TX: {settlement.txHash.slice(0, 16)}...</div>

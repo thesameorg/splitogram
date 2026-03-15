@@ -7,7 +7,13 @@ import { simplifyDebts } from '../services/debt-solver';
 import { computeGroupBalances, refreshGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
-import { generateR2Key, safeR2Delete, validateUpload } from '../utils/r2';
+import { safeR2Delete, uploadReceiptPair } from '../utils/r2';
+import {
+  getMembership,
+  notMemberResponse,
+  parseIntParam,
+  invalidIdResponse,
+} from '../utils/auth-guards';
 import { getExchangeRates, convertToMicroUsdt } from '../services/exchange-rates';
 import type { Database } from '../db';
 import type { AuthContext } from '../middleware/auth';
@@ -44,12 +50,10 @@ settlementsApp.post(
   async (c) => {
     const db = c.get('db');
     const session = c.get('session');
-    const groupId = parseInt(c.req.param('id'), 10);
+    const groupId = parseIntParam(c, 'id');
     const { fromUserId, toUserId } = c.req.valid('json');
 
-    if (isNaN(groupId)) {
-      return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-    }
+    if (!groupId) return invalidIdResponse(c, 'group ID');
 
     const currentUserId = session.userId;
 
@@ -58,16 +62,7 @@ settlementsApp.post(
       return c.json({ error: 'not_involved', detail: 'You must be the debtor or creditor' }, 403);
     }
 
-    // Check membership
-    const [membership] = await db
-      .select()
-      .from(groupMembers)
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-      .limit(1);
-
-    if (!membership) {
-      return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-    }
+    if (!(await getMembership(db, groupId, currentUserId))) return notMemberResponse(c);
 
     // Compute current debt graph and find the specific debt
     const netBalances = await computeGroupBalances(db, groupId);
@@ -121,27 +116,16 @@ settlementsApp.post(
 settlementsApp.get('/groups/:id/settlements', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const limit = Math.min(parseInt(c.req.query('limit') ?? '50', 10) || 50, 100);
   const offset = parseInt(c.req.query('offset') ?? '0', 10) || 0;
 
-  // Check membership
   const currentUserId = session.userId;
 
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  if (!(await getMembership(db, groupId, currentUserId))) return notMemberResponse(c);
 
   // Fetch completed + pending settlements
   const rows = await db
@@ -194,11 +178,9 @@ settlementsApp.get('/groups/:id/settlements', async (c) => {
 settlementsApp.get('/settlements/:id', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const settlementId = parseInt(c.req.param('id'), 10);
+  const settlementId = parseIntParam(c, 'id');
 
-  if (isNaN(settlementId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-  }
+  if (!settlementId) return invalidIdResponse(c, 'settlement ID');
 
   const currentUserId = session.userId;
 
@@ -267,13 +249,11 @@ settlementsApp.get('/settlements/:id', async (c) => {
 settlementsApp.get('/settlements/:id/tx', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const settlementId = parseInt(c.req.param('id'), 10);
+  const settlementId = parseIntParam(c, 'id');
   const senderAddress = c.req.query('senderAddress');
   const customAmountStr = c.req.query('amount');
 
-  if (isNaN(settlementId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-  }
+  if (!settlementId) return invalidIdResponse(c, 'settlement ID');
 
   if (!senderAddress) {
     return c.json({ error: 'missing_param', detail: 'senderAddress query param required' }, 400);
@@ -557,12 +537,10 @@ const verifySchema = z.object({
 settlementsApp.post('/settlements/:id/verify', zValidator('json', verifySchema), async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const settlementId = parseInt(c.req.param('id'), 10);
+  const settlementId = parseIntParam(c, 'id');
   const { boc, amount: customAmount } = c.req.valid('json');
 
-  if (isNaN(settlementId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-  }
+  if (!settlementId) return invalidIdResponse(c, 'settlement ID');
 
   const currentUserId = session.userId;
 
@@ -659,11 +637,9 @@ settlementsApp.post(
   async (c) => {
     const db = c.get('db');
     const session = c.get('session');
-    const settlementId = parseInt(c.req.param('id'), 10);
+    const settlementId = parseIntParam(c, 'id');
 
-    if (isNaN(settlementId)) {
-      return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-    }
+    if (!settlementId) return invalidIdResponse(c, 'settlement ID');
 
     const body = c.req.valid('json');
     const userTxHash = body?.txHash ? parseTxHash(body.txHash) : undefined;
@@ -865,11 +841,9 @@ settlementsApp.post(
 settlementsApp.post('/settlements/:id/cancel', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const settlementId = parseInt(c.req.param('id'), 10);
+  const settlementId = parseIntParam(c, 'id');
 
-  if (isNaN(settlementId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-  }
+  if (!settlementId) return invalidIdResponse(c, 'settlement ID');
 
   const [settlement] = await db
     .select()
@@ -925,12 +899,10 @@ settlementsApp.post(
   async (c) => {
     const db = c.get('db');
     const session = c.get('session');
-    const settlementId = parseInt(c.req.param('id'), 10);
+    const settlementId = parseIntParam(c, 'id');
     const { comment, amount: customAmount } = c.req.valid('json');
 
-    if (isNaN(settlementId)) {
-      return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-    }
+    if (!settlementId) return invalidIdResponse(c, 'settlement ID');
 
     const currentUserId = session.userId;
 
@@ -1018,11 +990,9 @@ settlementsApp.post(
 settlementsApp.post('/settlements/:id/receipt', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const settlementId = parseInt(c.req.param('id'), 10);
+  const settlementId = parseIntParam(c, 'id');
 
-  if (isNaN(settlementId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-  }
+  if (!settlementId) return invalidIdResponse(c, 'settlement ID');
 
   const currentUserId = session.userId;
 
@@ -1044,33 +1014,17 @@ settlementsApp.post('/settlements/:id/receipt', async (c) => {
   }
 
   const body = await c.req.parseBody();
-  const receipt = body['receipt'];
-  const thumbnail = body['thumbnail'];
-
-  if (!(receipt instanceof File)) {
-    return c.json({ error: 'missing_file', detail: 'No receipt file provided' }, 400);
-  }
-
-  const validationError = validateUpload(receipt);
-  if (validationError) {
-    return c.json({ error: 'invalid_file', detail: validationError }, 400);
-  }
-
-  const receiptKey = generateR2Key('receipts', settlementId);
-  await c.env.IMAGES.put(receiptKey, await receipt.arrayBuffer(), {
-    httpMetadata: { contentType: 'image/jpeg' },
-  });
-
-  // Upload thumbnail if provided (validate to prevent oversized uploads)
-  let thumbKey: string | null = null;
-  if (thumbnail instanceof File) {
-    const thumbError = validateUpload(thumbnail);
-    if (!thumbError) {
-      thumbKey = receiptKey.replace('.jpg', '-thumb.jpg');
-      await c.env.IMAGES.put(thumbKey, await thumbnail.arrayBuffer(), {
-        httpMetadata: { contentType: 'image/jpeg' },
-      });
-    }
+  const result = await uploadReceiptPair(
+    c.env.IMAGES,
+    settlementId,
+    body as Record<string, unknown>,
+  );
+  if ('error' in result) {
+    const isValidation = result.error.startsWith('Invalid') || result.error.startsWith('File');
+    return c.json(
+      { error: isValidation ? 'invalid_file' : 'missing_file', detail: result.error },
+      400,
+    );
   }
 
   // Delete old receipt from R2 (best-effort)
@@ -1083,21 +1037,19 @@ settlementsApp.post('/settlements/:id/receipt', async (c) => {
 
   await db
     .update(settlements)
-    .set({ receiptKey, receiptThumbKey: thumbKey })
+    .set({ receiptKey: result.receiptKey, receiptThumbKey: result.thumbKey })
     .where(eq(settlements.id, settlementId));
 
-  return c.json({ receiptKey, receiptThumbKey: thumbKey });
+  return c.json({ receiptKey: result.receiptKey, receiptThumbKey: result.thumbKey });
 });
 
 // --- Delete receipt from settlement ---
 settlementsApp.delete('/settlements/:id/receipt', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const settlementId = parseInt(c.req.param('id'), 10);
+  const settlementId = parseIntParam(c, 'id');
 
-  if (isNaN(settlementId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid settlement ID' }, 400);
-  }
+  if (!settlementId) return invalidIdResponse(c, 'settlement ID');
 
   const currentUserId = session.userId;
 

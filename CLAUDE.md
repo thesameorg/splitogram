@@ -129,7 +129,7 @@ backend/src/
 │   └── groups/           # Split into core.ts (CRUD/avatar), membership.ts (join/leave/kick/reminders), placeholders.ts, export.ts
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
 ├── services/             # telegram-auth, notifications, debt-solver, activity, moderation, exchange-rates, tonapi
-├── utils/                # currencies, format, commission, notify-ctx (re-export from @splitogram/shared), r2 (key gen, safe delete)
+├── utils/                # currencies, format, commission, notify-ctx, r2 (key gen, safe delete, receipt upload), auth-guards (membership checks, param parsing)
 ├── db/
 │   ├── index.ts          # Drizzle factory for D1
 │   └── schema.ts         # All table definitions
@@ -142,11 +142,11 @@ frontend/src/
 ├── locales/              # Translation JSON files (en, ru, es, hi, id, fa, pt, uk, de, it, vi)
 ├── services/api.ts       # Fetch wrapper with initData auth header
 ├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
-├── icons/                # SVG icon components (IconUsers, IconActivity, IconUser, IconCopy, IconCrown, IconCheck)
+├── icons/                # SVG icon components (IconUsers, IconActivity, IconUser, IconCopy, IconCrown, IconCheck, IconTon, IconStats, IconExternalLink, IconChevron, IconUserPlus, IconSettings, IconInfo)
 ├── contexts/             # UserContext (avatar/name/isAdmin state for BottomTabs + Account)
-├── utils/                # currencies, format, commission, time, share, transactions, image
+├── utils/                # currencies, format, commission, time, share, transactions, image, activity (getActivityText), ton (buildSettlementBody, formatUsdtAmount, formatTonAmount)
 ├── components/           # PageLayout, LoadingScreen, ErrorBanner, SuccessBanner, BottomSheet, AppLayout, BottomTabs, CurrencyPicker, Avatar, DonutChart, MonthSelector
-└── hooks/                # useAuth, useCurrentUser, useTelegramBackButton, useTelegramMainButton
+└── hooks/                # useAuth, useCurrentUser, useSettlement, useTelegramBackButton, useTelegramMainButton
 
 contracts/splitogram-contract/    # Separate npm project (not Bun workspace)
 ├── contracts/SplitogramSettlement.tact  # Settlement contract (Tact)
@@ -321,6 +321,12 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - **Versioning** — Git commit hash injected at build time via Vite `define` (`__APP_VERSION__`). Displayed as subtle `v{hash}` footer on Account page.
 - **Security headers** — HSTS on both Pages (`frontend/public/_headers`) and Worker (Hono middleware in `index.ts`). CSP on Pages only (Worker serves JSON, not HTML). CSP allows: scripts from `telegram.org`, `tganalytics.xyz`, `umami.dksg.qzz.io`; connections/images from both custom domains (`splitogram.dksg.qzz.io`, `splitogram-worker.dksg.qzz.io`) and CF native URLs (`splitogram.pages.dev`, `*.workers.dev`), plus TONAPI; `frame-ancestors` restricted to `web.telegram.org` + `t.me` (Mini App iframe embedding only).
 - **Usertour** — `usertour.js` SDK for user onboarding flows (tooltips, checklists, tours). Initialized client-side in `App.tsx` after auth + profile fetch. Environment token via `VITE_USERTOUR_TOKEN`. Users identified by internal DB ID with `telegram_id`, `username`, synthetic `email` (`id{telegramId}@t.me`), and `signed_up_at` (new users only) as attributes. Tours/flows configured in Usertour dashboard.
+- **Auth guards** — `backend/src/utils/auth-guards.ts` provides `getMembership(db, groupId, userId)`, `getMembershipRole(db, groupId, userId)`, `notMemberResponse(c)`, `parseIntParam(c, name)`, and `invalidIdResponse(c)`. All route handlers use these instead of inline membership checks and parseInt/isNaN guards.
+- **Receipt upload** — `uploadReceiptPair(bucket, entityId, body)` in `utils/r2.ts` handles receipt + optional thumbnail upload with correct `contentType` from the file. Used by both expense and settlement receipt endpoints.
+- **SVG icons** — All reusable icons live in `frontend/src/icons/` as components (Lucide-style, `currentColor`, configurable `size`/`className`). Never inline SVGs in pages — extract to the icon system.
+- **useSettlement hook** — `frontend/src/hooks/useSettlement.ts` encapsulates settlement fetch + amount parsing. Shared by `SettleManual` and `SettleCrypto`.
+- **getActivityText** — Lives in `frontend/src/utils/activity.ts` (not in a page component). Imported by both `Activity.tsx` and `Group.tsx`.
+- **USDT/TON formatting** — `formatUsdtAmount`, `formatUsdtCommission`, `formatTonAmount` live in `frontend/src/utils/ton.ts`. Shared by both settle pages.
 
 ## Code Style
 

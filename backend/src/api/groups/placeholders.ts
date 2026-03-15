@@ -14,6 +14,13 @@ import {
 } from '../../db/schema';
 import { computeGroupBalances, refreshGroupBalances } from '../balances';
 import { logActivity } from '../../services/activity';
+import {
+  getMembership,
+  getMembershipRole,
+  notMemberResponse,
+  parseIntParam,
+  invalidIdResponse,
+} from '../../utils/auth-guards';
 import type { GroupEnv } from './types';
 
 export const placeholdersApp = new Hono<GroupEnv>();
@@ -34,22 +41,14 @@ placeholdersApp.post(
   async (c) => {
     const db = c.get('db');
     const session = c.get('session');
-    const groupId = parseInt(c.req.param('id'), 10);
+    const groupId = parseIntParam(c, 'id');
     const { name } = c.req.valid('json');
 
-    if (isNaN(groupId)) {
-      return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-    }
+    if (!groupId) return invalidIdResponse(c, 'group ID');
 
     const userId = session.userId;
 
-    // Admin only
-    const [membership] = await db
-      .select({ role: groupMembers.role })
-      .from(groupMembers)
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-      .limit(1);
-
+    const membership = await getMembershipRole(db, groupId, userId);
     if (!membership || membership.role !== 'admin') {
       return c.json(
         { error: 'not_admin', detail: 'Only group admins can add placeholder members' },
@@ -105,22 +104,15 @@ placeholdersApp.put(
   async (c) => {
     const db = c.get('db');
     const session = c.get('session');
-    const groupId = parseInt(c.req.param('id'), 10);
-    const targetUserId = parseInt(c.req.param('userId'), 10);
+    const groupId = parseIntParam(c, 'id');
+    const targetUserId = parseIntParam(c, 'userId');
     const { name } = c.req.valid('json');
 
-    if (isNaN(groupId) || isNaN(targetUserId)) {
-      return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
-    }
+    if (!groupId || !targetUserId) return invalidIdResponse(c);
 
     const userId = session.userId;
 
-    const [membership] = await db
-      .select({ role: groupMembers.role })
-      .from(groupMembers)
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-      .limit(1);
-
+    const membership = await getMembershipRole(db, groupId, userId);
     if (!membership || membership.role !== 'admin') {
       return c.json({ error: 'not_admin', detail: 'Only group admins can edit placeholders' }, 403);
     }
@@ -155,21 +147,14 @@ placeholdersApp.put(
 placeholdersApp.delete('/:id/placeholders/:userId', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id'), 10);
-  const targetUserId = parseInt(c.req.param('userId'), 10);
+  const groupId = parseIntParam(c, 'id');
+  const targetUserId = parseIntParam(c, 'userId');
 
-  if (isNaN(groupId) || isNaN(targetUserId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid ID' }, 400);
-  }
+  if (!groupId || !targetUserId) return invalidIdResponse(c);
 
   const userId = session.userId;
 
-  const [membership] = await db
-    .select({ role: groupMembers.role })
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-    .limit(1);
-
+  const membership = await getMembershipRole(db, groupId, userId);
   if (!membership || membership.role !== 'admin') {
     return c.json({ error: 'not_admin', detail: 'Only group admins can remove placeholders' }, 403);
   }
@@ -224,25 +209,15 @@ placeholdersApp.post(
   async (c) => {
     const db = c.get('db');
     const session = c.get('session');
-    const groupId = parseInt(c.req.param('id'), 10);
+    const groupId = parseIntParam(c, 'id');
     const { dummyUserId } = c.req.valid('json');
 
-    if (isNaN(groupId)) {
-      return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-    }
+    if (!groupId) return invalidIdResponse(c, 'group ID');
 
     const userId = session.userId;
 
-    // Verify caller is a member of this group
-    const [callerMembership] = await db
-      .select()
-      .from(groupMembers)
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)))
-      .limit(1);
-
-    if (!callerMembership) {
-      return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-    }
+    const callerMembership = await getMembership(db, groupId, userId);
+    if (!callerMembership) return notMemberResponse(c);
 
     if (callerMembership.role === 'admin') {
       return c.json(

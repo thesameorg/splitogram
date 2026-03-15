@@ -2,6 +2,12 @@ import { Hono } from 'hono';
 import { eq, and, sql } from 'drizzle-orm';
 import { expenses, expenseParticipants, settlements, groupMembers, users } from '../db/schema';
 import { simplifyDebts } from '../services/debt-solver';
+import {
+  getMembership,
+  notMemberResponse,
+  parseIntParam,
+  invalidIdResponse,
+} from '../utils/auth-guards';
 import type { Database } from '../db';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -14,24 +20,13 @@ const balancesApp = new Hono<BalanceEnv>();
 balancesApp.get('/', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const currentUserId = session.userId;
 
-  // Check membership
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  if (!(await getMembership(db, groupId, currentUserId))) return notMemberResponse(c);
 
   // Read cached net balances from group_members
   const memberDetails = await db
@@ -83,23 +78,13 @@ balancesApp.get('/', async (c) => {
 balancesApp.get('/me', async (c) => {
   const db = c.get('db');
   const session = c.get('session');
-  const groupId = parseInt(c.req.param('id') ?? '', 10);
+  const groupId = parseIntParam(c, 'id');
 
-  if (isNaN(groupId)) {
-    return c.json({ error: 'invalid_id', detail: 'Invalid group ID' }, 400);
-  }
+  if (!groupId) return invalidIdResponse(c, 'group ID');
 
   const currentUserId = session.userId;
 
-  const [membership] = await db
-    .select()
-    .from(groupMembers)
-    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, currentUserId)))
-    .limit(1);
-
-  if (!membership) {
-    return c.json({ error: 'not_member', detail: 'You are not a member of this group' }, 403);
-  }
+  if (!(await getMembership(db, groupId, currentUserId))) return notMemberResponse(c);
 
   // Read cached net balances from group_members
   const members = await db

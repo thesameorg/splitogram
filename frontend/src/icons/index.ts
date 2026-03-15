@@ -6,3 +6,8 @@ export { IconCrown } from './IconCrown';
 export { IconCheck } from './IconCheck';
 export { IconStats } from './IconStats';
 export { IconTon } from './IconTon';
+export { IconExternalLink } from './IconExternalLink';
+export { IconChevron } from './IconChevron';
+export { IconUserPlus } from './IconUserPlus';
+export { IconSettings } from './IconSettings';
+export { IconInfo } from './IconInfo';
