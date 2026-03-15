@@ -64,9 +64,7 @@ export function LanguagePickerModal({ onDone }: { onDone: () => void }) {
             >
               <span className="text-xl">{lang.flag}</span>
               <span className="font-medium flex-1 text-tg-text">{lang.name}</span>
-              {selected === lang.code && (
-                <span className="text-tg-link font-bold">&#10003;</span>
-              )}
+              {selected === lang.code && <span className="text-tg-link font-bold">&#10003;</span>}
             </button>
           ))}
         </div>

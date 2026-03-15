@@ -107,10 +107,7 @@ export function PaymentInfoSection({
                 >
                   {t('account.changePaymentQr')}
                 </button>
-                <button
-                  onClick={onQrDelete}
-                  className="text-tg-destructive text-sm font-medium"
-                >
+                <button onClick={onQrDelete} className="text-tg-destructive text-sm font-medium">
                   {t('account.removePaymentQr')}
                 </button>
               </div>

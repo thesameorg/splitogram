@@ -8,7 +8,8 @@ export function shareInviteLink(inviteCode: string, groupName: string, memberCou
 
   const webApp = window.Telegram?.WebApp;
   if (webApp?.openTelegramLink) {
-    const memberInfo = memberCount && memberCount > 1 ? `\n${memberCount} people already splitting` : '';
+    const memberInfo =
+      memberCount && memberCount > 1 ? `\n${memberCount} people already splitting` : '';
     const text = encodeURIComponent(
       `Join "${groupName}" on Splitogram — split expenses & settle up instantly 💸${memberInfo}`,
     );

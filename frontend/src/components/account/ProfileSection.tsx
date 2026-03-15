@@ -55,10 +55,7 @@ export function ProfileSection({
             {user?.avatarKey ? t('account.changePhoto') : t('account.addPhoto')}
           </button>
           {user?.avatarKey && (
-            <button
-              onClick={onAvatarDelete}
-              className="text-tg-destructive text-sm font-medium"
-            >
+            <button onClick={onAvatarDelete} className="text-tg-destructive text-sm font-medium">
               {t('account.removePhoto')}
             </button>
           )}

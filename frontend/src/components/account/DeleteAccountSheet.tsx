@@ -72,9 +72,7 @@ export function DeleteAccountSheet({
 
         {deleteStep === 'groups' && (
           <>
-            <p className="text-sm text-tg-hint font-medium">
-              {t('account.deleteGroupsSubtitle')}
-            </p>
+            <p className="text-sm text-tg-hint font-medium">{t('account.deleteGroupsSubtitle')}</p>
 
             <div className="space-y-3">
               {preflightGroups.map((group) => {
