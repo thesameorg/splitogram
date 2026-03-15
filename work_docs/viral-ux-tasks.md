@@ -2,14 +2,14 @@
 
 Analysis of `viral-ux-plan.md` tasks against current codebase. Estimates based on actual code structure.
 
-## Phase A — Quick Wins (Low invasiveness, no DB changes)
+## Phase A — Quick Wins (Low invasiveness, no DB changes) ✅ DONE
 
-| #   | Task                             | SP  | Decompose? | Key Files                                                  |
-| --- | -------------------------------- | --- | ---------- | ---------------------------------------------------------- |
-| 2   | Better bot reply on join         | 1   | No         | `webhook.ts`, `notifications.ts`                           |
-| 1   | Post-creation invite nudge       | 2   | No         | `Home.tsx`, `Group.tsx`                                    |
-| 3   | Better share text (member count) | 2   | No         | `share.ts`, `api/groups.ts`                                |
-| 4   | First-time user welcome          | 2   | No         | `Group.tsx` (piggybacks on existing `?joined=1` detection) |
+| #   | Task                             | SP  | Status | Changes                                                                                      |
+| --- | -------------------------------- | --- | ------ | -------------------------------------------------------------------------------------------- |
+| 1   | Post-creation invite nudge       | 2   | ✅     | Auto-opens TG share dialog on `?created=1`. Nudge card as fallback. Empty state shows invite. |
+| 2   | Better bot reply on join         | 1   | ✅     | Join notification includes member count ("— N members now").                                  |
+| 3   | Better share text (member count) | 2   | ✅     | Emoji, concise copy, member count on new line (2+ only).                                      |
+| 4   | First-time user welcome          | 2   | ✅     | FAB pulses when `showWelcomeBanner` active. Banner simplified (FAB is CTA).                   |
 
 ## Phase B — Engagement & Social Pressure
 

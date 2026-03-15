@@ -157,7 +157,7 @@ export const notify = {
     group: { id: number; name: string },
   ): Promise<void> {
     const api = createApi(ctx);
-    const text = `<b>${newMember.displayName}</b> joined <b>${group.name}</b>`;
+    const text = `<b>${newMember.displayName}</b> joined <b>${group.name}</b> \u2014 ${existingMembers.length + 1} members now`;
 
     const keyboard = [
       [{ text: 'Open Group', web_app: { url: `${ctx.pagesUrl}/groups/${group.id}` } }],

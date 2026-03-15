@@ -200,11 +200,13 @@ export function Group() {
     setSearchParams({}, { replace: true });
   }, [group, currentUserId, searchParams, setSearchParams]);
 
-  // Show invite nudge when group was just created (via ?created=1 param)
+  // Auto-open share dialog when group was just created (via ?created=1 param)
   useEffect(() => {
     if (!group || searchParams.get('created') !== '1') return;
     setShowInviteNudge(true);
     setSearchParams({}, { replace: true });
+    // Auto-open Telegram share dialog — zero taps to invite
+    shareInviteLink(group.inviteCode, group.name, group.members.length);
   }, [group, searchParams, setSearchParams]);
 
   function canEditExpense(exp: Expense): boolean {
@@ -568,15 +570,13 @@ export function Group() {
       {/* Welcome banner — shown when user just joined */}
       {showWelcomeBanner && !showInviteNudge && (
         <div className="mb-4 bg-app-positive-bg p-4 rounded-xl border border-app-positive/20">
-          <p className="text-sm font-medium text-app-positive mb-2">{t('group.welcomeBanner')}</p>
+          <p className="text-sm font-medium text-app-positive">{t('group.welcomeBanner')}</p>
           <button
-            onClick={() => {
-              setShowWelcomeBanner(false);
-              navigate(`/groups/${groupId}/add-expense`);
-            }}
-            className="bg-tg-button text-tg-button-text py-2 px-4 rounded-lg text-sm font-medium animate-pulse"
+            onClick={() => setShowWelcomeBanner(false)}
+            className="mt-1 text-xs text-tg-hint"
+            aria-label="Dismiss"
           >
-            {t('group.addExpense')}
+            {t('group.inviteNudgeLater')}
           </button>
         </div>
       )}
@@ -609,7 +609,19 @@ export function Group() {
       {tab === 'transactions' && (
         <div className="space-y-3">
           {transactions.length === 0 ? (
-            <p className="text-center text-tg-hint py-8">{t('group.noTransactions')}</p>
+            <div className="text-center py-8">
+              <p className="text-tg-hint mb-3">{t('group.noTransactions')}</p>
+              {group.members.length <= 1 && (
+                <button
+                  onClick={() =>
+                    shareInviteLink(group.inviteCode, group.name, group.members.length)
+                  }
+                  className="text-sm text-tg-link font-medium"
+                >
+                  {t('group.inviteNudgeButton')}
+                </button>
+              )}
+            </div>
           ) : (
             <>
               {transactions.map((tx) =>
@@ -940,7 +952,7 @@ export function Group() {
       {tab === 'transactions' && (
         <button
           onClick={() => navigate(`/groups/${groupId}/add-expense`)}
-          className="fixed bottom-20 right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium"
+          className={`fixed bottom-20 right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium ${showWelcomeBanner ? 'animate-pulse' : ''}`}
         >
           {t('group.addExpense')}
         </button>

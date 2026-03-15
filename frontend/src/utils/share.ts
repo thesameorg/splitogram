@@ -8,9 +8,9 @@ export function shareInviteLink(inviteCode: string, groupName: string, memberCou
 
   const webApp = window.Telegram?.WebApp;
   if (webApp?.openTelegramLink) {
-    const memberInfo = memberCount ? `${memberCount} people already splitting expenses. ` : '';
+    const memberInfo = memberCount && memberCount > 1 ? `\n${memberCount} people already splitting` : '';
     const text = encodeURIComponent(
-      `Join "${groupName}" on Splitogram — split expenses and settle up instantly! ${memberInfo}`,
+      `Join "${groupName}" on Splitogram — split expenses & settle up instantly 💸${memberInfo}`,
     );
     webApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`);
   } else {
