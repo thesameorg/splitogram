@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { hapticImpact } from '../utils/haptic';
 
-export function useTelegramBackButton(show: boolean = true) {
+export function useTelegramBackButton(show: boolean = true, backPath?: string) {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,7 +14,11 @@ export function useTelegramBackButton(show: boolean = true) {
       backButton.show();
       const handler = () => {
         hapticImpact('light');
-        navigate(-1);
+        if (backPath) {
+          navigate(backPath, { replace: true });
+        } else {
+          navigate(-1);
+        }
       };
       backButton.onClick(handler);
       return () => {
@@ -24,5 +28,5 @@ export function useTelegramBackButton(show: boolean = true) {
     } else {
       backButton.hide();
     }
-  }, [show, navigate]);
+  }, [show, navigate, backPath]);
 }

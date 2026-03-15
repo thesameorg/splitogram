@@ -10,9 +10,7 @@ export function formatAmount(microAmount: number, currencyCode: string = 'USD'):
   const currency = getCurrency(currencyCode);
   const amount = microAmount / 1_000_000;
   const numStr =
-    currency.decimals === 0
-      ? Math.round(amount).toString()
-      : amount.toFixed(currency.decimals);
+    currency.decimals === 0 ? Math.round(amount).toString() : amount.toFixed(currency.decimals);
   return `${currency.symbol}${addThousandsSeparator(numStr)}`;
 }
 
@@ -24,7 +22,7 @@ export function formatSignedAmount(microAmount: number, currencyCode: string = '
   const absStr = addThousandsSeparator(
     currency.decimals === 0
       ? Math.round(Math.abs(amount)).toString()
-      : Math.abs(amount).toFixed(currency.decimals)
+      : Math.abs(amount).toFixed(currency.decimals),
   );
   return amount > 0 ? `+${currency.symbol}${absStr}` : `-${currency.symbol}${absStr}`;
 }

@@ -14,6 +14,7 @@ import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { IconTon } from '../icons';
+import { openExternalLink } from '../utils/links';
 
 const isTestnet = config.tonNetwork !== 'mainnet';
 
@@ -45,7 +46,8 @@ export function SettleCrypto() {
     openModal,
   } = useTonWallet();
 
-  useTelegramBackButton(true);
+  const backPath = settlement ? `/groups/${settlement.groupId}?tab=balances` : undefined;
+  useTelegramBackButton(true, backPath);
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -233,7 +235,10 @@ export function SettleCrypto() {
             prev ? { ...prev, status: 'settled_onchain', txHash: result.txHash ?? null } : prev,
           );
           setCryptoState('success');
-          setTimeout(() => navigate(-1), 2000);
+          setTimeout(
+            () => navigate(`/groups/${settlement!.groupId}?tab=balances`, { replace: true }),
+            2000,
+          );
         } else if (result.status === 'open') {
           if (pollingRef.current) clearInterval(pollingRef.current);
           console.log('[settlement:rolled-back]', { settlementId });
@@ -302,7 +307,10 @@ export function SettleCrypto() {
           prev ? { ...prev, status: 'settled_onchain', txHash: result.txHash ?? null } : prev,
         );
         setCryptoState('success');
-        setTimeout(() => navigate(-1), 2000);
+        setTimeout(
+          () => navigate(`/groups/${settlement!.groupId}?tab=balances`, { replace: true }),
+          2000,
+        );
       } else {
         setCryptoError(t('settlement.txNotFound'));
         setCryptoState('error');
@@ -352,6 +360,9 @@ export function SettleCrypto() {
       : null;
 
   const gasAttachDisplay = txParams ? formatTonAmount(Number(txParams.gasAttach)) : null;
+  const estimatedGasBurnDisplay = txParams?.estimatedGasBurn
+    ? formatTonAmount(Number(txParams.estimatedGasBurn))
+    : null;
 
   return (
     <PageLayout>
@@ -401,10 +412,8 @@ export function SettleCrypto() {
             )}
             {settlement.txHash && settlement.explorerUrl && (
               <div className="pt-1">
-                <a
-                  href={settlement.explorerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={(e) => openExternalLink(settlement.explorerUrl!, e)}
                   className="inline-flex items-center gap-1.5 text-xs text-tg-link"
                 >
                   <IconTon size={12} />
@@ -422,7 +431,7 @@ export function SettleCrypto() {
                     <polyline points="15 3 21 3 21 9" />
                     <line x1="10" y1="14" x2="21" y2="3" />
                   </svg>
-                </a>
+                </button>
               </div>
             )}
           </div>
@@ -444,6 +453,7 @@ export function SettleCrypto() {
           conversionNote={conversionNote}
           recipientName={settlement.to?.displayName ?? ''}
           gasAttachDisplay={gasAttachDisplay}
+          estimatedGasBurnDisplay={estimatedGasBurnDisplay}
           walletUninit={txParams?.walletUninit ?? false}
           isTestnet={isTestnet}
           pollElapsed={pollElapsed}
@@ -479,6 +489,7 @@ function CryptoSettlementUI({
   commission,
   conversionNote,
   gasAttachDisplay,
+  estimatedGasBurnDisplay,
   walletUninit,
   recipientName,
   isTestnet: testnet,
@@ -507,6 +518,7 @@ function CryptoSettlementUI({
   commission: string;
   conversionNote: string | null;
   gasAttachDisplay: string | null;
+  estimatedGasBurnDisplay: string | null;
   walletUninit: boolean;
   recipientName: string;
   isTestnet: boolean;
@@ -539,6 +551,11 @@ function CryptoSettlementUI({
         <div className="text-app-positive/70 text-sm">
           {usdtAmount} USDT &rarr; {recipientName}
         </div>
+        {estimatedGasBurnDisplay && (
+          <div className="text-app-positive/50 text-xs mt-2">
+            {t('settlement.gasBurntResult', { amount: estimatedGasBurnDisplay })}
+          </div>
+        )}
       </div>
     );
   }
@@ -555,15 +572,13 @@ function CryptoSettlementUI({
           {t('settlement.confirmingElapsed', { seconds: String(elapsedSec) })}
         </div>
         {senderAddr && (
-          <a
-            href={`${viewerBase}/${senderAddr}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={(e) => openExternalLink(`${viewerBase}/${senderAddr}`, e)}
             className="inline-flex items-center gap-1 text-xs text-tg-link mt-2"
           >
             <IconTon size={10} />
             {t('settlement.viewWalletTxns')}
-          </a>
+          </button>
         )}
         {canCancel && (
           <button onClick={onCancel} className="mt-3 text-sm text-tg-destructive">
@@ -611,12 +626,18 @@ function CryptoSettlementUI({
         </div>
 
         {gasAttachDisplay && (
-          <div className="text-xs bg-tg-secondary-bg px-3 py-2 rounded-lg">
+          <div className="text-xs bg-tg-secondary-bg px-3 py-2 rounded-lg space-y-1">
+            {estimatedGasBurnDisplay && (
+              <div className="flex justify-between">
+                <span className="text-tg-hint">{t('settlement.gasBurnEstimate')}</span>
+                <span className="text-tg-hint">~{estimatedGasBurnDisplay} TON</span>
+              </div>
+            )}
             <div className="flex justify-between">
-              <span className="text-tg-hint">{t('settlement.lineGas')}</span>
+              <span className="text-tg-hint">{t('settlement.gasFreeze')}</span>
               <span className="text-tg-hint">~{gasAttachDisplay} TON</span>
             </div>
-            <div className="text-tg-hint/60 mt-1">{t('settlement.gasRefund')}</div>
+            <div className="text-tg-hint/60 mt-1">{t('settlement.gasFreezeNote')}</div>
             {walletUninit && (
               <div className="text-tg-hint/60 mt-0.5">{t('settlement.walletActivation')}</div>
             )}

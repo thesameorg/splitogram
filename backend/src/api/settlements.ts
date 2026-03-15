@@ -539,7 +539,8 @@ settlementsApp.get('/settlements/:id/tx', async (c) => {
     senderAddress,
     senderJettonWallet,
     usdtMasterAddress,
-    gasAttach: String(gasAttachRounded), // nanoTON
+    gasAttach: String(gasAttachRounded), // nanoTON — total attached (temporarily frozen, excess refunded)
+    estimatedGasBurn: String(estimatedFees + gasBuffer), // nanoTON — estimated actual gas consumption
     forwardTonAmount: String(FORWARD_TON), // nanoTON
     network, // "-3" testnet, "-239" mainnet
     walletUninit, // true if wallet never sent a tx (first tx deploys wallet contract)

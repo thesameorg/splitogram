@@ -17,6 +17,7 @@ import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ImageViewer } from '../components/ImageViewer';
 import { IconTon } from '../icons';
+import { openExternalLink } from '../utils/links';
 
 export function SettleManual() {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +38,8 @@ export function SettleManual() {
   const [paidAmountStr, setPaidAmountStr] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useTelegramBackButton(true);
+  const backPath = settlement ? `/groups/${settlement.groupId}?tab=balances` : undefined;
+  useTelegramBackButton(true, backPath);
 
   useEffect(() => {
     if (isNaN(settlementId)) return;
@@ -107,7 +109,10 @@ export function SettleManual() {
       setSettlement((prev) => (prev ? { ...prev, status: 'settled_external' as const } : prev));
       setPaidAmountStr(formatAmount(microAmount, settlement!.currency));
       setManualSuccess(true);
-      setTimeout(() => navigate(-1), 2000);
+      setTimeout(
+        () => navigate(`/groups/${settlement!.groupId}?tab=balances`, { replace: true }),
+        2000,
+      );
     } catch (err: any) {
       setError(err.message || 'Failed to mark as settled');
     } finally {
@@ -396,10 +401,8 @@ function SettledOnchainDetails({
       {settlement.txHash && (
         <div className="pt-1">
           {settlement.explorerUrl ? (
-            <a
-              href={settlement.explorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={(e) => openExternalLink(settlement.explorerUrl!, e)}
               className="inline-flex items-center gap-1.5 text-xs text-tg-link"
             >
               <IconTon size={12} />
@@ -417,7 +420,7 @@ function SettledOnchainDetails({
                 <polyline points="15 3 21 3 21 9" />
                 <line x1="10" y1="14" x2="21" y2="3" />
               </svg>
-            </a>
+            </button>
           ) : (
             <div className="text-xs text-tg-hint">TX: {settlement.txHash.slice(0, 16)}...</div>
           )}

@@ -29,6 +29,7 @@ import { DonutChart } from '../components/DonutChart';
 import { MonthSelector } from '../components/MonthSelector';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { IconCheck, IconTon } from '../icons';
+import { openExternalLink } from '../utils/links';
 import { getActivityText } from './Activity';
 
 export function Group() {
@@ -42,7 +43,12 @@ export function Group() {
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [debts, setDebts] = useState<DebtEntry[]>([]);
   const [balanceMembers, setBalanceMembers] = useState<BalanceMember[]>([]);
-  const [tab, setTab] = useState<'transactions' | 'balances' | 'feed' | 'stats'>('transactions');
+  const initialTab = (() => {
+    const t = searchParams.get('tab');
+    if (t === 'balances' || t === 'feed' || t === 'stats') return t;
+    return 'transactions' as const;
+  })();
+  const [tab, setTab] = useState<'transactions' | 'balances' | 'feed' | 'stats'>(initialTab);
   const [activityItems, setActivityItems] = useState<ActivityItem[]>([]);
   const [activityCursor, setActivityCursor] = useState<string | null>(null);
   const [activityLoading, setActivityLoading] = useState(false);
@@ -375,16 +381,13 @@ export function Group() {
         )}
         {settlement.status === 'settled_onchain' && settlement.explorerUrl && (
           <div className="mt-2 text-xs">
-            <a
-              href={settlement.explorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={(e) => openExternalLink(settlement.explorerUrl!, e)}
               className="inline-flex items-center gap-1 text-tg-link underline"
-              onClick={(e) => e.stopPropagation()}
             >
               <IconTon size={12} />
               {t('settlement.viewTransaction')}
-            </a>
+            </button>
           </div>
         )}
         {settlement.comment && (
@@ -642,16 +645,13 @@ export function Group() {
                     <span className="text-xs text-tg-hint">{timeAgo(item.createdAt)}</span>
                   </div>
                   {item.type === 'settlement_completed' && (item.metadata as any)?.explorerUrl && (
-                    <a
-                      href={(item.metadata as any).explorerUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={(e) => openExternalLink((item.metadata as any).explorerUrl, e)}
                       className="inline-flex items-center gap-0.5 text-xs text-tg-link shrink-0"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       <IconTon size={12} />
                       TX
-                    </a>
+                    </button>
                   )}
                   {item.amount != null && item.amount > 0 && (
                     <span className="text-sm font-medium text-tg-text shrink-0">
@@ -760,7 +760,7 @@ export function Group() {
                     )}
                   </div>
                   {/* Settle up actions — I owe this person */}
-                  {debtIOwe && (
+                  {debtIOwe && debtIOwe.amount > 0 && (
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => handleSettleUp(debtIOwe, 'ton')}
@@ -778,7 +778,7 @@ export function Group() {
                     </div>
                   )}
                   {/* Actions — this person owes me */}
-                  {debtOwesMe && (
+                  {debtOwesMe && debtOwesMe.amount > 0 && (
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => handleSettleUp(debtOwesMe, 'manual')}
@@ -1070,15 +1070,13 @@ export function Group() {
 
             {selectedSettlement.status === 'settled_onchain' && selectedSettlement.explorerUrl && (
               <div className="text-center">
-                <a
-                  href={selectedSettlement.explorerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={(e) => openExternalLink(selectedSettlement.explorerUrl!, e)}
                   className="inline-flex items-center gap-1 text-sm text-tg-link underline"
                 >
                   <IconTon size={14} />
                   {t('settlement.viewTransaction')}
-                </a>
+                </button>
               </div>
             )}
 

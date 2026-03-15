@@ -13,6 +13,7 @@ import { truncateAddress } from '../utils/ton';
 import { useTonWallet } from '../hooks/useTonWallet';
 import { useUser } from '../contexts/UserContext';
 import { config } from '../config';
+import { openExternalLink } from '../utils/links';
 
 declare const __APP_VERSION__: string;
 
@@ -774,7 +775,7 @@ export function Account() {
         <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.legal')}</label>
         <div className="bg-tg-section rounded-xl border border-tg-separator divide-y divide-tg-separator">
           <button
-            onClick={() => window.Telegram?.WebApp?.openLink(`${config.apiBaseUrl}/terms`)}
+            onClick={() => openExternalLink(`${config.apiBaseUrl}/terms`)}
             className="w-full flex justify-between items-center p-3 text-left"
           >
             <span className="font-medium">{t('account.termsOfService')}</span>
@@ -793,7 +794,7 @@ export function Account() {
             </svg>
           </button>
           <button
-            onClick={() => window.Telegram?.WebApp?.openLink(`${config.apiBaseUrl}/privacy`)}
+            onClick={() => openExternalLink(`${config.apiBaseUrl}/privacy`)}
             className="w-full flex justify-between items-center p-3 text-left"
           >
             <span className="font-medium">{t('account.privacyPolicy')}</span>

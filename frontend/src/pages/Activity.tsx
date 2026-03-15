@@ -8,6 +8,7 @@ import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { Avatar } from '../components/Avatar';
 import { IconTon } from '../icons';
+import { openExternalLink } from '../utils/links';
 
 function getActivityText(
   item: ActivityItem,
@@ -136,16 +137,13 @@ export function Activity() {
                 </div>
               </div>
               {item.type === 'settlement_completed' && (item.metadata as any)?.explorerUrl && (
-                <a
-                  href={(item.metadata as any).explorerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={(e) => openExternalLink((item.metadata as any).explorerUrl, e)}
                   className="inline-flex items-center gap-0.5 text-xs text-tg-link shrink-0"
-                  onClick={(e) => e.stopPropagation()}
                 >
                   <IconTon size={12} />
                   TX
-                </a>
+                </button>
               )}
               {item.amount != null && item.amount > 0 && (
                 <span className="text-sm font-medium text-tg-text shrink-0">
