@@ -7,29 +7,23 @@ import { ErrorBanner } from '../components/ErrorBanner';
 import { SuccessBanner } from '../components/SuccessBanner';
 import { BottomSheet } from '../components/BottomSheet';
 import { ImageViewer } from '../components/ImageViewer';
-import { Avatar } from '../components/Avatar';
-import { validateImageFile, processAvatar, processPaymentQr, imageUrl } from '../utils/image';
-import { truncateAddress } from '../utils/ton';
+import {
+  ProfileSection,
+  WalletSection,
+  PaymentInfoSection,
+  LinksSection,
+  DeleteAccountSheet,
+  FeedbackSheet,
+  DebugPanel,
+} from '../components/account';
+import { validateImageFile, processAvatar, processPaymentQr } from '../utils/image';
 import { useTonWallet } from '../hooks/useTonWallet';
+import { useSuccessMessage } from '../hooks/useSuccessMessage';
 import { useUser } from '../contexts/UserContext';
 import { config } from '../config';
-import { openExternalLink } from '../utils/links';
+import { LANGUAGES } from '../constants/languages';
 
 declare const __APP_VERSION__: string;
-
-const LANGUAGES = [
-  { code: 'en', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' },
-  { code: 'ru', flag: '\u{1F1F7}\u{1F1FA}', name: 'Русский' },
-  { code: 'es', flag: '\u{1F1EA}\u{1F1F8}', name: 'Español' },
-  { code: 'hi', flag: '\u{1F1EE}\u{1F1F3}', name: 'हिन्दी' },
-  { code: 'id', flag: '\u{1F1EE}\u{1F1E9}', name: 'Bahasa Indonesia' },
-  { code: 'fa', flag: '\u{1F1EE}\u{1F1F7}', name: 'فارسی' },
-  { code: 'pt', flag: '\u{1F1E7}\u{1F1F7}', name: 'Português' },
-  { code: 'uk', flag: '\u{1F1FA}\u{1F1E6}', name: 'Українська' },
-  { code: 'de', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' },
-  { code: 'it', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' },
-  { code: 'vi', flag: '\u{1F1FB}\u{1F1F3}', name: 'Tiếng Việt' },
-] as const;
 
 export function Account() {
   const { t, i18n } = useTranslation();
@@ -41,7 +35,7 @@ export function Account() {
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { success, showSuccess, clearSuccess } = useSuccessMessage();
   const [showLangPicker, setShowLangPicker] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
@@ -58,7 +52,7 @@ export function Account() {
   >([]);
   const [resolvedGroupIds, setResolvedGroupIds] = useState<Set<number>>(new Set());
   const [selectedAdmins, setSelectedAdmins] = useState<Record<number, number>>({});
-  const [actionLoading, setActionLoading] = useState<number | null>(null); // groupId being acted on
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [paymentLink, setPaymentLink] = useState('');
@@ -88,6 +82,8 @@ export function Account() {
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
+  // --- Effects ---
+
   useEffect(() => {
     api
       .getMe()
@@ -100,7 +96,6 @@ export function Account() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Fetch wallet version from TONAPI when wallet is connected
   useEffect(() => {
     if (!rawAddress) {
       setWalletVersion(null);
@@ -123,6 +118,8 @@ export function Account() {
       })
       .catch(() => setWalletVersion(null));
   }, [rawAddress]);
+
+  // --- Handlers ---
 
   async function fetchBalances() {
     if (!rawAddress) return;
@@ -186,8 +183,7 @@ export function Account() {
           : { displayName: name, avatarKey: null, isAdmin: false },
       );
       setEditing(false);
-      setSuccess(t('account.nameUpdated'));
-      setTimeout(() => setSuccess(null), 2000);
+      showSuccess(t('account.nameUpdated'));
     } catch (err: any) {
       setError(err.message || 'Failed to update name');
     } finally {
@@ -198,7 +194,6 @@ export function Account() {
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Reset input so same file can be re-selected
     e.target.value = '';
 
     const validationError = validateImageFile(file);
@@ -214,8 +209,7 @@ export function Account() {
       const result = await api.uploadAvatar(processed.blob);
       setUser((prev) => (prev ? { ...prev, avatarKey: result.avatarKey } : prev));
       setUserContext((prev) => (prev ? { ...prev, avatarKey: result.avatarKey } : prev));
-      setSuccess(t('account.avatarUpdated'));
-      setTimeout(() => setSuccess(null), 2000);
+      showSuccess(t('account.avatarUpdated'));
     } catch (err: any) {
       setError(err.message || 'Failed to upload avatar');
     } finally {
@@ -231,8 +225,7 @@ export function Account() {
       await api.deleteAvatar();
       setUser((prev) => (prev ? { ...prev, avatarKey: null } : prev));
       setUserContext((prev) => (prev ? { ...prev, avatarKey: null } : prev));
-      setSuccess(t('account.avatarRemoved'));
-      setTimeout(() => setSuccess(null), 2000);
+      showSuccess(t('account.avatarRemoved'));
     } catch (err: any) {
       setError(err.message || 'Failed to remove avatar');
     }
@@ -247,8 +240,7 @@ export function Account() {
       await api.updateMe({ paymentLink: link });
       setUser((prev) => (prev ? { ...prev, paymentLink: link } : prev));
       setEditingPaymentLink(false);
-      setSuccess(t(link ? 'account.paymentLinkSaved' : 'account.paymentLinkRemoved'));
-      setTimeout(() => setSuccess(null), 2000);
+      showSuccess(t(link ? 'account.paymentLinkSaved' : 'account.paymentLinkRemoved'));
     } catch (err: any) {
       setError(err.message || 'Failed to save payment link');
     } finally {
@@ -273,8 +265,7 @@ export function Account() {
       const processed = await processPaymentQr(file);
       const result = await api.uploadPaymentQr(processed.blob);
       setUser((prev) => (prev ? { ...prev, paymentQrKey: result.paymentQrKey } : prev));
-      setSuccess(t('account.paymentQrUpdated'));
-      setTimeout(() => setSuccess(null), 2000);
+      showSuccess(t('account.paymentQrUpdated'));
     } catch (err: any) {
       setError(err.message || 'Failed to upload QR');
     } finally {
@@ -289,8 +280,7 @@ export function Account() {
     try {
       await api.deletePaymentQr();
       setUser((prev) => (prev ? { ...prev, paymentQrKey: null } : prev));
-      setSuccess(t('account.paymentQrRemoved'));
-      setTimeout(() => setSuccess(null), 2000);
+      showSuccess(t('account.paymentQrRemoved'));
     } catch (err: any) {
       setError(err.message || 'Failed to remove QR');
     }
@@ -307,8 +297,7 @@ export function Account() {
       setShowFeedback(false);
       setFeedbackText('');
       setFeedbackFiles([]);
-      setSuccess(t('account.feedbackSent'));
-      setTimeout(() => setSuccess(null), 2000);
+      showSuccess(t('account.feedbackSent'));
     } catch (err: any) {
       setError(err.message || 'Failed to send feedback');
     } finally {
@@ -326,7 +315,7 @@ export function Account() {
 
   async function handleDeletePreflight() {
     setError(null);
-    setActionLoading(-1); // loading indicator for "Continue" button
+    setActionLoading(-1);
     try {
       const result = await api.deletionPreflight();
       if (result.groups.length === 0) {
@@ -377,8 +366,6 @@ export function Account() {
     setDeleting(true);
     setError(null);
     try {
-      // Disconnect TonConnect wallet first to clear browser storage,
-      // otherwise the old wallet gets restored on re-registration
       if (walletConnected) {
         try {
           await disconnect();
@@ -394,6 +381,8 @@ export function Account() {
       setDeleting(false);
     }
   }
+
+  // --- Render ---
 
   if (deleted) {
     return (
@@ -424,7 +413,7 @@ export function Account() {
       <h1 className="text-xl font-bold mb-6">{t('account.title')}</h1>
 
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-      {success && <SuccessBanner message={success} onDismiss={() => setSuccess(null)} />}
+      {success && <SuccessBanner message={success} onDismiss={clearSuccess} />}
       {networkMismatch && (
         <ErrorBanner
           message={t('account.walletNetworkMismatch', {
@@ -443,94 +432,23 @@ export function Account() {
           </div>
         )}
 
-      {/* Avatar */}
-      <div className="flex flex-col items-center mb-6">
-        <div className="relative">
-          <Avatar avatarKey={user?.avatarKey} displayName={user?.displayName ?? ''} size="lg" />
-          {uploadingAvatar && (
-            <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
-        </div>
-        <div className="flex gap-3 mt-3">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadingAvatar}
-            className="text-tg-link text-sm font-medium disabled:opacity-50"
-          >
-            {user?.avatarKey ? t('account.changePhoto') : t('account.addPhoto')}
-          </button>
-          {user?.avatarKey && (
-            <button
-              onClick={handleAvatarDelete}
-              className="text-tg-destructive text-sm font-medium"
-            >
-              {t('account.removePhoto')}
-            </button>
-          )}
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={handleAvatarUpload}
-          className="hidden"
-          aria-label={t('account.changePhoto')}
-        />
-      </div>
-
-      {/* Display Name */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
-          {t('account.displayName')}
-        </label>
-        {editing ? (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="flex-1 p-3 border border-tg-separator rounded-xl bg-transparent"
-              autoFocus
-              maxLength={64}
-            />
-            <button
-              onClick={handleSave}
-              disabled={saving || !editName.trim()}
-              className="px-4 py-2 bg-tg-button text-tg-button-text rounded-xl font-medium disabled:opacity-50"
-            >
-              {saving ? '...' : t('account.save')}
-            </button>
-            <button
-              onClick={() => {
-                setEditing(false);
-                setEditName(user?.displayName ?? '');
-              }}
-              className="px-4 py-2 border border-tg-separator rounded-xl"
-            >
-              {t('account.cancel')}
-            </button>
-          </div>
-        ) : (
-          <div className="flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator">
-            <span className="font-medium">{user?.displayName}</span>
-            <button onClick={() => setEditing(true)} className="text-tg-link text-sm font-medium">
-              {t('account.edit')}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Username */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
-          {t('account.telegramUsername')}
-        </label>
-        <div className="p-3 bg-tg-section rounded-xl border border-tg-separator text-tg-hint">
-          {user?.username ? `@${user.username}` : t('account.noUsername')}
-        </div>
-      </div>
+      <ProfileSection
+        user={user}
+        editName={editName}
+        editing={editing}
+        saving={saving}
+        uploadingAvatar={uploadingAvatar}
+        fileInputRef={fileInputRef}
+        onEditNameChange={setEditName}
+        onStartEditing={() => setEditing(true)}
+        onCancelEditing={() => {
+          setEditing(false);
+          setEditName(user?.displayName ?? '');
+        }}
+        onSave={handleSave}
+        onAvatarUpload={handleAvatarUpload}
+        onAvatarDelete={handleAvatarDelete}
+      />
 
       {/* Language Selector */}
       <div className="mb-4">
@@ -549,298 +467,39 @@ export function Account() {
         </button>
       </div>
 
-      {/* TON Wallet */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.wallet')}</label>
-        {walletConnected ? (
-          <div className="p-3 bg-tg-section rounded-xl border border-tg-separator">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{truncateAddress(friendlyAddress)}</span>
-                {walletVersion && (
-                  <span className="text-xs px-1.5 py-0.5 rounded bg-tg-secondary-bg text-tg-hint">
-                    {walletVersion}
-                  </span>
-                )}
-                {config.tonNetwork === 'testnet' && (
-                  <span className="text-xs px-1.5 py-0.5 rounded bg-app-warning-bg text-app-warning">
-                    testnet
-                  </span>
-                )}
-                <button
-                  onClick={toggleBalances}
-                  className="p-1 text-tg-hint hover:text-tg-text transition-colors"
-                  title={showBalances ? t('account.hideBalances') : t('account.showBalances')}
-                >
-                  {showBalances ? (
-                    <svg
-                      className="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                      <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-              <button
-                onClick={() => {
-                  if (window.confirm(t('account.confirmDisconnectWallet'))) {
-                    disconnect();
-                  }
-                }}
-                className="text-tg-destructive text-sm font-medium"
-              >
-                {t('account.disconnectWallet')}
-              </button>
-            </div>
-            {showBalances && (
-              <div className="flex gap-4 mt-2 pt-2 border-t border-tg-separator text-sm">
-                {balancesLoading ? (
-                  <span className="text-tg-hint">...</span>
-                ) : (
-                  <>
-                    {tonBalance !== null && (
-                      <span className="text-tg-hint">
-                        <span className="font-medium text-tg-text">{tonBalance}</span> TON
-                      </span>
-                    )}
-                    {usdtBalance !== null && (
-                      <span className="text-tg-hint">
-                        <span className="font-medium text-tg-text">{usdtBalance}</span> USDT
-                      </span>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={openModal}
-            className="w-full p-3 bg-tg-button text-tg-button-text rounded-xl font-medium"
-          >
-            {t('account.connectWallet')}
-          </button>
-        )}
-      </div>
+      <WalletSection
+        walletConnected={walletConnected}
+        friendlyAddress={friendlyAddress}
+        walletVersion={walletVersion}
+        showBalances={showBalances}
+        balancesLoading={balancesLoading}
+        tonBalance={tonBalance}
+        usdtBalance={usdtBalance}
+        onToggleBalances={toggleBalances}
+        onConnect={openModal}
+        onDisconnect={disconnect}
+      />
 
-      {/* Payment Info */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
-          {t('account.paymentInfo')}
-        </label>
-        <div className="bg-tg-section rounded-xl border border-tg-separator p-3 space-y-3">
-          {/* Payment Link */}
-          <div>
-            <div className="text-xs text-tg-hint mb-1">{t('account.paymentLink')}</div>
-            {editingPaymentLink ? (
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={paymentLink}
-                  onChange={(e) => setPaymentLink(e.target.value)}
-                  placeholder={t('account.paymentLinkPlaceholder')}
-                  className="flex-1 min-w-0 p-2 border border-tg-separator rounded-lg bg-transparent text-sm"
-                  autoFocus
-                  maxLength={500}
-                />
-                <button
-                  onClick={handleSavePaymentLink}
-                  disabled={savingPaymentLink}
-                  className="px-3 py-2 bg-tg-button text-tg-button-text rounded-lg text-sm font-medium shrink-0 disabled:opacity-50"
-                >
-                  {savingPaymentLink ? '...' : t('account.save')}
-                </button>
-                <button
-                  onClick={() => {
-                    setEditingPaymentLink(false);
-                    setPaymentLink(user?.paymentLink ?? '');
-                  }}
-                  className="px-3 py-2 border border-tg-separator rounded-lg text-sm shrink-0"
-                >
-                  {t('account.cancel')}
-                </button>
-              </div>
-            ) : (
-              <div className="flex justify-between items-center">
-                <span className="text-sm truncate flex-1">
-                  {user?.paymentLink || (
-                    <span className="text-tg-hint">{t('account.paymentLinkPlaceholder')}</span>
-                  )}
-                </span>
-                <button
-                  onClick={() => setEditingPaymentLink(true)}
-                  className="text-tg-link text-sm font-medium ml-2 shrink-0"
-                >
-                  {t('account.edit')}
-                </button>
-              </div>
-            )}
-          </div>
+      <PaymentInfoSection
+        user={user}
+        paymentLink={paymentLink}
+        editingPaymentLink={editingPaymentLink}
+        savingPaymentLink={savingPaymentLink}
+        uploadingQr={uploadingQr}
+        qrFileInputRef={qrFileInputRef}
+        onPaymentLinkChange={setPaymentLink}
+        onStartEditingPaymentLink={() => setEditingPaymentLink(true)}
+        onCancelEditingPaymentLink={() => {
+          setEditingPaymentLink(false);
+          setPaymentLink(user?.paymentLink ?? '');
+        }}
+        onSavePaymentLink={handleSavePaymentLink}
+        onQrUpload={handleQrUpload}
+        onQrDelete={handleQrDelete}
+        onViewQr={setViewImageKey}
+      />
 
-          {/* Payment QR */}
-          <div className="pt-2 border-t border-tg-separator">
-            <div className="text-xs text-tg-hint mb-2">{t('account.paymentQr')}</div>
-            {user?.paymentQrKey ? (
-              <div className="flex items-start gap-3">
-                <button onClick={() => setViewImageKey(user.paymentQrKey)}>
-                  <img
-                    src={imageUrl(user.paymentQrKey!)}
-                    alt="Payment QR"
-                    className="w-24 h-24 rounded-lg object-cover border border-tg-separator"
-                  />
-                </button>
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={() => qrFileInputRef.current?.click()}
-                    disabled={uploadingQr}
-                    className="text-tg-link text-sm font-medium disabled:opacity-50"
-                  >
-                    {t('account.changePaymentQr')}
-                  </button>
-                  <button
-                    onClick={handleQrDelete}
-                    className="text-tg-destructive text-sm font-medium"
-                  >
-                    {t('account.removePaymentQr')}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => qrFileInputRef.current?.click()}
-                disabled={uploadingQr}
-                className="w-full p-3 border border-dashed border-tg-separator rounded-lg text-sm text-tg-hint disabled:opacity-50"
-              >
-                {uploadingQr ? '...' : t('account.addPaymentQr')}
-              </button>
-            )}
-            <input
-              ref={qrFileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleQrUpload}
-              className="hidden"
-              aria-label={t('account.paymentQr')}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Channel */}
-      <div className="mb-4">
-        <button
-          onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/splitogramm')}
-          className="w-full flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator text-left"
-        >
-          <span className="font-medium">{t('account.channel')}</span>
-          <svg
-            className="w-4 h-4 text-tg-hint"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-            <polyline points="15 3 21 3 21 9" />
-            <line x1="10" y1="14" x2="21" y2="3" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Legal */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.legal')}</label>
-        <div className="bg-tg-section rounded-xl border border-tg-separator divide-y divide-tg-separator">
-          <button
-            onClick={() => openExternalLink(`${config.apiBaseUrl}/terms`)}
-            className="w-full flex justify-between items-center p-3 text-left"
-          >
-            <span className="font-medium">{t('account.termsOfService')}</span>
-            <svg
-              className="w-4 h-4 text-tg-hint"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </button>
-          <button
-            onClick={() => openExternalLink(`${config.apiBaseUrl}/privacy`)}
-            className="w-full flex justify-between items-center p-3 text-left"
-          >
-            <span className="font-medium">{t('account.privacyPolicy')}</span>
-            <svg
-              className="w-4 h-4 text-tg-hint"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Feedback */}
-      <div className="mb-4">
-        <button
-          onClick={() => setShowFeedback(true)}
-          className="w-full p-3 bg-tg-section rounded-xl border border-tg-separator text-left font-medium"
-        >
-          {t('account.feedback')}
-        </button>
-      </div>
-
-      {/* Admin Dashboard Link */}
-      {userCtx?.isAdmin && (
-        <div className="mb-4">
-          <button
-            onClick={() => {
-              const base = config.apiBaseUrl || window.location.origin;
-              const url = `${base}/admin`;
-              window.Telegram?.WebApp?.openLink?.(url) ?? window.open(url, '_blank');
-            }}
-            className="w-full p-3 bg-tg-section rounded-xl border border-tg-separator text-left font-medium"
-          >
-            Admin Dashboard
-          </button>
-        </div>
-      )}
+      <LinksSection isAdmin={!!userCtx?.isAdmin} onOpenFeedback={() => setShowFeedback(true)} />
 
       {/* Delete Account */}
       <div className="mb-4 mt-8">
@@ -861,74 +520,12 @@ export function Account() {
       {/* Version */}
       <div className="text-center text-xs text-tg-hint/50 mt-2 mb-2">v{__APP_VERSION__}</div>
 
-      {/* DEBUG: Temporary env check — remove next build */}
       {userCtx?.isAdmin && (
-        <div className="mt-4 rounded-xl overflow-hidden border border-tg-separator">
-          <div className="bg-tg-secondary-bg px-3 py-2 text-xs font-bold text-tg-hint">
-            Debug Info
-          </div>
-          <div className="divide-y divide-tg-separator text-xs">
-            {[
-              [
-                'Analytics token',
-                import.meta.env.VITE_TG_ANALYTICS_TOKEN
-                  ? `${import.meta.env.VITE_TG_ANALYTICS_TOKEN.slice(0, 20)}...`
-                  : '(empty)',
-              ],
-              [
-                'Analytics SDK',
-                (() => {
-                  const ta = (window as any).telegramAnalytics;
-                  if (!ta) return 'not loaded';
-                  return `loaded (keys: ${Object.keys(ta).join(', ')})`;
-                })(),
-              ],
-              ['Worker URL', import.meta.env.VITE_WORKER_URL || '(empty)'],
-              ['Bot username', import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '(empty)'],
-              ['TON network', import.meta.env.VITE_TON_NETWORK || '(empty)'],
-              ['Build mode', `${import.meta.env.MODE} (prod=${import.meta.env.PROD})`],
-              ['TG WebApp', window.Telegram?.WebApp ? 'loaded' : 'missing'],
-              ['TG version', (window.Telegram?.WebApp as any)?.version ?? 'n/a'],
-              ['TG platform', (window.Telegram?.WebApp as any)?.platform ?? 'n/a'],
-              [
-                'TG initData',
-                window.Telegram?.WebApp?.initData
-                  ? `${window.Telegram.WebApp.initData.length} chars`
-                  : '(empty)',
-              ],
-              [
-                'TonConnect',
-                (() => {
-                  try {
-                    const tc = (window as any).tonConnectUI;
-                    if (tc) return `instance found, connected=${tc.connected}`;
-                    return 'no global instance';
-                  } catch {
-                    return 'error checking';
-                  }
-                })(),
-              ],
-              [
-                'Wallet',
-                walletConnected
-                  ? `${walletVersion ?? '?'} ${friendlyAddress?.slice(0, 8)}...`
-                  : 'not connected',
-              ],
-              ['User agent', navigator.userAgent.slice(0, 60) + '...'],
-              [
-                'Screen',
-                `${window.innerWidth}x${window.innerHeight} (dpr ${window.devicePixelRatio})`,
-              ],
-              ['Locale', `${navigator.language} / i18n=${i18n.language}`],
-              ['Time', new Date().toISOString()],
-            ].map(([label, value]) => (
-              <div key={label as string} className="flex justify-between gap-2 px-3 py-2">
-                <span className="text-tg-hint shrink-0">{label}</span>
-                <span className="text-tg-text text-right break-all font-mono">{value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <DebugPanel
+          walletConnected={walletConnected}
+          walletVersion={walletVersion}
+          friendlyAddress={friendlyAddress}
+        />
       )}
 
       {/* Language Picker Bottom Sheet */}
@@ -959,210 +556,37 @@ export function Account() {
         </div>
       </BottomSheet>
 
-      {/* Delete Account Flow */}
-      <BottomSheet
+      <DeleteAccountSheet
         open={showDeleteFlow}
-        onClose={() => {
-          if (!deleting) {
-            setShowDeleteFlow(false);
-          }
-        }}
-        title={t('account.deleteAccount')}
-      >
-        <div className="space-y-4">
-          {deleteStep === 'warning' && (
-            <>
-              <p className="text-sm text-tg-hint">{t('account.deleteWarning')}</p>
-              <button
-                onClick={handleDeletePreflight}
-                disabled={actionLoading === -1}
-                className="w-full py-3 rounded-xl bg-tg-destructive text-white font-medium disabled:opacity-50"
-              >
-                {actionLoading === -1 ? '...' : t('account.deleteContinue')}
-              </button>
-              <button
-                onClick={() => setShowDeleteFlow(false)}
-                className="w-full py-3 rounded-xl border border-tg-separator font-medium"
-              >
-                {t('account.cancel')}
-              </button>
-            </>
-          )}
+        onClose={() => setShowDeleteFlow(false)}
+        deleteStep={deleteStep}
+        preflightGroups={preflightGroups}
+        resolvedGroupIds={resolvedGroupIds}
+        selectedAdmins={selectedAdmins}
+        actionLoading={actionLoading}
+        deleting={deleting}
+        onPreflight={handleDeletePreflight}
+        onTransferAdmin={handleTransferAdmin}
+        onDeleteGroup={handleDeleteGroupForDeletion}
+        onSelectAdmin={(groupId, userId) =>
+          setSelectedAdmins((prev) => ({ ...prev, [groupId]: userId }))
+        }
+        onContinueToConfirm={() => setDeleteStep('confirm')}
+        onDeleteAccount={handleDeleteAccount}
+      />
 
-          {deleteStep === 'groups' && (
-            <>
-              <p className="text-sm text-tg-hint font-medium">
-                {t('account.deleteGroupsSubtitle')}
-              </p>
-
-              <div className="space-y-3">
-                {preflightGroups.map((group) => {
-                  const resolved = resolvedGroupIds.has(group.id);
-                  const isLoading = actionLoading === group.id;
-
-                  return (
-                    <div
-                      key={group.id}
-                      className={`p-3 rounded-xl border ${resolved ? 'border-app-positive/30 bg-app-positive-bg' : 'border-tg-separator bg-tg-section'}`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-sm">{group.name}</span>
-                        {resolved && (
-                          <span className="text-app-positive text-xs font-medium">&#10003;</span>
-                        )}
-                      </div>
-
-                      {!resolved && (
-                        <>
-                          {group.candidates.length > 0 ? (
-                            <div className="flex gap-2">
-                              <select
-                                value={selectedAdmins[group.id] ?? ''}
-                                onChange={(e) =>
-                                  setSelectedAdmins((prev) => ({
-                                    ...prev,
-                                    [group.id]: parseInt(e.target.value, 10),
-                                  }))
-                                }
-                                className="flex-1 p-2 text-sm rounded-lg border border-tg-separator bg-transparent"
-                              >
-                                <option value="">{t('account.selectNewAdmin')}</option>
-                                {group.candidates.map((c) => (
-                                  <option key={c.userId} value={c.userId}>
-                                    {c.displayName}
-                                  </option>
-                                ))}
-                              </select>
-                              <button
-                                onClick={() => handleTransferAdmin(group.id)}
-                                disabled={!selectedAdmins[group.id] || isLoading}
-                                className="px-3 py-2 text-sm rounded-lg bg-tg-button text-tg-button-text font-medium disabled:opacity-50"
-                              >
-                                {isLoading ? '...' : t('account.transferAdmin')}
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => handleDeleteGroupForDeletion(group.id)}
-                              disabled={isLoading}
-                              className="w-full py-2 text-sm rounded-lg border border-tg-destructive/30 text-tg-destructive font-medium disabled:opacity-50"
-                            >
-                              {isLoading ? '...' : t('account.deleteGroupButton')}
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={() => setDeleteStep('confirm')}
-                disabled={resolvedGroupIds.size < preflightGroups.length}
-                className="w-full py-3 rounded-xl bg-tg-destructive text-white font-medium disabled:opacity-50"
-              >
-                {t('account.deleteContinue')}
-              </button>
-              <button
-                onClick={() => setShowDeleteFlow(false)}
-                className="w-full py-3 rounded-xl border border-tg-separator font-medium"
-              >
-                {t('account.cancel')}
-              </button>
-            </>
-          )}
-
-          {deleteStep === 'confirm' && (
-            <>
-              <p className="text-sm text-tg-destructive font-medium">
-                {t('account.deleteFinalWarning')}
-              </p>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deleting}
-                className="w-full py-3 rounded-xl bg-tg-destructive text-white font-medium disabled:opacity-50"
-              >
-                {deleting ? '...' : t('account.deleteConfirmFinal')}
-              </button>
-              {!deleting && (
-                <button
-                  onClick={() => setShowDeleteFlow(false)}
-                  className="w-full py-3 rounded-xl border border-tg-separator font-medium"
-                >
-                  {t('account.cancel')}
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      </BottomSheet>
-
-      {/* Feedback Bottom Sheet */}
-      <BottomSheet
+      <FeedbackSheet
         open={showFeedback}
         onClose={() => setShowFeedback(false)}
-        title={t('account.feedback')}
-      >
-        <div className="space-y-4">
-          <textarea
-            value={feedbackText}
-            onChange={(e) => setFeedbackText(e.target.value)}
-            placeholder={t('account.feedbackPlaceholder')}
-            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent resize-none h-32"
-            maxLength={2000}
-          />
-
-          {/* Attachments */}
-          {feedbackFiles.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {feedbackFiles.map((file, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-1.5 px-2 py-1 bg-tg-section rounded-lg border border-tg-separator text-xs"
-                >
-                  <span className="truncate max-w-[120px]">{file.name}</span>
-                  <button
-                    onClick={() => setFeedbackFiles((prev) => prev.filter((_, j) => j !== i))}
-                    className="text-tg-destructive font-bold"
-                    aria-label={`Remove ${file.name}`}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            {feedbackFiles.length < 5 && (
-              <button
-                onClick={() => feedbackFileInputRef.current?.click()}
-                className="px-4 py-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
-                aria-label="Attach file"
-              >
-                📎
-              </button>
-            )}
-            <button
-              onClick={handleSendFeedback}
-              disabled={sendingFeedback || !feedbackText.trim()}
-              className="flex-1 bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
-            >
-              {sendingFeedback ? '...' : t('account.feedbackSend')}
-            </button>
-          </div>
-          <input
-            ref={feedbackFileInputRef}
-            type="file"
-            multiple
-            accept="image/*,application/pdf,.doc,.docx,.txt"
-            onChange={handleFeedbackFileSelect}
-            className="hidden"
-            aria-label="Attach file"
-          />
-        </div>
-      </BottomSheet>
+        feedbackText={feedbackText}
+        feedbackFiles={feedbackFiles}
+        sendingFeedback={sendingFeedback}
+        feedbackFileInputRef={feedbackFileInputRef}
+        onTextChange={setFeedbackText}
+        onFileSelect={handleFeedbackFileSelect}
+        onRemoveFile={(i) => setFeedbackFiles((prev) => prev.filter((_, j) => j !== i))}
+        onSend={handleSendFeedback}
+      />
 
       {/* Image viewer (payment QR) */}
       <ImageViewer
