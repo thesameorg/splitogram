@@ -912,7 +912,8 @@ export function Group() {
       {tab === 'transactions' && (
         <button
           onClick={() => navigate(`/groups/${groupId}/add-expense`)}
-          className={`fixed bottom-20 right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium ${showWelcomeBanner ? 'animate-pulse' : ''}`}
+          className={`fixed right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium ${showWelcomeBanner ? 'animate-pulse' : ''}`}
+          style={{ bottom: 'calc(78px + env(safe-area-inset-bottom, 0px))' }}
         >
           {t('group.addExpense')}
         </button>
