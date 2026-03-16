@@ -29,7 +29,7 @@ export function BottomSheet({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-bold mb-4">{title}</h2>
-        <div className="overflow-y-auto flex-1 min-h-0">{children}</div>
+        <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0">{children}</div>
       </div>
     </div>
   );

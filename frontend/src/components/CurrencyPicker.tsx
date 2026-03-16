@@ -47,7 +47,7 @@ export function CurrencyPicker({
         autoFocus
         aria-label={t('currencyPicker.search')}
       />
-      <div className="max-h-[50vh] overflow-y-auto -mx-2">
+      <div className="overflow-y-auto -mx-2">
         {results.length === 0 ? (
           <p className="text-center text-tg-hint py-4">{t('currencyPicker.noResults')}</p>
         ) : (
