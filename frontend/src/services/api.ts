@@ -1,5 +1,13 @@
 import { config } from '../config';
 
+/** AbortSignal.timeout() polyfill for Safari <16 (iOS 15) */
+export function timeoutSignal(ms: number): AbortSignal {
+  if (AbortSignal.timeout) return AbortSignal.timeout(ms);
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
+}
+
 export class ApiError extends Error {
   [key: string]: unknown;
   constructor(
@@ -34,7 +42,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
     ...options,
     headers,
     cache: 'no-store' as RequestCache,
-    signal: options.signal ?? AbortSignal.timeout(30_000),
+    signal: options.signal ?? timeoutSignal(30_000),
   });
 
   if (!response.ok) {
@@ -597,7 +605,7 @@ export const api = {
     if (initData) headers['Authorization'] = `tma ${initData}`;
     return fetch(`${config.apiBaseUrl}/api/v1/groups/${groupId}/export`, {
       headers,
-      signal: AbortSignal.timeout(30_000),
+      signal: timeoutSignal(30_000),
     }).then(async (res) => {
       if (!res.ok) throw new Error('Export failed');
       return res.blob();

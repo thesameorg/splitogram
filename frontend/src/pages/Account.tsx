@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { api, type UserProfile } from '../services/api';
+import { api, timeoutSignal, type UserProfile } from '../services/api';
 import { PageLayout } from '../components/PageLayout';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -106,7 +106,7 @@ export function Account() {
     }
     const tonapiBase =
       config.tonNetwork === 'mainnet' ? 'https://tonapi.io' : 'https://testnet.tonapi.io';
-    fetch(`${tonapiBase}/v2/accounts/${rawAddress}`, { signal: AbortSignal.timeout(5000) })
+    fetch(`${tonapiBase}/v2/accounts/${rawAddress}`, { signal: timeoutSignal(5000) })
       .then((r) => (r.ok ? r.json() : null))
       .then((data: any) => {
         if (!data?.interfaces) return;
@@ -132,9 +132,9 @@ export function Account() {
         : 'kQBDzVlfzubS8ONL25kQNrjoVMF-NwyECbJOfKndeyseWAV7';
     try {
       const [accRes, jettonRes] = await Promise.all([
-        fetch(`${tonapiBase}/v2/accounts/${rawAddress}`, { signal: AbortSignal.timeout(5000) }),
+        fetch(`${tonapiBase}/v2/accounts/${rawAddress}`, { signal: timeoutSignal(5000) }),
         fetch(`${tonapiBase}/v2/accounts/${rawAddress}/jettons/${usdtMaster}`, {
-          signal: AbortSignal.timeout(5000),
+          signal: timeoutSignal(5000),
         }),
       ]);
       if (accRes.ok) {
