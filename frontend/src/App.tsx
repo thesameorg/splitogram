@@ -141,11 +141,14 @@ function AppContent() {
   }
 
   if (!auth.authenticated) {
+    const insideTelegram = !!window.Telegram?.WebApp && !window.Telegram.WebApp.initData;
     return (
       <div className="flex items-center justify-center min-h-screen p-4 text-center bg-tg-bg text-tg-text">
         <div>
           <h1 className="text-xl font-bold mb-2">{t('app.title')}</h1>
-          <p className="text-tg-hint mb-4">{t('app.openFromTelegram')}</p>
+          <p className="text-tg-hint mb-4">
+            {insideTelegram ? t('app.updateTelegram') : t('app.openFromTelegram')}
+          </p>
           {config.telegramBotUsername && (
             <a
               href={`https://t.me/${config.telegramBotUsername}`}

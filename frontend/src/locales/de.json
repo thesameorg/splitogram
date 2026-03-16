@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Splitogram",
-    "openFromTelegram": "Bitte öffne diese App über Telegram."
+    "openFromTelegram": "Bitte öffne diese App über Telegram.",
+    "updateTelegram": "Bitte aktualisiere Telegram auf die neueste Version, um diese Mini App zu nutzen."
   },
   "tabs": {
     "groups": "Gruppen",

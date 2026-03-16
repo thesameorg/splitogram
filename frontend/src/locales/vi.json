@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Splitogram",
-    "openFromTelegram": "Vui lòng mở ứng dụng từ Telegram."
+    "openFromTelegram": "Vui lòng mở ứng dụng từ Telegram.",
+    "updateTelegram": "Vui lòng cập nhật Telegram lên phiên bản mới nhất để sử dụng mini app này."
   },
   "tabs": {
     "groups": "Nhóm",
