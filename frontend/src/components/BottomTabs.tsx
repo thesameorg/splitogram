@@ -46,7 +46,7 @@ export function BottomTabs() {
               hapticSelection();
               navigate(tab.path);
             }}
-            className={`flex-1 flex flex-col items-center py-2 text-xs font-medium ${
+            className={`flex-1 flex flex-col items-center py-2.5 text-xs font-medium ${
               active ? 'text-tg-link' : 'text-tg-hint'
             }`}
           >

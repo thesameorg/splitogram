@@ -187,7 +187,8 @@ export function Home() {
       {groups.length > 0 && !showCreate && (
         <button
           onClick={() => setShowCreate(true)}
-          className="fixed bottom-20 right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium"
+          className="fixed right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium"
+          style={{ bottom: 'calc(66px + env(safe-area-inset-bottom, 0px))' }}
         >
           {t('home.addGroup')}
         </button>
