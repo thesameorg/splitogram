@@ -3,6 +3,9 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Manrope', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+      },
       keyframes: {
         'slide-down': {
           '0%': { transform: 'translateY(-100%)', opacity: '0' },
@@ -19,6 +22,10 @@ export default {
           negative: 'var(--app-negative)',
           'negative-bg': 'var(--app-negative-bg)',
           warning: 'var(--app-warning)',
+          card: 'var(--app-card)',
+          'card-nested': 'var(--app-card-nested)',
+          glass: 'var(--app-glass)',
+          glow: 'var(--app-glow)',
         },
         tg: {
           bg: 'var(--tg-theme-bg-color)',
@@ -37,6 +44,12 @@ export default {
           separator: 'var(--tg-theme-section-separator-color)',
           'bottom-bar': 'var(--tg-theme-bottom-bar-bg-color)',
         },
+      },
+      boxShadow: {
+        glow: '0px 4px 20px var(--app-glow)',
+      },
+      borderColor: {
+        ghost: 'var(--app-ghost-border)',
       },
     },
   },

@@ -57,7 +57,7 @@ export function ReportImage({ imageKey, open, onClose }: ReportImageProps) {
                 className={`w-full text-left p-3 rounded-xl border ${
                   reason === r.value
                     ? 'border-tg-link bg-tg-button/10'
-                    : 'border-tg-separator bg-tg-section'
+                    : 'border-ghost card'
                 }`}
               >
                 <span className="text-sm font-medium">{t(r.key)}</span>
@@ -73,7 +73,7 @@ export function ReportImage({ imageKey, open, onClose }: ReportImageProps) {
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               placeholder={t('report.detailsPlaceholder')}
-              className="w-full p-3 border border-tg-separator rounded-xl bg-transparent resize-none h-20 text-sm"
+              className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested resize-none h-20 text-sm"
               maxLength={500}
             />
           </div>
@@ -81,7 +81,7 @@ export function ReportImage({ imageKey, open, onClose }: ReportImageProps) {
           <button
             onClick={handleSend}
             disabled={!reason || sending}
-            className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+            className="w-full bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-3 rounded-xl font-semibold disabled:opacity-50"
           >
             {sending ? '...' : t('report.send')}
           </button>

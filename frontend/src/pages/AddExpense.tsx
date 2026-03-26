@@ -268,7 +268,7 @@ export function AddExpense() {
           placeholder={t('addExpense.descriptionPlaceholder')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className={`w-full p-3 border rounded-xl bg-transparent ${attempted && !description.trim() ? 'border-app-negative' : 'border-tg-separator'}`}
+          className={`w-full p-3 border rounded-xl ${attempted && !description.trim() ? 'border-app-negative bg-app-card-nested' : 'border-ghost bg-app-card-nested'}`}
           autoFocus
           maxLength={500}
         />
@@ -286,7 +286,7 @@ export function AddExpense() {
           placeholder={t('addExpense.notePlaceholder')}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-sm resize-none"
+          className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested text-sm resize-none"
           rows={2}
           maxLength={1000}
         />
@@ -304,7 +304,7 @@ export function AddExpense() {
             placeholder="0.00"
             value={amountStr}
             onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
-            className="w-full px-3 py-2 border border-tg-separator rounded-xl bg-transparent text-2xl"
+            className="w-full px-3 py-2 border border-ghost rounded-xl bg-app-card-nested text-2xl"
           />
         </div>
         <div className="flex-1 min-w-0">
@@ -314,7 +314,7 @@ export function AddExpense() {
           <select
             value={paidBy ?? ''}
             onChange={(e) => setPaidBy(parseInt(e.target.value, 10))}
-            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-2xl"
+            className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested text-2xl"
             disabled={isEditMode}
           >
             {group.members.map((m) => (
@@ -366,8 +366,8 @@ export function AddExpense() {
               onClick={() => toggleParticipant(m.userId)}
               className={`px-4 py-2 rounded-full text-sm font-medium border ${
                 selectedParticipants.has(m.userId)
-                  ? 'bg-tg-button text-tg-button-text border-tg-button'
-                  : 'bg-transparent text-tg-hint border-tg-separator'
+                  ? 'bg-tg-button text-tg-button-text border-tg-link'
+                  : 'bg-transparent text-tg-hint border-ghost'
               }`}
             >
               {m.isDummy ? `\uD83D\uDC7B ${m.displayName}` : m.displayName}
@@ -381,7 +381,7 @@ export function AddExpense() {
         <label className="block text-sm font-medium mb-2 text-tg-hint">
           {t('addExpense.splitMode')}
         </label>
-        <div className="flex rounded-xl border border-tg-separator overflow-hidden">
+        <div className="flex rounded-xl border border-ghost overflow-hidden">
           {(['equal', 'percentage', 'manual'] as const).map((mode) => (
             <button
               key={mode}
@@ -422,7 +422,7 @@ export function AddExpense() {
                         new Map(prev).set(m.userId, sanitizeDecimalInput(e.target.value)),
                       )
                     }
-                    className="w-20 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"
+                    className="w-20 p-2 border border-ghost rounded-lg bg-app-card-nested text-right text-sm"
                   />
                   <span className="text-sm text-tg-hint w-6">%</span>
                   {calcAmount > 0 && (
@@ -458,7 +458,7 @@ export function AddExpense() {
                       new Map(prev).set(m.userId, sanitizeDecimalInput(e.target.value)),
                     )
                   }
-                  className="w-28 p-2 border border-tg-separator rounded-lg bg-transparent text-right text-sm"
+                  className="w-28 p-2 border border-ghost rounded-lg bg-app-card-nested text-right text-sm"
                 />
                 <span className="text-sm text-tg-hint w-10">{group.currency}</span>
               </div>
@@ -476,7 +476,7 @@ export function AddExpense() {
       {/* Receipt attachment */}
       <div className="mb-4">
         {receiptPreview ? (
-          <div className="flex items-center gap-3 p-3 bg-tg-section rounded-xl border border-tg-separator">
+          <div className="flex items-center gap-3 p-3 card rounded-2xl">
             <img src={receiptPreview} alt="Receipt" className="w-12 h-12 rounded-lg object-cover" />
             <span className="flex-1 text-sm font-medium">{t('addExpense.receiptAttached')}</span>
             <button
@@ -489,7 +489,7 @@ export function AddExpense() {
         ) : (
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full p-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
+            className="w-full p-3 border border-dashed border-ghost rounded-xl text-sm text-tg-hint"
           >
             {t('addExpense.attachReceipt')}
           </button>
@@ -509,7 +509,7 @@ export function AddExpense() {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit || submitting}
-          className="w-full mt-6 bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+          className="w-full mt-6 bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-3 rounded-xl font-medium disabled:opacity-50"
         >
           {submitting
             ? t('addExpense.saving')

@@ -2,20 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Self-hosted Manrope variable font */
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/Manrope-Variable-ext.woff2') format('woff2');
+  font-weight: 200 800;
+  font-display: swap;
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/Manrope-Variable.woff2') format('woff2');
+  font-weight: 200 800;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
 /* Fallback theme values for development outside Telegram */
 :root {
-  --tg-theme-bg-color: #ffffff;
-  --tg-theme-text-color: #000000;
-  --tg-theme-hint-color: #999999;
-  --tg-theme-link-color: #2481cc;
-  --tg-theme-button-color: #2481cc;
+  --tg-theme-bg-color: #f4f4f5;
+  --tg-theme-text-color: #1a1a1a;
+  --tg-theme-hint-color: #8a8a8e;
+  --tg-theme-link-color: #0088cc;
+  --tg-theme-button-color: #0088cc;
   --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #f0f0f0;
-  --tg-theme-header-bg-color: #ffffff;
-  --tg-theme-accent-text-color: #2481cc;
+  --tg-theme-secondary-bg-color: #eaeaeb;
+  --tg-theme-header-bg-color: #f4f4f5;
+  --tg-theme-accent-text-color: #0088cc;
   --tg-theme-section-bg-color: #ffffff;
   --tg-theme-section-header-text-color: #6d7885;
-  --tg-theme-subtitle-text-color: #999999;
+  --tg-theme-subtitle-text-color: #8a8a8e;
   --tg-theme-destructive-text-color: #e53935;
   --tg-theme-section-separator-color: #e0e0e0;
   --tg-theme-bottom-bar-bg-color: #ffffff;
@@ -26,19 +45,56 @@
   --app-negative: #dc2626;
   --app-negative-bg: rgba(220, 38, 38, 0.1);
   --app-warning: #ca8a04;
+
+  /* Surface hierarchy tokens — light */
+  --app-card: #ffffff;
+  --app-card-nested: #f4f4f5;
+  --app-glass: rgba(255, 255, 255, 0.75);
+  --app-glow: rgba(0, 0, 0, 0.08);
+  --app-ghost-border: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme='dark'] {
+  --tg-theme-bg-color: #131315;
+  --tg-theme-text-color: #e5e1e4;
+  --tg-theme-hint-color: #89929b;
+  --tg-theme-link-color: #92ccff;
+  --tg-theme-button-color: #92ccff;
+  --tg-theme-button-text-color: #003351;
+  --tg-theme-secondary-bg-color: #1b1b1d;
+  --tg-theme-header-bg-color: #131315;
+  --tg-theme-accent-text-color: #92ccff;
+  --tg-theme-section-bg-color: #1f1f21;
+  --tg-theme-section-header-text-color: #89929b;
+  --tg-theme-subtitle-text-color: #89929b;
+  --tg-theme-destructive-text-color: #f87171;
+  --tg-theme-section-separator-color: #3f4850;
+  --tg-theme-bottom-bar-bg-color: #131315;
+
   --app-positive: #4ade80;
   --app-positive-bg: rgba(74, 222, 128, 0.12);
   --app-negative: #f87171;
   --app-negative-bg: rgba(248, 113, 113, 0.12);
   --app-warning: #fbbf24;
+
+  /* Surface hierarchy tokens — dark */
+  --app-card: #1f1f21;
+  --app-card-nested: #2a2a2c;
+  --app-glass: rgba(31, 31, 33, 0.7);
+  --app-glow: rgba(146, 204, 255, 0.06);
+  --app-ghost-border: rgba(255, 255, 255, 0.06);
+}
+
+/* Card utility — tonal separation + ambient glow */
+.card {
+  background-color: var(--app-card);
+  box-shadow: 0px 4px 20px var(--app-glow);
+  border: 1px solid var(--app-ghost-border);
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--tg-theme-bg-color);

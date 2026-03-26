@@ -138,7 +138,7 @@ export function Home() {
           <p className="text-tg-hint mb-4">{t('home.noGroups')}</p>
           <button
             onClick={() => setShowCreate(true)}
-            className="bg-tg-button text-tg-button-text px-6 py-3 rounded-xl font-medium"
+            className="bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white px-6 py-3 rounded-xl font-semibold"
           >
             {t('home.createFirst')}
           </button>
@@ -149,7 +149,7 @@ export function Home() {
             <button
               key={group.id}
               onClick={() => navigate(`/groups/${group.id}`)}
-              className="w-full text-left bg-tg-section p-4 rounded-xl shadow-sm border border-tg-separator"
+              className="w-full text-left card p-4 rounded-2xl"
             >
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
@@ -187,7 +187,7 @@ export function Home() {
       {groups.length > 0 && !showCreate && (
         <button
           onClick={() => setShowCreate(true)}
-          className="fixed right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium"
+          className="fixed right-6 bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white px-6 py-3 rounded-full shadow-glow font-semibold"
           style={{ bottom: 'calc(78px + env(safe-area-inset-bottom, 0px))' }}
         >
           {t('home.addGroup')}
@@ -209,7 +209,7 @@ export function Home() {
           value={newGroupName}
           onChange={(e) => setNewGroupName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
-          className="w-full p-3 border border-tg-separator rounded-xl mb-4 bg-transparent"
+          className="w-full p-3 rounded-xl mb-4 bg-app-card-nested border border-ghost"
           autoFocus
           maxLength={100}
         />
@@ -229,14 +229,14 @@ export function Home() {
               setShowCreate(false);
               setNewGroupName('');
             }}
-            className="flex-1 p-3 rounded-xl border border-tg-separator"
+            className="flex-1 p-3 rounded-xl bg-app-card-nested text-tg-text"
           >
             {t('createGroup.cancel')}
           </button>
           <button
             onClick={handleCreateGroup}
             disabled={creating || !newGroupName.trim()}
-            className="flex-1 p-3 rounded-xl bg-tg-button text-tg-button-text font-medium disabled:opacity-50"
+            className="flex-1 p-3 rounded-xl bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white font-semibold disabled:opacity-50"
           >
             {creating ? t('createGroup.creating') : t('createGroup.create')}
           </button>

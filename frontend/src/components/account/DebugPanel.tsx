@@ -62,9 +62,9 @@ export function DebugPanel({ walletConnected, walletVersion, friendlyAddress }: 
   ];
 
   return (
-    <div className="mt-4 rounded-xl overflow-hidden border border-tg-separator">
+    <div className="mt-4 rounded-2xl overflow-hidden card">
       <div className="bg-tg-secondary-bg px-3 py-2 text-xs font-bold text-tg-hint">Debug Info</div>
-      <div className="divide-y divide-tg-separator text-xs">
+      <div className="space-y-2 text-xs">
         {rows.map(([label, value]) => (
           <div key={label} className="flex justify-between gap-2 px-3 py-2">
             <span className="text-tg-hint shrink-0">{label}</span>

@@ -67,7 +67,7 @@ export function Activity() {
             <button
               key={item.id}
               onClick={() => navigate(`/groups/${item.groupId}`)}
-              className="w-full text-left flex items-start gap-3 p-3 rounded-xl bg-tg-section border border-tg-separator"
+              className="w-full text-left flex items-start gap-3 p-3 rounded-2xl card"
             >
               <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
               <div className="flex-1 min-w-0">

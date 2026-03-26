@@ -34,7 +34,7 @@ export function BottomTabs() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 bg-tg-bottom-bar border-t border-tg-separator flex z-40"
+      className="fixed bottom-0 left-0 right-0 bg-app-glass backdrop-blur-xl flex z-40 shadow-glow"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {tabs.map((tab) => {

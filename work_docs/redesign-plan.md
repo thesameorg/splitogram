@@ -142,3 +142,72 @@ The approach is verified and practical. The workflow:
 - Start backend: `bun run dev:backend` (needs `.dev.vars` with `DEV_AUTH_BYPASS_ENABLED=true`)
 - Start frontend: `bun run dev:frontend`
 - Mockup server is ad-hoc (`python3 -m http.server 8888 --directory frontend_new`) — could be added as a script if this becomes frequent
+
+## Implementation Complete (2026-03-26)
+
+### What was done
+
+**Token-based reskin** — used DESIGN.md as reference (not pixel-perfect mockup matching).
+
+#### 1. Manrope font (self-hosted)
+- Downloaded `Manrope-Variable.woff2` (24KB latin) + `Manrope-Variable-ext.woff2` (2.5KB latin-ext) from Google Fonts gstatic CDN
+- Self-hosted in `frontend/public/fonts/` — no external CDN dependency
+- `@font-face` with `font-display: swap` and `unicode-range` subsetting in `index.css`
+- Applied as primary font in both `body` CSS and Tailwind `fontFamily.sans`
+
+#### 2. CSS token system (`index.css`)
+New tokens added to both `:root` (light) and `[data-theme='dark']`:
+- `--app-card` — card surface color (white / `#1f1f21`)
+- `--app-card-nested` — nested input/chip surface (`#f4f4f5` / `#2a2a2c`)
+- `--app-glass` — glassmorphism background for floating elements (`rgba(255,255,255,0.75)` / `rgba(31,31,33,0.7)`)
+- `--app-glow` — ambient shadow color (`rgba(0,0,0,0.08)` / `rgba(146,204,255,0.06)`)
+- `--app-ghost-border` — ultra-subtle border for card definition (`rgba(0,0,0,0.08)` / `rgba(255,255,255,0.06)`)
+
+Dark theme fallback TG vars added (previously only light existed), so `data-theme='dark'` works in dev outside Telegram.
+
+`.card` utility class: combines `background-color`, `box-shadow`, and `border` — single class for all card containers.
+
+#### 3. Tailwind config (`tailwind.config.js`)
+- Added `app.card`, `app.card-nested`, `app.glass`, `app.glow` color tokens
+- Added `shadow-glow` box shadow utility
+- Added `border-ghost` border color
+- Added `fontFamily.sans` with Manrope
+
+#### 4. Component sweep (26 files modified)
+**Borders removed:** ~80 instances of `border border-tg-separator` removed from cards. Replaced with `.card` class (ghost border + ambient shadow).
+
+**Inputs restyled:** `border border-tg-separator ... bg-transparent` → `border border-ghost ... bg-app-card-nested` (tonal fill instead of transparent).
+
+**Dividers removed:** `divide-y divide-tg-separator` → `space-y-2` (spacing instead of lines, per DESIGN.md "no-line" rule).
+
+**Card radius bumped:** `rounded-xl` → `rounded-2xl` on card containers (12→16px).
+
+**CTA gradient:** All primary buttons use `bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white` instead of flat `bg-tg-button`.
+
+**Glassmorphism on floating elements:**
+- BottomTabs: `bg-app-glass backdrop-blur-xl shadow-glow`
+- BottomSheet: `bg-app-glass backdrop-blur-xl shadow-glow`
+- LanguagePickerModal: `bg-app-glass backdrop-blur-xl shadow-glow`
+
+**Dark theme dev fallback:** `[data-theme='dark']` now sets all `--tg-theme-*` vars to dark values, so toggling theme in dev browser works correctly.
+
+#### 5. What was NOT changed
+- No structural HTML changes — same components, same data flow
+- No new dependencies
+- All existing hooks, API calls, i18n, TG SDK integration untouched
+- Existing SVG icon system kept (no Material Symbols)
+- All 86 tests pass, typecheck clean
+
+### Visual results
+Verified at 390×844 (iPhone 14 Pro) in both light and dark mode:
+- **Home (Groups list)** — off-white background, white cards with ghost border + glow, gradient FAB
+- **Group detail** — transaction cards clearly separated, settlement cards with green tint, tabs unchanged
+- **Account** — section cards well-defined, grouped settings, gradient "Connect Wallet" button
+- **Dark mode** — deep charcoal `#131315` base, surface cards `#1f1f21`, blue accent text, glassmorphic bottom bar
+
+### Ambient glow assessment
+Tried on cards and floating elements. The `0px 4px 20px` shadow with theme-aware color works well:
+- **Light mode:** `rgba(0,0,0,0.08)` — subtle but visible, adds depth without being "dirty"
+- **Dark mode:** `rgba(146,204,255,0.06)` — very faint blue bloom, adds the "ethereal" feel mentioned in DESIGN.md
+- Combined with ghost border, it provides enough contrast to define cards without heavy borders
+- **Verdict:** Worth keeping. Low effort, meaningful visual improvement.

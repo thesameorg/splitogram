@@ -434,7 +434,7 @@ export function GroupSettings() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+          className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested"
           disabled={!isAdmin}
           maxLength={100}
         />
@@ -466,7 +466,7 @@ export function GroupSettings() {
         <button
           onClick={handleSave}
           disabled={saving || !name.trim()}
-          className="w-full mb-6 bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+          className="w-full mb-6 bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-3 rounded-xl font-medium disabled:opacity-50"
         >
           {saving ? t('groupSettings.saving') : t('groupSettings.save')}
         </button>
@@ -480,13 +480,13 @@ export function GroupSettings() {
         <div className="flex gap-2">
           <button
             onClick={handleShareInvite}
-            className="flex-1 p-3 border border-tg-link text-tg-link rounded-xl text-sm font-medium"
+            className="flex-1 p-3 border border-ghost text-tg-link rounded-xl text-sm font-medium"
           >
             {t('groupSettings.shareInvite')}
           </button>
           <button
             onClick={handleCopyInvite}
-            className="p-3 border border-tg-link text-tg-link rounded-xl"
+            className="p-3 border border-ghost text-tg-link rounded-xl"
             title={t('groupSettings.copyInvite')}
           >
             <IconCopy size={18} />
@@ -494,7 +494,7 @@ export function GroupSettings() {
           {isAdmin && (
             <button
               onClick={handleRegenerateInvite}
-              className="p-3 border border-tg-separator rounded-xl text-sm text-tg-hint"
+              className="p-3 border border-ghost rounded-xl text-sm text-tg-hint"
             >
               {t('groupSettings.regenerate')}
             </button>
@@ -513,7 +513,7 @@ export function GroupSettings() {
               setError(err.message || 'Failed to toggle notifications');
             }
           }}
-          className="w-full flex justify-between items-center p-3 border border-tg-separator rounded-xl"
+          className="w-full flex justify-between items-center p-3 border border-ghost rounded-xl bg-app-card-nested"
         >
           <span className="text-sm font-medium">{t('groupSettings.notifications')}</span>
           <span className={`text-sm ${muted ? 'text-app-negative' : 'text-app-positive'}`}>
@@ -538,7 +538,7 @@ export function GroupSettings() {
             .map((m) => (
               <div
                 key={m.userId}
-                className="flex items-center justify-between bg-tg-section p-3 rounded-xl border border-tg-separator"
+                className="flex items-center justify-between card p-3 rounded-2xl"
               >
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
@@ -619,7 +619,7 @@ export function GroupSettings() {
         {isAdmin && (
           <button
             onClick={() => setShowAddPlaceholder(true)}
-            className="mt-3 w-full p-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint font-medium"
+            className="mt-3 w-full p-3 border border-dashed border-ghost rounded-xl text-sm text-tg-hint font-medium"
           >
             {t('groupSettings.addPlaceholder')}
           </button>
@@ -634,7 +634,7 @@ export function GroupSettings() {
       )}
 
       {/* Danger zone */}
-      <div className="border-t border-tg-separator pt-6">
+      <div className="border-t border-ghost pt-6">
         {isAdmin ? (
           <button
             onClick={handleDeleteGroup}
@@ -662,7 +662,7 @@ export function GroupSettings() {
           <input
             type="text"
             placeholder={t('groupSettings.emojiInputPlaceholder')}
-            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-center text-2xl"
+            className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested text-center text-2xl"
             maxLength={4}
             onInput={(e) => {
               const input = e.currentTarget;
@@ -705,14 +705,14 @@ export function GroupSettings() {
             value={placeholderName}
             onChange={(e) => setPlaceholderName(e.target.value)}
             placeholder={t('groupSettings.placeholderNamePlaceholder')}
-            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+            className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested"
             autoFocus
             maxLength={64}
           />
           <button
             onClick={handleAddPlaceholder}
             disabled={addingPlaceholder || !placeholderName.trim()}
-            className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+            className="w-full bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-3 rounded-xl font-medium disabled:opacity-50"
           >
             {addingPlaceholder
               ? t('groupSettings.placeholderAdding')
@@ -732,14 +732,14 @@ export function GroupSettings() {
             type="text"
             value={editPlaceholderName}
             onChange={(e) => setEditPlaceholderName(e.target.value)}
-            className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+            className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested"
             autoFocus
             maxLength={64}
           />
           <button
             onClick={handleEditPlaceholder}
             disabled={!editPlaceholderName.trim()}
-            className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium disabled:opacity-50"
+            className="w-full bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-3 rounded-xl font-medium disabled:opacity-50"
           >
             {t('account.save')}
           </button>

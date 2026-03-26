@@ -46,7 +46,7 @@ export function LanguagePickerModal({ onDone }: { onDone: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] px-4">
       <div
-        className="bg-tg-bg w-full max-w-sm rounded-2xl overflow-hidden"
+        className="bg-app-glass backdrop-blur-xl w-full max-w-sm rounded-2xl overflow-hidden shadow-glow"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="p-5 pb-3">
@@ -72,7 +72,7 @@ export function LanguagePickerModal({ onDone }: { onDone: () => void }) {
         <div className="p-4 pt-3">
           <button
             onClick={handleConfirm}
-            className="w-full py-3 rounded-xl font-semibold bg-tg-button text-tg-button-text"
+            className="w-full py-3 rounded-xl font-semibold bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white"
           >
             OK
           </button>

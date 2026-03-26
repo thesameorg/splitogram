@@ -81,7 +81,7 @@ export function ProfileSection({
               type="text"
               value={editName}
               onChange={(e) => onEditNameChange(e.target.value)}
-              className="flex-1 p-3 border border-tg-separator rounded-xl bg-transparent"
+              className="flex-1 p-3 border border-ghost rounded-xl bg-app-card-nested"
               autoFocus
               maxLength={64}
             />
@@ -94,13 +94,13 @@ export function ProfileSection({
             </button>
             <button
               onClick={onCancelEditing}
-              className="px-4 py-2 border border-tg-separator rounded-xl"
+              className="px-4 py-2 border border-ghost rounded-xl"
             >
               {t('account.cancel')}
             </button>
           </div>
         ) : (
-          <div className="flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator">
+          <div className="flex justify-between items-center p-3 card rounded-2xl">
             <span className="font-medium">{user?.displayName}</span>
             <button onClick={onStartEditing} className="text-tg-link text-sm font-medium">
               {t('account.edit')}
@@ -114,7 +114,7 @@ export function ProfileSection({
         <label className="block text-sm font-medium mb-1 text-tg-hint">
           {t('account.telegramUsername')}
         </label>
-        <div className="p-3 bg-tg-section rounded-xl border border-tg-separator text-tg-hint">
+        <div className="p-3 card rounded-2xl text-tg-hint">
           {user?.username ? `@${user.username}` : t('account.noUsername')}
         </div>
       </div>

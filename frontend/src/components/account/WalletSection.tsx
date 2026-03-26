@@ -33,7 +33,7 @@ export function WalletSection({
     <div className="mb-4">
       <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.wallet')}</label>
       {walletConnected ? (
-        <div className="p-3 bg-tg-section rounded-xl border border-tg-separator">
+        <div className="p-3 card rounded-2xl">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span className="font-medium">{truncateAddress(friendlyAddress)}</span>
@@ -95,7 +95,7 @@ export function WalletSection({
             </button>
           </div>
           {showBalances && (
-            <div className="flex gap-4 mt-2 pt-2 border-t border-tg-separator text-sm">
+            <div className="flex gap-4 mt-2 pt-2 border-t border-ghost text-sm">
               {balancesLoading ? (
                 <span className="text-tg-hint">...</span>
               ) : (

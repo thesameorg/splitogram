@@ -362,7 +362,7 @@ export function SettleCrypto() {
       )}
 
       {/* Settlement info */}
-      <div className="bg-tg-section px-4 py-3 rounded-xl border border-tg-separator mb-4 flex items-center justify-between">
+      <div className="card px-4 py-3 rounded-2xl mb-4 flex items-center justify-between">
         <span className="text-sm text-tg-hint">
           {t('settleUp.youOwe', { name: settlement.to?.displayName })}
         </span>
@@ -538,7 +538,7 @@ function CryptoSettlementUI({
     const senderAddr = walletConnected && friendlyAddress ? friendlyAddress : null;
     const viewerBase = testnet ? 'https://testnet.tonviewer.com' : 'https://tonviewer.com';
     return (
-      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
+      <div className="card p-6 rounded-2xl text-center">
         <div className="w-8 h-8 border-3 border-tg-button border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <div className="font-medium">{t('settlement.confirming')}</div>
         <div className="text-xs text-tg-hint mt-1">
@@ -564,7 +564,7 @@ function CryptoSettlementUI({
 
   if (state === 'sending') {
     return (
-      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
+      <div className="card p-6 rounded-2xl text-center">
         <div className="w-8 h-8 border-3 border-tg-button border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <div className="font-medium">{t('settlement.waitingWallet')}</div>
       </div>
@@ -573,7 +573,7 @@ function CryptoSettlementUI({
 
   if (state === 'confirm') {
     return (
-      <div className="bg-tg-section p-4 rounded-2xl border border-tg-separator space-y-3">
+      <div className="card p-4 rounded-2xl space-y-3">
         <div className="font-medium">{t('settlement.confirmTitle')}</div>
         {conversionNote && (
           <div className="text-xs text-tg-hint bg-tg-secondary-bg px-3 py-1.5 rounded-lg">
@@ -592,7 +592,7 @@ function CryptoSettlementUI({
             <span className="text-tg-hint">{t('settlement.commissionLabel')}</span>
             <span>{commission} USDT</span>
           </div>
-          <div className="flex justify-between font-medium pt-1.5 border-t border-tg-separator">
+          <div className="flex justify-between font-medium pt-1.5 border-t border-ghost">
             <span>{t('settlement.lineTotal')}</span>
             <span>{totalPayment} USDT</span>
           </div>
@@ -619,7 +619,7 @@ function CryptoSettlementUI({
 
         <button
           onClick={onConfirm}
-          className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-4 rounded-xl font-medium flex items-center justify-center gap-2"
         >
           <IconTon size={18} />
           {t('settlement.confirmButton')}
@@ -647,7 +647,7 @@ function CryptoSettlementUI({
         ) : (
           <button
             onClick={onRetry}
-            className="w-full border border-tg-separator py-3 rounded-xl font-medium text-sm"
+            className="w-full border border-ghost py-3 rounded-xl font-medium text-sm"
           >
             {t('settlement.tryAgain')}
           </button>
@@ -663,7 +663,7 @@ function CryptoSettlementUI({
 
   if (state === 'preflight') {
     return (
-      <div className="bg-tg-section p-6 rounded-2xl border border-tg-separator text-center">
+      <div className="card p-6 rounded-2xl text-center">
         <div className="w-6 h-6 border-2 border-tg-button border-t-transparent rounded-full animate-spin mx-auto" />
       </div>
     );
@@ -703,7 +703,7 @@ function CryptoSettlementUI({
             inputMode="decimal"
             value={amountStr}
             onChange={(e) => onAmountChange(e.target.value)}
-            className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
+            className="w-full p-3 pl-8 border border-ghost rounded-xl bg-app-card-nested"
           />
         </div>
         <div className="text-xs text-tg-hint mt-1">
@@ -714,7 +714,7 @@ function CryptoSettlementUI({
       <button
         onClick={onPay}
         disabled={!walletsReady}
-        className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+        className="w-full bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-4 rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50"
       >
         <IconTon size={18} />
         {walletConnected
@@ -742,7 +742,7 @@ function HowItWorks({ t }: { t: (key: string) => string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mt-4 rounded-xl border border-tg-separator overflow-hidden">
+    <div className="mt-4 rounded-xl border border-ghost overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-4 py-3 text-sm text-tg-hint"
@@ -779,7 +779,7 @@ function TxLinkInput({
     <div className="space-y-2">
       <button
         onClick={onRefresh}
-        className="w-full bg-tg-button text-tg-button-text py-3 rounded-xl font-medium text-sm"
+        className="w-full bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-3 rounded-xl font-medium text-sm"
       >
         {t('settlement.refreshStatus')}
       </button>
@@ -789,12 +789,12 @@ function TxLinkInput({
         value={txLink}
         onChange={(e) => setTxLink(e.target.value)}
         placeholder={t('settlement.txLinkPlaceholder')}
-        className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-sm"
+        className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested text-sm"
       />
       <button
         onClick={() => txLink.trim() && onSubmit(txLink.trim())}
         disabled={!txLink.trim()}
-        className="w-full border border-tg-separator py-3 rounded-xl font-medium text-sm disabled:opacity-40"
+        className="w-full border border-ghost py-3 rounded-xl font-medium text-sm disabled:opacity-40"
       >
         {t('settlement.verifyTx')}
       </button>

@@ -32,7 +32,7 @@ export function LinksSection({ isAdmin, onOpenFeedback }: LinksSectionProps) {
       <div className="mb-4">
         <button
           onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/splitogramm')}
-          className="w-full flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator text-left"
+          className="w-full flex justify-between items-center p-3 card rounded-2xl text-left"
         >
           <span className="font-medium">{t('account.channel')}</span>
           <ExternalLinkIcon />
@@ -42,7 +42,7 @@ export function LinksSection({ isAdmin, onOpenFeedback }: LinksSectionProps) {
       {/* Legal */}
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1 text-tg-hint">{t('account.legal')}</label>
-        <div className="bg-tg-section rounded-xl border border-tg-separator divide-y divide-tg-separator">
+        <div className="card rounded-2xl space-y-2">
           <button
             onClick={() => openExternalLink(`${config.apiBaseUrl}/terms`)}
             className="w-full flex justify-between items-center p-3 text-left"
@@ -64,7 +64,7 @@ export function LinksSection({ isAdmin, onOpenFeedback }: LinksSectionProps) {
       <div className="mb-4">
         <button
           onClick={onOpenFeedback}
-          className="w-full p-3 bg-tg-section rounded-xl border border-tg-separator text-left font-medium"
+          className="w-full p-3 card rounded-2xl text-left font-medium"
         >
           {t('account.feedback')}
         </button>
@@ -79,7 +79,7 @@ export function LinksSection({ isAdmin, onOpenFeedback }: LinksSectionProps) {
               const url = `${base}/admin`;
               window.Telegram?.WebApp?.openLink?.(url) ?? window.open(url, '_blank');
             }}
-            className="w-full p-3 bg-tg-section rounded-xl border border-tg-separator text-left font-medium"
+            className="w-full p-3 card rounded-2xl text-left font-medium"
           >
             Admin Dashboard
           </button>

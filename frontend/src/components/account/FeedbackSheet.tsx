@@ -36,7 +36,7 @@ export function FeedbackSheet({
           value={feedbackText}
           onChange={(e) => onTextChange(e.target.value)}
           placeholder={t('account.feedbackPlaceholder')}
-          className="w-full p-3 border border-tg-separator rounded-xl bg-transparent resize-none h-32"
+          className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested resize-none h-32"
           maxLength={2000}
         />
 
@@ -46,7 +46,7 @@ export function FeedbackSheet({
             {feedbackFiles.map((file, i) => (
               <div
                 key={i}
-                className="flex items-center gap-1.5 px-2 py-1 bg-tg-section rounded-lg border border-tg-separator text-xs"
+                className="flex items-center gap-1.5 px-2 py-1 bg-app-card-nested rounded-lg text-xs"
               >
                 <span className="truncate max-w-[120px]">{file.name}</span>
                 <button
@@ -65,7 +65,7 @@ export function FeedbackSheet({
           {feedbackFiles.length < 5 && (
             <button
               onClick={() => feedbackFileInputRef.current?.click()}
-              className="px-4 py-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
+              className="px-4 py-3 border border-dashed border-ghost rounded-xl text-sm text-tg-hint"
               aria-label="Attach file"
             >
               📎

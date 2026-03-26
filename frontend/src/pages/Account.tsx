@@ -397,7 +397,7 @@ export function Account() {
                 window.Telegram.WebApp.close();
               }
             }}
-            className="px-8 py-3 bg-tg-button text-tg-button-text rounded-xl font-medium"
+            className="px-8 py-3 bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white rounded-xl font-medium"
           >
             {t('account.closeApp')}
           </button>
@@ -457,7 +457,7 @@ export function Account() {
         </label>
         <button
           onClick={() => setShowLangPicker(true)}
-          className="w-full flex justify-between items-center p-3 bg-tg-section rounded-xl border border-tg-separator"
+          className="w-full flex justify-between items-center p-3 card rounded-2xl"
         >
           <span className="flex items-center gap-2">
             <span>{currentLang.flag}</span>

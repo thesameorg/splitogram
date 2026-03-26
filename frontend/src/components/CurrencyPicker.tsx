@@ -43,7 +43,7 @@ export function CurrencyPicker({
         placeholder={t('currencyPicker.search')}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full p-3 border border-tg-separator rounded-xl mb-3 bg-transparent"
+        className="w-full p-3 border border-ghost rounded-xl mb-3 bg-app-card-nested"
         autoFocus
         aria-label={t('currencyPicker.search')}
       />
@@ -93,7 +93,7 @@ export function CurrencyButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="w-full p-3 border border-tg-separator rounded-xl bg-transparent text-left flex items-center justify-between disabled:opacity-50"
+      className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested text-left flex items-center justify-between disabled:opacity-50"
     >
       <span>
         {currency.symbol} {currency.name} ({currency.code})

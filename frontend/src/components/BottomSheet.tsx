@@ -24,7 +24,7 @@ export function BottomSheet({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end" style={{ zIndex }} onClick={onClose}>
       <div
-        className="bg-tg-bg w-full rounded-t-2xl p-6 max-h-[85dvh] flex flex-col"
+        className="bg-app-glass backdrop-blur-xl w-full rounded-t-2xl p-6 max-h-[85dvh] flex flex-col shadow-glow"
         style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))' }}
         onClick={(e) => e.stopPropagation()}
       >

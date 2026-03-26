@@ -41,7 +41,7 @@ export function PaymentInfoSection({
       <label className="block text-sm font-medium mb-1 text-tg-hint">
         {t('account.paymentInfo')}
       </label>
-      <div className="bg-tg-section rounded-xl border border-tg-separator p-3 space-y-3">
+      <div className="card rounded-2xl p-3 space-y-3">
         {/* Payment Link */}
         <div>
           <div className="text-xs text-tg-hint mb-1">{t('account.paymentLink')}</div>
@@ -52,7 +52,7 @@ export function PaymentInfoSection({
                 value={paymentLink}
                 onChange={(e) => onPaymentLinkChange(e.target.value)}
                 placeholder={t('account.paymentLinkPlaceholder')}
-                className="flex-1 min-w-0 p-2 border border-tg-separator rounded-lg bg-transparent text-sm"
+                className="flex-1 min-w-0 p-2 border border-ghost rounded-lg bg-app-card-nested text-sm"
                 autoFocus
                 maxLength={500}
               />
@@ -65,7 +65,7 @@ export function PaymentInfoSection({
               </button>
               <button
                 onClick={onCancelEditingPaymentLink}
-                className="px-3 py-2 border border-tg-separator rounded-lg text-sm shrink-0"
+                className="px-3 py-2 border border-ghost rounded-lg text-sm shrink-0"
               >
                 {t('account.cancel')}
               </button>
@@ -88,7 +88,7 @@ export function PaymentInfoSection({
         </div>
 
         {/* Payment QR */}
-        <div className="pt-2 border-t border-tg-separator">
+        <div className="pt-2 border-t border-ghost">
           <div className="text-xs text-tg-hint mb-2">{t('account.paymentQr')}</div>
           {user?.paymentQrKey ? (
             <div className="flex items-start gap-3">
@@ -96,7 +96,7 @@ export function PaymentInfoSection({
                 <img
                   src={imageUrl(user.paymentQrKey!)}
                   alt="Payment QR"
-                  className="w-24 h-24 rounded-lg object-cover border border-tg-separator"
+                  className="w-24 h-24 rounded-lg object-cover border border-ghost"
                 />
               </button>
               <div className="flex flex-col gap-2">
@@ -116,7 +116,7 @@ export function PaymentInfoSection({
             <button
               onClick={() => qrFileInputRef.current?.click()}
               disabled={uploadingQr}
-              className="w-full p-3 border border-dashed border-tg-separator rounded-lg text-sm text-tg-hint disabled:opacity-50"
+              className="w-full p-3 border border-dashed border-ghost rounded-lg text-sm text-tg-hint disabled:opacity-50"
             >
               {uploadingQr ? '...' : t('account.addPaymentQr')}
             </button>

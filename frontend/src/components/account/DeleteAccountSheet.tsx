@@ -63,7 +63,7 @@ export function DeleteAccountSheet({
             </button>
             <button
               onClick={onClose}
-              className="w-full py-3 rounded-xl border border-tg-separator font-medium"
+              className="w-full py-3 rounded-xl border border-ghost font-medium"
             >
               {t('account.cancel')}
             </button>
@@ -82,7 +82,7 @@ export function DeleteAccountSheet({
                 return (
                   <div
                     key={group.id}
-                    className={`p-3 rounded-xl border ${resolved ? 'border-app-positive/30 bg-app-positive-bg' : 'border-tg-separator bg-tg-section'}`}
+                    className={`p-3 rounded-xl ${resolved ? 'border border-app-positive/30 bg-app-positive-bg' : 'bg-app-card-nested'}`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-sm">{group.name}</span>
@@ -100,7 +100,7 @@ export function DeleteAccountSheet({
                               onChange={(e) =>
                                 onSelectAdmin(group.id, parseInt(e.target.value, 10))
                               }
-                              className="flex-1 p-2 text-sm rounded-lg border border-tg-separator bg-transparent"
+                              className="flex-1 p-2 text-sm rounded-lg border border-ghost bg-app-card-nested"
                             >
                               <option value="">{t('account.selectNewAdmin')}</option>
                               {group.candidates.map((c) => (
@@ -142,7 +142,7 @@ export function DeleteAccountSheet({
             </button>
             <button
               onClick={onClose}
-              className="w-full py-3 rounded-xl border border-tg-separator font-medium"
+              className="w-full py-3 rounded-xl border border-ghost font-medium"
             >
               {t('account.cancel')}
             </button>
@@ -164,7 +164,7 @@ export function DeleteAccountSheet({
             {!deleting && (
               <button
                 onClick={onClose}
-                className="w-full py-3 rounded-xl border border-tg-separator font-medium"
+                className="w-full py-3 rounded-xl border border-ghost font-medium"
               >
                 {t('account.cancel')}
               </button>

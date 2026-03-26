@@ -408,7 +408,7 @@ export function Group() {
       <button
         key={`e-${exp.id}`}
         onClick={() => setSelectedExpense(exp)}
-        className="w-full text-left bg-tg-section p-4 rounded-xl border border-tg-separator"
+        className="w-full text-left card p-4 rounded-2xl"
       >
         <div className="flex justify-between items-start gap-2">
           <div className="min-w-0 flex-1">
@@ -478,14 +478,14 @@ export function Group() {
           <div className="flex gap-1.5 shrink-0">
             <button
               onClick={() => shareInviteLink(group.inviteCode, group.name, group.members.length)}
-              className="p-1.5 border border-tg-link rounded-lg text-tg-link"
+              className="p-1.5 border border-ghost rounded-lg text-tg-link"
               aria-label={t('group.invite')}
             >
               <IconUserPlus size={20} />
             </button>
             <button
               onClick={() => navigate(`/groups/${groupId}/settings`)}
-              className="p-1.5 border rounded-lg text-tg-link border-tg-link"
+              className="p-1.5 border border-ghost rounded-lg text-tg-link"
               aria-label={currentUserRole === 'admin' ? t('group.settings') : t('group.info')}
             >
               {currentUserRole === 'admin' ? <IconSettings size={20} /> : <IconInfo size={20} />}
@@ -505,7 +505,7 @@ export function Group() {
 
       {/* Invite nudge — shown right after group creation */}
       {showInviteNudge && (
-        <div className="mb-4 bg-tg-section p-4 rounded-xl border border-tg-link/30">
+        <div className="mb-4 card p-4 rounded-2xl">
           <p className="text-sm font-medium mb-3">{t('group.inviteNudge')}</p>
           <div className="flex gap-2">
             <button
@@ -519,7 +519,7 @@ export function Group() {
             </button>
             <button
               onClick={() => setShowInviteNudge(false)}
-              className="px-4 py-2.5 rounded-lg text-sm text-tg-hint border border-tg-separator"
+              className="px-4 py-2.5 rounded-lg text-sm text-tg-hint border border-ghost"
             >
               {t('group.inviteNudgeLater')}
             </button>
@@ -542,7 +542,7 @@ export function Group() {
       )}
 
       {/* Tabs */}
-      <div className="flex border-b border-tg-separator mb-4">
+      <div className="flex border-b border-ghost mb-4">
         {(['transactions', 'balances', 'feed', 'stats'] as const).map((tabKey) => {
           const hasDebt =
             tabKey === 'balances' && debts.some((d) => d.from.userId === currentUserId);
@@ -605,7 +605,7 @@ export function Group() {
               {activityItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-tg-section border border-tg-separator"
+                  className="flex items-start gap-3 p-3 rounded-2xl card"
                 >
                   <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
                   <div className="flex-1 min-w-0">
@@ -705,7 +705,7 @@ export function Group() {
               return (
                 <div
                   key={m.userId}
-                  className="bg-tg-section p-3 rounded-xl border border-tg-separator"
+                  className="card p-3 rounded-2xl"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
@@ -743,7 +743,7 @@ export function Group() {
                       </button>
                       <button
                         onClick={() => handleSettleUp(debtIOwe, 'manual')}
-                        className="flex-1 text-tg-text py-2 rounded-lg text-sm border border-tg-separator font-medium"
+                        className="flex-1 text-tg-text py-2 rounded-lg text-sm border border-ghost font-medium"
                       >
                         {t('group.settleManually')}
                       </button>
@@ -754,7 +754,7 @@ export function Group() {
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => handleSettleUp(debtOwesMe, 'manual')}
-                        className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-tg-separator"
+                        className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-ghost"
                       >
                         {t('group.markAsSettled')}
                       </button>
@@ -768,14 +768,14 @@ export function Group() {
                               m.displayName,
                             )
                           }
-                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-ghost"
                         >
                           {t('group.invite')}
                         </button>
                       ) : (
                         <button
                           onClick={() => handleSendReminder(debtOwesMe)}
-                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-ghost"
                         >
                           {t('group.sendReminder')}
                         </button>
@@ -793,7 +793,7 @@ export function Group() {
                           m.displayName,
                         )
                       }
-                      className="mt-3 w-full text-tg-link py-2 rounded-lg text-sm border border-tg-link"
+                      className="mt-3 w-full text-tg-link py-2 rounded-lg text-sm border border-ghost"
                     >
                       {t('group.invite')}
                     </button>
@@ -824,7 +824,7 @@ export function Group() {
               />
 
               {/* Key metrics */}
-              <div className="bg-tg-section rounded-xl border border-tg-separator p-4 space-y-3">
+              <div className="card rounded-2xl p-4 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-tg-hint text-sm">{t('group.statsTotalSpent')}</span>
                   <span className="font-bold text-lg">
@@ -853,7 +853,7 @@ export function Group() {
                 <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mb-2">
                   {t('group.statsAdditional')}
                 </div>
-                <div className="bg-tg-section rounded-xl border border-tg-separator divide-y divide-tg-separator">
+                <div className="card rounded-2xl space-y-2">
                   <div className="flex justify-between items-center p-4">
                     <span className="text-sm">{t('group.statsPaidFor')}</span>
                     <span className="text-sm font-medium">
@@ -965,7 +965,7 @@ export function Group() {
 
             {/* Comment */}
             {selectedExpense.comment && (
-              <div className="text-sm text-tg-text bg-tg-section rounded-xl px-3 py-2">
+              <div className="text-sm text-tg-text card rounded-xl px-3 py-2">
                 {selectedExpense.comment}
               </div>
             )}
@@ -981,7 +981,7 @@ export function Group() {
                 <img
                   src={imageUrl(selectedExpense.receiptThumbKey)}
                   alt="Receipt"
-                  className="w-20 h-20 rounded-xl object-cover border border-tg-separator"
+                  className="w-20 h-20 rounded-xl object-cover border border-ghost"
                 />
               </button>
             )}
@@ -1001,7 +1001,7 @@ export function Group() {
                       setSelectedExpense(null);
                       navigate(`/groups/${groupId}/edit-expense/${eid}`);
                     }}
-                    className="flex-1 py-2 rounded-xl text-sm font-medium text-tg-link border border-tg-link"
+                    className="flex-1 py-2 rounded-xl text-sm font-medium text-tg-link border border-ghost"
                   >
                     {t('group.edit')}
                   </button>
@@ -1070,7 +1070,7 @@ export function Group() {
                 <img
                   src={imageUrl(selectedSettlement.receiptThumbKey)}
                   alt="Receipt"
-                  className="w-20 h-20 rounded-xl object-cover border border-tg-separator"
+                  className="w-20 h-20 rounded-xl object-cover border border-ghost"
                 />
               </button>
             )}
@@ -1110,7 +1110,7 @@ export function Group() {
                     setShowClaimPrompt(false);
                     handleClaimPlaceholder(m.userId, m.displayName);
                   }}
-                  className="w-full flex items-center justify-between p-3 bg-tg-section rounded-xl border border-tg-separator"
+                  className="w-full flex items-center justify-between p-3 card rounded-2xl"
                 >
                   <div className="flex items-center gap-2">
                     <span>{'\uD83D\uDC7B'}</span>

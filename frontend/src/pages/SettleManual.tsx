@@ -115,7 +115,7 @@ export function SettleManual() {
       <h1 className="text-xl font-bold mb-6">{t('settleUp.title')}</h1>
 
       {/* Settlement info */}
-      <div className="bg-tg-section px-4 py-3 rounded-xl border border-tg-separator mb-4 flex items-center justify-between">
+      <div className="card px-4 py-3 rounded-2xl mb-4 flex items-center justify-between">
         <span className="text-sm text-tg-hint">
           {isDebtor
             ? t('settleUp.youOwe', { name: settlement.to?.displayName })
@@ -196,7 +196,7 @@ export function SettleManual() {
                 inputMode="decimal"
                 value={amountStr}
                 onChange={(e) => setAmountStr(sanitizeDecimalInput(e.target.value))}
-                className="w-full p-3 pl-8 border border-tg-separator rounded-xl bg-transparent"
+                className="w-full p-3 pl-8 border border-ghost rounded-xl bg-app-card-nested"
               />
             </div>
             <div className="text-xs text-tg-hint mt-1">
@@ -213,7 +213,7 @@ export function SettleManual() {
               placeholder={t('settleUp.notePlaceholder')}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full p-3 border border-tg-separator rounded-xl bg-transparent"
+              className="w-full p-3 border border-ghost rounded-xl bg-app-card-nested"
               maxLength={500}
             />
             {!comment.trim() && !receiptFile && (
@@ -224,7 +224,7 @@ export function SettleManual() {
           {/* Receipt attachment */}
           <div>
             {receiptPreview ? (
-              <div className="flex items-center gap-3 p-3 bg-tg-section rounded-xl border border-tg-separator">
+              <div className="flex items-center gap-3 p-3 card rounded-2xl">
                 <img
                   src={receiptPreview}
                   alt="Receipt"
@@ -243,7 +243,7 @@ export function SettleManual() {
             ) : (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full p-3 border border-dashed border-tg-separator rounded-xl text-sm text-tg-hint"
+                className="w-full p-3 border border-dashed border-ghost rounded-xl text-sm text-tg-hint"
               >
                 {t('settleUp.attachReceipt')}
               </button>
@@ -271,7 +271,7 @@ export function SettleManual() {
                   <img
                     src={imageUrl(settlement.to.paymentQrKey)}
                     alt="Payment QR"
-                    className="w-40 h-40 rounded-lg object-cover border border-tg-separator mx-auto"
+                    className="w-40 h-40 rounded-lg object-cover border border-ghost mx-auto"
                   />
                 </button>
               )}
@@ -297,7 +297,7 @@ export function SettleManual() {
               if (window.confirm(msg)) handleMarkSettled();
             }}
             disabled={submitting || (!comment.trim() && !receiptFile)}
-            className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-medium disabled:opacity-50"
+            className="w-full bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white py-4 rounded-xl font-medium disabled:opacity-50"
           >
             {submitting
               ? t('settleUp.settling')
@@ -314,7 +314,7 @@ export function SettleManual() {
           <img
             src={imageUrl(settlement.receiptThumbKey)}
             alt="Receipt"
-            className="w-20 h-20 rounded-xl object-cover border border-tg-separator mx-auto"
+            className="w-20 h-20 rounded-xl object-cover border border-ghost mx-auto"
           />
         </button>
       )}
