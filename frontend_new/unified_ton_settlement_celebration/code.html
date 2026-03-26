@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Transaction Settled</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#92ccff",
+              "surface": "#131315",
+              "primary-container": "#2b98dd",
+              "on-primary-container": "#002c47",
+              "inverse-surface": "#e5e1e4",
+              "tertiary": "#ffb77a",
+              "tertiary-container": "#d37b1e",
+              "on-error-container": "#ffdad6",
+              "on-surface": "#e5e1e4",
+              "surface-container-highest": "#353437",
+              "secondary-fixed-dim": "#93ccff",
+              "inverse-primary": "#006497",
+              "secondary-container": "#00527e",
+              "surface-container-high": "#2a2a2c",
+              "on-secondary": "#003351",
+              "on-surface-variant": "#bfc7d2",
+              "on-tertiary-fixed-variant": "#6d3a00",
+              "error-container": "#93000a",
+              "surface-dim": "#131315",
+              "surface-tint": "#92ccff",
+              "surface-container": "#1f1f21",
+              "primary-fixed": "#cce5ff",
+              "secondary-fixed": "#cce5ff",
+              "on-primary-fixed": "#001d31",
+              "on-background": "#e5e1e4",
+              "tertiary-fixed": "#ffdcc2",
+              "surface-container-low": "#1b1b1d",
+              "background": "#131315",
+              "on-tertiary-container": "#432100",
+              "on-secondary-container": "#8bc5f7",
+              "on-tertiary": "#4c2700",
+              "error": "#ffb4ab",
+              "on-primary-fixed-variant": "#004b73",
+              "outline-variant": "#3f4850",
+              "on-error": "#690005",
+              "primary-fixed-dim": "#92ccff",
+              "tertiary-fixed-dim": "#ffb77a",
+              "on-primary": "#003351",
+              "on-secondary-fixed-variant": "#004b73",
+              "surface-bright": "#39393b",
+              "surface-variant": "#353437",
+              "on-tertiary-fixed": "#2e1500",
+              "secondary": "#93ccff",
+              "surface-container-lowest": "#0e0e10",
+              "inverse-on-surface": "#303032",
+              "on-secondary-fixed": "#001d31",
+              "outline": "#89929b"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(31, 31, 33, 0.6);
+        backdrop-filter: blur(20px);
+      }
+      .glow-check {
+        box-shadow: 0 0 60px rgba(146, 204, 255, 0.25);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+<div class="flex items-center justify-between px-4 h-16">
+<div class="flex items-center gap-3">
+<button class="hover:bg-white/10 transition-colors active:scale-95 duration-200 p-2 rounded-full">
+<span class="material-symbols-outlined text-[#92CCFF]" data-icon="close">close</span>
+</button>
+<h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#92CCFF]">Transaction Settled</h1>
+</div>
+<div class="w-10"></div> <!-- Spacer for balance -->
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 flex flex-col items-center max-w-md mx-auto min-h-screen">
+<!-- Celebration Hero -->
+<section class="flex flex-col items-center justify-center w-full mb-12">
+<div class="relative mb-8">
+<div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
+<div class="relative w-28 h-28 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center glow-check">
+<span class="material-symbols-outlined text-on-primary-container text-6xl" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="text-center space-y-2">
+<p class="text-primary font-medium tracking-widest uppercase text-xs">Payment Successful</p>
+<h2 class="text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface">120 TON</h2>
+<p class="text-on-surface-variant font-medium text-lg">≈ $1,420.00 USDT</p>
+</div>
+</section>
+<!-- Recipient & Details Bento Layout -->
+<div class="w-full space-y-4">
+<!-- Recipient Card -->
+<div class="glass-card p-5 rounded-xl border border-outline-variant/15 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Recipient" class="w-14 h-14 rounded-full object-cover border-2 border-primary/20" data-alt="Close-up portrait of a young professional woman with a friendly expression, soft studio lighting, clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN5o_oWDDkZwQluBZsZGh2_m7bXUG5BIOgIWSlXfkZCBOxHnKlgMwWaomvzCcnO8P0mbtLD05jmbZU28UmS27ipG_ROv1wn56fBv9x7o5q0Q9Yy3NXmvHBciLbgTSrh7qaHNo4DhRMcoos5VyeHiAuKCWWL3gae6dlkc0U8Y2FGTjvkibDAWuvjKBVe_GFnvnrubqGhgWzsTr3rGRbGiwgLx4D-8Ty0xjePyGJTDrn4dFCiG6BH7FuNnN4Ml6K3Uks74g1kcqR6ePX"/>
+<div class="absolute -bottom-1 -right-1 bg-[#131315] p-0.5 rounded-full">
+<div class="bg-[#0088CC] w-5 h-5 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-white" data-icon="send" style="font-variation-settings: 'FILL' 1;">send</span>
+</div>
+</div>
+</div>
+<div>
+<p class="text-on-surface-variant text-sm font-medium">To Recipient</p>
+<h3 class="text-on-surface font-bold text-lg">Sarah Chen</h3>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<!-- Transaction Metadata -->
+<div class="glass-card rounded-xl border border-outline-variant/15 overflow-hidden">
+<div class="p-5 space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant text-sm font-medium">Network</span>
+<div class="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
+<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+<span class="text-primary text-xs font-bold uppercase tracking-wider">TON Mainnet</span>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant text-sm font-medium">Transaction ID</span>
+<div class="flex items-center gap-2">
+<code class="text-on-surface font-mono text-sm bg-surface-container-highest px-2 py-1 rounded">UQA...3pX9</code>
+<button class="text-primary hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<div class="pt-2 border-t border-outline-variant/10">
+<a class="flex items-center justify-center gap-2 w-full py-2 text-primary font-bold text-sm hover:underline" href="#">
+                            View on TON Viewer
+                            <span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Status Badge Section -->
+<div class="flex items-center justify-center gap-2 py-4">
+<span class="material-symbols-outlined text-emerald-400 text-lg" data-icon="shield_check" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="text-on-surface-variant text-xs font-medium uppercase tracking-widest">Secured by TON Blockchain</span>
+</div>
+</div>
+<!-- Sticky Footer Action -->
+<div class="fixed bottom-0 left-0 w-full px-6 pb-10 pt-4 bg-gradient-to-t from-background via-background/95 to-transparent z-40">
+<div class="max-w-md mx-auto">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary-container font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all duration-200 text-lg">
+                    Back to Group
+                </button>
+</div>
+</div>
+</main>
+<!-- Navigation Shell Placeholder (Not visible based on transaction focus rule, but structure defined) -->
+<nav class="hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-[#131315]/80 backdrop-blur-xl border-t border-white/5 shadow-[0_-10px_30px_rgba(0,136,204,0.08)]">
+<div class="flex justify-around items-center px-6 py-3 pb-8">
+<div class="flex flex-col items-center justify-center text-gray-500 hover:text-[#92CCFF] transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1">Wallet</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#92CCFF] bg-[#92CCFF]/10 rounded-xl px-3 py-1 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="history" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1">History</span>
+</div>
+<div class="flex flex-col items-center justify-center text-gray-500 hover:text-[#92CCFF] transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1">Contacts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-gray-500 hover:text-[#92CCFF] transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1">Settings</span>
+</div>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Transaction Details - Ethereal Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed-variant": "#004f58",
+                        "primary-container": "#2b98dd",
+                        "on-surface-variant": "#bfc7d2",
+                        "error-container": "#93000a",
+                        "background": "#131315",
+                        "primary-fixed": "#cce5ff",
+                        "primary-fixed-dim": "#92ccff",
+                        "on-secondary-container": "#002d43",
+                        "surface": "#131315",
+                        "secondary-fixed": "#c8e6ff",
+                        "on-surface": "#e4e2e4",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#e4e2e4",
+                        "surface-container": "#1f1f21",
+                        "secondary-container": "#129ad7",
+                        "on-secondary-fixed": "#001e2e",
+                        "tertiary": "#00daf3",
+                        "surface-container-low": "#1b1b1d",
+                        "secondary-fixed-dim": "#86cfff",
+                        "on-tertiary-container": "#002f35",
+                        "surface-dim": "#131315",
+                        "on-primary-fixed": "#001d31",
+                        "surface-bright": "#39393b",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "inverse-on-surface": "#303032",
+                        "on-background": "#e4e2e4",
+                        "on-secondary": "#00344c",
+                        "surface-variant": "#353437",
+                        "primary": "#92ccff",
+                        "on-tertiary-fixed": "#001f24",
+                        "secondary": "#86cfff",
+                        "on-secondary-fixed-variant": "#004c6d",
+                        "on-primary": "#003351",
+                        "tertiary-fixed-dim": "#00daf3",
+                        "tertiary-fixed": "#9cf0ff",
+                        "surface-container-lowest": "#0e0e10",
+                        "outline": "#89929b",
+                        "surface-container-high": "#2a2a2c",
+                        "on-primary-fixed-variant": "#004b73",
+                        "on-tertiary": "#00363d",
+                        "on-primary-container": "#002c47",
+                        "inverse-primary": "#006497",
+                        "outline-variant": "#3f4850",
+                        "surface-container-highest": "#353437",
+                        "tertiary-container": "#009fb2",
+                        "surface-tint": "#92ccff"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "3xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #131315;
+            color: #e4e2e4;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Maintain collapsible header behavior visual cues if scripting was present, 
+           here we ensure the layout allows for smooth scrolling */
+        main {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary/30">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl flex items-center justify-between px-4 h-14 max-w-[400px]">
+<div class="flex items-center gap-2">
+<button class="text-[#92ccff] active:scale-95 duration-200 hover:bg-white/5 p-1 rounded-full">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline font-bold text-base tracking-tight text-[#e4e2e4]">Transaction</h1>
+</div>
+<div class="flex items-center gap-1">
+<button class="text-on-surface-variant/70 hover:text-primary p-1.5 rounded-full active:scale-95 duration-200" title="Edit">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-on-surface-variant/70 hover:text-error p-1.5 rounded-full active:scale-95 duration-200" title="Delete">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+<button class="text-[#e4e2e4]/60 hover:bg-white/5 p-1.5 rounded-full active:scale-95 duration-200 ml-1">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<main class="flex-1 mt-14 pb-24 overflow-y-auto hide-scrollbar">
+<!-- Attachment Image at the very top -->
+<div class="w-full h-48 relative overflow-hidden">
+<img alt="Receipt Attachment" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuSigLXqci1UTGhWdf_iMfGeFIR4FYJbUvgjRV16XmkesZrzSJQS8Z4yDV7OYgcUGApDn5pAdQuhDO4NN4GMznFZa8dzVKM5IZuhF4QluHNli9ET23x5NhR2QBydjKzkr9fovPLkSagCgbFpvAAwYXxZVDfh7kpLvMS9udj6rgAIdW3wa8_TgsqX2mSDo1-PClyQ-zy_1er4GRHjFMoGmDcVza8SzOhcTHtz44GzFFEvLOITWB1PqP7rAhqIVIJRAjM8puK4hD8Ba1"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
+</div>
+<!-- Collapsible Header Section -->
+<section class="px-6 pt-4 pb-8 flex flex-col items-center text-center relative">
+<div class="mb-4 relative">
+<img alt="Payer Avatar" class="w-16 h-16 rounded-full border-2 border-primary/20 object-cover shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8HtumK23NBWHhH-VwjqMhMf_LlsCHqqHSHFEeDfA7fEimUwW7d6ZhTXGqDRtfVjZvdtwmR_6atSF2KBJOiRWfIJvm4UFt45vYAC03ZiAL5TWWS7NgXowd_vUCQ6qlbs4pH0HGotXZvqqsJxxdq6ZYJ9HFiiHXYK4aE7kDFw2U6M_LqhIXEUagUzRnHCJCcoScjWUYE3WJH9Cl7kfy82xIl3d5-aslhx-nTrMN25N0vENhxWM5idXa7oaG1A4p7juteH-4y1y6DQbb"/>
+<div class="absolute -bottom-1 -right-1 bg-surface-container-high p-0.5 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<!-- Transaction Name & Description -->
+<h2 class="font-headline font-extrabold text-2xl tracking-tight text-on-surface mb-1">Dinner at The Steakhouse</h2>
+<p class="font-label text-sm text-on-surface-variant/80 mb-4 px-8">Celebrating Alex's birthday!</p>
+<p class="font-label text-xs text-on-surface-variant/60 uppercase tracking-widest mb-1">Total Amount Paid by Elena</p>
+<h3 class="font-headline font-extrabold text-5xl tracking-tighter text-on-surface mb-2">
+<span class="text-2xl align-top mr-1 font-semibold opacity-60">$</span>142.50
+        </h3>
+<p class="font-label text-xs text-on-surface-variant/60 uppercase tracking-widest">Oct 24 • 8:42 PM</p>
+<div class="mt-6 animate-bounce opacity-40">
+<span class="material-symbols-outlined text-on-surface-variant">keyboard_double_arrow_down</span>
+</div>
+</section>
+<!-- Split Breakdown Section -->
+<section class="px-4 mb-8">
+<div class="bg-surface-container-low rounded-3xl p-5 shadow-sm">
+<div class="flex items-center justify-between mb-6 px-1">
+<h3 class="font-headline font-bold text-base tracking-tight">Split Breakdown</h3>
+<span class="font-label text-xs font-semibold bg-surface-container-high px-3 py-1 rounded-full text-primary">5 Participants</span>
+</div>
+<div class="space-y-4">
+<!-- Participant 1 (Payer) -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img alt="Elena" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBzHQWOftnJhovQ4kuMbWD_IzqPXfV9kByX_UsnWHWOXkFyq4W4dAR5uROP8p9rE5I15ouTr8seS7KdOpwd79jNY2VLYEfWKqg-d7Rcv9SdU44xaVqaZzYC6tD4yWqIVnKJi6Nbsw137HuoLQCafnrnUGMCboMMso2hUENY94r8FKHmAPFSkAAngt5PGKarJB7gBzhGLVxE-l0ah_pSelVaPI93V4IeIVI5g-S_1fYXRb9HSFah-XB_KCt3XX5qAUFCsb6WwNAKl-g"/>
+<div>
+<p class="font-label font-semibold text-sm text-on-surface">Elena Soros</p>
+<p class="font-label text-[10px] text-on-surface-variant/70 uppercase">Paid full amount</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-bold text-tertiary text-sm">+$114.00</p>
+<p class="font-label text-[10px] text-on-surface-variant/50 uppercase">Credit</p>
+</div>
+</div>
+<!-- Participant 2 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img alt="Alex" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeCnx6tYUmN17Z-_M1DLvl-I_cutpCGhicxKnmr2ioV_bFTdZDqzrJMsxA4T3WxKeumvlKIeTjYj-cr3gYYgTkCprvTEiXuA6K5MguIOH5J0pic23h6PPlvpwog_ck6vQa6FXy73db9-UcAPapWSv_CLHmb2H4-pNY8nDK6Zxm_NHEsnD_fOzuNE2ieh6LbgD7YlB8-OisDy7QeN_zW7HL8GbhcI7gsPeE5yS4W2MsCQIVzWIrMFP5O0COE_b3dH_0mrHE_NqBQZeX"/>
+<div>
+<p class="font-label font-semibold text-sm text-on-surface">Alex River</p>
+<p class="font-label text-[10px] text-on-surface-variant/70 uppercase">Dinner Share</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-bold text-error text-sm">-$28.50</p>
+<p class="font-label text-[10px] text-on-surface-variant/50 uppercase">Owes</p>
+</div>
+</div>
+<!-- Participant 3 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img alt="Maria" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCR2vP2gGp-b0clNuSKIU2a7MwAvMi9_wEv5jjojQvWvbzodflMrisyloW8kk2qVXus_ERdXjVrUF-JPerATSMrshIfjdSs6BEFTgtYNNRQDYoAGMVO4Y4E42lyWZwTwmaJaiORoAKFIV5YAGfPbTbhdjOE6cOJiFoIoEWn09jTimVY6e1C2ZNMVEnOXPUC3Ss769OKA5qKjmwNi2fHisOivGQTZ1S1dVqZul1SHV81uJ47oQ7PS8NkGkncpBR9HsHW4yGH2SByo7Yw"/>
+<div>
+<p class="font-label font-semibold text-sm text-on-surface">Maria Smith</p>
+<p class="font-label text-[10px] text-on-surface-variant/70 uppercase">Dinner Share</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-bold text-error text-sm">-$28.50</p>
+<p class="font-label text-[10px] text-on-surface-variant/50 uppercase">Owes</p>
+</div>
+</div>
+<!-- Participant 4 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img alt="David" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVCktbcS1uWosAwy8zbasj8lp_5h2Q6kj9A7VFmyVOZSYvE6Qh37m7x7tP5BeM60wNTxyp9vdw68QMd8C54gGdKMTyZreG-xJcjbYF_8edgJYIrfgF6ZfsNrnhjVLq4h0rhlLgdCuCxE4mn-Hownu09icQ0dxR9SG7kWYKrXkzeHufExXhSNsMgs-Fw-4bxu8IC4fOk1AQlYhR3sJWVIQ3gVFRHJX-7NhO6-9lg54LH8P9oYfSkkvKfctZI4wwq9UPVyEwAFKCY6Ty"/>
+<div>
+<p class="font-label font-semibold text-sm text-on-surface">David Chen</p>
+<p class="font-label text-[10px] text-on-surface-variant/70 uppercase">Dinner Share</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline font-bold text-error text-sm">-$28.50</p>
+<p class="font-label text-[10px] text-on-surface-variant/50 uppercase">Owes</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Activity Section -->
+<section class="px-4">
+<div class="flex items-center justify-between mb-4 px-2">
+<h3 class="font-headline font-bold text-base tracking-tight">Activity Thread</h3>
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/40">Secured with TON</span>
+</div>
+<div class="space-y-4">
+<!-- Message 1 -->
+<div class="flex items-end gap-2 max-w-[85%]">
+<img alt="Alex" class="w-6 h-6 rounded-full mb-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN2uLVtlcCL4URoCcAHgtFZtjkVB1ZD7nafT5-Ot-6moPj2jguJZ2fxatxFo0J2nL05CzYf-XhegzfgCg5roqZxOX7Hq82LzKxkqMj2nI_abRRqa5BpX84qSn6xAc_qQ20_Q-Fs2JUWzv6S3AW4dkdZgQLB67OPw5NajhEDqjT2ykz-2ezVPaSwvZPh6kpXxxcebsMrPKY3brw5qben5qtFieIv-6BKW5TD8R_5B6WytsR_e-21tu_O1vixEDo8MvZvcFJwD3orODQ"/>
+<div class="bg-surface-container rounded-2xl rounded-bl-none p-3 shadow-sm border border-outline-variant/10">
+<p class="text-[13px] leading-relaxed">The steak was incredible! Sending my share over TON now. 🥩</p>
+<div class="flex items-center justify-end gap-1 mt-1">
+<span class="text-[9px] text-on-surface-variant/60">8:45 PM</span>
+</div>
+</div>
+</div>
+<!-- Message 2 (Outgoing) -->
+<div class="flex items-end gap-2 max-w-[85%] ml-auto flex-row-reverse">
+<div class="bg-primary-container/20 rounded-2xl rounded-br-none p-3 shadow-sm border border-primary/10">
+<p class="text-[13px] leading-relaxed text-primary">Thanks Alex! Just received it. 💎</p>
+<div class="flex items-center justify-end gap-1 mt-1">
+<span class="text-[9px] text-primary/60">8:46 PM</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">done_all</span>
+</div>
+</div>
+</div>
+<!-- System Message -->
+<div class="flex justify-center my-6">
+<span class="bg-surface-container-high/50 text-on-surface-variant/60 text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-tighter">
+                    Alex settled $28.50 via TON Wallet
+                </span>
+</div>
+<!-- Message 3 -->
+<div class="flex items-end gap-2 max-w-[85%]">
+<img alt="Maria" class="w-6 h-6 rounded-full mb-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPlH4vT-g-iZ-DrVaKWV0-uQrIKVOm9mlqyIRfsXC_jlkD0Kc7wx6-57rpTIzRGYjt4Vo3HkHL2W2jKHzIN2EQpgwUFRFf87F0BdSdduVB6RQ0DmOkmT0Jav05MK6XsUohIhdb5qovRDBac8UU_iQyb57aUfaq0xGJZF6AC-dDiUnr4Xm27ToKKasZFQMwVAAaGdP1cSdxXV8PfqWI_Pp1Cp0uTYDVw7sL4Y7Sv27puRnDZ_LwIxqP9YR86h8HfRt4t0ii83sxG4sc"/>
+<div class="bg-surface-container rounded-2xl rounded-bl-none p-3 shadow-sm border border-outline-variant/10">
+<p class="text-[13px] leading-relaxed">Wait, did we include the tip? 🤔</p>
+<div class="flex items-center justify-end gap-1 mt-1">
+<span class="text-[9px] text-on-surface-variant/60">8:50 PM</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Chat Input Field -->
+<footer class="fixed bottom-0 w-full max-w-[400px] z-[60] px-4 pb-6 pt-2 bg-[#131315]/80 backdrop-blur-xl">
+<div class="flex items-center gap-2 bg-surface-container rounded-full px-4 py-2 border border-outline-variant/20 shadow-lg">
+<button class="text-on-surface-variant/60 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-sm placeholder:text-on-surface-variant/40 py-1" placeholder="Write a message..." type="text"/>
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant/60 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">sentiment_satisfied</span>
+</button>
+<button class="bg-primary text-on-primary w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prism Split - Group Balances</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#2a2a2c",
+                        "surface-container-low": "#1b1b1d",
+                        "on-primary-container": "#002c47",
+                        "on-background": "#e4e2e4",
+                        "inverse-on-surface": "#303032",
+                        "surface-tint": "#92ccff",
+                        "secondary": "#86cfff",
+                        "on-secondary-fixed-variant": "#004c6d",
+                        "tertiary-container": "#009fb2",
+                        "on-tertiary": "#00363d",
+                        "primary": "#92ccff",
+                        "on-secondary-container": "#002d43",
+                        "primary-container": "#2b98dd",
+                        "surface-bright": "#39393b",
+                        "surface-variant": "#353437",
+                        "on-tertiary-container": "#002f35",
+                        "secondary-fixed": "#c8e6ff",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-primary": "#003351",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#004b73",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#bfc7d2",
+                        "background": "#131315",
+                        "primary-fixed": "#cce5ff",
+                        "tertiary-fixed": "#9cf0ff",
+                        "surface-container": "#1f1f21",
+                        "on-tertiary-fixed": "#001f24",
+                        "on-surface": "#e4e2e4",
+                        "inverse-primary": "#006497",
+                        "tertiary-fixed-dim": "#00daf3",
+                        "secondary-fixed-dim": "#86cfff",
+                        "surface-dim": "#131315",
+                        "on-secondary": "#00344c",
+                        "surface-container-highest": "#353437",
+                        "outline-variant": "#3f4850",
+                        "on-primary-fixed": "#001d31",
+                        "inverse-surface": "#e4e2e4",
+                        "outline": "#89929b",
+                        "on-secondary-fixed": "#001e2e",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#131315",
+                        "tertiary": "#00daf3",
+                        "secondary-container": "#129ad7",
+                        "primary-fixed-dim": "#92ccff",
+                        "on-tertiary-fixed-variant": "#004f58"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(31, 31, 33, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        body {
+            background-color: #131315;
+            color: #e4e2e4;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="antialiased min-h-screen pb-24">
+<!-- Top Navigation Shell -->
+<header class="sticky top-0 w-full bg-gray-900/80 backdrop-blur-xl z-50 flex items-center justify-between px-4 h-16 w-full shadow-none">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-blue-400 active:scale-95 duration-200 cursor-pointer">arrow_back</span>
+<h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-on-surface">Iceland Roadtrip</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-blue-400 active:scale-95 duration-200 cursor-pointer">settings</span>
+</div>
+</header>
+<!-- Sub-navigation Tabs -->
+<nav class="flex px-4 py-2 gap-6 overflow-x-auto no-scrollbar bg-surface border-b border-outline-variant/10">
+<button class="text-on-surface-variant font-medium text-sm pb-2 whitespace-nowrap">Transactions</button>
+<button class="text-blue-400 font-bold text-sm pb-2 border-b-2 border-blue-400 whitespace-nowrap">Balances</button>
+<button class="text-on-surface-variant font-medium text-sm pb-2 whitespace-nowrap">Feed</button>
+<button class="text-on-surface-variant font-medium text-sm pb-2 whitespace-nowrap">Stats</button>
+</nav>
+<main class="px-4 py-6 space-y-8">
+<!-- Summary Section -->
+<section class="">
+<!-- Asymmetric Summary Cards -->
+<div class="grid grid-cols-2 gap-4">
+<div class="surface-container-low p-4 rounded-2xl border border-outline-variant/5">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">You are owed</span>
+<div class="text-xl font-headline font-bold text-tertiary-fixed-dim">$420.50</div>
+</div>
+<div class="surface-container-low p-4 rounded-2xl border border-outline-variant/5">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">Total Debt</span>
+<div class="text-xl font-headline font-bold text-error">$185.00</div>
+</div>
+</div>
+</section>
+<!-- Active Balances Section -->
+<section class="space-y-4">
+<div class="space-y-3">
+<!-- Jane Doe -->
+<div class="surface-container-low p-4 rounded-2xl flex items-center justify-between group hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary font-bold">JD</div>
+<div>
+<p class="font-semibold text-on-surface">Jane Doe</p>
+<p class="text-xs text-on-surface-variant">Last active 2h ago</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-tertiary-fixed-dim font-headline font-bold">+$840.00</p>
+<p class="text-[10px] text-on-surface-variant font-medium uppercase tracking-tighter">Owed</p>
+</div>
+</div>
+<!-- Mark Smith (Debt focus) -->
+<div class="surface-container p-4 rounded-3xl border border-primary/10 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-error/20 to-error/5 flex items-center justify-center text-error font-bold">MS</div>
+<div>
+<p class="font-semibold text-on-surface">Mark Smith</p>
+<p class="text-xs text-error/70 font-medium">Debt to settle</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-error font-headline font-bold">-$320.00</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 bg-gradient-to-r from-tertiary to-primary-container text-on-primary-container font-bold text-xs py-3 rounded-xl shadow-lg active:scale-95 duration-200 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">diamond</span>
+                            Settle on TON
+                        </button>
+<button class="flex-1 bg-surface-container-highest text-on-surface font-bold text-xs py-3 rounded-xl active:scale-95 duration-200">
+                            Settle Manually
+                        </button>
+</div>
+</div>
+<!-- You -->
+<div class="surface-container-low p-4 rounded-2xl flex items-center justify-between opacity-80">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-bold">YOU</div>
+<div>
+<p class="font-semibold text-on-surface">You</p>
+<p class="text-xs text-on-surface-variant">Net position</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-on-surface font-headline font-bold">-$185.00</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Settled Section -->
+<section class="pt-2">
+<div class="surface-container-lowest border border-outline-variant/10 rounded-2xl p-3">
+<div class="flex items-center justify-between px-2 mb-3">
+<h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Settled</h3>
+<span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">3 Done</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center justify-between px-2 py-2 opacity-50">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-on-surface-variant">AR</div>
+<span class="text-sm font-medium">Alex Rivera</span>
+</div>
+<span class="text-sm font-mono text-on-surface-variant">$0.00</span>
+</div>
+<div class="flex items-center justify-between px-2 py-2 opacity-50">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-on-surface-variant">SC</div>
+<span class="text-sm font-medium">Sarah Chen</span>
+</div>
+<span class="text-sm font-mono text-on-surface-variant">$0.00</span>
+</div>
+</div>
+<button class="w-full mt-2 py-3 text-xs font-bold text-blue-400 hover:bg-white/5 transition-colors rounded-xl flex items-center justify-center gap-2">
+                    Show 12 more settled members
+                    <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Floating Action Button (Contextual for Groups) -->
+<!-- Bottom Navigation Shell -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-6 pt-3 bg-gray-900/80 backdrop-blur-xl rounded-t-[2rem] shadow-[0_-4px_40px_rgba(0,136,204,0.06)]">
+<div class="flex flex-col items-center justify-center text-gray-500 opacity-70 hover:text-blue-300 transition-all cursor-pointer active:scale-90 duration-300">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Expenses</span>
+</div>
+<div class="flex flex-col items-center justify-center text-gray-500 opacity-70 hover:text-blue-300 transition-all cursor-pointer active:scale-90 duration-300">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Activity</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-blue-500/10 text-blue-400 rounded-2xl px-3 py-1.5 active:scale-90 duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Groups</span>
+</div>
+<div class="flex flex-col items-center justify-center text-gray-500 opacity-70 hover:text-blue-300 transition-all cursor-pointer active:scale-90 duration-300">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Inter'] text-[10px] font-medium uppercase tracking-widest mt-1">Settings</span>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Group View (No Records)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#004b73",
+              "on-tertiary-fixed": "#2e1500",
+              "primary-fixed-dim": "#92ccff",
+              "on-secondary-fixed": "#001d31",
+              "on-primary-fixed": "#001d31",
+              "outline": "#89929b",
+              "tertiary-fixed-dim": "#ffb77a",
+              "tertiary": "#ffb77a",
+              "secondary-container": "#00527e",
+              "surface": "#131315",
+              "on-primary-container": "#002c47",
+              "on-secondary": "#003351",
+              "primary-fixed": "#cce5ff",
+              "surface-container": "#1f1f21",
+              "secondary-fixed-dim": "#93ccff",
+              "error-container": "#93000a",
+              "background": "#131315",
+              "on-primary": "#003351",
+              "tertiary-fixed": "#ffdcc2",
+              "surface-dim": "#131315",
+              "surface-container-low": "#1b1b1d",
+              "primary": "#92ccff",
+              "surface-tint": "#92ccff",
+              "secondary-fixed": "#cce5ff",
+              "inverse-primary": "#006497",
+              "inverse-on-surface": "#303032",
+              "on-tertiary-fixed-variant": "#6d3a00",
+              "secondary": "#93ccff",
+              "surface-bright": "#39393b",
+              "tertiary-container": "#d37b1e",
+              "on-error-container": "#ffdad6",
+              "primary-container": "#2b98dd",
+              "on-secondary-fixed-variant": "#004b73",
+              "surface-container-lowest": "#0e0e10",
+              "surface-container-highest": "#353437",
+              "on-error": "#690005",
+              "outline-variant": "#3f4850",
+              "on-secondary-container": "#8bc5f7",
+              "surface-variant": "#353437",
+              "surface-container-high": "#2a2a2c",
+              "on-tertiary-container": "#432100",
+              "inverse-surface": "#e5e1e4",
+              "on-tertiary": "#4c2700",
+              "on-surface": "#e5e1e4",
+              "error": "#ffb4ab",
+              "on-surface-variant": "#bfc7d2",
+              "on-background": "#e5e1e4"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .arrow-path {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-b border-[#92CCFF]/15 shadow-none flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[#92CCFF]/10 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline font-bold tracking-tight text-lg text-on-surface">Summer Trip 24</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[#92CCFF]/10 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-primary">settings</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto min-h-screen flex flex-col">
+<!-- Member Avatar Stack Section -->
+<section class="mb-12">
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col items-center justify-center gap-4">
+<div class="flex -space-x-3 items-center">
+<img alt="Participant" class="w-12 h-12 rounded-full border-2 border-surface shadow-lg" data-alt="Portrait of a travel group member Felix" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA925J3fa04-9EfpLFxd6Gnky0TF-8k6QhdvlG95vPmwvljpk0cfT9sqB4j559_pbfCk663pM_0Cvnux42zUQqlGnoYNMtL9YoAg0l2UsmxFF-0omwni7Ra-QIwL9-FL7EGhAgnrZR-NhwY-Rd96FBhRrnfl3GNRBcZUxLcLfm8FSvD8BV5ZxOHkOF40ePYEIMU3kUCyznWg74tLBqsohhai4bG8sfkA4sziZWHNoe1RViIc9cNLP7OkOOYTX90uwLjYwbTf5ggxjVL"/>
+<img alt="Participant" class="w-12 h-12 rounded-full border-2 border-surface shadow-lg" data-alt="Portrait of a travel group member Aria" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuxSfiSSphXz08_Fz8oRguJYss3DHzgkN570BvyfnKKW0heXKpB73_Jf9oCwDqJvcEcGL2amXcbp6VO5E7yKTi1QbrVMI8HJQOE__dX4lwxVWBpGE0hs9DLN-S4vD6CpUCT25kNJokP9XHBwrNGXoXr2ApiMPall5wyTVxlXkUfzNfF6yXX0xSKIq5EDFdBWmJVRTJ7vTFORgsrftsFqELqsbFXnLdBJtOQfUodtGnorKm6xmJGH4PDWOj03Dj41uu-eAw2VEYd2je"/>
+<img alt="Participant" class="w-12 h-12 rounded-full border-2 border-surface shadow-lg" data-alt="Portrait of a travel group member Jasper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd1Ru8zFV6IDeG5dgZOMz_DeoSbDTHP61aDZmAgkreUrECD7y20_Hk0aeXHA7bNGyEMFEIiPma1o7YiE0RDqvTu1Ad3jOPuNmHJr2lG_8kHg8WMjCwDjg2EkXfhPRTjBJp6iFdQWHgvFNr6JmcqYzICs_H5v1HJfcl2G7wDgbQ7boAsHRiIqQ13O4TcsNVAxy2eKC8XSUtbGokPiYlIa9aSV38q-niUO5zaJD3XKLNny4SHOGDNqNtLZmRNyXcTw5tTflY4AeG63XX"/>
+<img alt="Participant" class="w-12 h-12 rounded-full border-2 border-surface shadow-lg" data-alt="Portrait of a travel group member Luna" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv96xZsoSSTP-oUC2v4s5gKLiLJHj9QdrnQrmArAr9Ty_ZdTWn9CrjEjkc4xEwyIpyohFWx-7qGz2TVzgvmExoGBhRpDS-3aE-ekzgB4ESxyeahJb7nvjxFw8Q4wHEJqkl3m596tYZLh_DdODq5ry9c5ncCMTKvz7h7BkzWMCE6WIgzgRlyyUvIsT9cRAnjL7ctrdvW7ygevDx5Xwo4cSh2Wk4nw8MFe1W43N8EsT3nHIvxY4b5b0QdGMmy3ypgP1IZ08Ikjb34HUx"/>
+<div class="w-12 h-12 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-primary text-xs font-bold shadow-lg">+2</div>
+</div>
+<div class="text-center">
+<p class="text-on-surface font-semibold text-sm">6 Participants</p>
+<p class="text-on-surface-variant text-xs mt-1">Ready to split costs for the Amalfi Coast</p>
+</div>
+</div>
+</section>
+<!-- Empty State Content -->
+<section class="flex-grow flex flex-col items-center justify-center text-center px-4 relative">
+<div class="mb-8 relative">
+<!-- Playful Abstract Graphic -->
+<div class="w-48 h-48 bg-gradient-to-tr from-primary/20 to-transparent rounded-full flex items-center justify-center relative">
+<span class="material-symbols-outlined text-7xl text-primary opacity-40 select-none" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<div class="absolute inset-0 border-2 border-dashed border-primary/20 rounded-full animate-pulse"></div>
+</div>
+</div>
+<h2 class="text-2xl font-headline font-extrabold tracking-tight text-on-surface mb-3">Clear Ledger</h2>
+<p class="text-on-surface-variant max-w-[280px] leading-relaxed">
+                No expenses yet. Tap the button below to add your first record.
+            </p>
+<!-- Hand-drawn Stylized Arrow -->
+<div class="absolute bottom-[-60px] right-8 md:right-24 text-primary pointer-events-none opacity-80">
+<svg fill="none" height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
+<path class="arrow-path" d="M20 20C40 30 60 10 75 40C85 60 70 80 65 85" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<path d="M58 82L65 85L68 78" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="mt-12 flex justify-center">
+<button class="flex items-center gap-3 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold px-8 py-4 rounded-lg shadow-[0px_10px_30px_rgba(0,136,204,0.3)] active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span>Add Expense</span>
+</button>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-t border-[#92CCFF]/15 shadow-[0px_-4px_20px_rgba(146,204,255,0.05)] rounded-t-2xl flex justify-around items-center px-4 pb-safe pt-2 h-20">
+<!-- Expenses Tab -->
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1">Expenses</span>
+</div>
+<!-- Activity Tab -->
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1">Activity</span>
+</div>
+<!-- Groups Tab (ACTIVE) -->
+<div class="flex flex-col items-center justify-center text-[#92CCFF] bg-gradient-to-br from-[#92CCFF]/10 to-transparent rounded-xl px-3 py-1 active:scale-90 duration-300 ease-out">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1">Groups</span>
+</div>
+<!-- Settings Tab -->
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1">Settings</span>
+</div>
+</nav>
+</body></html>

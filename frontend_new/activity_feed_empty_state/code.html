@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#353437",
+              "surface-container-high": "#2a2a2c",
+              "primary-fixed-dim": "#92ccff",
+              "outline": "#89929b",
+              "error-container": "#93000a",
+              "surface-dim": "#131315",
+              "on-primary-fixed": "#001d31",
+              "surface": "#131315",
+              "surface-container-low": "#1b1b1d",
+              "secondary-fixed": "#cce5ff",
+              "tertiary-container": "#d37b1e",
+              "on-secondary": "#003351",
+              "outline-variant": "#3f4850",
+              "inverse-primary": "#006497",
+              "on-background": "#e5e1e4",
+              "surface-container-highest": "#353437",
+              "surface-bright": "#39393b",
+              "on-tertiary-fixed": "#2e1500",
+              "on-tertiary": "#4c2700",
+              "error": "#ffb4ab",
+              "on-primary-container": "#002c47",
+              "secondary-container": "#00527e",
+              "on-surface": "#e5e1e4",
+              "tertiary-fixed": "#ffdcc2",
+              "on-tertiary-fixed-variant": "#6d3a00",
+              "on-surface-variant": "#bfc7d2",
+              "primary": "#92ccff",
+              "on-primary-fixed-variant": "#004b73",
+              "inverse-surface": "#e5e1e4",
+              "on-secondary-fixed": "#001d31",
+              "on-primary": "#003351",
+              "background": "#131315",
+              "on-error": "#690005",
+              "inverse-on-surface": "#303032",
+              "secondary": "#93ccff",
+              "primary-fixed": "#cce5ff",
+              "on-tertiary-container": "#432100",
+              "tertiary-fixed-dim": "#ffb77a",
+              "surface-container-lowest": "#0e0e10",
+              "tertiary": "#ffb77a",
+              "on-secondary-container": "#8bc5f7",
+              "on-error-container": "#ffdad6",
+              "surface-container": "#1f1f21",
+              "secondary-fixed-dim": "#93ccff",
+              "primary-container": "#2b98dd",
+              "on-secondary-fixed-variant": "#004b73",
+              "surface-tint": "#92ccff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      body {
+        font-family: 'Manrope', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .glass-card {
+        background: rgba(31, 31, 33, 0.4);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .diamond-glow {
+        box-shadow: 0px 0px 40px rgba(146, 204, 255, 0.1);
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-b border-white/10 shadow-[0px_10px_30px_rgba(0,136,204,0.08)]">
+<div class="flex items-center justify-between px-4 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-white/5">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="professional headshot of a young man with a friendly expression in a modern studio with soft cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3IfdG7CeGjgVkdpP8OcU630U6Pju2igsaRlODVC6HhIePWlBp0hyB6Zom8BArxkkAx1IAAGd61cZu3T4rlXJ4Ri45WzAF0l28vvdf-xNDN2XpYiYv6tWD9WUYRsFDa4LbPDmHVSFfF17WBElzaEY45lOfpwlPYuGLmyE9UEOiZKmFQQYmPpYorYi9hF2RuDk3aR5IDVhRUZT7K2mjuDNtqp5G0hqEbnia8dpJQPREye54Se0XdYLbI0o40TcWRxbce3nsJFnGCtGe"/>
+</div>
+<h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#92CCFF]">Activity</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 hover:bg-white/5 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<main class="flex-grow flex items-center justify-center px-6 pt-16 pb-24">
+<!-- Empty State Container -->
+<div class="w-full max-w-md flex flex-col items-center text-center">
+<!-- Asymmetric Glow Background for Illustration -->
+<div class="relative mb-12">
+<div class="absolute inset-0 bg-primary/20 blur-[80px] rounded-full transform -translate-y-4"></div>
+<!-- Central Iconography -->
+<div class="relative glass-card w-48 h-48 rounded-[2rem] flex items-center justify-center border border-white/5 diamond-glow rotate-3">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-[2rem]"></div>
+<div class="flex flex-col items-center gap-2 transform -rotate-3">
+<span class="material-symbols-outlined text-6xl text-primary/40 select-none" data-icon="notifications_off" style="font-variation-settings: 'wght' 200;">notifications_off</span>
+<div class="h-1.5 w-12 bg-surface-container-highest rounded-full opacity-50"></div>
+</div>
+</div>
+<!-- Decorative Elements -->
+<div class="absolute -top-4 -right-4 w-12 h-12 glass-card rounded-xl border border-white/5 flex items-center justify-center animate-pulse">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="history_edu">history_edu</span>
+</div>
+<div class="absolute -bottom-2 -left-6 w-10 h-10 glass-card rounded-full border border-white/5 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-lg" data-icon="bubble_chart">bubble_chart</span>
+</div>
+</div>
+<!-- Typography & Messaging -->
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-3 font-headline">
+                No activity yet
+            </h2>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-10 max-w-[280px] font-body">
+                Start splitting expenses with your friends by creating your first group.
+            </p>
+<!-- Primary CTA -->
+<button class="group relative flex items-center gap-3 px-8 py-4 rounded-xl overflow-hidden transition-all active:scale-95 duration-200">
+<!-- Background Gradient -->
+<div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-container"></div>
+<!-- Glass Overlay -->
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="material-symbols-outlined text-on-primary text-2xl relative z-10" data-icon="group_add">group_add</span>
+<span class="text-on-primary font-bold text-lg relative z-10">Create a Group</span>
+</button>
+<!-- Secondary Info -->
+<div class="mt-8 flex items-center gap-2 text-on-surface-variant/40">
+<span class="material-symbols-outlined text-sm" data-icon="info">info</span>
+<span class="text-xs uppercase tracking-widest font-medium">Activity will appear here</span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl rounded-t-2xl border-t border-white/10 shadow-[0px_-4px_20px_rgba(0,0,0,0.5)]">
+<div class="flex justify-around items-center pt-2 pb-6 px-6 w-full">
+<!-- Activity (Active) -->
+<a class="flex flex-col items-center justify-center text-[#92CCFF] bg-[#92CCFF]/10 rounded-xl px-4 py-2 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="notifications" style="font-variation-settings: 'FILL' 1;">notifications</span>
+<span class="font-['Manrope'] text-[10px] font-bold tracking-wider uppercase">Activity</span>
+</a>
+<!-- Groups -->
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="group">group</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase">Groups</span>
+</a>
+<!-- Friends -->
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person_add">person_add</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase">Friends</span>
+</a>
+<!-- Account -->
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_circle">account_circle</span>
+<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase">Account</span>
+</a>
+</div>
+</nav>
+<!-- Ambient Lighting Effect -->
+<div class="fixed top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none z-0"></div>
+<div class="fixed bottom-0 left-0 w-[400px] h-[400px] bg-secondary-container/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none z-0"></div>
+</body></html>

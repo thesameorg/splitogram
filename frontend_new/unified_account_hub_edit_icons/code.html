@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>The Ledger - Unified Account Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-fixed": "#ffdcc2",
+                        "on-tertiary-fixed-variant": "#6d3a00",
+                        "primary-fixed": "#cce5ff",
+                        "on-tertiary-container": "#432100",
+                        "tertiary-fixed-dim": "#ffb77a",
+                        "inverse-on-surface": "#303032",
+                        "on-tertiary-fixed": "#2e1500",
+                        "background": "#131315",
+                        "surface-container-highest": "#353437",
+                        "on-surface": "#e5e1e4",
+                        "on-surface-variant": "#bfc7d2",
+                        "inverse-primary": "#006497",
+                        "on-secondary-container": "#8bc5f7",
+                        "on-secondary-fixed": "#001d31",
+                        "on-primary-container": "#002c47",
+                        "primary": "#92ccff",
+                        "surface-tint": "#92ccff",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#131315",
+                        "secondary-fixed": "#cce5ff",
+                        "primary-fixed-dim": "#92ccff",
+                        "outline": "#89929b",
+                        "on-tertiary": "#4c2700",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#1b1b1d",
+                        "surface-container": "#1f1f21",
+                        "surface-container-high": "#2a2a2c",
+                        "secondary": "#93ccff",
+                        "primary-container": "#2b98dd",
+                        "on-secondary": "#003351",
+                        "surface-bright": "#39393b",
+                        "secondary-container": "#00527e",
+                        "on-secondary-fixed-variant": "#004b73",
+                        "on-primary-fixed": "#001d31",
+                        "surface-container-lowest": "#0e0e10",
+                        "outline-variant": "#3f4850",
+                        "inverse-surface": "#e5e1e4",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#353437",
+                        "surface": "#131315",
+                        "secondary-fixed-dim": "#93ccff",
+                        "on-primary-fixed-variant": "#004b73",
+                        "on-error": "#690005",
+                        "tertiary-container": "#d37b1e",
+                        "on-primary": "#003351",
+                        "tertiary": "#ffb77a",
+                        "on-background": "#e5e1e4"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(31, 31, 33, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .balance-hidden {
+            filter: blur(8px);
+            opacity: 0.5;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-b border-white/5 shadow-[0px_10px_30px_rgba(0,136,204,0.08)] flex items-center justify-between px-6 h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-sky-400">account_balance_wallet</span>
+<h1 class="text-sky-400 font-extrabold tracking-tighter text-xl">The Ledger</h1>
+</div>
+<button class="text-slate-400 hover:bg-white/5 transition-colors p-2 rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<main class="pt-20 pb-28 px-4 max-w-2xl mx-auto space-y-6">
+<!-- Profile Section -->
+<section class="flex flex-col items-center py-6">
+<div class="relative group">
+<div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-primary to-secondary relative">
+<img alt="portrait of a confident man" class="w-full h-full rounded-full object-cover border-4 border-background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVPguB8VIauA22Exff-imwRTEE5E0JtwVXaPGqSvqZ4-zoNEA9X-Qt60AnYerVyX09DRAa2n9yTSah6xu5PqrutLxlcyz024wLQO5ECJ_lkMbkAh2UxIfICGRSCw9wUkCR7GMGJXVL4yrEBsf752zZvgGf8NWQj3FIYFFIFmDNTl5iZ9xs2KTCtsP69mAWtJjy4SXAIkKK2SGu-qMxEP6RyLeBJOcRlWbPT99qq_uLOcidpbaHdzx_UzIR9towl1ZBplPb6s_TuNVv"/>
+<button class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white">photo_camera</span>
+</button>
+</div>
+<div class="absolute bottom-0 right-0 bg-primary text-on-primary w-7 h-7 rounded-full border-2 border-background flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform"><span class="material-symbols-outlined text-[16px]">edit</span></div></div>
+<h2 class="mt-4 text-2xl font-extrabold tracking-tight">Alex Sterling</h2>
+<div class="flex items-center gap-1.5 mt-1 group cursor-pointer">
+<p class="text-on-surface-variant font-medium opacity-80">@alex_ledger</p>
+<span class="material-symbols-outlined text-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+</div>
+</section>
+<!-- Connected Wallets Section -->
+<section>
+<div class="flex items-center justify-between mb-3 px-2">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Connected Wallet</h3>
+<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">Secure</span>
+</div>
+<div class="space-y-3">
+<div class="glass-card p-5 rounded-2xl border border-white/5 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">wallet</span>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">Main Wallet</p>
+<p class="text-sm font-mono text-on-surface opacity-80">UQAf...m7X2</p>
+</div>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors active:scale-95" id="toggleBalance">
+<span class="material-symbols-outlined text-sm" id="eyeIcon">visibility_off</span>
+<span class="text-[10px] font-bold uppercase">Balances</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
+<div class="space-y-1">
+<p class="text-[10px] text-on-surface-variant font-medium">TON</p>
+<p class="text-lg font-bold transition-all duration-300 balance-hidden balance-text">1,240.50</p>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] text-on-surface-variant font-medium">USDT (TRC-20)</p>
+<p class="text-lg font-bold transition-all duration-300 balance-hidden balance-text">4,812.20</p>
+</div>
+</div>
+</div>
+<button class="w-full bg-surface-container-high hover:bg-surface-bright text-on-surface font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-white/5">
+<span class="material-symbols-outlined">sync_alt</span>
+                    Disconnect / Replace Wallet
+                </button>
+</div>
+</section>
+<!-- Payment Methods Section -->
+<section>
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant opacity-60 mb-3 px-2">Payment Methods</h3>
+<div class="glass-card rounded-xl overflow-hidden border border-white/5">
+<div class="divide-y divide-white/5 w-full">
+<!-- Personal Pay Item -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 text-primary font-semibold">
+<span class="material-symbols-outlined text-sm">contactless</span>
+<span class="text-sm">Personal Pay</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors active:scale-95 text-xs font-bold">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+<span>Copy Link</span>
+</button>
+</div>
+<!-- QR Code Item -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 text-primary font-semibold">
+<span class="material-symbols-outlined text-sm">qr_code_2</span>
+<span class="text-sm">QR Code</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors active:scale-95 text-xs font-bold">
+<span class="material-symbols-outlined text-sm">open_in_new</span>
+<span>Open</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Preferences Section -->
+<section>
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant opacity-60 mb-3 px-2">Preferences</h3>
+<div class="glass-card rounded-xl overflow-hidden border border-white/5 divide-y divide-white/5">
+<!-- Language Toggle -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">translate</span>
+<span class="font-semibold">Language</span>
+</div>
+<div class="flex items-center gap-2 text-primary font-bold">
+<span>English</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+<!-- Activity Alerts -->
+<a class="flex items-center justify-between p-4 hover:bg-white/5 transition-colors group" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+<span class="font-semibold">Notification Settings</span>
+</div>
+<div class="flex items-center text-on-surface-variant/40 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</a>
+</div>
+</section>
+<!-- Community & Support Section -->
+<section>
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant opacity-60 mb-3 px-2">Community &amp; Support</h3>
+<div class="glass-card rounded-xl overflow-hidden border border-white/5 divide-y divide-white/5">
+<a class="flex items-center justify-between p-4 hover:bg-white/5 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">hub</span>
+<span class="font-semibold">Our Channel</span>
+</div>
+<span class="material-symbols-outlined opacity-40">link</span>
+</a>
+<a class="flex items-center justify-between p-4 hover:bg-white/5 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">chat_bubble</span>
+<span class="font-semibold">Feedback</span>
+</div>
+<span class="material-symbols-outlined opacity-40">rate_review</span>
+</a>
+</div>
+</section>
+<!-- Legal & Support Section -->
+<section>
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant opacity-60 mb-3 px-2">Legal &amp; Support</h3>
+<div class="glass-card rounded-xl overflow-hidden border border-white/5 divide-y divide-white/5">
+<a class="flex items-center justify-between p-4 hover:bg-white/5 transition-colors" href="#">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined">help</span>
+<span class="font-medium">Help Center</span>
+</div>
+<span class="material-symbols-outlined opacity-40">open_in_new</span>
+</a>
+<a class="flex items-center justify-between p-4 hover:bg-white/5 transition-colors" href="#">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined">security</span>
+<span class="font-medium">Privacy Policy</span>
+</div>
+<span class="material-symbols-outlined opacity-40">open_in_new</span>
+</a>
+</div>
+</section>
+<!-- Footer Action -->
+<footer class="pt-8 pb-12">
+<button class="w-full bg-transparent border-2 border-error/30 text-error hover:bg-error/10 font-black py-4 rounded-xl flex items-center justify-center gap-2 active:scale-[0.95] transition-all uppercase tracking-widest text-sm group">
+<span class="material-symbols-outlined transition-transform group-hover:rotate-12">dangerous</span>
+                Delete Account
+            </button>
+<p class="text-center text-[10px] text-on-surface-variant opacity-40 mt-6 font-bold uppercase tracking-[0.2em]">The Ledger v2.4.0 • Secured by TON</p>
+</footer>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe bg-[#131315]/80 backdrop-blur-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.4)] flex justify-around items-center h-20 px-4">
+<div class="flex flex-col items-center justify-center text-slate-500 opacity-70 hover:text-sky-300 transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-manrope font-medium tracking-wide uppercase mt-1">Activity</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 opacity-70 hover:text-sky-300 transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-manrope font-medium tracking-wide uppercase mt-1">Groups</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 opacity-70 hover:text-sky-300 transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined">person_add</span>
+<span class="text-[10px] font-manrope font-medium tracking-wide uppercase mt-1">Friends</span>
+</div>
+<div class="flex flex-col items-center justify-center text-sky-400 bg-sky-400/10 rounded-xl px-4 py-1 active:scale-90 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+<span class="text-[10px] font-manrope font-medium tracking-wide uppercase mt-1">Profile</span>
+</div>
+</nav>
+<script>
+        document.getElementById('toggleBalance').addEventListener('click', function() {
+            const balances = document.querySelectorAll('.balance-text');
+            const icon = document.getElementById('eyeIcon');
+            const isHidden = balances[0].classList.contains('balance-hidden');
+            
+            balances.forEach(el => {
+                if (isHidden) {
+                    el.classList.remove('balance-hidden');
+                } else {
+                    el.classList.add('balance-hidden');
+                }
+            });
+            
+            icon.textContent = isHidden ? 'visibility' : 'visibility_off';
+        });
+    </script>
+</body></html>

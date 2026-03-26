@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TON Settlement Status</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#e5e1e4",
+                        "on-background": "#e5e1e4",
+                        "on-tertiary-container": "#432100",
+                        "on-surface": "#e5e1e4",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "tertiary-fixed-dim": "#ffb77a",
+                        "on-secondary-fixed-variant": "#004b73",
+                        "surface-bright": "#39393b",
+                        "surface-tint": "#92ccff",
+                        "surface-container-lowest": "#0e0e10",
+                        "outline": "#89929b",
+                        "background": "#131315",
+                        "primary-container": "#2b98dd",
+                        "on-primary-container": "#002c47",
+                        "tertiary": "#ffb77a",
+                        "primary-fixed-dim": "#92ccff",
+                        "surface-container-high": "#2a2a2c",
+                        "primary-fixed": "#cce5ff",
+                        "primary": "#92ccff",
+                        "on-secondary-fixed": "#001d31",
+                        "on-secondary": "#003351",
+                        "on-tertiary": "#4c2700",
+                        "surface-container-low": "#1b1b1d",
+                        "on-primary": "#003351",
+                        "inverse-primary": "#006497",
+                        "on-tertiary-fixed": "#2e1500",
+                        "surface": "#131315",
+                        "on-secondary-container": "#8bc5f7",
+                        "on-tertiary-fixed-variant": "#6d3a00",
+                        "tertiary-fixed": "#ffdcc2",
+                        "secondary-container": "#00527e",
+                        "outline-variant": "#3f4850",
+                        "on-surface-variant": "#bfc7d2",
+                        "inverse-on-surface": "#303032",
+                        "secondary-fixed": "#cce5ff",
+                        "secondary": "#93ccff",
+                        "tertiary-container": "#d37b1e",
+                        "surface-variant": "#353437",
+                        "on-primary-fixed-variant": "#004b73",
+                        "on-primary-fixed": "#001d31",
+                        "surface-dim": "#131315",
+                        "surface-container-highest": "#353437",
+                        "surface-container": "#1f1f21",
+                        "secondary-fixed-dim": "#93ccff",
+                        "on-error": "#690005"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            backdrop-filter: blur(20px);
+        }
+        .ton-gradient {
+            background: linear-gradient(135deg, #92ccff 0%, #2b98dd 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30">
+<!-- TopAppBar Section -->
+<header class="fixed top-0 w-full z-50 bg-[#F4F4F5]/80 dark:bg-[#131315]/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 shadow-[0px_10px_30px_rgba(0,136,204,0.08)] dark:shadow-none h-14 flex items-center justify-between px-4">
+<div class="flex items-center gap-3">
+<button class="text-[#0088CC] dark:text-[#92CCFF] hover:bg-[#0088CC]/10 dark:hover:bg-[#92CCFF]/10 transition-colors active:scale-95 duration-200 p-1 rounded-full">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-['Manrope'] font-bold tracking-tight text-on-surface text-lg">The Ethereal Ledger</h1>
+</div>
+<button class="text-[#0088CC] dark:text-[#92CCFF] hover:bg-[#0088CC]/10 dark:hover:bg-[#92CCFF]/10 transition-colors active:scale-95 duration-200 p-1 rounded-full">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</header>
+<main class="pt-20 pb-24 px-4 max-w-2xl mx-auto space-y-12">
+<!-- Success State: Bento Style -->
+<section class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<h2 class="text-on-surface-variant font-headline text-sm font-bold tracking-widest uppercase">Settlement Completed</h2>
+<span class="text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20">LIVE</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="md:col-span-2 surface-container-low rounded-xl p-8 flex flex-col items-center justify-center relative overflow-hidden glass-card">
+<!-- Subtle background glow -->
+<div class="absolute -top-20 -right-20 w-48 h-48 bg-primary/10 rounded-full blur-[60px]"></div>
+<div class="w-20 h-20 ton-gradient rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(146,204,255,0.3)] mb-6">
+<span class="material-symbols-outlined text-on-primary text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h3 class="text-2xl font-extrabold text-on-surface mb-2 tracking-tight">Settle Up Successful</h3>
+<p class="text-on-surface-variant text-sm text-center max-w-[240px]">Funds have been verified and allocated via the TON blockchain ledger.</p>
+</div>
+<div class="surface-container-highest rounded-xl p-6 flex flex-col justify-between border-b border-outline-variant/15">
+<div>
+<p class="text-xs text-on-surface-variant font-label uppercase tracking-wider mb-4">Transaction Hash</p>
+<div class="bg-surface-container-lowest p-3 rounded-lg flex items-center gap-2 group cursor-pointer hover:bg-surface-container transition-colors">
+<span class="text-primary font-mono text-[10px] truncate">EQD4...G8X2</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-primary transition-colors" data-icon="open_in_new">open_in_new</span>
+</div>
+</div>
+<div class="mt-4">
+<p class="text-3xl font-extrabold text-primary tracking-tighter">+42.05 <span class="text-sm font-medium">TON</span></p>
+</div>
+</div>
+</div>
+</section>
+<!-- Pending State: Glassmorphism Tonal Transition -->
+<section class="space-y-4">
+<h2 class="text-on-surface-variant font-headline text-sm font-bold tracking-widest uppercase px-2">Ongoing Operation</h2>
+<div class="relative overflow-hidden surface-container-low rounded-xl p-10 flex flex-col items-center border-b border-outline-variant/15">
+<div class="absolute top-0 left-0 w-full h-1 bg-surface-container-highest">
+<div class="h-full bg-primary w-1/3 rounded-r-full shadow-[0_0_10px_#92ccff]"></div>
+</div>
+<div class="relative mb-6">
+<div class="w-16 h-16 rounded-full border-2 border-primary/20 border-t-primary animate-spin"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-xl" data-icon="hourglass_empty">hourglass_empty</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-on-surface mb-1">Confirming on Chain...</h3>
+<p class="text-on-surface-variant text-sm font-medium">Estimated arrival: 45 seconds</p>
+<div class="mt-8 grid grid-cols-2 gap-4 w-full max-w-sm">
+<div class="bg-surface-container-high rounded-lg p-3 text-center">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Network</p>
+<p class="text-xs font-bold">TON Mainnet</p>
+</div>
+<div class="bg-surface-container-high rounded-lg p-3 text-center">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Fee</p>
+<p class="text-xs font-bold">0.02 TON</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Error State: High-Contrast Alert -->
+<section class="space-y-4">
+<h2 class="text-on-surface-variant font-headline text-sm font-bold tracking-widest uppercase px-2">Action Required</h2>
+<div class="bg-error-container/10 border-b border-error/15 rounded-xl p-6 flex items-start gap-5">
+<div class="w-12 h-12 shrink-0 bg-error/20 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-2xl" data-icon="warning">warning</span>
+</div>
+<div class="flex-1">
+<h3 class="text-lg font-bold text-error mb-1 tracking-tight">Insufficient TON</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-6">Your balance (0.12 TON) is below the required amount for this settlement plus gas fees. Please deposit more TON or change the amount.</p>
+<div class="flex gap-3">
+<button class="ton-gradient text-on-primary text-sm font-bold px-6 py-2.5 rounded-lg active:scale-95 transition-transform shadow-lg shadow-primary/20">
+                            Retry Settlement
+                        </button>
+<button class="bg-surface-container-highest text-on-surface text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-surface-variant active:scale-95 transition-all">
+                            Add Funds
+                        </button>
+</div>
+</div>
+</div>
+<!-- Alternative Error: Wallet Disconnect -->
+<div class="surface-container-low rounded-xl p-5 flex items-center justify-between border-b border-outline-variant/15">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Wallet Disconnected</p>
+<p class="text-xs text-on-surface-variant">Auth session expired</p>
+</div>
+</div>
+<button class="text-primary text-xs font-bold uppercase tracking-widest hover:bg-primary/10 px-3 py-2 rounded-full transition-colors">
+                    Reconnect
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Section -->
+<nav class="fixed bottom-0 w-full z-50 bg-[#F4F4F5]/80 dark:bg-[#131315]/80 backdrop-blur-xl border-t border-slate-200/15 dark:border-slate-800/15 shadow-[0px_-10px_30px_rgba(0,136,204,0.05)] dark:shadow-[0px_-4px_20px_rgba(146,204,255,0.05)] h-16 flex justify-around items-center px-2 pb-safe">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-[#0088CC] dark:hover:text-[#92CCFF] active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="group">group</span>
+<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Groups</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#0088CC] dark:text-[#92CCFF] bg-[#0088CC]/10 dark:bg-[#92CCFF]/10 rounded-2xl px-4 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="receipt_long" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Feed</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-[#0088CC] dark:hover:text-[#92CCFF] active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="account_circle">account_circle</span>
+<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Account</span>
+</a>
+</nav>
+<!-- Background Decorative Elements -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+<div class="absolute top-[20%] -left-[10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-secondary-container/10 rounded-full blur-[100px]"></div>
+</div>
+</body></html>
