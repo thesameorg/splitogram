@@ -92,6 +92,11 @@
   border: 1px solid var(--app-ghost-border);
 }
 
+/* Header glow — subtle primary-tinted shadow */
+.header-glow {
+  box-shadow: 0px 4px 24px rgba(0, 136, 204, 0.08);
+}
+
 body {
   margin: 0;
   font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

@@ -48,6 +48,9 @@ export default {
       boxShadow: {
         glow: '0px 4px 20px var(--app-glow)',
       },
+      letterSpacing: {
+        label: '0.05rem',
+      },
       borderColor: {
         ghost: 'var(--app-ghost-border)',
       },

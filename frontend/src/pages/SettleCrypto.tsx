@@ -351,7 +351,7 @@ export function SettleCrypto() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">{t('settlement.payWithUsdt')}</h1>
+      <h1 className="text-xl font-extrabold mb-6">{t('settlement.payWithUsdt')}</h1>
 
       {isTestnet && (
         <div className="bg-app-warning-bg border border-app-warning/30 rounded-xl px-4 py-2 mb-4 text-center">
@@ -576,7 +576,7 @@ function CryptoSettlementUI({
       <div className="card p-4 rounded-2xl space-y-3">
         <div className="font-medium">{t('settlement.confirmTitle')}</div>
         {conversionNote && (
-          <div className="text-xs text-tg-hint bg-tg-secondary-bg px-3 py-1.5 rounded-lg">
+          <div className="text-xs text-tg-hint bg-tg-secondary-bg px-3 py-1.5 rounded-xl">
             {conversionNote}
           </div>
         )}
@@ -599,7 +599,7 @@ function CryptoSettlementUI({
         </div>
 
         {gasAttachDisplay && (
-          <div className="text-xs bg-tg-secondary-bg px-3 py-2 rounded-lg space-y-1">
+          <div className="text-xs bg-tg-secondary-bg px-3 py-2 rounded-xl space-y-1">
             {estimatedGasBurnDisplay && (
               <div className="flex justify-between">
                 <span className="text-tg-hint">{t('settlement.gasBurnEstimate')}</span>
@@ -691,7 +691,7 @@ function CryptoSettlementUI({
 
       {/* Editable amount */}
       <div>
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
+        <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
           {t('settleUp.amount')}
         </label>
         <div className="relative">

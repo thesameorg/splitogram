@@ -45,14 +45,16 @@ Original plan: pixel-perfect Playwright screenshot comparison loop (mockup vs li
 
 ## What's Remaining
 
-### Not started
-- [ ] **Ambient glow on header** — DESIGN.md mentions `rgba(0,136,204,0.08)` header shadow. Currently only cards and floating elements have glow.
-- [ ] **"Editorial" spacing** — DESIGN.md calls for spacing scale 12/16 between major sections. Current spacing is compact (`space-y-3`, `mb-4`). Could increase breathing room.
-- [ ] **Letter-spacing on labels** — DESIGN.md: "0.05rem wider tracking on label-sm". Not applied to timestamps/metadata text.
-- [ ] **Pill chips for tags/status** — DESIGN.md says chips should be `rounded-full` pill shape. Balance pills already are, but split mode chips and member badges aren't.
-- [ ] **Font weight hierarchy** — DESIGN.md wants aggressive weight shifts (extrabold display, bold headlines, medium body). Currently most text is `font-medium` or `font-bold` without the full scale.
-- [ ] **Group header reskin** — mockups show a header bar with glassmorphism + back arrow. Current Group page has inline header, no glass.
-- [ ] **Empty state illustrations** — mockups show decorative empty states ("Clear Ledger" with receipt icon). Current empty states are plain text.
+### Completed (2026-03-27)
+- [x] **Ambient glow on header** — `.header-glow` CSS class with `rgba(0,136,204,0.08)` shadow. Applied to Group page header card.
+- [x] **"Editorial" spacing** — Increased `mb-6` → `mb-8` on balance summaries/headers, `mb-4` → `mb-6` on tab sections. Empty states padded to `py-16`.
+- [x] **Letter-spacing on labels** — Added `tracking-label` Tailwind token (`0.05rem`). Applied to all form labels, metadata text, timestamps, month selector, and stats section headers across all pages.
+- [x] **Pill chips for tags/status** — Balance pills on Home → `rounded-full`. Split mode toggle on AddExpense → `rounded-full`. Participant chips already `rounded-full`.
+- [x] **Font weight hierarchy** — All page titles `font-bold` → `font-extrabold` (Home, Group, AddExpense, Account, Activity, SettleManual, SettleCrypto, GroupSettings). Stats key metrics → `font-extrabold`.
+- [x] **Group header reskin** — Group page header wrapped in `card p-4 rounded-2xl header-glow` — glassmorphic card with primary-tinted ambient shadow.
+- [x] **Empty state illustrations** — Added decorative emoji (📋 groups, 📝 transactions, 📰 feed/activity) with increased padding.
+- [x] **Button radius consistency** — All balance action buttons, invite nudge buttons, info boxes → `rounded-xl` (was `rounded-lg`).
+- [x] **Add Expense FAB** — Gradient CTA + `shadow-glow` (matching Home FAB style).
 
 ### Intentionally skipped
 - Material Symbols icon font (keeping existing SVG icon system)

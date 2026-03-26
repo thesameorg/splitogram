@@ -59,7 +59,7 @@ export function MonthSelector({ availableMonths, selected, onChange }: MonthSele
         >
           &lsaquo;
         </button>
-        <span className="text-sm font-medium min-w-[120px] text-center">
+        <span className="text-sm font-medium min-w-[120px] text-center tracking-label">
           {selected === 'all' ? '—' : formatMonth(selected, locale)}
         </span>
         <button

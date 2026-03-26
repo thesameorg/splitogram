@@ -252,7 +252,7 @@ export function AddExpense() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">
+      <h1 className="text-xl font-extrabold mb-6">
         {isEditMode ? t('addExpense.editTitle') : t('addExpense.title')}
       </h1>
 
@@ -260,7 +260,7 @@ export function AddExpense() {
 
       {/* Description */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
+        <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
           {t('addExpense.description')}
         </label>
         <input
@@ -279,7 +279,7 @@ export function AddExpense() {
 
       {/* Comment (optional note) */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
+        <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
           {t('addExpense.note')}
         </label>
         <textarea
@@ -295,7 +295,7 @@ export function AddExpense() {
       {/* Amount + Paid By — side by side */}
       <div className="mb-4 flex gap-3">
         <div className="w-[35%] min-w-0">
-          <label className="block text-sm font-medium mb-1 text-tg-hint">
+          <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
             {t('addExpense.amountWithCurrency', { currency: group.currency })}
           </label>
           <input
@@ -308,7 +308,7 @@ export function AddExpense() {
           />
         </div>
         <div className="flex-1 min-w-0">
-          <label className="block text-sm font-medium mb-1 text-tg-hint">
+          <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
             {t('addExpense.paidBy')}
           </label>
           <select
@@ -337,7 +337,7 @@ export function AddExpense() {
       {/* Split Among */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-tg-hint">
+          <label className="block text-sm font-medium text-tg-hint tracking-label">
             {t('addExpense.splitAmong')}
           </label>
           <div className="flex gap-2">
@@ -378,10 +378,10 @@ export function AddExpense() {
 
       {/* Split Mode Toggle */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-2 text-tg-hint">
+        <label className="block text-sm font-medium mb-2 text-tg-hint tracking-label">
           {t('addExpense.splitMode')}
         </label>
-        <div className="flex rounded-xl border border-ghost overflow-hidden">
+        <div className="flex rounded-full border border-ghost overflow-hidden">
           {(['equal', 'percentage', 'manual'] as const).map((mode) => (
             <button
               key={mode}

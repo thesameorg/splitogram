@@ -101,21 +101,21 @@ export function Home() {
   return (
     <PageLayout>
       {/* Balance Summary */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold mb-3">{t('tabs.groups')}</h1>
+      <div className="mb-8">
+        <h1 className="text-xl font-extrabold mb-3">{t('tabs.groups')}</h1>
         {hasBalances && (
           <div className="flex gap-2 items-center text-sm flex-wrap">
             {Object.entries(balancesByCurrency).map(([currency, bal]) => (
               <div key={currency} className="flex gap-1">
                 {bal.owed > 0 && (
-                  <div className="bg-app-positive-bg px-3 py-2 rounded-lg">
+                  <div className="bg-app-positive-bg px-3 py-2 rounded-full">
                     <span className="text-app-positive font-medium">
                       +{formatAmount(bal.owed, currency)}
                     </span>
                   </div>
                 )}
                 {bal.owe > 0 && (
-                  <div className="bg-app-negative-bg px-3 py-2 rounded-lg">
+                  <div className="bg-app-negative-bg px-3 py-2 rounded-full">
                     <span className="text-app-negative font-medium">
                       -{formatAmount(bal.owe, currency)}
                     </span>
@@ -134,7 +134,8 @@ export function Home() {
 
       {/* Group List */}
       {groups.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-16">
+          <div className="text-5xl mb-4">📋</div>
           <p className="text-tg-hint mb-4">{t('home.noGroups')}</p>
           <button
             onClick={() => setShowCreate(true)}
@@ -161,7 +162,7 @@ export function Home() {
                   />
                   <div>
                     <div className="font-medium">{group.name}</div>
-                    <div className="text-sm text-tg-hint">
+                    <div className="text-sm text-tg-hint tracking-label">
                       {t('home.member', { count: group.memberCount })}
                       {' · '}
                       {getCurrency(group.currency).symbol}

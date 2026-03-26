@@ -366,7 +366,7 @@ export function GroupSettings() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">
+      <h1 className="text-xl font-extrabold mb-6">
         {isAdmin ? t('groupSettings.title') : t('groupSettings.infoTitle')}
       </h1>
 
@@ -427,7 +427,7 @@ export function GroupSettings() {
 
       {/* Group name */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
+        <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
           {t('groupSettings.groupName')}
         </label>
         <input
@@ -442,7 +442,7 @@ export function GroupSettings() {
 
       {/* Currency */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
+        <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
           {t('groupSettings.currency')}
         </label>
         <CurrencyButton
@@ -474,7 +474,7 @@ export function GroupSettings() {
 
       {/* Invite link */}
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
+        <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
           {t('groupSettings.inviteLink')}
         </label>
         <div className="flex gap-2">
@@ -524,7 +524,7 @@ export function GroupSettings() {
 
       {/* Members */}
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-2 text-tg-hint">
+        <label className="block text-sm font-medium mb-2 text-tg-hint tracking-label">
           {t('groupSettings.members', { count: group.members.length })}
         </label>
         <div className="space-y-2">

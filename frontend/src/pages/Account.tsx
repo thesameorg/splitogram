@@ -410,7 +410,7 @@ export function Account() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">{t('account.title')}</h1>
+      <h1 className="text-xl font-extrabold mb-6">{t('account.title')}</h1>
 
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
       {success && <SuccessBanner message={success} onDismiss={clearSuccess} />}
@@ -452,7 +452,7 @@ export function Account() {
 
       {/* Language Selector */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-tg-hint">
+        <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
           {t('account.language')}
         </label>
         <button

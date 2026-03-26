@@ -112,7 +112,7 @@ export function SettleManual() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">{t('settleUp.title')}</h1>
+      <h1 className="text-xl font-extrabold mb-6">{t('settleUp.title')}</h1>
 
       {/* Settlement info */}
       <div className="card px-4 py-3 rounded-2xl mb-4 flex items-center justify-between">
@@ -184,7 +184,7 @@ export function SettleManual() {
         <div className="space-y-4">
           {/* Amount input */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-tg-hint">
+            <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
               {t('settleUp.amount')}
             </label>
             <div className="relative">
@@ -205,7 +205,7 @@ export function SettleManual() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-tg-hint">
+            <label className="block text-sm font-medium mb-1 text-tg-hint tracking-label">
               {t('settleUp.note')}
             </label>
             <input

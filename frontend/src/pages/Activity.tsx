@@ -55,10 +55,11 @@ export function Activity() {
 
   return (
     <PageLayout>
-      <h1 className="text-xl font-bold mb-6">{t('feed.title')}</h1>
+      <h1 className="text-xl font-extrabold mb-6">{t('feed.title')}</h1>
 
       {items.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-16">
+          <div className="text-5xl mb-4">📰</div>
           <p className="text-tg-hint">{t('activity.empty')}</p>
         </div>
       ) : (
@@ -80,7 +81,7 @@ export function Activity() {
                   <span className="text-xs text-tg-hint bg-tg-secondary-bg px-2 py-0.5 rounded-full truncate max-w-[40%]">
                     {item.groupName}
                   </span>
-                  <span className="text-xs text-tg-hint">{timeAgo(item.createdAt)}</span>
+                  <span className="text-xs text-tg-hint tracking-label">{timeAgo(item.createdAt)}</span>
                 </div>
               </div>
               {item.type === 'settlement_completed' && (item.metadata as any)?.explorerUrl && (

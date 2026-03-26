@@ -447,7 +447,7 @@ export function Group() {
   return (
     <PageLayout>
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-8 card p-4 rounded-2xl header-glow">
         <div className="flex items-center gap-3">
           <div className="shrink-0">
             {group.avatarKey ? (
@@ -469,8 +469,8 @@ export function Group() {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold truncate">{group.name}</h1>
-            <div className="text-sm text-tg-hint">
+            <h1 className="text-xl font-extrabold truncate">{group.name}</h1>
+            <div className="text-sm text-tg-hint tracking-label">
               {t('group.member', { count: group.members.length })} &middot;{' '}
               {getCurrency(group.currency).symbol}
             </div>
@@ -513,13 +513,13 @@ export function Group() {
                 shareInviteLink(group.inviteCode, group.name, group.members.length);
                 setShowInviteNudge(false);
               }}
-              className="flex-1 bg-tg-button text-tg-button-text py-2.5 rounded-lg text-sm font-medium"
+              className="flex-1 bg-tg-button text-tg-button-text py-2.5 rounded-xl text-sm font-medium"
             >
               {t('group.inviteNudgeButton')}
             </button>
             <button
               onClick={() => setShowInviteNudge(false)}
-              className="px-4 py-2.5 rounded-lg text-sm text-tg-hint border border-ghost"
+              className="px-4 py-2.5 rounded-xl text-sm text-tg-hint border border-ghost"
             >
               {t('group.inviteNudgeLater')}
             </button>
@@ -542,7 +542,7 @@ export function Group() {
       )}
 
       {/* Tabs */}
-      <div className="flex border-b border-ghost mb-4">
+      <div className="flex border-b border-ghost mb-6">
         {(['transactions', 'balances', 'feed', 'stats'] as const).map((tabKey) => {
           const hasDebt =
             tabKey === 'balances' && debts.some((d) => d.from.userId === currentUserId);
@@ -569,7 +569,8 @@ export function Group() {
       {tab === 'transactions' && (
         <div className="space-y-3">
           {transactions.length === 0 ? (
-            <div className="text-center py-8">
+            <div className="text-center py-16">
+              <div className="text-5xl mb-4">📝</div>
               <p className="text-tg-hint mb-3">{t('group.noTransactions')}</p>
               {group.members.length <= 1 && (
                 <button
@@ -599,7 +600,10 @@ export function Group() {
               <div className="w-6 h-6 border-2 border-tg-hint/30 border-t-tg-hint rounded-full animate-spin" />
             </div>
           ) : activityItems.length === 0 ? (
-            <p className="text-center text-tg-hint py-8">{t('activity.empty')}</p>
+            <div className="text-center py-16">
+              <div className="text-5xl mb-4">📰</div>
+              <p className="text-tg-hint">{t('activity.empty')}</p>
+            </div>
           ) : (
             <>
               {activityItems.map((item) => (
@@ -736,14 +740,14 @@ export function Group() {
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => handleSettleUp(debtIOwe, 'ton')}
-                        className="flex-1 bg-tg-button text-tg-button-text py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5"
+                        className="flex-1 bg-tg-button text-tg-button-text py-2 rounded-xl text-sm font-medium flex items-center justify-center gap-1.5"
                       >
                         <IconTon size={14} />
                         {t('group.payUsdt')}
                       </button>
                       <button
                         onClick={() => handleSettleUp(debtIOwe, 'manual')}
-                        className="flex-1 text-tg-text py-2 rounded-lg text-sm border border-ghost font-medium"
+                        className="flex-1 text-tg-text py-2 rounded-xl text-sm border border-ghost font-medium"
                       >
                         {t('group.settleManually')}
                       </button>
@@ -754,7 +758,7 @@ export function Group() {
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => handleSettleUp(debtOwesMe, 'manual')}
-                        className="flex-1 text-tg-hint py-2 rounded-lg text-sm border border-ghost"
+                        className="flex-1 text-tg-hint py-2 rounded-xl text-sm border border-ghost"
                       >
                         {t('group.markAsSettled')}
                       </button>
@@ -768,14 +772,14 @@ export function Group() {
                               m.displayName,
                             )
                           }
-                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-ghost"
+                          className="flex-1 text-tg-link py-2 rounded-xl text-sm border border-ghost"
                         >
                           {t('group.invite')}
                         </button>
                       ) : (
                         <button
                           onClick={() => handleSendReminder(debtOwesMe)}
-                          className="flex-1 text-tg-link py-2 rounded-lg text-sm border border-ghost"
+                          className="flex-1 text-tg-link py-2 rounded-xl text-sm border border-ghost"
                         >
                           {t('group.sendReminder')}
                         </button>
@@ -793,7 +797,7 @@ export function Group() {
                           m.displayName,
                         )
                       }
-                      className="mt-3 w-full text-tg-link py-2 rounded-lg text-sm border border-ghost"
+                      className="mt-3 w-full text-tg-link py-2 rounded-xl text-sm border border-ghost"
                     >
                       {t('group.invite')}
                     </button>
@@ -827,7 +831,7 @@ export function Group() {
               <div className="card rounded-2xl p-4 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-tg-hint text-sm">{t('group.statsTotalSpent')}</span>
-                  <span className="font-bold text-lg">
+                  <span className="font-extrabold text-lg">
                     {formatAmount(stats.totalSpent, group?.currency)}
                   </span>
                 </div>
@@ -842,7 +846,7 @@ export function Group() {
                       </div>
                     )}
                   </div>
-                  <span className="font-bold text-lg">
+                  <span className="font-extrabold text-lg">
                     {formatAmount(stats.yourShare, group?.currency)}
                   </span>
                 </div>
@@ -850,7 +854,7 @@ export function Group() {
 
               {/* Additional stats */}
               <div>
-                <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mb-2">
+                <div className="text-xs font-medium text-tg-hint uppercase tracking-label mb-2">
                   {t('group.statsAdditional')}
                 </div>
                 <div className="card rounded-2xl space-y-2">
@@ -912,7 +916,7 @@ export function Group() {
       {tab === 'transactions' && (
         <button
           onClick={() => navigate(`/groups/${groupId}/add-expense`)}
-          className={`fixed right-6 bg-tg-button text-tg-button-text px-6 py-3 rounded-full shadow-lg font-medium ${showWelcomeBanner ? 'animate-pulse' : ''}`}
+          className={`fixed right-6 bg-gradient-to-br from-[#92ccff] to-[#2b98dd] text-white px-6 py-3 rounded-full shadow-glow font-medium ${showWelcomeBanner ? 'animate-pulse' : ''}`}
           style={{ bottom: 'calc(78px + env(safe-area-inset-bottom, 0px))' }}
         >
           {t('group.addExpense')}
@@ -945,7 +949,7 @@ export function Group() {
 
             {/* Per-person breakdown */}
             <div>
-              <div className="text-xs font-medium text-tg-hint uppercase tracking-wide mb-2">
+              <div className="text-xs font-medium text-tg-hint uppercase tracking-label mb-2">
                 {t('group.splitAmong', { count: selectedExpense.participants.length })}
               </div>
               <div className="space-y-1">
