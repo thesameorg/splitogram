@@ -55,9 +55,7 @@ export function ReportImage({ imageKey, open, onClose }: ReportImageProps) {
                 key={r.value}
                 onClick={() => setReason(r.value)}
                 className={`w-full text-left p-3 rounded-xl border ${
-                  reason === r.value
-                    ? 'border-tg-link bg-tg-button/10'
-                    : 'border-ghost card'
+                  reason === r.value ? 'border-tg-link bg-tg-button/10' : 'border-ghost card'
                 }`}
               >
                 <span className="text-sm font-medium">{t(r.key)}</span>

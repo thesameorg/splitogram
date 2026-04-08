@@ -42,9 +42,7 @@ export function MonthSelector({ availableMonths, selected, onChange }: MonthSele
       <button
         onClick={() => onChange('all')}
         className={`px-3 py-1.5 rounded-full text-sm font-medium shrink-0 ${
-          selected !== 'all'
-            ? 'bg-tg-button text-tg-button-text'
-            : 'card text-tg-hint'
+          selected !== 'all' ? 'bg-tg-button text-tg-button-text' : 'card text-tg-hint'
         }`}
       >
         {t('group.statsAllTime')}

@@ -81,7 +81,9 @@ export function Activity() {
                   <span className="text-xs text-tg-hint bg-tg-secondary-bg px-2 py-0.5 rounded-full truncate max-w-[40%]">
                     {item.groupName}
                   </span>
-                  <span className="text-xs text-tg-hint tracking-label">{timeAgo(item.createdAt)}</span>
+                  <span className="text-xs text-tg-hint tracking-label">
+                    {timeAgo(item.createdAt)}
+                  </span>
                 </div>
               </div>
               {item.type === 'settlement_completed' && (item.metadata as any)?.explorerUrl && (

@@ -92,10 +92,7 @@ export function ProfileSection({
             >
               {saving ? '...' : t('account.save')}
             </button>
-            <button
-              onClick={onCancelEditing}
-              className="px-4 py-2 border border-ghost rounded-xl"
-            >
+            <button onClick={onCancelEditing} className="px-4 py-2 border border-ghost rounded-xl">
               {t('account.cancel')}
             </button>
           </div>
