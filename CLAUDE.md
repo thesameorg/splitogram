@@ -125,7 +125,8 @@ backend/src/
 ├── index.ts              # Hono app entry, routes, middleware, error handler
 ├── webhook.ts            # grammY bot (module-level cached): /start, /stats, deep links, report moderation callbacks
 ├── env.ts                # Env bindings (D1, R2, secrets) + SessionData type
-├── api/                  # Route handlers (auth, users, groups/*, expenses, balances, settlements, activity, stats, r2, admin, reports)
+├── api/                  # Route handlers (auth, users, groups/*, expenses, comments, balances, settlements, activity, stats, r2, admin, reports)
+│   ├── comments.ts       # Expense comments CRUD (nested under expenses)
 │   └── groups/           # Split into core.ts (CRUD/avatar), membership.ts (join/leave/kick/reminders), placeholders.ts, export.ts
 ├── middleware/            # auth (initData HMAC validation), db (Drizzle injection)
 ├── services/             # telegram-auth, notifications, debt-solver, activity, moderation, exchange-rates, tonapi
@@ -141,7 +142,7 @@ frontend/src/
 ├── i18n.ts               # react-i18next config, language detection, CloudStorage persistence
 ├── locales/              # Translation JSON files (en, ru, es, hi, id, fa, pt, uk, de, it, vi)
 ├── services/api.ts       # Fetch wrapper with initData auth header
-├── pages/                # Home, Group, GroupSettings, AddExpense, SettleUp, Activity, Account
+├── pages/                # Home, Group, GroupSettings, AddExpense, ExpenseDetail, SettleUp, Activity, Account
 ├── icons/                # SVG icon components (IconUsers, IconActivity, IconUser, IconCopy, IconCrown, IconCheck, IconTon, IconStats, IconExternalLink, IconChevron, IconUserPlus, IconSettings, IconInfo)
 ├── contexts/             # UserContext (avatar/name/isAdmin state for BottomTabs + Account)
 ├── utils/                # currencies, format, commission, time, share, transactions, image, activity (getActivityText), ton (buildSettlementBody, formatUsdtAmount, formatTonAmount)
@@ -212,6 +213,7 @@ Bot sends links with `start_param`. Frontend reads `window.Telegram.WebApp.initD
 - **settlements**: group_id, from_user, to_user, amount, status (open/payment_pending/settled_onchain/settled_external), tx_hash, usdt_amount, commission, comment, settled_by
 - **activity_log**: group_id, actor_id, type (expense_created/edited/deleted, settlement_completed, member_joined/left/kicked, placeholder_claimed, member_deleted), target_user_id, expense_id, settlement_id, amount, metadata (JSON), created_at
 - **debt_reminders**: group_id, from_user_id (creditor), to_user_id (debtor), last_sent_at (24h cooldown)
+- **expense_comments**: expense_id, user_id, text (nullable), image_key (nullable), image_thumb_key (nullable), created_at. FK cascade on expense delete.
 - **image_reports**: reporter_telegram_id, image_key, reason, details, status (pending/rejected/removed)
 
 Amounts stored as integers in micro-units (1 unit = 1,000,000). Currency is per-group. No floating point.
@@ -327,6 +329,7 @@ Cloudflare Workers terminate after the response is sent. To run fire-and-forget 
 - **useSettlement hook** — `frontend/src/hooks/useSettlement.ts` encapsulates settlement fetch + amount parsing. Shared by `SettleManual` and `SettleCrypto`.
 - **getActivityText** — Lives in `frontend/src/utils/activity.ts` (not in a page component). Imported by both `Activity.tsx` and `Group.tsx`.
 - **USDT/TON formatting** — `formatUsdtAmount`, `formatUsdtCommission`, `formatTonAmount` live in `frontend/src/utils/ton.ts`. Shared by both settle pages.
+- **Expense comments** — Flat chat threads per expense. `expense_comments` table (migration 0017) with cascade delete on expense FK. Backend API at `/api/v1/groups/:id/expenses/:expenseId/comments` (GET list, POST create, DELETE). Comments can have text and/or image attachment (R2 `comments/` prefix). Frontend: `ExpenseDetail` page (`/groups/:id/expense/:expenseId`) with chat-style UI, input bar, image upload. Expense list returns `commentCount` per expense. Group.tsx shows comment count badge on cards and "Comments (N)" link in expense BottomSheet. Bot notification `notify.commentAdded()` to payer + participants. i18n: `comments.*` keys in all 11 locales.
 
 ## Code Style
 
