@@ -335,6 +335,18 @@
   "imageViewer": {
     "download": "دانلود"
   },
+  "comments": {
+    "title": "نظرات",
+    "empty": "هنوز نظری نیست",
+    "placeholder": "نظر بنویسید...",
+    "send": "ارسال",
+    "attachImage": "افزودن تصویر",
+    "deleteConfirm": "این نظر حذف شود؟",
+    "viewComments": "نظرات ({{count}})",
+    "noComments": "افزودن نظر",
+    "loadMore": "بارگذاری قبلی‌ها",
+    "expenseNotFound": "هزینه یافت نشد"
+  },
   "loading": "در حال بارگذاری...",
   "time": {
     "justNow": "الان",

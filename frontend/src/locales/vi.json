@@ -333,6 +333,18 @@
   "imageViewer": {
     "download": "Tải xuống"
   },
+  "comments": {
+    "title": "Bình luận",
+    "empty": "Chưa có bình luận",
+    "placeholder": "Viết bình luận...",
+    "send": "Gửi",
+    "attachImage": "Đính kèm ảnh",
+    "deleteConfirm": "Xóa bình luận này?",
+    "viewComments": "Bình luận ({{count}})",
+    "noComments": "Thêm bình luận",
+    "loadMore": "Tải thêm",
+    "expenseNotFound": "Không tìm thấy chi tiêu"
+  },
   "loading": "Đang tải...",
   "time": {
     "justNow": "vừa xong",

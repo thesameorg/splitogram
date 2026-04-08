@@ -54,6 +54,8 @@ interface TelegramWebApp {
     onClick(callback: () => void): void;
     offClick(callback: () => void): void;
   };
+  showAlert?(message: string, callback?: () => void): void;
+  showConfirm?(message: string, callback?: (confirmed: boolean) => void): void;
   close(): void;
   expand(): void;
   openLink(url: string, options?: { try_instant_view?: boolean }): void;

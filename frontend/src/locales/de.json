@@ -335,6 +335,18 @@
   "imageViewer": {
     "download": "Herunterladen"
   },
+  "comments": {
+    "title": "Kommentare",
+    "empty": "Noch keine Kommentare",
+    "placeholder": "Kommentar schreiben...",
+    "send": "Senden",
+    "attachImage": "Bild anhängen",
+    "deleteConfirm": "Kommentar löschen?",
+    "viewComments": "Kommentare ({{count}})",
+    "noComments": "Kommentar hinzufügen",
+    "loadMore": "Ältere laden",
+    "expenseNotFound": "Ausgabe nicht gefunden"
+  },
   "loading": "Laden...",
   "time": {
     "justNow": "gerade",

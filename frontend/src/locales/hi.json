@@ -335,6 +335,18 @@
   "imageViewer": {
     "download": "डाउनलोड"
   },
+  "comments": {
+    "title": "टिप्पणियाँ",
+    "empty": "अभी कोई टिप्पणी नहीं",
+    "placeholder": "टिप्पणी लिखें...",
+    "send": "भेजें",
+    "attachImage": "फ़ोटो जोड़ें",
+    "deleteConfirm": "यह टिप्पणी हटाएँ?",
+    "viewComments": "टिप्पणियाँ ({{count}})",
+    "noComments": "टिप्पणी जोड़ें",
+    "loadMore": "पुरानी लोड करें",
+    "expenseNotFound": "खर्च नहीं मिला"
+  },
   "loading": "लोड हो रहा है...",
   "time": {
     "justNow": "अभी",

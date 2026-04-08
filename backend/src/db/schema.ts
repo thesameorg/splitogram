@@ -204,6 +204,30 @@ export const imageReports = sqliteTable('image_reports', {
     .$defaultFn(() => new Date().toISOString()),
 });
 
+// --- Expense Comments ---
+export const expenseComments = sqliteTable(
+  'expense_comments',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    expenseId: integer('expense_id')
+      .notNull()
+      .references(() => expenses.id, { onDelete: 'cascade' }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
+    text: text('text'),
+    imageKey: text('image_key'),
+    imageThumbKey: text('image_thumb_key'),
+    createdAt: text('created_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => [
+    index('expense_comments_expense_idx').on(table.expenseId),
+    index('expense_comments_expense_created_idx').on(table.expenseId, table.createdAt),
+  ],
+);
+
 // --- Settlements ---
 export const settlements = sqliteTable(
   'settlements',

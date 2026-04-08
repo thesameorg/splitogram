@@ -333,6 +333,18 @@
   "imageViewer": {
     "download": "Unduh"
   },
+  "comments": {
+    "title": "Komentar",
+    "empty": "Belum ada komentar",
+    "placeholder": "Tulis komentar...",
+    "send": "Kirim",
+    "attachImage": "Lampirkan gambar",
+    "deleteConfirm": "Hapus komentar ini?",
+    "viewComments": "Komentar ({{count}})",
+    "noComments": "Tambah komentar",
+    "loadMore": "Muat sebelumnya",
+    "expenseNotFound": "Pengeluaran tidak ditemukan"
+  },
   "loading": "Memuat...",
   "time": {
     "justNow": "baru saja",

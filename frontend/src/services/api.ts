@@ -120,6 +120,7 @@ export interface Expense {
   receiptKey: string | null;
   receiptThumbKey: string | null;
   createdAt: string;
+  commentCount: number;
   participants: ExpenseParticipant[];
 }
 
@@ -241,6 +242,18 @@ export interface ActivityItem {
   settlementId: number | null;
   amount: number | null;
   metadata: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface ExpenseComment {
+  id: number;
+  expenseId: number;
+  userId: number;
+  displayName: string;
+  avatarKey: string | null;
+  text: string | null;
+  imageKey: string | null;
+  imageThumbKey: string | null;
   createdAt: string;
 }
 
@@ -469,6 +482,42 @@ export const api = {
     apiRequest<{ deleted: boolean }>(`/api/v1/groups/${groupId}/expenses/${expenseId}/receipt`, {
       method: 'DELETE',
     }),
+
+  // Comments
+  listComments: (groupId: number, expenseId: number, cursor?: string) =>
+    apiRequest<{ comments: ExpenseComment[]; nextCursor: string | null }>(
+      `/api/v1/groups/${groupId}/expenses/${expenseId}/comments${cursor ? `?cursor=${cursor}` : ''}`,
+    ),
+
+  createComment: (groupId: number, expenseId: number, text: string) =>
+    apiRequest<ExpenseComment>(`/api/v1/groups/${groupId}/expenses/${expenseId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    }),
+
+  createCommentWithImage: (
+    groupId: number,
+    expenseId: number,
+    image: Blob,
+    thumbnail: Blob,
+    text?: string,
+  ) => {
+    const formData = new FormData();
+    if (text) formData.append('text', text);
+    formData.append('image', image, 'image.jpg');
+    formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
+    return apiRequest<ExpenseComment>(`/api/v1/groups/${groupId}/expenses/${expenseId}/comments`, {
+      method: 'POST',
+      headers: {},
+      body: formData,
+    });
+  },
+
+  deleteComment: (groupId: number, expenseId: number, commentId: number) =>
+    apiRequest<{ deleted: boolean }>(
+      `/api/v1/groups/${groupId}/expenses/${expenseId}/comments/${commentId}`,
+      { method: 'DELETE' },
+    ),
 
   // Balances
   // Reminders

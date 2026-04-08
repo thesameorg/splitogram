@@ -335,6 +335,18 @@
   "imageViewer": {
     "download": "Baixar"
   },
+  "comments": {
+    "title": "Comentários",
+    "empty": "Sem comentários ainda",
+    "placeholder": "Escreva um comentário...",
+    "send": "Enviar",
+    "attachImage": "Anexar imagem",
+    "deleteConfirm": "Excluir este comentário?",
+    "viewComments": "Comentários ({{count}})",
+    "noComments": "Adicionar comentário",
+    "loadMore": "Carregar anteriores",
+    "expenseNotFound": "Despesa não encontrada"
+  },
   "loading": "Carregando...",
   "time": {
     "justNow": "agora",

@@ -337,6 +337,18 @@
   "imageViewer": {
     "download": "Завантажити"
   },
+  "comments": {
+    "title": "Коментарі",
+    "empty": "Поки немає коментарів",
+    "placeholder": "Написати коментар...",
+    "send": "Надіслати",
+    "attachImage": "Додати фото",
+    "deleteConfirm": "Видалити коментар?",
+    "viewComments": "Коментарі ({{count}})",
+    "noComments": "Додати коментар",
+    "loadMore": "Завантажити попередні",
+    "expenseNotFound": "Витрату не знайдено"
+  },
   "loading": "Завантаження...",
   "time": {
     "justNow": "щойно",

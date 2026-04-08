@@ -2,7 +2,14 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
-import { expenses, expenseParticipants, groupMembers, groups, users } from '../db/schema';
+import {
+  expenses,
+  expenseComments,
+  expenseParticipants,
+  groupMembers,
+  groups,
+  users,
+} from '../db/schema';
 import { refreshGroupBalances } from './balances';
 import { notify } from '../services/notifications';
 import { logActivity } from '../services/activity';
@@ -317,8 +324,27 @@ expensesApp.get('/', async (c) => {
     participantsByExpense.set(p.expenseId, list);
   }
 
+  // Batch-fetch comment counts
+  const commentCounts =
+    expenseIds.length > 0
+      ? await db
+          .select({
+            expenseId: expenseComments.expenseId,
+            count: sql<number>`count(*)`.as('count'),
+          })
+          .from(expenseComments)
+          .where(inArray(expenseComments.expenseId, expenseIds))
+          .groupBy(expenseComments.expenseId)
+      : [];
+
+  const commentCountMap = new Map<number, number>();
+  for (const row of commentCounts) {
+    commentCountMap.set(row.expenseId, row.count);
+  }
+
   const result = expenseList.map((exp) => ({
     ...exp,
+    commentCount: commentCountMap.get(exp.id) ?? 0,
     participants: (participantsByExpense.get(exp.id) ?? []).map((p) => ({
       userId: p.userId,
       displayName: p.displayName,
@@ -505,6 +531,17 @@ expensesApp.delete('/:expenseId', async (c) => {
       { error: 'not_authorized', detail: 'Only the expense creator or group admin can delete' },
       403,
     );
+  }
+
+  // Clean up comment images from R2 (before cascade delete)
+  const commentImages = await db
+    .select({ imageKey: expenseComments.imageKey, imageThumbKey: expenseComments.imageThumbKey })
+    .from(expenseComments)
+    .where(eq(expenseComments.expenseId, expenseId));
+
+  for (const img of commentImages) {
+    if (img.imageKey) c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, img.imageKey));
+    if (img.imageThumbKey) c.executionCtx.waitUntil(safeR2Delete(c.env.IMAGES, img.imageThumbKey));
   }
 
   // Clean up receipt from R2 (best-effort)

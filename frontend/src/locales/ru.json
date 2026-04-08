@@ -337,6 +337,18 @@
   "imageViewer": {
     "download": "Скачать"
   },
+  "comments": {
+    "title": "Комментарии",
+    "empty": "Пока нет комментариев",
+    "placeholder": "Написать комментарий...",
+    "send": "Отправить",
+    "attachImage": "Прикрепить фото",
+    "deleteConfirm": "Удалить комментарий?",
+    "viewComments": "Комментарии ({{count}})",
+    "noComments": "Добавить комментарий",
+    "loadMore": "Загрузить ранние",
+    "expenseNotFound": "Расход не найден"
+  },
   "loading": "Загрузка...",
   "time": {
     "justNow": "только что",

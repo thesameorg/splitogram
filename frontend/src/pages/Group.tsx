@@ -433,10 +433,28 @@ export function Group() {
             </div>
           </div>
         </div>
-        <div className="mt-2 text-xs text-tg-hint truncate">
-          {exp.participants.length > 3
-            ? t('group.splitAmong', { count: exp.participants.length })
-            : `${t('group.splitAmong', { count: exp.participants.length })}: ${exp.participants.map((p) => p.displayName).join(', ')}`}
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <div className="text-xs text-tg-hint truncate">
+            {exp.participants.length > 3
+              ? t('group.splitAmong', { count: exp.participants.length })
+              : `${t('group.splitAmong', { count: exp.participants.length })}: ${exp.participants.map((p) => p.displayName).join(', ')}`}
+          </div>
+          {exp.commentCount > 0 && (
+            <div className="shrink-0 flex items-center gap-0.5 text-xs text-tg-hint">
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              {exp.commentCount}
+            </div>
+          )}
         </div>
       </button>
     );
@@ -607,10 +625,7 @@ export function Group() {
           ) : (
             <>
               {activityItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start gap-3 p-3 rounded-2xl card"
-                >
+                <div key={item.id} className="flex items-start gap-3 p-3 rounded-2xl card">
                   <Avatar avatarKey={item.actorAvatarKey} displayName={item.actorName} size="sm" />
                   <div className="flex-1 min-w-0">
                     <div
@@ -707,10 +722,7 @@ export function Group() {
                 placeholderExistedWhenUserJoined && currentUserRole !== 'admin' && !userHasClaimed;
 
               return (
-                <div
-                  key={m.userId}
-                  className="card p-3 rounded-2xl"
-                >
+                <div key={m.userId} className="card p-3 rounded-2xl">
                   <div className="flex items-center gap-3">
                     <Avatar avatarKey={m.avatarKey} displayName={m.displayName} size="sm" />
                     <span className="flex-1 font-medium">
@@ -994,6 +1006,31 @@ export function Group() {
             <div className="text-xs text-tg-hint text-center">
               {timeAgo(selectedExpense.createdAt)}
             </div>
+
+            {/* Comments link */}
+            <button
+              onClick={() => {
+                const eid = selectedExpense.id;
+                setSelectedExpense(null);
+                navigate(`/groups/${groupId}/expense/${eid}`);
+              }}
+              className="w-full py-2.5 rounded-xl text-sm font-medium text-tg-link border border-ghost flex items-center justify-center gap-1.5"
+            >
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              {selectedExpense.commentCount > 0
+                ? t('comments.viewComments', { count: selectedExpense.commentCount })
+                : t('comments.noComments')}
+            </button>
 
             {/* Actions */}
             {(canEditExpense(selectedExpense) || canDeleteExpense(selectedExpense)) && (

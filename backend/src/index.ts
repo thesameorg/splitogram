@@ -6,6 +6,7 @@ import { healthHandler } from './api/health';
 import { authHandler } from './api/auth';
 import { groupsApp } from './api/groups';
 import { expensesApp } from './api/expenses';
+import { commentsApp } from './api/comments';
 import { balancesApp } from './api/balances';
 import { settlementsApp } from './api/settlements';
 import { usersApp } from './api/users';
@@ -73,6 +74,11 @@ app.route('/api/v1/groups', groupsApp);
 // Expenses (nested under groups)
 app.use('/api/v1/groups/:id/expenses/*', authMiddleware);
 app.route('/api/v1/groups/:id/expenses', expensesApp);
+
+// Comments (nested under expenses)
+app.use('/api/v1/groups/:id/expenses/:expenseId/comments', authMiddleware);
+app.use('/api/v1/groups/:id/expenses/:expenseId/comments/*', authMiddleware);
+app.route('/api/v1/groups/:id/expenses/:expenseId/comments', commentsApp);
 
 // Balances (nested under groups)
 app.use('/api/v1/groups/:id/balances/*', authMiddleware);

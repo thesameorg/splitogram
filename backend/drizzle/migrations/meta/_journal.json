@@ -120,6 +120,13 @@
       "when": 1773501857644,
       "tag": "0016_warm_puppet_master",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1775673339281,
+      "tag": "0017_silent_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }

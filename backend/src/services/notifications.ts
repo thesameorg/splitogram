@@ -150,6 +150,39 @@ export const notify = {
     await sendMessage(api, ctx, debtor.telegramId, text, keyboard);
   },
 
+  async commentAdded(
+    ctx: NotifyContext,
+    comment: { text?: string | null; expenseId: number; groupId: number },
+    author: { displayName: string },
+    recipients: (NotifyUser & { muted?: boolean })[],
+    expense: { description: string },
+    groupName: string,
+  ): Promise<void> {
+    const api = createApi(ctx);
+    let text = `<b>${author.displayName}</b> commented on "${expense.description}" in <b>${groupName}</b>`;
+    if (comment.text) {
+      const preview = comment.text.length > 80 ? comment.text.slice(0, 80) + '…' : comment.text;
+      text += `\n"${preview}"`;
+    }
+
+    const keyboard = [
+      [
+        {
+          text: 'View Expense',
+          web_app: {
+            url: `${ctx.pagesUrl}/groups/${comment.groupId}/expense/${comment.expenseId}`,
+          },
+        },
+      ],
+    ];
+
+    const tasks = recipients
+      .filter((p) => !p.muted && canNotify(p))
+      .map((p) => sendMessage(api, ctx, p.telegramId, text, keyboard));
+
+    await Promise.allSettled(tasks);
+  },
+
   async memberJoined(
     ctx: NotifyContext,
     newMember: NotifyUser,
