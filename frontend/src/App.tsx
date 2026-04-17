@@ -19,7 +19,6 @@ import { AddExpense } from './pages/AddExpense';
 import { SettleManual } from './pages/SettleManual';
 import { SettleCrypto } from './pages/SettleCrypto';
 import { GroupSettings } from './pages/GroupSettings';
-import { ExpenseDetail } from './pages/ExpenseDetail';
 import './index.css';
 
 function AppContent() {
@@ -136,7 +135,7 @@ function AppContent() {
       // Format: expense_{groupId}_{expenseId}
       const parts = startParam.slice('expense_'.length).split('_');
       if (parts.length === 2) {
-        navigate(`/groups/${parts[0]}/expense/${parts[1]}`);
+        navigate(`/groups/${parts[0]}?expense=${parts[1]}`);
       } else {
         navigate('/');
       }
@@ -184,7 +183,6 @@ function AppContent() {
         {/* Full-screen routes (no tabs) */}
         <Route path="/groups/:id/settings" element={<GroupSettings />} />
         <Route path="/groups/:id/add-expense" element={<AddExpense />} />
-        <Route path="/groups/:id/expense/:expenseId" element={<ExpenseDetail />} />
         <Route path="/groups/:id/edit-expense/:expenseId" element={<AddExpense />} />
         <Route path="/settle/:id/manual" element={<SettleManual />} />
         <Route path="/settle/:id/ton" element={<SettleCrypto />} />

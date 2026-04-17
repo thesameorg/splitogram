@@ -1,47 +1,22 @@
 import type { R2Bucket } from '@cloudflare/workers-types';
-import { eq, or } from 'drizzle-orm';
-import { users, groups, expenses, settlements } from '../db/schema';
-import type { Database } from '../db';
 
 /**
- * Delete an image from R2 (main + thumbnail) and clear DB references.
- * Key format: `{prefix}/{entityId}-{hash}.jpg` where prefix is avatars|groups|receipts.
+ * Delete an image (main + thumbnail) from R2. DB references are left intact
+ * so that the /r2/* endpoint returns a "removed by admin" placeholder next
+ * time the frontend requests the URL.
+ *
+ * Key format: `{prefix}/{entityId}/{timestamp}_{hash}.jpg` where prefix is
+ * avatars | groups | receipts | comments. Thumbnails end with `-thumb.jpg`.
  */
-export async function removeImage(bucket: R2Bucket, db: Database, imageKey: string): Promise<void> {
+export async function removeImage(bucket: R2Bucket, imageKey: string): Promise<void> {
   try {
     await bucket.delete(imageKey);
   } catch (e) {
     console.error('[moderation:removeImage] R2 delete failed:', imageKey, e);
   }
 
-  // Also delete thumbnail variant if exists
-  const thumbKey = imageKey.replace('.jpg', '-thumb.jpg');
-  await bucket.delete(thumbKey).catch(() => {});
-
-  // Clear DB column based on key prefix
-  const [prefix, entityIdStr] = imageKey.split('/');
-  const entityId = parseInt(entityIdStr, 10);
-
-  if (isNaN(entityId)) {
-    console.warn('[moderation:removeImage] Could not parse entityId from key:', imageKey);
-    return;
-  }
-
-  if (prefix === 'avatars') {
-    await db.update(users).set({ avatarKey: null }).where(eq(users.id, entityId));
-  } else if (prefix === 'groups') {
-    await db.update(groups).set({ avatarKey: null }).where(eq(groups.id, entityId));
-  } else if (prefix === 'receipts') {
-    // Could be expense or settlement — clear both
-    await db
-      .update(expenses)
-      .set({ receiptKey: null, receiptThumbKey: null })
-      .where(or(eq(expenses.receiptKey, imageKey), eq(expenses.receiptThumbKey, imageKey)));
-    await db
-      .update(settlements)
-      .set({ receiptKey: null, receiptThumbKey: null })
-      .where(or(eq(settlements.receiptKey, imageKey), eq(settlements.receiptThumbKey, imageKey)));
-  } else {
-    console.warn('[moderation:removeImage] Unknown key prefix:', prefix);
+  if (!imageKey.endsWith('-thumb.jpg')) {
+    const thumbKey = imageKey.replace(/\.jpg$/, '-thumb.jpg');
+    await bucket.delete(thumbKey).catch(() => {});
   }
 }

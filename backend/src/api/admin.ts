@@ -1107,7 +1107,6 @@ app.post('*', async (c, next) => {
 
 // --- Image Delete ---
 app.post('/images/delete', async (c) => {
-  const db = c.get('db');
   const body = await c.req.parseBody();
   const imageKey = typeof body['imageKey'] === 'string' ? body['imageKey'] : '';
   const returnTo = typeof body['returnTo'] === 'string' ? body['returnTo'] : '/admin';
@@ -1117,7 +1116,7 @@ app.post('/images/delete', async (c) => {
     return c.text('Invalid returnTo', 400);
   }
 
-  await removeImage(c.env.IMAGES, db, imageKey);
+  await removeImage(c.env.IMAGES, imageKey);
   return c.redirect(returnTo);
 });
 

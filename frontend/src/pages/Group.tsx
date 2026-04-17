@@ -25,6 +25,7 @@ import { Avatar } from '../components/Avatar';
 import { BottomSheet } from '../components/BottomSheet';
 import { SuccessBanner } from '../components/SuccessBanner';
 import { ImageViewer } from '../components/ImageViewer';
+import { ExpenseDetailSheet } from '../components/ExpenseDetailSheet';
 import { DonutChart } from '../components/DonutChart';
 import { MonthSelector } from '../components/MonthSelector';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -209,13 +210,23 @@ export function Group() {
     shareInviteLink(group.inviteCode, group.name, group.members.length);
   }, [group, searchParams, setSearchParams]);
 
-  function canEditExpense(exp: Expense): boolean {
-    return currentUserId === exp.paidBy;
-  }
-
-  function canDeleteExpense(exp: Expense): boolean {
-    return currentUserId === exp.paidBy || currentUserRole === 'admin';
-  }
+  // Auto-open expense detail sheet from deep link (?expense={id})
+  useEffect(() => {
+    const expenseParam = searchParams.get('expense');
+    if (!expenseParam || transactions.length === 0) return;
+    const targetId = parseInt(expenseParam, 10);
+    if (isNaN(targetId)) return;
+    const tx = transactions.find((t) => t.type === 'expense' && t.data.id === targetId);
+    if (tx && tx.type === 'expense') setSelectedExpense(tx.data);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('expense');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [transactions, searchParams, setSearchParams]);
 
   async function handleDeleteExpense(expenseId: number) {
     if (!confirm(t('group.deleteConfirm'))) return;
@@ -936,134 +947,32 @@ export function Group() {
       )}
 
       {/* Expense detail */}
-      <BottomSheet
-        open={!!selectedExpense}
-        onClose={() => setSelectedExpense(null)}
-        title={selectedExpense?.description ?? ''}
-      >
-        {selectedExpense && (
-          <div className="space-y-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold">
-                {formatAmount(selectedExpense.amount, group?.currency)}
-              </div>
-              <div className="text-sm text-tg-hint mt-1">
-                {t('group.paidBy', { name: selectedExpense.payerName })}
-              </div>
-              {selectedExpense.splitMode && selectedExpense.splitMode !== 'equal' && (
-                <div className="text-xs text-tg-hint mt-1">
-                  {t(
-                    `addExpense.split${selectedExpense.splitMode.charAt(0).toUpperCase() + selectedExpense.splitMode.slice(1)}`,
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Per-person breakdown */}
-            <div>
-              <div className="text-xs font-medium text-tg-hint uppercase tracking-label mb-2">
-                {t('group.splitAmong', { count: selectedExpense.participants.length })}
-              </div>
-              <div className="space-y-1">
-                {selectedExpense.participants.map((p) => (
-                  <div
-                    key={p.userId}
-                    className="flex justify-between items-center py-1.5 px-2 rounded-lg"
-                  >
-                    <span className="text-sm">{p.displayName}</span>
-                    <span className="text-sm font-medium">
-                      {formatAmount(p.shareAmount, group?.currency)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Comment */}
-            {selectedExpense.comment && (
-              <div className="text-sm text-tg-text card rounded-xl px-3 py-2">
-                {selectedExpense.comment}
-              </div>
-            )}
-
-            {/* Receipt */}
-            {selectedExpense.receiptThumbKey && (
-              <button
-                onClick={() => {
-                  setViewImageKey(selectedExpense.receiptKey);
-                  setSelectedExpense(null);
-                }}
-              >
-                <img
-                  src={imageUrl(selectedExpense.receiptThumbKey)}
-                  alt="Receipt"
-                  className="w-20 h-20 rounded-xl object-cover border border-ghost"
-                />
-              </button>
-            )}
-
-            {/* Date */}
-            <div className="text-xs text-tg-hint text-center">
-              {timeAgo(selectedExpense.createdAt)}
-            </div>
-
-            {/* Comments link */}
-            <button
-              onClick={() => {
-                const eid = selectedExpense.id;
-                setSelectedExpense(null);
-                navigate(`/groups/${groupId}/expense/${eid}`);
-              }}
-              className="w-full py-2.5 rounded-xl text-sm font-medium text-tg-link border border-ghost flex items-center justify-center gap-1.5"
-            >
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              {selectedExpense.commentCount > 0
-                ? t('comments.viewComments', { count: selectedExpense.commentCount })
-                : t('comments.noComments')}
-            </button>
-
-            {/* Actions */}
-            {(canEditExpense(selectedExpense) || canDeleteExpense(selectedExpense)) && (
-              <div className="flex gap-3 pt-2">
-                {canEditExpense(selectedExpense) && (
-                  <button
-                    onClick={() => {
-                      const eid = selectedExpense.id;
-                      setSelectedExpense(null);
-                      navigate(`/groups/${groupId}/edit-expense/${eid}`);
-                    }}
-                    className="flex-1 py-2 rounded-xl text-sm font-medium text-tg-link border border-ghost"
-                  >
-                    {t('group.edit')}
-                  </button>
-                )}
-                {canDeleteExpense(selectedExpense) && (
-                  <button
-                    onClick={() => {
-                      const eid = selectedExpense.id;
-                      setSelectedExpense(null);
-                      handleDeleteExpense(eid);
-                    }}
-                    className="flex-1 py-2 rounded-xl text-sm font-medium text-tg-destructive border border-tg-destructive"
-                  >
-                    {t('group.delete')}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-      </BottomSheet>
+      {selectedExpense && group && (
+        <ExpenseDetailSheet
+          expense={selectedExpense}
+          group={group}
+          currentUserId={currentUserId}
+          currentUserRole={currentUserRole}
+          onClose={() => setSelectedExpense(null)}
+          onViewReceipt={(key) => {
+            setViewImageKey(key);
+            setSelectedExpense(null);
+          }}
+          onDelete={handleDeleteExpense}
+          onCommentCountChange={(expenseId, count) => {
+            setTransactions((prev) =>
+              prev.map((tx) =>
+                tx.type === 'expense' && tx.data.id === expenseId
+                  ? { ...tx, data: { ...tx.data, commentCount: count } }
+                  : tx,
+              ),
+            );
+            setSelectedExpense((cur) =>
+              cur && cur.id === expenseId ? { ...cur, commentCount: count } : cur,
+            );
+          }}
+        />
+      )}
 
       {/* Settlement detail */}
       <BottomSheet

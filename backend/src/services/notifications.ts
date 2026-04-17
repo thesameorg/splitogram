@@ -170,7 +170,7 @@ export const notify = {
         {
           text: 'View Expense',
           web_app: {
-            url: `${ctx.pagesUrl}/groups/${comment.groupId}/expense/${comment.expenseId}`,
+            url: `${ctx.pagesUrl}/groups/${comment.groupId}?expense=${comment.expenseId}`,
           },
         },
       ],
