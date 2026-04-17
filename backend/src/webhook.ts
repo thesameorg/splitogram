@@ -337,7 +337,10 @@ function getOrCreateBot(botToken: string): Bot {
           .set({ status: 'removed' })
           .where(eq(imageReports.id, reportId));
 
-        await removeImage(currentEnv.IMAGES, imageKey, currentWorkerOrigin);
+        await removeImage(currentEnv.IMAGES, imageKey, {
+          cacheOrigin: currentWorkerOrigin,
+          kv: currentEnv.KV,
+        });
 
         await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',

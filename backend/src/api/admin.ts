@@ -9,7 +9,7 @@ import {
   activityLog,
   imageReports,
 } from '../db/schema';
-import { removeImage } from '../services/moderation';
+import { removeImage, IMAGE_DENYLIST_PREFIX } from '../services/moderation';
 import { formatAmount } from '../utils/format';
 import { getExchangeRates, convertToMicroUsdt } from '../services/exchange-rates';
 import type { Env } from '../env';
@@ -1116,8 +1116,44 @@ app.post('/images/delete', async (c) => {
     return c.text('Invalid returnTo', 400);
   }
 
-  await removeImage(c.env.IMAGES, imageKey, new URL(c.req.url).origin);
+  await removeImage(c.env.IMAGES, imageKey, {
+    cacheOrigin: new URL(c.req.url).origin,
+    kv: c.env.KV,
+  });
   return c.redirect(returnTo);
+});
+
+// --- Backfill denylist from historical removed reports ---
+// Replays every `removed` image_report into the KV denylist. Use after deploying
+// the denylist mechanism to retroactively take down images that were deleted
+// from R2 but remain in stale edge caches.
+app.post('/images/backfill-denylist', async (c) => {
+  const db = c.get('db');
+  if (!c.env.KV) return c.text('KV not configured', 400);
+
+  const rows = await db
+    .select({ imageKey: imageReports.imageKey })
+    .from(imageReports)
+    .where(eq(imageReports.status, 'removed'));
+
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const main = row.imageKey;
+    if (seen.has(main)) continue;
+    seen.add(main);
+
+    const thumb = main.endsWith('-thumb.jpg') ? null : main.replace(/\.jpg$/, '-thumb.jpg');
+    await c.env.KV.put(`${IMAGE_DENYLIST_PREFIX}${main}`, '1', {
+      expirationTtl: 60 * 60 * 24 * 30,
+    });
+    if (thumb) {
+      await c.env.KV.put(`${IMAGE_DENYLIST_PREFIX}${thumb}`, '1', {
+        expirationTtl: 60 * 60 * 24 * 30,
+      });
+    }
+  }
+
+  return c.text(`Denylisted ${seen.size} image(s).`);
 });
 
 // --- Helpers for resolving names ---

@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import type { Env } from '../env';
+import { IMAGE_DENYLIST_PREFIX } from '../services/moderation';
 
 const COMMON_HEADERS: Record<string, string> = {
   'Cache-Control': 'public, max-age=31536000, immutable',
@@ -35,6 +36,18 @@ r2App.get('/*', async (c) => {
 
   if (!key) {
     return c.json({ error: 'missing_key', detail: 'No image key provided' }, 400);
+  }
+
+  // Denylist check runs first so admin takedowns are effective across all colos.
+  // KV is cached at the edge (~60s) so this is cheap on the hot path.
+  if (c.env.KV) {
+    const denied = await c.env.KV.get(`${IMAGE_DENYLIST_PREFIX}${key}`);
+    if (denied) {
+      return new Response(PLACEHOLDER_SVG, {
+        status: 200,
+        headers: new Headers(PLACEHOLDER_HEADERS),
+      });
+    }
   }
 
   // Check Cloudflare edge cache first (avoids R2 read on cache hit)
