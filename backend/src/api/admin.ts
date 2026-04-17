@@ -1116,7 +1116,7 @@ app.post('/images/delete', async (c) => {
     return c.text('Invalid returnTo', 400);
   }
 
-  await removeImage(c.env.IMAGES, imageKey);
+  await removeImage(c.env.IMAGES, imageKey, new URL(c.req.url).origin);
   return c.redirect(returnTo);
 });
 

@@ -18,6 +18,7 @@ let cachedToken: string | null = null;
 // NOTE: This is safe because CF Workers env bindings are identical across all requests
 // to the same worker deployment. The values never differ between concurrent requests.
 let currentEnv: Env;
+let currentWorkerOrigin: string | undefined;
 
 function getOrCreateBot(botToken: string): Bot {
   if (cachedBot && cachedToken === botToken) return cachedBot;
@@ -336,7 +337,7 @@ function getOrCreateBot(botToken: string): Bot {
           .set({ status: 'removed' })
           .where(eq(imageReports.id, reportId));
 
-        await removeImage(currentEnv.IMAGES, imageKey);
+        await removeImage(currentEnv.IMAGES, imageKey, currentWorkerOrigin);
 
         await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: 'POST',
@@ -437,6 +438,7 @@ export async function handleWebhook(c: Context) {
 
   // Set env for this request — handlers will read from currentEnv
   currentEnv = c.env;
+  currentWorkerOrigin = new URL(c.req.url).origin;
 
   const bot = getOrCreateBot(botToken);
   return webhookCallback(bot, 'hono')(c);

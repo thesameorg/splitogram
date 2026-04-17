@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
+import { and, desc, eq, ne } from 'drizzle-orm';
 import { users, imageReports } from '../db/schema';
 import type { AuthContext } from '../middleware/auth';
 import type { DBContext } from '../middleware/db';
@@ -44,44 +44,74 @@ reportsApp.post('/', zValidator('json', reportSchema), async (c) => {
     })
     .returning();
 
-  const caption = [
+  // Look up prior reports for the same image (excludes the row we just inserted).
+  // If it was already removed, we want to tell the admin instead of silently failing.
+  const priorReports = await db
+    .select({ id: imageReports.id, status: imageReports.status })
+    .from(imageReports)
+    .where(and(eq(imageReports.imageKey, imageKey), ne(imageReports.id, report.id)))
+    .orderBy(desc(imageReports.id));
+  const priorRemoved = priorReports.find((r) => r.status === 'removed');
+  const priorPending = priorReports.find((r) => r.status === 'pending');
+
+  const captionLines = [
     `🚩 Image Report #${report.id}`,
     `From: ${user.displayName} (${user.username ? `@${user.username}` : `ID: ${user.telegramId}`})`,
     `Reason: ${reason}`,
     details ? `Details: ${details}` : '',
     `Key: ${imageKey}`,
-  ]
-    .filter(Boolean)
-    .join('\n');
+  ];
+  if (priorRemoved) {
+    captionLines.push(`⚠️ Previously removed (report #${priorRemoved.id})`);
+  } else if (priorPending) {
+    captionLines.push(`ℹ️ Also pending in report #${priorPending.id}`);
+  }
+  const caption = captionLines.filter(Boolean).join('\n');
 
-  // Read image from R2 and upload directly (Pages URL doesn't serve /r2/ routes)
+  const chatId = String(parseInt(adminTelegramId, 10));
+  const replyMarkup = JSON.stringify({
+    inline_keyboard: [
+      [
+        { text: '✅ Keep it', callback_data: `rj|${report.id}` },
+        { text: '❌ Delete it', callback_data: `rm|${report.id}` },
+      ],
+    ],
+  });
+
+  // Read image from R2 and upload directly (Pages URL doesn't serve /r2/ routes).
+  // If the image is already gone (e.g. removed by a prior report but still visible
+  // due to edge cache), fall back to sendMessage so the admin always hears about it.
   const sendReport = async () => {
     const r2Object = await c.env.IMAGES.get(imageKey);
+
     if (!r2Object) {
-      console.error('Report: image not found in R2:', imageKey);
+      const text = `${caption}\n\n(image not found in storage — sending as text)`;
+      const res = await fetch(
+        `https://api.telegram.org/bot${c.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text, reply_markup: JSON.parse(replyMarkup) }),
+          signal: AbortSignal.timeout(10000),
+        },
+      );
+      if (!res.ok) {
+        const body = await res.text();
+        console.error('Report sendMessage (no-image) failed:', res.status, body);
+      }
       return;
     }
 
     const blob = await r2Object.arrayBuffer();
     const formData = new FormData();
-    formData.append('chat_id', String(parseInt(adminTelegramId, 10)));
+    formData.append('chat_id', chatId);
     formData.append(
       'photo',
       new Blob([blob], { type: r2Object.httpMetadata?.contentType || 'image/jpeg' }),
       'reported-image.jpg',
     );
     formData.append('caption', caption);
-    formData.append(
-      'reply_markup',
-      JSON.stringify({
-        inline_keyboard: [
-          [
-            { text: '✅ Keep it', callback_data: `rj|${report.id}` },
-            { text: '❌ Delete it', callback_data: `rm|${report.id}` },
-          ],
-        ],
-      }),
-    );
+    formData.append('reply_markup', replyMarkup);
 
     const res = await fetch(`https://api.telegram.org/bot${c.env.TELEGRAM_BOT_TOKEN}/sendPhoto`, {
       method: 'POST',
