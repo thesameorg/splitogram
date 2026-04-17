@@ -1,84 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Account Status</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Account Status</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              "on-surface-variant": "#bfc7d2",
-              "inverse-surface": "#e5e1e4",
-              "on-primary-fixed-variant": "#004b73",
-              "primary-fixed-dim": "#92ccff",
-              "on-secondary": "#003351",
-              "on-tertiary-fixed": "#2e1500",
-              "error-container": "#93000a",
-              "on-surface": "#e5e1e4",
-              "on-secondary-fixed": "#001d31",
-              "secondary": "#93ccff",
-              "surface-container-low": "#1b1b1d",
-              "on-secondary-container": "#8bc5f7",
-              "tertiary": "#ffb77a",
-              "surface-variant": "#353437",
-              "surface-container-lowest": "#0e0e10",
-              "surface": "#131315",
-              "error": "#ffb4ab",
-              "background": "#131315",
-              "primary-container": "#2b98dd",
-              "on-secondary-fixed-variant": "#004b73",
-              "surface-dim": "#131315",
-              "tertiary-container": "#d37b1e",
-              "secondary-fixed-dim": "#93ccff",
-              "on-error-container": "#ffdad6",
-              "tertiary-fixed": "#ffdcc2",
-              "primary": "#92ccff",
-              "on-tertiary": "#4c2700",
-              "surface-container": "#1f1f21",
-              "surface-bright": "#39393b",
-              "secondary-container": "#00527e",
-              "surface-tint": "#92ccff",
-              "outline": "#89929b",
-              "on-primary-container": "#002c47",
-              "tertiary-fixed-dim": "#ffb77a",
-              "surface-container-highest": "#353437",
-              "inverse-on-surface": "#303032",
-              "on-tertiary-container": "#432100",
-              "on-primary": "#003351",
-              "secondary-fixed": "#cce5ff",
-              "on-error": "#690005",
-              "outline-variant": "#3f4850",
-              "surface-container-high": "#2a2a2c",
-              "on-background": "#e5e1e4",
-              "inverse-primary": "#006497",
-              "primary-fixed": "#cce5ff",
-              "on-primary-fixed": "#001d31",
-              "on-tertiary-fixed-variant": "#6d3a00"
+              'on-surface-variant': '#bfc7d2',
+              'inverse-surface': '#e5e1e4',
+              'on-primary-fixed-variant': '#004b73',
+              'primary-fixed-dim': '#92ccff',
+              'on-secondary': '#003351',
+              'on-tertiary-fixed': '#2e1500',
+              'error-container': '#93000a',
+              'on-surface': '#e5e1e4',
+              'on-secondary-fixed': '#001d31',
+              secondary: '#93ccff',
+              'surface-container-low': '#1b1b1d',
+              'on-secondary-container': '#8bc5f7',
+              tertiary: '#ffb77a',
+              'surface-variant': '#353437',
+              'surface-container-lowest': '#0e0e10',
+              surface: '#131315',
+              error: '#ffb4ab',
+              background: '#131315',
+              'primary-container': '#2b98dd',
+              'on-secondary-fixed-variant': '#004b73',
+              'surface-dim': '#131315',
+              'tertiary-container': '#d37b1e',
+              'secondary-fixed-dim': '#93ccff',
+              'on-error-container': '#ffdad6',
+              'tertiary-fixed': '#ffdcc2',
+              primary: '#92ccff',
+              'on-tertiary': '#4c2700',
+              'surface-container': '#1f1f21',
+              'surface-bright': '#39393b',
+              'secondary-container': '#00527e',
+              'surface-tint': '#92ccff',
+              outline: '#89929b',
+              'on-primary-container': '#002c47',
+              'tertiary-fixed-dim': '#ffb77a',
+              'surface-container-highest': '#353437',
+              'inverse-on-surface': '#303032',
+              'on-tertiary-container': '#432100',
+              'on-primary': '#003351',
+              'secondary-fixed': '#cce5ff',
+              'on-error': '#690005',
+              'outline-variant': '#3f4850',
+              'surface-container-high': '#2a2a2c',
+              'on-background': '#e5e1e4',
+              'inverse-primary': '#006497',
+              'primary-fixed': '#cce5ff',
+              'on-primary-fixed': '#001d31',
+              'on-tertiary-fixed-variant': '#6d3a00',
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Manrope"],
-              "label": ["Manrope"]
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
         },
-      }
+      };
     </script>
-<style>
+    <style>
       body {
         font-family: 'Manrope', sans-serif;
         -webkit-tap-highlight-color: transparent;
       }
       .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
       }
       .glass-effect {
         backdrop-filter: blur(20px);
@@ -87,79 +101,116 @@
         border: 1px solid rgba(63, 72, 80, 0.15);
       }
       .premium-gradient {
-        background: linear-gradient(135deg, #92CCFF 0%, #2B98DD 100%);
+        background: linear-gradient(135deg, #92ccff 0%, #2b98dd 100%);
       }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-</head>
-<body class="bg-background text-on-surface min-h-screen flex flex-col overflow-hidden">
-<!-- TopAppBar -->
-<header class="w-full top-0 sticky z-50 bg-[#F4F4F5] dark:bg-[#131315] flex items-center justify-between px-6 py-4">
-<div class="flex items-center gap-2 active:scale-95 transition-transform cursor-pointer">
-<span class="material-symbols-outlined text-[#0088CC] dark:text-[#92CCFF]" data-icon="close">close</span>
-</div>
-<h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-on-surface">Account Status</h1>
-<div class="w-6"></div> <!-- Spacer for centering -->
-</header>
-<!-- Main Content Canvas -->
-<main class="flex-1 flex flex-col items-center justify-center px-8 relative">
-<!-- Background Ethereal Glows -->
-<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
-<!-- Central Identity Section -->
-<div class="w-full max-w-sm flex flex-col items-center text-center space-y-12">
-<!-- Completion Icon with Tonal Depth -->
-<div class="relative group">
-<div class="absolute inset-0 bg-secondary/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-60"></div>
-<div class="relative w-32 h-32 flex items-center justify-center bg-surface-container-highest rounded-full shadow-[0px_10px_30px_rgba(0,136,204,0.08)] dark:shadow-[0_0_20px_rgba(146,204,255,0.05)] overflow-hidden">
-<span class="material-symbols-outlined text-6xl text-primary select-none" data-icon="ghost">mist</span>
-<!-- Decorative subtle lines -->
-<div class="absolute inset-0 border-[0.5px] border-outline-variant opacity-10 rounded-full"></div>
-</div>
-</div>
-<!-- Typography Header & Body -->
-<div class="space-y-4">
-<h2 class="text-3xl font-extrabold tracking-tight text-on-surface font-headline">
-                    Account Deleted
-                </h2>
-<p class="text-on-surface-variant text-md leading-relaxed font-body px-2">
-                    Your personal data and transaction history have been permanently erased from our servers in accordance with <span class="text-primary font-semibold">GDPR</span> regulations. We're sorry to see you go!
-                </p>
-</div>
-<!-- Layout Asymmetry: Data Purge Status -->
-<div class="w-full bg-surface-container-low rounded-xl p-6 ghost-border flex flex-col gap-4 text-left">
-<div class="flex items-center justify-between">
-<span class="text-xs uppercase tracking-widest font-bold text-on-surface-variant">Purge Status</span>
-<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold tracking-wider uppercase">Complete</span>
-</div>
-<div class="flex items-center gap-4">
-<div class="h-1 flex-1 bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full w-full premium-gradient rounded-full"></div>
-</div>
-</div>
-<div class="flex justify-between text-[10px] font-medium text-on-surface-variant/60">
-<span>SERVER ID: LEDGER-09</span>
-<span>TIMESTAMP: JUST NOW</span>
-</div>
-</div>
-<!-- Primary Action -->
-<div class="w-full pt-8">
-<button class="w-full premium-gradient text-on-primary font-bold py-4 px-8 rounded-lg shadow-lg active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 group">
-<span class="font-headline tracking-wide">Close App</span>
-<span class="material-symbols-outlined text-xl group-hover:scale-110 transition-transform" data-icon="power_settings_new">power_settings_new</span>
-</button>
-<p class="mt-4 text-xs text-on-surface-variant/40 font-medium">
-                    You can create a new account at any time.
-                </p>
-</div>
-</div>
-</main>
-<!-- Navigation suppressed per 'Semantic Shell' mandate (Transaction/Final focus) -->
-<!-- But template placeholder for visual weight check if needed -->
-<div class="h-12 w-full"></div>
-<!-- Decorative Bottom Gradient for Depth -->
-<div class="fixed bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background to-transparent pointer-events-none z-10"></div>
-</body></html>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+  </head>
+  <body class="bg-background text-on-surface min-h-screen flex flex-col overflow-hidden">
+    <!-- TopAppBar -->
+    <header
+      class="w-full top-0 sticky z-50 bg-[#F4F4F5] dark:bg-[#131315] flex items-center justify-between px-6 py-4"
+    >
+      <div class="flex items-center gap-2 active:scale-95 transition-transform cursor-pointer">
+        <span class="material-symbols-outlined text-[#0088CC] dark:text-[#92CCFF]" data-icon="close"
+          >close</span
+        >
+      </div>
+      <h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-on-surface">
+        Account Status
+      </h1>
+      <div class="w-6"></div>
+      <!-- Spacer for centering -->
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="flex-1 flex flex-col items-center justify-center px-8 relative">
+      <!-- Background Ethereal Glows -->
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"
+      ></div>
+      <!-- Central Identity Section -->
+      <div class="w-full max-w-sm flex flex-col items-center text-center space-y-12">
+        <!-- Completion Icon with Tonal Depth -->
+        <div class="relative group">
+          <div
+            class="absolute inset-0 bg-secondary/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-60"
+          ></div>
+          <div
+            class="relative w-32 h-32 flex items-center justify-center bg-surface-container-highest rounded-full shadow-[0px_10px_30px_rgba(0,136,204,0.08)] dark:shadow-[0_0_20px_rgba(146,204,255,0.05)] overflow-hidden"
+          >
+            <span
+              class="material-symbols-outlined text-6xl text-primary select-none"
+              data-icon="ghost"
+              >mist</span
+            >
+            <!-- Decorative subtle lines -->
+            <div
+              class="absolute inset-0 border-[0.5px] border-outline-variant opacity-10 rounded-full"
+            ></div>
+          </div>
+        </div>
+        <!-- Typography Header & Body -->
+        <div class="space-y-4">
+          <h2 class="text-3xl font-extrabold tracking-tight text-on-surface font-headline">
+            Account Deleted
+          </h2>
+          <p class="text-on-surface-variant text-md leading-relaxed font-body px-2">
+            Your personal data and transaction history have been permanently erased from our servers
+            in accordance with <span class="text-primary font-semibold">GDPR</span> regulations.
+            We're sorry to see you go!
+          </p>
+        </div>
+        <!-- Layout Asymmetry: Data Purge Status -->
+        <div
+          class="w-full bg-surface-container-low rounded-xl p-6 ghost-border flex flex-col gap-4 text-left"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase tracking-widest font-bold text-on-surface-variant"
+              >Purge Status</span
+            >
+            <span
+              class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold tracking-wider uppercase"
+              >Complete</span
+            >
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="h-1 flex-1 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full w-full premium-gradient rounded-full"></div>
+            </div>
+          </div>
+          <div class="flex justify-between text-[10px] font-medium text-on-surface-variant/60">
+            <span>SERVER ID: LEDGER-09</span>
+            <span>TIMESTAMP: JUST NOW</span>
+          </div>
+        </div>
+        <!-- Primary Action -->
+        <div class="w-full pt-8">
+          <button
+            class="w-full premium-gradient text-on-primary font-bold py-4 px-8 rounded-lg shadow-lg active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 group"
+          >
+            <span class="font-headline tracking-wide">Close App</span>
+            <span
+              class="material-symbols-outlined text-xl group-hover:scale-110 transition-transform"
+              data-icon="power_settings_new"
+              >power_settings_new</span
+            >
+          </button>
+          <p class="mt-4 text-xs text-on-surface-variant/40 font-medium">
+            You can create a new account at any time.
+          </p>
+        </div>
+      </div>
+    </main>
+    <!-- Navigation suppressed per 'Semantic Shell' mandate (Transaction/Final focus) -->
+    <!-- But template placeholder for visual weight check if needed -->
+    <div class="h-12 w-full"></div>
+    <!-- Decorative Bottom Gradient for Depth -->
+    <div
+      class="fixed bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background to-transparent pointer-events-none z-10"
+    ></div>
+  </body>
+</html>

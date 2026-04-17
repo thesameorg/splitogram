@@ -1,260 +1,387 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Pickleballs Group - The Ethereal Ledger</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Pickleballs Group - The Ethereal Ledger</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              "on-secondary-fixed": "#001e2e",
-              "surface-container-high": "#2a2a2c",
-              "secondary-container": "#129ad7",
-              "inverse-surface": "#e4e2e4",
-              "on-tertiary-container": "#002f35",
-              "on-tertiary": "#00363d",
-              "secondary": "#86cfff",
-              "surface-variant": "#353437",
-              "outline": "#89929b",
-              "surface-container": "#1f1f21",
-              "on-error": "#690005",
-              "primary-fixed-dim": "#92ccff",
-              "on-primary-fixed": "#001d31",
-              "tertiary-container": "#009fb2",
-              "surface-container-highest": "#353437",
-              "tertiary-fixed": "#9cf0ff",
-              "surface-dim": "#131315",
-              "inverse-primary": "#006497",
-              "on-tertiary-fixed": "#001f24",
-              "on-surface-variant": "#bfc7d2",
-              "primary-container": "#2b98dd",
-              "outline-variant": "#3f4850",
-              "on-secondary": "#00344c",
-              "on-secondary-container": "#002d43",
-              "surface-bright": "#39393b",
-              "primary-fixed": "#cce5ff",
-              "surface": "#131315",
-              "tertiary": "#006497", /* Adjusted for better visibility on dark */
-              "error-container": "#93000a",
-              "on-primary-fixed-variant": "#004b73",
-              "secondary-fixed": "#c8e6ff",
-              "surface-tint": "#92ccff",
-              "on-error-container": "#ffdad6",
-              "on-tertiary-fixed-variant": "#004f58",
-              "on-primary-container": "#002c47",
-              "on-primary": "#003351",
-              "background": "#131315",
-              "on-surface": "#e4e2e4",
-              "tertiary-fixed-dim": "#00daf3",
-              "inverse-on-surface": "#303032",
-              "secondary-fixed-dim": "#86cfff",
-              "error": "#ffb4ab",
-              "surface-container-lowest": "#0e0e10",
-              "on-background": "#e4e2e4",
-              "on-secondary-fixed-variant": "#004c6d",
-              "primary": "#92ccff",
-              "surface-container-low": "#1b1b1d"
+              'on-secondary-fixed': '#001e2e',
+              'surface-container-high': '#2a2a2c',
+              'secondary-container': '#129ad7',
+              'inverse-surface': '#e4e2e4',
+              'on-tertiary-container': '#002f35',
+              'on-tertiary': '#00363d',
+              secondary: '#86cfff',
+              'surface-variant': '#353437',
+              outline: '#89929b',
+              'surface-container': '#1f1f21',
+              'on-error': '#690005',
+              'primary-fixed-dim': '#92ccff',
+              'on-primary-fixed': '#001d31',
+              'tertiary-container': '#009fb2',
+              'surface-container-highest': '#353437',
+              'tertiary-fixed': '#9cf0ff',
+              'surface-dim': '#131315',
+              'inverse-primary': '#006497',
+              'on-tertiary-fixed': '#001f24',
+              'on-surface-variant': '#bfc7d2',
+              'primary-container': '#2b98dd',
+              'outline-variant': '#3f4850',
+              'on-secondary': '#00344c',
+              'on-secondary-container': '#002d43',
+              'surface-bright': '#39393b',
+              'primary-fixed': '#cce5ff',
+              surface: '#131315',
+              tertiary: '#006497' /* Adjusted for better visibility on dark */,
+              'error-container': '#93000a',
+              'on-primary-fixed-variant': '#004b73',
+              'secondary-fixed': '#c8e6ff',
+              'surface-tint': '#92ccff',
+              'on-error-container': '#ffdad6',
+              'on-tertiary-fixed-variant': '#004f58',
+              'on-primary-container': '#002c47',
+              'on-primary': '#003351',
+              background: '#131315',
+              'on-surface': '#e4e2e4',
+              'tertiary-fixed-dim': '#00daf3',
+              'inverse-on-surface': '#303032',
+              'secondary-fixed-dim': '#86cfff',
+              error: '#ffb4ab',
+              'surface-container-lowest': '#0e0e10',
+              'on-background': '#e4e2e4',
+              'on-secondary-fixed-variant': '#004c6d',
+              primary: '#92ccff',
+              'surface-container-low': '#1b1b1d',
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"]
+              headline: ['Manrope'],
+              body: ['Inter'],
+              label: ['Inter'],
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
         },
-      }
+      };
     </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body {
-            background-color: #131315;
-            color: #e4e2e4;
-            font-family: 'Inter', sans-serif;
-        }
-        .glass-card {
-            background: rgba(27, 27, 29, 0.6);
-            backdrop-filter: blur(12px);
-        }
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      body {
+        background-color: #131315;
+        color: #e4e2e4;
+        font-family: 'Inter', sans-serif;
+      }
+      .glass-card {
+        background: rgba(27, 27, 29, 0.6);
+        backdrop-filter: blur(12px);
+      }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-background min-h-screen pb-32">
-<!-- Top Navigation Anchor -->
-<header class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl flex items-center justify-between px-4 h-16 shadow-[0_40px_40px_0_rgba(146,204,255,0.06)]">
-<div class="flex items-center gap-3">
-<button class="p-2 text-[#92ccff] active:scale-95 transition-transform duration-200">
-<span class="material-symbols-outlined">arrow_back</span>
-</button>
-<h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#92ccff]">Pickleballs</h1>
-</div>
-<div class="flex items-center gap-1">
-<button class="p-2 text-[#e4e2e4]/60 hover:bg-[#2a2a2c] rounded-full transition-colors active:scale-95 duration-200">
-<span class="material-symbols-outlined">search</span>
-</button>
-<button class="p-2 text-[#e4e2e4]/60 hover:bg-[#2a2a2c] rounded-full transition-colors active:scale-95 duration-200">
-<span class="material-symbols-outlined">more_vert</span>
-</button>
-</div>
-</header>
-<main class="pt-20 px-4 space-y-8">
-<!-- Group Identity Hero -->
-<section class="flex flex-col items-center justify-center py-6 text-center space-y-4">
-<div class="relative">
-<div class="w-24 h-24 rounded-[2rem] bg-gradient-to-tr from-primary-container to-tertiary-fixed-dim p-[2px]">
-<div class="w-full h-full rounded-[1.9rem] bg-surface overflow-hidden flex items-center justify-center">
-<img class="w-full h-full object-cover opacity-90" data-alt="Close up of a neon yellow pickleball on a court" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS2vktBXtSxkD9dYDXhll1t-B7Wsmn1CFYe2dS-Min0JDMb7rntSi7enq5hzUX_RfjfGHE5cwDn0IDdYi58JlvtyKi1pXDxZJNSrvJncH7Gb8p4H6qDOVZn13O0DQ46UKv8MMnlRBj0xe4tZoYKJcTYGw7MdL2dmRmdJONuD4lvCHG_VxRsSd56x3mrOpUyi4UCUJoym6qLE-V7N_9NOdWoj7RJ9t4Rh1ouWlxPA4AEdY_m7UwoUMVNW8dV1lmqS1bDr7Z-GOjX-lN"/>
-</div>
-</div>
-<div class="absolute -bottom-1 -right-1 bg-surface-container-high px-2 py-1 rounded-lg flex items-center gap-1 border border-outline-variant/20 shadow-xl">
-<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">group</span>
-<span class="text-[10px] font-bold tracking-widest uppercase">12 Members</span>
-</div>
-</div>
-<div class="space-y-1">
-<h2 class="text-4xl font-headline font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-on-surface to-on-surface-variant">Pickleballs</h2>
-<p class="text-on-surface-variant text-sm font-medium tracking-wide">Weekly Sunday Sessions • Since Mar 2024</p>
-</div>
-</section>
-<!-- Dynamic Tabs (Glassmorphism Rail) -->
-<nav class="flex p-1 bg-surface-container-low rounded-2xl sticky top-[72px] z-40">
-<button class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-primary bg-surface-container-high shadow-sm transition-all">Transactions</button>
-<button class="flex-1 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Balances</button>
-<button class="flex-1 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Feed</button>
-<button class="flex-1 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Stats</button>
-</nav>
-<!-- Large Settlement Anchor -->
-<section class="bg-gradient-to-br from-surface-container-low to-surface-container p-6 rounded-[2rem] border border-outline-variant/10 shadow-2xl relative overflow-hidden">
-<div class="absolute -top-12 -right-12 w-48 h-48 bg-primary/10 blur-[80px] rounded-full"></div>
-<div class="relative z-10 flex flex-col items-center gap-6">
-<div class="text-center">
-<span class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant opacity-60">Total Balance</span>
-<div class="flex items-baseline justify-center gap-2 mt-2">
-<span class="text-5xl font-headline font-extrabold text-on-surface">1,500</span>
-<span class="text-2xl font-headline font-bold text-tertiary-fixed-dim">đ</span>
-</div>
-<p class="text-sm text-tertiary-fixed-dim font-medium mt-1">Dmitry owes you for courts</p>
-</div>
-<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(43,152,221,0.3)] active:scale-[0.98] transition-all">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">diamond</span>
-                    Settle Up via TON
-                </button>
-</div>
-</section>
-<!-- Transactions Feed -->
-<section class="space-y-6">
-<div class="flex items-center justify-between px-2">
-<h3 class="text-lg font-headline font-bold">Recent Activities</h3>
-<button class="text-sm font-semibold text-primary">View All</button>
-</div>
-<div class="space-y-4">
-<!-- Activity Card 1 -->
-<div class="bg-surface-container-low p-4 rounded-3xl flex items-center justify-between group hover:bg-surface-container transition-colors">
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center">
-<span class="material-symbols-outlined text-primary-container">sports_tennis</span>
-</div>
-<div>
-<h4 class="font-semibold text-on-surface">Big pickle game</h4>
-<div class="flex items-center gap-2 mt-0.5">
-<span class="text-xs text-on-surface-variant">Paid by</span>
-<div class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-0.5 rounded-full">
-<div class="w-4 h-4 rounded-full bg-primary-fixed overflow-hidden">
-<img class="w-full h-full object-cover" data-alt="Profile photo of a man smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf_Ajwi-W4jKyo5W-dHlrXuZ_J_k2H8au20xo27l17t6xSqxu9ZpARQ4OpmmEdxj1uVFvyGUww-4QPF6FwWJZSv7Xn2S-iJLj4aq7GYSYsiWMb6NCWs958TPf1KyHtkcVsE_X_aQDGffLyXQGv-XJrRRL_0-TaiZYb0eVu2R-fFp3B3QkXWcWHghS53hAmHhIXPORx2c-vSFlAWxWds-aR9jt5cuLW7CPFijuK-BdBTYHLpjce-0Cuz0dcjQx-iwJpgzgyl23rt0IF"/>
-</div>
-<span class="text-[10px] font-bold text-primary">DMITRY</span>
-</div>
-</div>
-</div>
-</div>
-<div class="text-right">
-<div class="text-lg font-headline font-bold text-on-surface">800<span class="text-xs ml-1 opacity-60">đ</span></div>
-<div class="text-[10px] font-bold text-tertiary-fixed-dim uppercase tracking-wider">Settled</div>
-</div>
-</div>
-<!-- Activity Card 2 -->
-<div class="bg-surface-container-low p-4 rounded-3xl flex items-center justify-between group hover:bg-surface-container transition-colors">
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center">
-<span class="material-symbols-outlined text-secondary-container">payments</span>
-</div>
-<div>
-<h4 class="font-semibold text-on-surface">Settlement</h4>
-<div class="flex items-center gap-2 mt-0.5">
-<span class="text-xs text-secondary-container font-medium">Dmitry paid you</span>
-</div>
-</div>
-</div>
-<div class="text-right">
-<div class="text-lg font-headline font-bold text-secondary">700<span class="text-xs ml-1 opacity-60">đ</span></div>
-<div class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-wider">Today</div>
-</div>
-</div>
-<!-- Activity Card 3 -->
-<div class="bg-surface-container-low p-4 rounded-3xl flex items-center justify-between group hover:bg-surface-container transition-colors">
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center">
-<span class="material-symbols-outlined text-primary-container">lunch_dining</span>
-</div>
-<div>
-<h4 class="font-semibold text-on-surface">Post-match snacks</h4>
-<div class="flex items-center gap-2 mt-0.5">
-<span class="text-xs text-on-surface-variant">Paid by</span>
-<div class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-0.5 rounded-full">
-<div class="w-4 h-4 rounded-full bg-secondary-fixed overflow-hidden">
-<img class="w-full h-full object-cover" data-alt="Profile photo of a woman smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ1T0V2sfJCa3HTjjbcBSc9TlirHgUy6Y93AsZ1fod7jxFndf5BGTWX7lFkYcYDRtONsvKWr4UUqcDVPQCB2_HrRUGI1eAbK6aX0S-mN1NPuZr2RWvCvJXErBkha9PTvYzRms2N3LBsRLFr0WGSX1slDplWCof8hpN9ai9VlSLXC8srltAfvgshI0TC72KC7pkXH_W2_uAwIvenM3fKdx_7S1GxsFsil0qCjfP-C7md5b_Gq_X7lPdht6WLXuP8Kr1dNpSyfdTIcLk"/>
-</div>
-<span class="text-[10px] font-bold text-primary">SARA</span>
-</div>
-</div>
-</div>
-</div>
-<div class="text-right">
-<div class="text-lg font-headline font-bold text-on-surface">450<span class="text-xs ml-1 opacity-60">đ</span></div>
-<div class="flex items-center justify-end gap-1">
-<div class="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse"></div>
-<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Pending</span>
-</div>
-</div>
-</div>
-</div>
-</section>
-</main>
-<!-- Contextual FAB -->
-<div class="fixed bottom-28 right-6 z-50">
-<button class="bg-primary text-on-primary w-14 h-14 rounded-2xl shadow-[0_15px_30px_rgba(146,204,255,0.4)] flex items-center justify-center active:scale-90 transition-all duration-300">
-<span class="material-symbols-outlined scale-125">add</span>
-</button>
-</div>
-<!-- Bottom Navigation Shell -->
-<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center pt-2 pb-8 px-4 bg-[#131315]/80 backdrop-blur-2xl rounded-t-3xl z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.3)]">
-<!-- Groups (Active) -->
-<a class="flex flex-col items-center justify-center bg-[#2b98dd]/20 text-[#92ccff] rounded-2xl px-6 py-2 transition-all active:scale-90 duration-300 ease-out" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
-<span class="font-['Inter'] text-[11px] font-medium uppercase tracking-widest mt-1">Groups</span>
-</a>
-<!-- Feed -->
-<a class="flex flex-col items-center justify-center text-[#e4e2e4]/40 px-6 py-2 hover:text-[#92ccff] active:scale-90 duration-300 ease-out" href="#">
-<span class="material-symbols-outlined">receipt_long</span>
-<span class="font-['Inter'] text-[11px] font-medium uppercase tracking-widest mt-1">Feed</span>
-</a>
-<!-- Account -->
-<a class="flex flex-col items-center justify-center text-[#e4e2e4]/40 px-6 py-2 hover:text-[#92ccff] active:scale-90 duration-300 ease-out" href="#">
-<span class="material-symbols-outlined">person</span>
-<span class="font-['Inter'] text-[11px] font-medium uppercase tracking-widest mt-1">Account</span>
-</a>
-</nav>
-</body></html>
+  <body class="bg-background min-h-screen pb-32">
+    <!-- Top Navigation Anchor -->
+    <header
+      class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl flex items-center justify-between px-4 h-16 shadow-[0_40px_40px_0_rgba(146,204,255,0.06)]"
+    >
+      <div class="flex items-center gap-3">
+        <button class="p-2 text-[#92ccff] active:scale-95 transition-transform duration-200">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#92ccff]">
+          Pickleballs
+        </h1>
+      </div>
+      <div class="flex items-center gap-1">
+        <button
+          class="p-2 text-[#e4e2e4]/60 hover:bg-[#2a2a2c] rounded-full transition-colors active:scale-95 duration-200"
+        >
+          <span class="material-symbols-outlined">search</span>
+        </button>
+        <button
+          class="p-2 text-[#e4e2e4]/60 hover:bg-[#2a2a2c] rounded-full transition-colors active:scale-95 duration-200"
+        >
+          <span class="material-symbols-outlined">more_vert</span>
+        </button>
+      </div>
+    </header>
+    <main class="pt-20 px-4 space-y-8">
+      <!-- Group Identity Hero -->
+      <section class="flex flex-col items-center justify-center py-6 text-center space-y-4">
+        <div class="relative">
+          <div
+            class="w-24 h-24 rounded-[2rem] bg-gradient-to-tr from-primary-container to-tertiary-fixed-dim p-[2px]"
+          >
+            <div
+              class="w-full h-full rounded-[1.9rem] bg-surface overflow-hidden flex items-center justify-center"
+            >
+              <img
+                class="w-full h-full object-cover opacity-90"
+                data-alt="Close up of a neon yellow pickleball on a court"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS2vktBXtSxkD9dYDXhll1t-B7Wsmn1CFYe2dS-Min0JDMb7rntSi7enq5hzUX_RfjfGHE5cwDn0IDdYi58JlvtyKi1pXDxZJNSrvJncH7Gb8p4H6qDOVZn13O0DQ46UKv8MMnlRBj0xe4tZoYKJcTYGw7MdL2dmRmdJONuD4lvCHG_VxRsSd56x3mrOpUyi4UCUJoym6qLE-V7N_9NOdWoj7RJ9t4Rh1ouWlxPA4AEdY_m7UwoUMVNW8dV1lmqS1bDr7Z-GOjX-lN"
+              />
+            </div>
+          </div>
+          <div
+            class="absolute -bottom-1 -right-1 bg-surface-container-high px-2 py-1 rounded-lg flex items-center gap-1 border border-outline-variant/20 shadow-xl"
+          >
+            <span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">group</span>
+            <span class="text-[10px] font-bold tracking-widest uppercase">12 Members</span>
+          </div>
+        </div>
+        <div class="space-y-1">
+          <h2
+            class="text-4xl font-headline font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-on-surface to-on-surface-variant"
+          >
+            Pickleballs
+          </h2>
+          <p class="text-on-surface-variant text-sm font-medium tracking-wide">
+            Weekly Sunday Sessions • Since Mar 2024
+          </p>
+        </div>
+      </section>
+      <!-- Dynamic Tabs (Glassmorphism Rail) -->
+      <nav class="flex p-1 bg-surface-container-low rounded-2xl sticky top-[72px] z-40">
+        <button
+          class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-primary bg-surface-container-high shadow-sm transition-all"
+        >
+          Transactions
+        </button>
+        <button
+          class="flex-1 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+        >
+          Balances
+        </button>
+        <button
+          class="flex-1 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+        >
+          Feed
+        </button>
+        <button
+          class="flex-1 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+        >
+          Stats
+        </button>
+      </nav>
+      <!-- Large Settlement Anchor -->
+      <section
+        class="bg-gradient-to-br from-surface-container-low to-surface-container p-6 rounded-[2rem] border border-outline-variant/10 shadow-2xl relative overflow-hidden"
+      >
+        <div
+          class="absolute -top-12 -right-12 w-48 h-48 bg-primary/10 blur-[80px] rounded-full"
+        ></div>
+        <div class="relative z-10 flex flex-col items-center gap-6">
+          <div class="text-center">
+            <span
+              class="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant opacity-60"
+              >Total Balance</span
+            >
+            <div class="flex items-baseline justify-center gap-2 mt-2">
+              <span class="text-5xl font-headline font-extrabold text-on-surface">1,500</span>
+              <span class="text-2xl font-headline font-bold text-tertiary-fixed-dim">đ</span>
+            </div>
+            <p class="text-sm text-tertiary-fixed-dim font-medium mt-1">
+              Dmitry owes you for courts
+            </p>
+          </div>
+          <button
+            class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(43,152,221,0.3)] active:scale-[0.98] transition-all"
+          >
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1"
+              >diamond</span
+            >
+            Settle Up via TON
+          </button>
+        </div>
+      </section>
+      <!-- Transactions Feed -->
+      <section class="space-y-6">
+        <div class="flex items-center justify-between px-2">
+          <h3 class="text-lg font-headline font-bold">Recent Activities</h3>
+          <button class="text-sm font-semibold text-primary">View All</button>
+        </div>
+        <div class="space-y-4">
+          <!-- Activity Card 1 -->
+          <div
+            class="bg-surface-container-low p-4 rounded-3xl flex items-center justify-between group hover:bg-surface-container transition-colors"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-primary-container">sports_tennis</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-on-surface">Big pickle game</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-xs text-on-surface-variant">Paid by</span>
+                  <div
+                    class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-0.5 rounded-full"
+                  >
+                    <div class="w-4 h-4 rounded-full bg-primary-fixed overflow-hidden">
+                      <img
+                        class="w-full h-full object-cover"
+                        data-alt="Profile photo of a man smiling"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf_Ajwi-W4jKyo5W-dHlrXuZ_J_k2H8au20xo27l17t6xSqxu9ZpARQ4OpmmEdxj1uVFvyGUww-4QPF6FwWJZSv7Xn2S-iJLj4aq7GYSYsiWMb6NCWs958TPf1KyHtkcVsE_X_aQDGffLyXQGv-XJrRRL_0-TaiZYb0eVu2R-fFp3B3QkXWcWHghS53hAmHhIXPORx2c-vSFlAWxWds-aR9jt5cuLW7CPFijuK-BdBTYHLpjce-0Cuz0dcjQx-iwJpgzgyl23rt0IF"
+                      />
+                    </div>
+                    <span class="text-[10px] font-bold text-primary">DMITRY</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-headline font-bold text-on-surface">
+                800<span class="text-xs ml-1 opacity-60">đ</span>
+              </div>
+              <div class="text-[10px] font-bold text-tertiary-fixed-dim uppercase tracking-wider">
+                Settled
+              </div>
+            </div>
+          </div>
+          <!-- Activity Card 2 -->
+          <div
+            class="bg-surface-container-low p-4 rounded-3xl flex items-center justify-between group hover:bg-surface-container transition-colors"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-secondary-container">payments</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-on-surface">Settlement</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-xs text-secondary-container font-medium">Dmitry paid you</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-headline font-bold text-secondary">
+                700<span class="text-xs ml-1 opacity-60">đ</span>
+              </div>
+              <div
+                class="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-wider"
+              >
+                Today
+              </div>
+            </div>
+          </div>
+          <!-- Activity Card 3 -->
+          <div
+            class="bg-surface-container-low p-4 rounded-3xl flex items-center justify-between group hover:bg-surface-container transition-colors"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-primary-container">lunch_dining</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-on-surface">Post-match snacks</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-xs text-on-surface-variant">Paid by</span>
+                  <div
+                    class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-0.5 rounded-full"
+                  >
+                    <div class="w-4 h-4 rounded-full bg-secondary-fixed overflow-hidden">
+                      <img
+                        class="w-full h-full object-cover"
+                        data-alt="Profile photo of a woman smiling"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ1T0V2sfJCa3HTjjbcBSc9TlirHgUy6Y93AsZ1fod7jxFndf5BGTWX7lFkYcYDRtONsvKWr4UUqcDVPQCB2_HrRUGI1eAbK6aX0S-mN1NPuZr2RWvCvJXErBkha9PTvYzRms2N3LBsRLFr0WGSX1slDplWCof8hpN9ai9VlSLXC8srltAfvgshI0TC72KC7pkXH_W2_uAwIvenM3fKdx_7S1GxsFsil0qCjfP-C7md5b_Gq_X7lPdht6WLXuP8Kr1dNpSyfdTIcLk"
+                      />
+                    </div>
+                    <span class="text-[10px] font-bold text-primary">SARA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-headline font-bold text-on-surface">
+                450<span class="text-xs ml-1 opacity-60">đ</span>
+              </div>
+              <div class="flex items-center justify-end gap-1">
+                <div class="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse"></div>
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider"
+                  >Pending</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Contextual FAB -->
+    <div class="fixed bottom-28 right-6 z-50">
+      <button
+        class="bg-primary text-on-primary w-14 h-14 rounded-2xl shadow-[0_15px_30px_rgba(146,204,255,0.4)] flex items-center justify-center active:scale-90 transition-all duration-300"
+      >
+        <span class="material-symbols-outlined scale-125">add</span>
+      </button>
+    </div>
+    <!-- Bottom Navigation Shell -->
+    <nav
+      class="fixed bottom-0 left-0 w-full flex justify-around items-center pt-2 pb-8 px-4 bg-[#131315]/80 backdrop-blur-2xl rounded-t-3xl z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.3)]"
+    >
+      <!-- Groups (Active) -->
+      <a
+        class="flex flex-col items-center justify-center bg-[#2b98dd]/20 text-[#92ccff] rounded-2xl px-6 py-2 transition-all active:scale-90 duration-300 ease-out"
+        href="#"
+      >
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1"
+          >group</span
+        >
+        <span class="font-['Inter'] text-[11px] font-medium uppercase tracking-widest mt-1"
+          >Groups</span
+        >
+      </a>
+      <!-- Feed -->
+      <a
+        class="flex flex-col items-center justify-center text-[#e4e2e4]/40 px-6 py-2 hover:text-[#92ccff] active:scale-90 duration-300 ease-out"
+        href="#"
+      >
+        <span class="material-symbols-outlined">receipt_long</span>
+        <span class="font-['Inter'] text-[11px] font-medium uppercase tracking-widest mt-1"
+          >Feed</span
+        >
+      </a>
+      <!-- Account -->
+      <a
+        class="flex flex-col items-center justify-center text-[#e4e2e4]/40 px-6 py-2 hover:text-[#92ccff] active:scale-90 duration-300 ease-out"
+        href="#"
+      >
+        <span class="material-symbols-outlined">person</span>
+        <span class="font-['Inter'] text-[11px] font-medium uppercase tracking-widest mt-1"
+          >Account</span
+        >
+      </a>
+    </nav>
+  </body>
+</html>

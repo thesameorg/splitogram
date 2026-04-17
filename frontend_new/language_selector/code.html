@@ -1,252 +1,336 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Select Language</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Select Language</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              "surface-container-low": "#1b1b1d",
-              "secondary": "#93ccff",
-              "on-secondary-container": "#8bc5f7",
-              "on-primary": "#003351",
-              "error": "#ffb4ab",
-              "on-tertiary": "#4c2700",
-              "outline-variant": "#3f4850",
-              "primary-container": "#2b98dd",
-              "surface-container-highest": "#353437",
-              "secondary-container": "#00527e",
-              "on-error": "#690005",
-              "tertiary-fixed-dim": "#ffb77a",
-              "surface": "#131315",
-              "inverse-primary": "#006497",
-              "secondary-fixed-dim": "#93ccff",
-              "on-tertiary-fixed": "#2e1500",
-              "on-primary-fixed-variant": "#004b73",
-              "on-background": "#e5e1e4",
-              "on-primary-fixed": "#001d31",
-              "inverse-on-surface": "#303032",
-              "on-surface-variant": "#bfc7d2",
-              "on-error-container": "#ffdad6",
-              "on-secondary-fixed": "#001d31",
-              "on-secondary-fixed-variant": "#004b73",
-              "background": "#131315",
-              "outline": "#89929b",
-              "error-container": "#93000a",
-              "on-tertiary-fixed-variant": "#6d3a00",
-              "tertiary": "#ffb77a",
-              "surface-variant": "#353437",
-              "on-tertiary-container": "#432100",
-              "surface-tint": "#92ccff",
-              "tertiary-fixed": "#ffdcc2",
-              "primary-fixed": "#cce5ff",
-              "surface-container": "#1f1f21",
-              "on-secondary": "#003351",
-              "surface-bright": "#39393b",
-              "on-primary-container": "#002c47",
-              "on-surface": "#e5e1e4",
-              "primary": "#92ccff",
-              "primary-fixed-dim": "#92ccff",
-              "surface-dim": "#131315",
-              "secondary-fixed": "#cce5ff",
-              "tertiary-container": "#d37b1e",
-              "inverse-surface": "#e5e1e4",
-              "surface-container-high": "#2a2a2c",
-              "surface-container-lowest": "#0e0e10"
+              'surface-container-low': '#1b1b1d',
+              secondary: '#93ccff',
+              'on-secondary-container': '#8bc5f7',
+              'on-primary': '#003351',
+              error: '#ffb4ab',
+              'on-tertiary': '#4c2700',
+              'outline-variant': '#3f4850',
+              'primary-container': '#2b98dd',
+              'surface-container-highest': '#353437',
+              'secondary-container': '#00527e',
+              'on-error': '#690005',
+              'tertiary-fixed-dim': '#ffb77a',
+              surface: '#131315',
+              'inverse-primary': '#006497',
+              'secondary-fixed-dim': '#93ccff',
+              'on-tertiary-fixed': '#2e1500',
+              'on-primary-fixed-variant': '#004b73',
+              'on-background': '#e5e1e4',
+              'on-primary-fixed': '#001d31',
+              'inverse-on-surface': '#303032',
+              'on-surface-variant': '#bfc7d2',
+              'on-error-container': '#ffdad6',
+              'on-secondary-fixed': '#001d31',
+              'on-secondary-fixed-variant': '#004b73',
+              background: '#131315',
+              outline: '#89929b',
+              'error-container': '#93000a',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              tertiary: '#ffb77a',
+              'surface-variant': '#353437',
+              'on-tertiary-container': '#432100',
+              'surface-tint': '#92ccff',
+              'tertiary-fixed': '#ffdcc2',
+              'primary-fixed': '#cce5ff',
+              'surface-container': '#1f1f21',
+              'on-secondary': '#003351',
+              'surface-bright': '#39393b',
+              'on-primary-container': '#002c47',
+              'on-surface': '#e5e1e4',
+              primary: '#92ccff',
+              'primary-fixed-dim': '#92ccff',
+              'surface-dim': '#131315',
+              'secondary-fixed': '#cce5ff',
+              'tertiary-container': '#d37b1e',
+              'inverse-surface': '#e5e1e4',
+              'surface-container-high': '#2a2a2c',
+              'surface-container-lowest': '#0e0e10',
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Manrope"],
-              "label": ["Manrope"]
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
         },
-      }
+      };
     </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body { font-family: 'Manrope', sans-serif; }
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-background text-on-surface min-h-screen pb-24">
-<!-- TopAppBar -->
-<header class="fixed top-0 left-0 w-full z-50 flex items-center px-4 h-16 bg-[#131315]/80 backdrop-blur-xl shadow-[0px_10px_30px_rgba(0,136,204,0.08)]">
-<div class="flex items-center w-full max-w-2xl mx-auto">
-<button class="flex items-center justify-center w-10 h-10 rounded-full text-[#92CCFF] hover:bg-white/5 transition-colors active:scale-95 duration-200">
-<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
-</button>
-<h1 class="flex-grow text-center font-['Manrope'] font-bold text-lg tracking-tight text-on-surface">Select Language</h1>
-<div class="w-10"></div> <!-- Spacer for centering -->
-</div>
-</header>
-<main class="pt-20 px-4 max-w-2xl mx-auto">
-<!-- Search Bar -->
-<div class="mb-6">
-<div class="relative flex items-center bg-surface-container-highest rounded-xl px-4 h-12 group transition-all duration-300">
-<span class="material-symbols-outlined text-outline mr-3" data-icon="search">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline-variant w-full font-body text-sm" placeholder="Search languages..." type="text"/>
-<div class="absolute bottom-0 left-4 right-4 h-[1px] bg-outline-variant opacity-15"></div>
-</div>
-</div>
-<!-- Section: Suggested -->
-<div class="mb-8">
-<h2 class="text-xs font-bold uppercase tracking-[0.1em] text-on-surface-variant px-2 mb-4">Suggested</h2>
-<div class="space-y-1 bg-surface-container-low rounded-xl p-1">
-<!-- Active Language -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg bg-primary/10 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇺🇸</span>
-<div class="text-left">
-<p class="text-sm font-bold text-on-surface">English</p>
-<p class="text-xs text-on-surface-variant">United States</p>
-</div>
-</div>
-<div class="w-6 h-6 flex items-center justify-center bg-primary rounded-full">
-<span class="material-symbols-outlined text-on-primary text-sm font-bold" data-icon="check" style="font-variation-settings: 'FILL' 0, 'wght' 700;">check</span>
-</div>
-</button>
-<div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
-<!-- Inactive Language -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇪🇸</span>
-<div class="text-left">
-<p class="text-sm font-medium text-on-surface">Español</p>
-<p class="text-xs text-on-surface-variant">España</p>
-</div>
-</div>
-<div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
-</button>
-</div>
-</div>
-<!-- Section: All Languages -->
-<div class="mb-12">
-<h2 class="text-xs font-bold uppercase tracking-[0.1em] text-on-surface-variant px-2 mb-4">All Languages</h2>
-<div class="space-y-1 bg-surface-container-low rounded-xl p-1">
-<!-- Russian -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇷🇺</span>
-<div class="text-left">
-<p class="text-sm font-medium text-on-surface">Русский</p>
-<p class="text-xs text-on-surface-variant">Россия</p>
-</div>
-</div>
-<div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
-</button>
-<div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
-<!-- Vietnamese -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇻🇳</span>
-<div class="text-left">
-<p class="text-sm font-medium text-on-surface">Tiếng Việt</p>
-<p class="text-xs text-on-surface-variant">Việt Nam</p>
-</div>
-</div>
-<div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
-</button>
-<div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
-<!-- Chinese -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇨🇳</span>
-<div class="text-left">
-<p class="text-sm font-medium text-on-surface">简体中文</p>
-<p class="text-xs text-on-surface-variant">中国</p>
-</div>
-</div>
-<div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
-</button>
-<div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
-<!-- French -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇫🇷</span>
-<div class="text-left">
-<p class="text-sm font-medium text-on-surface">Français</p>
-<p class="text-xs text-on-surface-variant">France</p>
-</div>
-</div>
-<div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
-</button>
-<div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
-<!-- German -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇩🇪</span>
-<div class="text-left">
-<p class="text-sm font-medium text-on-surface">Deutsch</p>
-<p class="text-xs text-on-surface-variant">Deutschland</p>
-</div>
-</div>
-<div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
-</button>
-<div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
-<!-- Italian -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇮🇹</span>
-<div class="text-left">
-<p class="text-sm font-medium text-on-surface">Italiano</p>
-<p class="text-xs text-on-surface-variant">Italia</p>
-</div>
-</div>
-<div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
-</button>
-<div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
-<!-- Turkish -->
-<button class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]">
-<div class="flex items-center gap-4">
-<span aria-hidden="true" class="text-2xl">🇹🇷</span>
-<div class="text-left">
-<p class="text-sm font-medium text-on-surface">Türkçe</p>
-<p class="text-xs text-on-surface-variant">Türkiye</p>
-</div>
-</div>
-<div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
-</button>
-</div>
-</div>
-</main>
-<!-- BottomNavBar (Settings Tab Active) -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-6 pt-3 bg-[#131315]/80 backdrop-blur-xl rounded-t-xl shadow-[0_-4px_20px_rgba(146,204,255,0.1)]">
-<button class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-150">
-<span class="material-symbols-outlined mb-1" data-icon="account_balance_wallet">account_balance_wallet</span>
-<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Wallet</span>
-</button>
-<button class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-150">
-<span class="material-symbols-outlined mb-1" data-icon="swap_horiz">swap_horiz</span>
-<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Exchange</span>
-</button>
-<button class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-150">
-<span class="material-symbols-outlined mb-1" data-icon="history">history</span>
-<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">History</span>
-</button>
-<button class="flex flex-col items-center justify-center text-[#92CCFF] bg-[#92CCFF]/10 rounded-xl px-3 py-1 active:scale-90 duration-150">
-<span class="material-symbols-outlined mb-1" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
-<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Settings</span>
-</button>
-</nav>
-<!-- Floating Content Background Texture -->
-<div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
-<div class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full"></div>
-<div class="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary-container/10 blur-[120px] rounded-full"></div>
-</div>
-</body></html>
+  <body class="bg-background text-on-surface min-h-screen pb-24">
+    <!-- TopAppBar -->
+    <header
+      class="fixed top-0 left-0 w-full z-50 flex items-center px-4 h-16 bg-[#131315]/80 backdrop-blur-xl shadow-[0px_10px_30px_rgba(0,136,204,0.08)]"
+    >
+      <div class="flex items-center w-full max-w-2xl mx-auto">
+        <button
+          class="flex items-center justify-center w-10 h-10 rounded-full text-[#92CCFF] hover:bg-white/5 transition-colors active:scale-95 duration-200"
+        >
+          <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+        </button>
+        <h1
+          class="flex-grow text-center font-['Manrope'] font-bold text-lg tracking-tight text-on-surface"
+        >
+          Select Language
+        </h1>
+        <div class="w-10"></div>
+        <!-- Spacer for centering -->
+      </div>
+    </header>
+    <main class="pt-20 px-4 max-w-2xl mx-auto">
+      <!-- Search Bar -->
+      <div class="mb-6">
+        <div
+          class="relative flex items-center bg-surface-container-highest rounded-xl px-4 h-12 group transition-all duration-300"
+        >
+          <span class="material-symbols-outlined text-outline mr-3" data-icon="search">search</span>
+          <input
+            class="bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline-variant w-full font-body text-sm"
+            placeholder="Search languages..."
+            type="text"
+          />
+          <div class="absolute bottom-0 left-4 right-4 h-[1px] bg-outline-variant opacity-15"></div>
+        </div>
+      </div>
+      <!-- Section: Suggested -->
+      <div class="mb-8">
+        <h2 class="text-xs font-bold uppercase tracking-[0.1em] text-on-surface-variant px-2 mb-4">
+          Suggested
+        </h2>
+        <div class="space-y-1 bg-surface-container-low rounded-xl p-1">
+          <!-- Active Language -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg bg-primary/10 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇺🇸</span>
+              <div class="text-left">
+                <p class="text-sm font-bold text-on-surface">English</p>
+                <p class="text-xs text-on-surface-variant">United States</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 flex items-center justify-center bg-primary rounded-full">
+              <span
+                class="material-symbols-outlined text-on-primary text-sm font-bold"
+                data-icon="check"
+                style="
+                  font-variation-settings:
+                    'FILL' 0,
+                    'wght' 700;
+                "
+                >check</span
+              >
+            </div>
+          </button>
+          <div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
+          <!-- Inactive Language -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇪🇸</span>
+              <div class="text-left">
+                <p class="text-sm font-medium text-on-surface">Español</p>
+                <p class="text-xs text-on-surface-variant">España</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
+          </button>
+        </div>
+      </div>
+      <!-- Section: All Languages -->
+      <div class="mb-12">
+        <h2 class="text-xs font-bold uppercase tracking-[0.1em] text-on-surface-variant px-2 mb-4">
+          All Languages
+        </h2>
+        <div class="space-y-1 bg-surface-container-low rounded-xl p-1">
+          <!-- Russian -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇷🇺</span>
+              <div class="text-left">
+                <p class="text-sm font-medium text-on-surface">Русский</p>
+                <p class="text-xs text-on-surface-variant">Россия</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
+          </button>
+          <div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
+          <!-- Vietnamese -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇻🇳</span>
+              <div class="text-left">
+                <p class="text-sm font-medium text-on-surface">Tiếng Việt</p>
+                <p class="text-xs text-on-surface-variant">Việt Nam</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
+          </button>
+          <div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
+          <!-- Chinese -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇨🇳</span>
+              <div class="text-left">
+                <p class="text-sm font-medium text-on-surface">简体中文</p>
+                <p class="text-xs text-on-surface-variant">中国</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
+          </button>
+          <div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
+          <!-- French -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇫🇷</span>
+              <div class="text-left">
+                <p class="text-sm font-medium text-on-surface">Français</p>
+                <p class="text-xs text-on-surface-variant">France</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
+          </button>
+          <div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
+          <!-- German -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇩🇪</span>
+              <div class="text-left">
+                <p class="text-sm font-medium text-on-surface">Deutsch</p>
+                <p class="text-xs text-on-surface-variant">Deutschland</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
+          </button>
+          <div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
+          <!-- Italian -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇮🇹</span>
+              <div class="text-left">
+                <p class="text-sm font-medium text-on-surface">Italiano</p>
+                <p class="text-xs text-on-surface-variant">Italia</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
+          </button>
+          <div class="h-[1px] mx-4 bg-outline-variant opacity-5"></div>
+          <!-- Turkish -->
+          <button
+            class="w-full flex items-center justify-between p-4 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div class="flex items-center gap-4">
+              <span aria-hidden="true" class="text-2xl">🇹🇷</span>
+              <div class="text-left">
+                <p class="text-sm font-medium text-on-surface">Türkçe</p>
+                <p class="text-xs text-on-surface-variant">Türkiye</p>
+              </div>
+            </div>
+            <div class="w-6 h-6 rounded-full border border-outline-variant opacity-30"></div>
+          </button>
+        </div>
+      </div>
+    </main>
+    <!-- BottomNavBar (Settings Tab Active) -->
+    <nav
+      class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-6 pt-3 bg-[#131315]/80 backdrop-blur-xl rounded-t-xl shadow-[0_-4px_20px_rgba(146,204,255,0.1)]"
+    >
+      <button
+        class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-150"
+      >
+        <span class="material-symbols-outlined mb-1" data-icon="account_balance_wallet"
+          >account_balance_wallet</span
+        >
+        <span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Wallet</span>
+      </button>
+      <button
+        class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-150"
+      >
+        <span class="material-symbols-outlined mb-1" data-icon="swap_horiz">swap_horiz</span>
+        <span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Exchange</span>
+      </button>
+      <button
+        class="flex flex-col items-center justify-center text-slate-500 hover:text-[#92CCFF] transition-all active:scale-90 duration-150"
+      >
+        <span class="material-symbols-outlined mb-1" data-icon="history">history</span>
+        <span class="font-['Manrope'] text-[11px] font-medium tracking-wide">History</span>
+      </button>
+      <button
+        class="flex flex-col items-center justify-center text-[#92CCFF] bg-[#92CCFF]/10 rounded-xl px-3 py-1 active:scale-90 duration-150"
+      >
+        <span
+          class="material-symbols-outlined mb-1"
+          data-icon="settings"
+          style="font-variation-settings: 'FILL' 1"
+          >settings</span
+        >
+        <span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Settings</span>
+      </button>
+    </nav>
+    <!-- Floating Content Background Texture -->
+    <div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+      <div
+        class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full"
+      ></div>
+      <div
+        class="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary-container/10 blur-[120px] rounded-full"
+      ></div>
+    </div>
+  </body>
+</html>

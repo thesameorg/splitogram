@@ -1,209 +1,299 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Feedback - The Ethereal Ledger</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Feedback - The Ethereal Ledger</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              "on-background": "#e5e1e4",
-              "secondary-fixed": "#cce5ff",
-              "surface-container-highest": "#353437",
-              "primary": "#92ccff",
-              "on-primary-container": "#002c47",
-              "tertiary-fixed": "#ffdcc2",
-              "primary-container": "#2b98dd",
-              "surface-dim": "#131315",
-              "secondary-fixed-dim": "#93ccff",
-              "secondary": "#93ccff",
-              "on-secondary": "#003351",
-              "on-primary": "#003351",
-              "tertiary-fixed-dim": "#ffb77a",
-              "error-container": "#93000a",
-              "surface-tint": "#92ccff",
-              "secondary-container": "#00527e",
-              "on-secondary-container": "#8bc5f7",
-              "on-surface-variant": "#bfc7d2",
-              "on-primary-fixed-variant": "#004b73",
-              "tertiary-container": "#d37b1e",
-              "primary-fixed-dim": "#92ccff",
-              "on-surface": "#e5e1e4",
-              "on-tertiary": "#4c2700",
-              "on-primary-fixed": "#001d31",
-              "surface-variant": "#353437",
-              "surface-container-high": "#2a2a2c",
-              "inverse-primary": "#006497",
-              "on-error-container": "#ffdad6",
-              "background": "#131315",
-              "surface-container": "#1f1f21",
-              "on-tertiary-container": "#432100",
-              "surface-container-lowest": "#0e0e10",
-              "surface-container-low": "#1b1b1d",
-              "error": "#ffb4ab",
-              "on-tertiary-fixed-variant": "#6d3a00",
-              "on-error": "#690005",
-              "inverse-on-surface": "#303032",
-              "surface-bright": "#39393b",
-              "on-secondary-fixed-variant": "#004b73",
-              "on-secondary-fixed": "#001d31",
-              "tertiary": "#ffb77a",
-              "outline": "#89929b",
-              "surface": "#131315",
-              "primary-fixed": "#cce5ff",
-              "outline-variant": "#3f4850",
-              "on-tertiary-fixed": "#2e1500",
-              "inverse-surface": "#e5e1e4"
+              'on-background': '#e5e1e4',
+              'secondary-fixed': '#cce5ff',
+              'surface-container-highest': '#353437',
+              primary: '#92ccff',
+              'on-primary-container': '#002c47',
+              'tertiary-fixed': '#ffdcc2',
+              'primary-container': '#2b98dd',
+              'surface-dim': '#131315',
+              'secondary-fixed-dim': '#93ccff',
+              secondary: '#93ccff',
+              'on-secondary': '#003351',
+              'on-primary': '#003351',
+              'tertiary-fixed-dim': '#ffb77a',
+              'error-container': '#93000a',
+              'surface-tint': '#92ccff',
+              'secondary-container': '#00527e',
+              'on-secondary-container': '#8bc5f7',
+              'on-surface-variant': '#bfc7d2',
+              'on-primary-fixed-variant': '#004b73',
+              'tertiary-container': '#d37b1e',
+              'primary-fixed-dim': '#92ccff',
+              'on-surface': '#e5e1e4',
+              'on-tertiary': '#4c2700',
+              'on-primary-fixed': '#001d31',
+              'surface-variant': '#353437',
+              'surface-container-high': '#2a2a2c',
+              'inverse-primary': '#006497',
+              'on-error-container': '#ffdad6',
+              background: '#131315',
+              'surface-container': '#1f1f21',
+              'on-tertiary-container': '#432100',
+              'surface-container-lowest': '#0e0e10',
+              'surface-container-low': '#1b1b1d',
+              error: '#ffb4ab',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              'on-error': '#690005',
+              'inverse-on-surface': '#303032',
+              'surface-bright': '#39393b',
+              'on-secondary-fixed-variant': '#004b73',
+              'on-secondary-fixed': '#001d31',
+              tertiary: '#ffb77a',
+              outline: '#89929b',
+              surface: '#131315',
+              'primary-fixed': '#cce5ff',
+              'outline-variant': '#3f4850',
+              'on-tertiary-fixed': '#2e1500',
+              'inverse-surface': '#e5e1e4',
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Manrope"],
-              "label": ["Manrope"]
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
         },
-      }
+      };
     </script>
-<style>
-        body {
-            font-family: 'Manrope', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .glass-effect {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .ghost-border {
-            border: 1px solid rgba(63, 72, 80, 0.15);
-        }
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .glass-effect {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .ghost-border {
+        border: 1px solid rgba(63, 72, 80, 0.15);
+      }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-background text-on-surface min-h-screen pb-24">
-<!-- TopAppBar -->
-<header class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-b border-[#92CCFF]/15">
-<div class="flex justify-between items-center px-4 h-16 w-full max-w-md mx-auto">
-<button class="text-[#92CCFF] active:scale-95 duration-200 ease-out p-2 rounded-full hover:bg-[#92CCFF]/10 transition-colors">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
-</button>
-<h1 class="font-['Manrope'] font-semibold text-lg tracking-tight text-[#92CCFF]">Feedback</h1>
-<button class="font-['Manrope'] font-semibold text-lg tracking-tight text-[#92CCFF] active:scale-95 duration-200 ease-out px-3 py-1 rounded-lg hover:bg-[#92CCFF]/10 transition-colors">
-                Send
+  <body class="bg-background text-on-surface min-h-screen pb-24">
+    <!-- TopAppBar -->
+    <header
+      class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-b border-[#92CCFF]/15"
+    >
+      <div class="flex justify-between items-center px-4 h-16 w-full max-w-md mx-auto">
+        <button
+          class="text-[#92CCFF] active:scale-95 duration-200 ease-out p-2 rounded-full hover:bg-[#92CCFF]/10 transition-colors"
+        >
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0"
+            >arrow_back</span
+          >
+        </button>
+        <h1 class="font-['Manrope'] font-semibold text-lg tracking-tight text-[#92CCFF]">
+          Feedback
+        </h1>
+        <button
+          class="font-['Manrope'] font-semibold text-lg tracking-tight text-[#92CCFF] active:scale-95 duration-200 ease-out px-3 py-1 rounded-lg hover:bg-[#92CCFF]/10 transition-colors"
+        >
+          Send
+        </button>
+      </div>
+    </header>
+    <!-- Main Content Area -->
+    <main class="pt-24 px-6 max-w-md mx-auto space-y-8">
+      <!-- Header Introduction (Editorial Feel) -->
+      <section class="space-y-2">
+        <p class="text-on-surface-variant text-sm font-medium tracking-wide uppercase opacity-70">
+          Support Ledger
+        </p>
+        <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">How can we improve?</h2>
+        <p class="text-on-surface-variant text-base leading-relaxed">
+          Your insights help us refine the Ethereal experience. Share your thoughts or report a bug.
+        </p>
+      </section>
+      <!-- Description Textarea Section -->
+      <section class="space-y-4">
+        <div class="group">
+          <label class="block text-xs font-bold text-[#92CCFF] uppercase tracking-widest mb-2 ml-1"
+            >Description</label
+          >
+          <div
+            class="relative bg-surface-container-highest rounded-xl p-4 transition-all duration-300 focus-within:ring-1 focus-within:ring-primary/30"
+          >
+            <textarea
+              class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/40 resize-none font-medium leading-relaxed"
+              placeholder="Tell us what's on your mind..."
+              rows="6"
+            ></textarea>
+            <div class="absolute bottom-4 right-4 text-[10px] text-on-surface-variant/40 font-mono">
+              0/500
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Screenshots Section -->
+      <section class="space-y-4">
+        <div class="flex justify-between items-center px-1">
+          <h3 class="text-xs font-bold text-[#92CCFF] uppercase tracking-widest">Screenshots</h3>
+          <span class="text-[10px] text-on-surface-variant font-medium">Optional (Max 3)</span>
+        </div>
+        <!-- Horizontal Scrollable Bento Style for Screenshots -->
+        <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+          <!-- Add Image Button -->
+          <button
+            class="flex-shrink-0 w-24 h-32 bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-surface-container-high transition-colors group active:scale-95 duration-150"
+          >
+            <span
+              class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform"
+              >add_circle</span
+            >
+            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter"
+              >Add Image</span
+            >
+          </button>
+          <!-- Attached Preview 1 -->
+          <div
+            class="flex-shrink-0 w-24 h-32 relative rounded-xl overflow-hidden shadow-lg border border-outline-variant/10"
+          >
+            <img
+              class="w-full h-full object-cover grayscale-[0.2]"
+              data-alt="Close up of a dark smartphone screen showing colorful abstract financial charts with soft blue and purple glowing neon lines"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV4qSHn9H3ONfd_TagnF3qLusvxVxpoZLGBzEulJIClh1mi4zOLadM4Ns897LmB6Z8xn4vnB8ESrTO6ChKrBxQH8H56TWTLwNe1D4aWmhpnhlnKoaBQUezOUF5OeuXi99RX0aRCbIthIjAIsaoSdmgLYjkdre_-8JLWMAejiBAKcnEB6WBMlUYyd5jByQGqiKcebE4LXSB_jeBZ1gALLE0nFT8NqN0XmTLGjJ8y8Vi-jq0tvTQJFFZpdWB9KJsMq8Ge2oz3n3aeQXX"
+            />
+            <button
+              class="absolute top-1 right-1 bg-surface-container-highest/80 backdrop-blur-md rounded-full p-1 text-error shadow-sm"
+            >
+              <span class="material-symbols-outlined text-xs">close</span>
             </button>
-</div>
-</header>
-<!-- Main Content Area -->
-<main class="pt-24 px-6 max-w-md mx-auto space-y-8">
-<!-- Header Introduction (Editorial Feel) -->
-<section class="space-y-2">
-<p class="text-on-surface-variant text-sm font-medium tracking-wide uppercase opacity-70">Support Ledger</p>
-<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">How can we improve?</h2>
-<p class="text-on-surface-variant text-base leading-relaxed">Your insights help us refine the Ethereal experience. Share your thoughts or report a bug.</p>
-</section>
-<!-- Description Textarea Section -->
-<section class="space-y-4">
-<div class="group">
-<label class="block text-xs font-bold text-[#92CCFF] uppercase tracking-widest mb-2 ml-1">Description</label>
-<div class="relative bg-surface-container-highest rounded-xl p-4 transition-all duration-300 focus-within:ring-1 focus-within:ring-primary/30">
-<textarea class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/40 resize-none font-medium leading-relaxed" placeholder="Tell us what's on your mind..." rows="6"></textarea>
-<div class="absolute bottom-4 right-4 text-[10px] text-on-surface-variant/40 font-mono">0/500</div>
-</div>
-</div>
-</section>
-<!-- Screenshots Section -->
-<section class="space-y-4">
-<div class="flex justify-between items-center px-1">
-<h3 class="text-xs font-bold text-[#92CCFF] uppercase tracking-widest">Screenshots</h3>
-<span class="text-[10px] text-on-surface-variant font-medium">Optional (Max 3)</span>
-</div>
-<!-- Horizontal Scrollable Bento Style for Screenshots -->
-<div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
-<!-- Add Image Button -->
-<button class="flex-shrink-0 w-24 h-32 bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-surface-container-high transition-colors group active:scale-95 duration-150">
-<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">add_circle</span>
-<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Add Image</span>
-</button>
-<!-- Attached Preview 1 -->
-<div class="flex-shrink-0 w-24 h-32 relative rounded-xl overflow-hidden shadow-lg border border-outline-variant/10">
-<img class="w-full h-full object-cover grayscale-[0.2]" data-alt="Close up of a dark smartphone screen showing colorful abstract financial charts with soft blue and purple glowing neon lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV4qSHn9H3ONfd_TagnF3qLusvxVxpoZLGBzEulJIClh1mi4zOLadM4Ns897LmB6Z8xn4vnB8ESrTO6ChKrBxQH8H56TWTLwNe1D4aWmhpnhlnKoaBQUezOUF5OeuXi99RX0aRCbIthIjAIsaoSdmgLYjkdre_-8JLWMAejiBAKcnEB6WBMlUYyd5jByQGqiKcebE4LXSB_jeBZ1gALLE0nFT8NqN0XmTLGjJ8y8Vi-jq0tvTQJFFZpdWB9KJsMq8Ge2oz3n3aeQXX"/>
-<button class="absolute top-1 right-1 bg-surface-container-highest/80 backdrop-blur-md rounded-full p-1 text-error shadow-sm">
-<span class="material-symbols-outlined text-xs">close</span>
-</button>
-</div>
-<!-- Attached Preview 2 -->
-<div class="flex-shrink-0 w-24 h-32 relative rounded-xl overflow-hidden shadow-lg border border-outline-variant/10">
-<img class="w-full h-full object-cover grayscale-[0.2]" data-alt="Top down view of minimalist technical gear on dark desk with glowing cyan status lights and sharp geometric shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzypJtOvW8vXpFK2FxszqTqVsxa1aWnQTUbadDC7K3i5dVgU7-6jvmFoGZFX0g6PnRwBgUO3ajvEiY8ipYoOLiEfvDZ9cARIzgTyQDWjqy2CiWcqigDHTttPLVV0e4ITi9PEDVUAUJj7ym9mjzigpfZ1gdVpNQTcuGmGT0o-plNtbRzahk5iA8r434z7dkcI5IyHojx6AozxnQukjP6FffvKIL-I-xrzNF_gpLO6OeB587100Mmepg_arQod0KwjZyUamLqoqMAghr"/>
-<button class="absolute top-1 right-1 bg-surface-container-highest/80 backdrop-blur-md rounded-full p-1 text-error shadow-sm">
-<span class="material-symbols-outlined text-xs">close</span>
-</button>
-</div>
-<!-- Placeholder Empty State -->
-<div class="flex-shrink-0 w-24 h-32 bg-surface-container-low/30 border border-outline-variant/5 rounded-xl flex items-center justify-center">
-<span class="material-symbols-outlined text-on-surface-variant/10 text-3xl">image</span>
-</div>
-</div>
-</section>
-<!-- Feedback Type Quick Select -->
-<section class="space-y-3">
-<p class="text-xs font-bold text-[#92CCFF] uppercase tracking-widest px-1">Category</p>
-<div class="flex flex-wrap gap-2">
-<button class="px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold tracking-tight shadow-sm active:scale-90 transition-transform">
-                    Bug Report
-                </button>
-<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold tracking-tight hover:bg-surface-container-highest active:scale-90 transition-transform">
-                    Feature Request
-                </button>
-<button class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold tracking-tight hover:bg-surface-container-highest active:scale-90 transition-transform">
-                    General Feedback
-                </button>
-</div>
-</section>
-</main>
-<!-- BottomNavBar -->
-<nav class="fixed bottom-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-t border-[#92CCFF]/15 rounded-t-xl shadow-[0px_-10px_30px_rgba(146,204,255,0.1)]">
-<div class="flex justify-around items-center pt-2 pb-6 px-6 w-full max-w-md mx-auto">
-<!-- Home -->
-<a class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-150" href="#">
-<span class="material-symbols-outlined">home</span>
-<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1">Home</span>
-</a>
-<!-- Ledger -->
-<a class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-150" href="#">
-<span class="material-symbols-outlined">account_balance_wallet</span>
-<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1">Ledger</span>
-</a>
-<!-- Feedback (Active) -->
-<a class="flex flex-col items-center justify-center text-[#92CCFF] scale-110 transition-transform active:scale-90 duration-150" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
-<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1">Feedback</span>
-</a>
-<!-- Settings -->
-<a class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-150" href="#">
-<span class="material-symbols-outlined">settings</span>
-<span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1">Settings</span>
-</a>
-</div>
-</nav>
-<!-- Hidden scrollbar style -->
-<style>
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+          </div>
+          <!-- Attached Preview 2 -->
+          <div
+            class="flex-shrink-0 w-24 h-32 relative rounded-xl overflow-hidden shadow-lg border border-outline-variant/10"
+          >
+            <img
+              class="w-full h-full object-cover grayscale-[0.2]"
+              data-alt="Top down view of minimalist technical gear on dark desk with glowing cyan status lights and sharp geometric shadows"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzypJtOvW8vXpFK2FxszqTqVsxa1aWnQTUbadDC7K3i5dVgU7-6jvmFoGZFX0g6PnRwBgUO3ajvEiY8ipYoOLiEfvDZ9cARIzgTyQDWjqy2CiWcqigDHTttPLVV0e4ITi9PEDVUAUJj7ym9mjzigpfZ1gdVpNQTcuGmGT0o-plNtbRzahk5iA8r434z7dkcI5IyHojx6AozxnQukjP6FffvKIL-I-xrzNF_gpLO6OeB587100Mmepg_arQod0KwjZyUamLqoqMAghr"
+            />
+            <button
+              class="absolute top-1 right-1 bg-surface-container-highest/80 backdrop-blur-md rounded-full p-1 text-error shadow-sm"
+            >
+              <span class="material-symbols-outlined text-xs">close</span>
+            </button>
+          </div>
+          <!-- Placeholder Empty State -->
+          <div
+            class="flex-shrink-0 w-24 h-32 bg-surface-container-low/30 border border-outline-variant/5 rounded-xl flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined text-on-surface-variant/10 text-3xl">image</span>
+          </div>
+        </div>
+      </section>
+      <!-- Feedback Type Quick Select -->
+      <section class="space-y-3">
+        <p class="text-xs font-bold text-[#92CCFF] uppercase tracking-widest px-1">Category</p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold tracking-tight shadow-sm active:scale-90 transition-transform"
+          >
+            Bug Report
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold tracking-tight hover:bg-surface-container-highest active:scale-90 transition-transform"
+          >
+            Feature Request
+          </button>
+          <button
+            class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold tracking-tight hover:bg-surface-container-highest active:scale-90 transition-transform"
+          >
+            General Feedback
+          </button>
+        </div>
+      </section>
+    </main>
+    <!-- BottomNavBar -->
+    <nav
+      class="fixed bottom-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl border-t border-[#92CCFF]/15 rounded-t-xl shadow-[0px_-10px_30px_rgba(146,204,255,0.1)]"
+    >
+      <div class="flex justify-around items-center pt-2 pb-6 px-6 w-full max-w-md mx-auto">
+        <!-- Home -->
+        <a
+          class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-150"
+          href="#"
+        >
+          <span class="material-symbols-outlined">home</span>
+          <span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1"
+            >Home</span
+          >
+        </a>
+        <!-- Ledger -->
+        <a
+          class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-150"
+          href="#"
+        >
+          <span class="material-symbols-outlined">account_balance_wallet</span>
+          <span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1"
+            >Ledger</span
+          >
+        </a>
+        <!-- Feedback (Active) -->
+        <a
+          class="flex flex-col items-center justify-center text-[#92CCFF] scale-110 transition-transform active:scale-90 duration-150"
+          href="#"
+        >
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1"
+            >chat_bubble</span
+          >
+          <span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1"
+            >Feedback</span
+          >
+        </a>
+        <!-- Settings -->
+        <a
+          class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-150"
+          href="#"
+        >
+          <span class="material-symbols-outlined">settings</span>
+          <span class="font-['Manrope'] text-[10px] font-medium tracking-wider uppercase mt-1"
+            >Settings</span
+          >
+        </a>
+      </div>
+    </nav>
+    <!-- Hidden scrollbar style -->
+    <style>
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
-</body></html>
+  </body>
+</html>

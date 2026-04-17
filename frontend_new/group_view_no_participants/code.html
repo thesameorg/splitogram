@@ -1,179 +1,266 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "on-primary-fixed-variant": "#004b73",
-            "on-tertiary-fixed": "#2e1500",
-            "primary-fixed-dim": "#92ccff",
-            "on-secondary-fixed": "#001d31",
-            "on-primary-fixed": "#001d31",
-            "outline": "#89929b",
-            "tertiary-fixed-dim": "#ffb77a",
-            "tertiary": "#ffb77a",
-            "secondary-container": "#00527e",
-            "surface": "#131315",
-            "on-primary-container": "#002c47",
-            "on-secondary": "#003351",
-            "primary-fixed": "#cce5ff",
-            "surface-container": "#1f1f21",
-            "secondary-fixed-dim": "#93ccff",
-            "error-container": "#93000a",
-            "background": "#131315",
-            "on-primary": "#003351",
-            "tertiary-fixed": "#ffdcc2",
-            "surface-dim": "#131315",
-            "surface-container-low": "#1b1b1d",
-            "primary": "#92ccff",
-            "surface-tint": "#92ccff",
-            "secondary-fixed": "#cce5ff",
-            "inverse-primary": "#006497",
-            "inverse-on-surface": "#303032",
-            "on-tertiary-fixed-variant": "#6d3a00",
-            "secondary": "#93ccff",
-            "surface-bright": "#39393b",
-            "tertiary-container": "#d37b1e",
-            "on-error-container": "#ffdad6",
-            "primary-container": "#2b98dd",
-            "on-secondary-fixed-variant": "#004b73",
-            "surface-container-lowest": "#0e0e10",
-            "surface-container-highest": "#353437",
-            "on-error": "#690005",
-            "outline-variant": "#3f4850",
-            "on-secondary-container": "#8bc5f7",
-            "surface-variant": "#353437",
-            "surface-container-high": "#2a2a2c",
-            "on-tertiary-container": "#432100",
-            "inverse-surface": "#e5e1e4",
-            "on-tertiary": "#4c2700",
-            "on-surface": "#e5e1e4",
-            "error": "#ffb4ab",
-            "on-surface-variant": "#bfc7d2",
-            "on-background": "#e5e1e4"
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'on-primary-fixed-variant': '#004b73',
+              'on-tertiary-fixed': '#2e1500',
+              'primary-fixed-dim': '#92ccff',
+              'on-secondary-fixed': '#001d31',
+              'on-primary-fixed': '#001d31',
+              outline: '#89929b',
+              'tertiary-fixed-dim': '#ffb77a',
+              tertiary: '#ffb77a',
+              'secondary-container': '#00527e',
+              surface: '#131315',
+              'on-primary-container': '#002c47',
+              'on-secondary': '#003351',
+              'primary-fixed': '#cce5ff',
+              'surface-container': '#1f1f21',
+              'secondary-fixed-dim': '#93ccff',
+              'error-container': '#93000a',
+              background: '#131315',
+              'on-primary': '#003351',
+              'tertiary-fixed': '#ffdcc2',
+              'surface-dim': '#131315',
+              'surface-container-low': '#1b1b1d',
+              primary: '#92ccff',
+              'surface-tint': '#92ccff',
+              'secondary-fixed': '#cce5ff',
+              'inverse-primary': '#006497',
+              'inverse-on-surface': '#303032',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              secondary: '#93ccff',
+              'surface-bright': '#39393b',
+              'tertiary-container': '#d37b1e',
+              'on-error-container': '#ffdad6',
+              'primary-container': '#2b98dd',
+              'on-secondary-fixed-variant': '#004b73',
+              'surface-container-lowest': '#0e0e10',
+              'surface-container-highest': '#353437',
+              'on-error': '#690005',
+              'outline-variant': '#3f4850',
+              'on-secondary-container': '#8bc5f7',
+              'surface-variant': '#353437',
+              'surface-container-high': '#2a2a2c',
+              'on-tertiary-container': '#432100',
+              'inverse-surface': '#e5e1e4',
+              'on-tertiary': '#4c2700',
+              'on-surface': '#e5e1e4',
+              error: '#ffb4ab',
+              'on-surface-variant': '#bfc7d2',
+              'on-background': '#e5e1e4',
+            },
+            fontFamily: {
+              headline: ['Manrope', 'sans-serif'],
+              body: ['Manrope', 'sans-serif'],
+              label: ['Manrope', 'sans-serif'],
+            },
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
-          fontFamily: {
-            "headline": ["Manrope", "sans-serif"],
-            "body": ["Manrope", "sans-serif"],
-            "label": ["Manrope", "sans-serif"]
-          },
-          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
         },
-      },
-    }
-  </script>
-<style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    body {
-      font-family: 'Manrope', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .glass-card {
-      background: rgba(53, 52, 55, 0.4);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-    .primary-gradient {
-      background: linear-gradient(135deg, #92ccff 0%, #2b98dd 100%);
-    }
-    .subtle-glow {
-      box-shadow: 0 0 40px rgba(146, 204, 255, 0.05);
-    }
-  </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      body {
+        font-family: 'Manrope', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .glass-card {
+        background: rgba(53, 52, 55, 0.4);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .primary-gradient {
+        background: linear-gradient(135deg, #92ccff 0%, #2b98dd 100%);
+      }
+      .subtle-glow {
+        box-shadow: 0 0 40px rgba(146, 204, 255, 0.05);
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-background text-on-surface min-h-screen flex flex-col selection:bg-primary/30">
-<!-- TopAppBar (Shared Component) -->
-<header class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 border-b border-[#92CCFF]/15">
-<div class="flex items-center gap-3">
-<button class="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-[#92CCFF]/10 transition-colors active:scale-95 duration-200">
-<span class="material-symbols-outlined text-[#92CCFF]">arrow_back</span>
-</button>
-<div class="flex flex-col">
-<h1 class="font-headline font-bold tracking-tight text-lg text-on-surface leading-tight">Summer Trip 24</h1>
-<span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-medium">Group View (Empty)</span>
-</div>
-</div>
-<div class="flex items-center gap-2">
-<button class="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-[#92CCFF]/10 transition-colors active:scale-95 duration-200 text-[#92CCFF]">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-</button>
-</div>
-</header>
-<!-- Main Content Canvas -->
-<main class="flex-grow flex flex-col items-center justify-center px-8 pt-16 pb-20 relative overflow-hidden">
-<!-- Ambient Background Elements -->
-<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
-<!-- Empty State Bento/Card Cluster -->
-<div class="w-full max-w-md flex flex-col items-center text-center space-y-8 z-10">
-<!-- Asymmetric Visual Anchor -->
-<div class="relative w-48 h-48 flex items-center justify-center">
-<div class="absolute inset-0 bg-primary/10 rounded-[2rem] rotate-6 scale-95 border border-primary/10"></div>
-<div class="absolute inset-0 bg-surface-container-highest rounded-[2rem] -rotate-3 border border-outline-variant/20"></div>
-<div class="relative glass-card w-32 h-32 rounded-3xl flex items-center justify-center subtle-glow border border-outline-variant/15">
-<span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings: 'FILL' 1;">group_add</span>
-</div>
-</div>
-<!-- Textual Content -->
-<div class="space-y-3">
-<h2 class="text-2xl font-extrabold tracking-tight text-on-surface">Your group is empty</h2>
-<p class="text-on-surface-variant font-medium text-balance leading-relaxed">
-          Start by inviting some friends to split expenses with. Summer Trip 24 works best when everyone is on board.
-        </p>
-</div>
-<!-- Primary Action: Invite Members -->
-<div class="w-full pt-4">
-<button class="w-full primary-gradient h-16 rounded-xl flex items-center justify-center gap-3 active:scale-95 duration-200 transition-all shadow-[0px_10px_30px_rgba(0,136,204,0.2)]">
-<span class="material-symbols-outlined text-on-primary-container font-bold" style="font-variation-settings: 'wght' 700;">person_add</span>
-<span class="text-on-primary-container font-headline font-extrabold tracking-tight text-lg">Invite Members</span>
-</button>
-<div class="mt-6 flex flex-col items-center space-y-4">
-<span class="text-[10px] uppercase tracking-widest text-outline font-bold">Or share link</span>
-<div class="flex items-center gap-2 p-3 bg-surface-container-low rounded-xl border border-outline-variant/10 w-full group hover:border-primary/30 transition-colors cursor-pointer">
-<span class="material-symbols-outlined text-primary text-sm">link</span>
-<span class="text-on-surface-variant text-sm font-medium flex-1 truncate">ledger.app/join/summer24_trip</span>
-<span class="material-symbols-outlined text-outline group-hover:text-primary text-sm transition-colors">content_copy</span>
-</div>
-</div>
-</div>
-</div>
-</main>
-<!-- BottomNavBar (Shared Component) -->
-<nav class="fixed bottom-0 w-full z-50 rounded-t-2xl bg-[#131315]/80 backdrop-blur-xl border-t border-[#92CCFF]/15 shadow-[0px_-4px_20px_rgba(146,204,255,0.05)] flex justify-around items-center px-4 pb-safe pt-2 h-20">
-<!-- Expenses -->
-<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out" href="#">
-<span class="material-symbols-outlined" data-icon="payments">payments</span>
-<span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1">Expenses</span>
-</a>
-<!-- Activity -->
-<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out" href="#">
-<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
-<span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1">Activity</span>
-</a>
-<!-- Groups (Active) -->
-<a class="flex flex-col items-center justify-center text-[#92CCFF] bg-gradient-to-br from-[#92CCFF]/10 to-transparent rounded-xl px-3 py-1 active:scale-90 duration-300 ease-out" href="#">
-<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
-<span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1">Groups</span>
-</a>
-<!-- Settings -->
-<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out" href="#">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-<span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1">Settings</span>
-</a>
-</nav>
-</body></html>
+  <body class="bg-background text-on-surface min-h-screen flex flex-col selection:bg-primary/30">
+    <!-- TopAppBar (Shared Component) -->
+    <header
+      class="fixed top-0 w-full z-50 bg-[#131315]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 border-b border-[#92CCFF]/15"
+    >
+      <div class="flex items-center gap-3">
+        <button
+          class="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-[#92CCFF]/10 transition-colors active:scale-95 duration-200"
+        >
+          <span class="material-symbols-outlined text-[#92CCFF]">arrow_back</span>
+        </button>
+        <div class="flex flex-col">
+          <h1 class="font-headline font-bold tracking-tight text-lg text-on-surface leading-tight">
+            Summer Trip 24
+          </h1>
+          <span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-medium"
+            >Group View (Empty)</span
+          >
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          class="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-[#92CCFF]/10 transition-colors active:scale-95 duration-200 text-[#92CCFF]"
+        >
+          <span class="material-symbols-outlined" data-icon="settings">settings</span>
+        </button>
+      </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main
+      class="flex-grow flex flex-col items-center justify-center px-8 pt-16 pb-20 relative overflow-hidden"
+    >
+      <!-- Ambient Background Elements -->
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"
+      ></div>
+      <!-- Empty State Bento/Card Cluster -->
+      <div class="w-full max-w-md flex flex-col items-center text-center space-y-8 z-10">
+        <!-- Asymmetric Visual Anchor -->
+        <div class="relative w-48 h-48 flex items-center justify-center">
+          <div
+            class="absolute inset-0 bg-primary/10 rounded-[2rem] rotate-6 scale-95 border border-primary/10"
+          ></div>
+          <div
+            class="absolute inset-0 bg-surface-container-highest rounded-[2rem] -rotate-3 border border-outline-variant/20"
+          ></div>
+          <div
+            class="relative glass-card w-32 h-32 rounded-3xl flex items-center justify-center subtle-glow border border-outline-variant/15"
+          >
+            <span
+              class="material-symbols-outlined text-primary text-6xl"
+              style="font-variation-settings: 'FILL' 1"
+              >group_add</span
+            >
+          </div>
+        </div>
+        <!-- Textual Content -->
+        <div class="space-y-3">
+          <h2 class="text-2xl font-extrabold tracking-tight text-on-surface">
+            Your group is empty
+          </h2>
+          <p class="text-on-surface-variant font-medium text-balance leading-relaxed">
+            Start by inviting some friends to split expenses with. Summer Trip 24 works best when
+            everyone is on board.
+          </p>
+        </div>
+        <!-- Primary Action: Invite Members -->
+        <div class="w-full pt-4">
+          <button
+            class="w-full primary-gradient h-16 rounded-xl flex items-center justify-center gap-3 active:scale-95 duration-200 transition-all shadow-[0px_10px_30px_rgba(0,136,204,0.2)]"
+          >
+            <span
+              class="material-symbols-outlined text-on-primary-container font-bold"
+              style="font-variation-settings: 'wght' 700"
+              >person_add</span
+            >
+            <span
+              class="text-on-primary-container font-headline font-extrabold tracking-tight text-lg"
+              >Invite Members</span
+            >
+          </button>
+          <div class="mt-6 flex flex-col items-center space-y-4">
+            <span class="text-[10px] uppercase tracking-widest text-outline font-bold"
+              >Or share link</span
+            >
+            <div
+              class="flex items-center gap-2 p-3 bg-surface-container-low rounded-xl border border-outline-variant/10 w-full group hover:border-primary/30 transition-colors cursor-pointer"
+            >
+              <span class="material-symbols-outlined text-primary text-sm">link</span>
+              <span class="text-on-surface-variant text-sm font-medium flex-1 truncate"
+                >ledger.app/join/summer24_trip</span
+              >
+              <span
+                class="material-symbols-outlined text-outline group-hover:text-primary text-sm transition-colors"
+                >content_copy</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- BottomNavBar (Shared Component) -->
+    <nav
+      class="fixed bottom-0 w-full z-50 rounded-t-2xl bg-[#131315]/80 backdrop-blur-xl border-t border-[#92CCFF]/15 shadow-[0px_-4px_20px_rgba(146,204,255,0.05)] flex justify-around items-center px-4 pb-safe pt-2 h-20"
+    >
+      <!-- Expenses -->
+      <a
+        class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out"
+        href="#"
+      >
+        <span class="material-symbols-outlined" data-icon="payments">payments</span>
+        <span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1"
+          >Expenses</span
+        >
+      </a>
+      <!-- Activity -->
+      <a
+        class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out"
+        href="#"
+      >
+        <span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+        <span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1"
+          >Activity</span
+        >
+      </a>
+      <!-- Groups (Active) -->
+      <a
+        class="flex flex-col items-center justify-center text-[#92CCFF] bg-gradient-to-br from-[#92CCFF]/10 to-transparent rounded-xl px-3 py-1 active:scale-90 duration-300 ease-out"
+        href="#"
+      >
+        <span
+          class="material-symbols-outlined"
+          data-icon="group"
+          style="font-variation-settings: 'FILL' 1"
+          >group</span
+        >
+        <span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1"
+          >Groups</span
+        >
+      </a>
+      <!-- Settings -->
+      <a
+        class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-300 ease-out"
+        href="#"
+      >
+        <span class="material-symbols-outlined" data-icon="settings">settings</span>
+        <span class="font-manrope text-[10px] font-medium tracking-wider uppercase mt-1"
+          >Settings</span
+        >
+      </a>
+    </nav>
+  </body>
+</html>

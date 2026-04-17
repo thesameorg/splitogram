@@ -1,279 +1,413 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Add Expense - The Ethereal Ledger</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "on-secondary-fixed": "#001d31",
-                        "secondary": "#93ccff",
-                        "on-primary-fixed": "#001d31",
-                        "surface-container": "#1f1f21",
-                        "tertiary-fixed": "#ffdcc2",
-                        "inverse-surface": "#e5e1e4",
-                        "on-secondary-fixed-variant": "#004b73",
-                        "primary-container": "#2b98dd",
-                        "surface-dim": "#131315",
-                        "on-primary": "#003351",
-                        "tertiary-fixed-dim": "#ffb77a",
-                        "on-error-container": "#ffdad6",
-                        "surface-container-low": "#1b1b1d",
-                        "surface-container-highest": "#353437",
-                        "outline": "#89929b",
-                        "on-tertiary": "#4c2700",
-                        "tertiary-container": "#d37b1e",
-                        "surface-container-lowest": "#0e0e10",
-                        "primary-fixed-dim": "#92ccff",
-                        "inverse-primary": "#006497",
-                        "on-tertiary-container": "#432100",
-                        "on-surface": "#e5e1e4",
-                        "on-error": "#690005",
-                        "on-primary-container": "#002c47",
-                        "primary": "#92ccff",
-                        "on-secondary": "#003351",
-                        "secondary-fixed-dim": "#93ccff",
-                        "inverse-on-surface": "#303032",
-                        "on-tertiary-fixed": "#2e1500",
-                        "error-container": "#93000a",
-                        "surface-bright": "#39393b",
-                        "on-surface-variant": "#bfc7d2",
-                        "secondary-container": "#00527e",
-                        "secondary-fixed": "#cce5ff",
-                        "background": "#131315",
-                        "surface": "#131315",
-                        "on-secondary-container": "#8bc5f7",
-                        "on-tertiary-fixed-variant": "#6d3a00",
-                        "on-primary-fixed-variant": "#004b73",
-                        "primary-fixed": "#cce5ff",
-                        "outline-variant": "#3f4850",
-                        "surface-container-high": "#2a2a2c",
-                        "surface-variant": "#353437",
-                        "surface-tint": "#92ccff",
-                        "on-background": "#e5e1e4",
-                        "tertiary": "#ffb77a",
-                        "error": "#ffb4ab",
-                        "debt-red": "#ffb4ab"
-                    },
-                    fontFamily: {
-                        "headline": ["Manrope", "sans-serif"],
-                        "body": ["Manrope", "sans-serif"],
-                        "label": ["Manrope", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Add Expense - The Ethereal Ledger</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'on-secondary-fixed': '#001d31',
+              secondary: '#93ccff',
+              'on-primary-fixed': '#001d31',
+              'surface-container': '#1f1f21',
+              'tertiary-fixed': '#ffdcc2',
+              'inverse-surface': '#e5e1e4',
+              'on-secondary-fixed-variant': '#004b73',
+              'primary-container': '#2b98dd',
+              'surface-dim': '#131315',
+              'on-primary': '#003351',
+              'tertiary-fixed-dim': '#ffb77a',
+              'on-error-container': '#ffdad6',
+              'surface-container-low': '#1b1b1d',
+              'surface-container-highest': '#353437',
+              outline: '#89929b',
+              'on-tertiary': '#4c2700',
+              'tertiary-container': '#d37b1e',
+              'surface-container-lowest': '#0e0e10',
+              'primary-fixed-dim': '#92ccff',
+              'inverse-primary': '#006497',
+              'on-tertiary-container': '#432100',
+              'on-surface': '#e5e1e4',
+              'on-error': '#690005',
+              'on-primary-container': '#002c47',
+              primary: '#92ccff',
+              'on-secondary': '#003351',
+              'secondary-fixed-dim': '#93ccff',
+              'inverse-on-surface': '#303032',
+              'on-tertiary-fixed': '#2e1500',
+              'error-container': '#93000a',
+              'surface-bright': '#39393b',
+              'on-surface-variant': '#bfc7d2',
+              'secondary-container': '#00527e',
+              'secondary-fixed': '#cce5ff',
+              background: '#131315',
+              surface: '#131315',
+              'on-secondary-container': '#8bc5f7',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              'on-primary-fixed-variant': '#004b73',
+              'primary-fixed': '#cce5ff',
+              'outline-variant': '#3f4850',
+              'surface-container-high': '#2a2a2c',
+              'surface-variant': '#353437',
+              'surface-tint': '#92ccff',
+              'on-background': '#e5e1e4',
+              tertiary: '#ffb77a',
+              error: '#ffb4ab',
+              'debt-red': '#ffb4ab',
             },
-        }
+            fontFamily: {
+              headline: ['Manrope', 'sans-serif'],
+              body: ['Manrope', 'sans-serif'],
+              label: ['Manrope', 'sans-serif'],
+            },
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
+          },
+        },
+      };
     </script>
-<style>
-        body {
-            font-family: 'Manrope', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .glass-panel {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-bottom-color: #92ccff !important;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .glass-panel {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-bottom-color: #92ccff !important;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
-<style>
-        body {
-            min-height: max(884px, 100dvh);
-        }
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
     </style>
-</head>
-<body class="bg-background text-on-background min-h-screen flex flex-col max-w-[480px] mx-auto overflow-x-hidden">
-<!-- TopAppBar -->
-<header class="flex items-center justify-between px-4 py-3 w-full sticky top-0 z-50 bg-[#131315]/80 backdrop-blur-md bg-gradient-to-b from-[#131315]/5 to-transparent">
-<div class="flex items-center gap-3">
-<button class="active:scale-95 transition-transform duration-200 text-[#92CCFF]">
-<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
-</button>
-<h1 class="font-manrope text-lg font-semibold tracking-tight dark:text-[#F4F4F5]">Add Expense</h1>
-</div>
-<div class="flex items-center">
-<button class="text-slate-400 dark:text-slate-400 hover:opacity-80 transition-opacity">
-<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
-</button>
-</div>
-</header>
-<main class="flex-1 px-4 pt-4 pb-32 space-y-6">
-<!-- Amount Field (Compact) -->
-<section class="flex flex-col items-center justify-center py-2">
-<div class="flex items-baseline gap-1">
-<span class="text-2xl font-light text-primary">$</span>
-<input class="bg-transparent border-none text-4xl font-extrabold text-center w-full max-w-[180px] focus:ring-0 placeholder:text-surface-container-highest tracking-tight" placeholder="0.00" type="number" value="100.00"/>
-</div>
-<p class="text-on-surface-variant text-[10px] mt-1 font-bold uppercase tracking-widest">Amount</p>
-</section>
-<!-- Basic Details -->
-<section class="space-y-4">
-<div class="bg-surface-container-low rounded-lg p-1">
-<div class="bg-surface-container-highest rounded-lg px-4 py-3 border-b border-[#92CCFF]/15">
-<input class="bg-transparent border-none w-full p-0 text-on-surface font-semibold text-lg placeholder:text-on-surface-variant focus:ring-0" placeholder="What was this for?" type="text" value="Dinner at Solis"/>
-</div>
-<div class="px-4 py-3">
-<textarea class="bg-transparent border-none w-full p-0 text-on-surface-variant text-sm placeholder:text-outline-variant focus:ring-0 resize-none" placeholder="Add a description (optional)" rows="1"></textarea>
-</div>
-</div>
-</section>
-<!-- Media Attachment -->
-<section>
-<button class="w-full flex items-center justify-center gap-3 py-3 bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors">
-<span class="material-symbols-outlined text-xl" data-icon="add_a_photo">add_a_photo</span>
-<span class="text-xs font-semibold">Add Attachment</span>
-</button>
-</section>
-<!-- Payment Info -->
-<section class="grid grid-cols-2 gap-3">
-<div class="bg-surface-container-low p-4 rounded-lg flex flex-col gap-2 cursor-pointer active:scale-95 transition-transform">
-<span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Paid By</span>
-<div class="flex items-center gap-2">
-<div class="w-6 h-6 rounded-full overflow-hidden bg-primary-container flex-shrink-0">
-<img alt="User Avatar" class="w-full h-full object-cover" data-alt="close-up portrait of a professional man with a friendly expression in a modern office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzvUP87steRJ13LIcJbcEnzGa10nY1WmwwUnVY4s2PvmTek8OZndbVJgTwfUm-GznkUxET3sWZIZ76VP_HRVnBUoeTGTpnDeMmulfYIDg8IG-cMeyZ27emxx0vGKxDMpY2jaBBlSLcxTTluqex-z-oElShMYQb3gPEJYATqeR3D5u05Ty9ing8EJ0ZC4WEoBF10mcDBvar84M7pMu-GNuzWsUIKAuODlhHOAY7HMO7xlue_YBlLOh_lDlQ-mqNSiZG9X25GQAaMSbv"/>
-</div>
-<span class="text-sm font-semibold truncate">You</span>
-<span class="material-symbols-outlined text-xs text-primary" data-icon="expand_more">expand_more</span>
-</div>
-</div>
-<div class="bg-surface-container-low p-4 rounded-lg flex flex-col gap-2 cursor-pointer active:scale-95 transition-transform">
-<span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Date</span>
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-lg" data-icon="calendar_today">calendar_today</span>
-<span class="text-sm font-semibold">Today</span>
-</div>
-</div>
-</section>
-<!-- Participant Bubbles -->
-<section class="space-y-3">
-<div class="flex items-center justify-between">
-<h3 class="text-xs uppercase tracking-[0.2em] font-extrabold text-on-surface-variant">Split With</h3>
-<div class="flex gap-4">
-<button class="text-[10px] font-bold text-primary hover:opacity-70">SELECT ALL</button>
-</div>
-</div>
-<div class="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
-<!-- Bubble: You (Selected) -->
-<div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer group">
-<div class="relative">
-<img alt="You" class="w-14 h-14 rounded-full object-cover border-2 border-primary p-0.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA23y8oElWqrX8fDiXbNEqc6pJH7SFKy_mZqFnd5j6b9mEcC3nPN5G5ZVzpTYU0MgYVoRKC2kthCZZkBzNzS8RTQoGaFB_4GIATrhtICfyxGMdB6UwIKncSdjvs2wnuvP9POS3evmlz7Yuah1Lnea-DxA41rsn5_IdcoDVlw1L_taAEoshop023oDUuVU1h4CZ_fn9NOkADUG1zo0tmCsg3-JcL0HMYoGnJVZqvNtJLvFmxyyLvFVzEAHTUP2dhG3Ww76um3_eEvYrg"/>
-<div class="absolute -top-1 -right-1 bg-primary text-on-primary-fixed w-5 h-5 rounded-full flex items-center justify-center border-2 border-background">
-<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">check</span>
-</div>
-</div>
-<span class="text-[11px] font-bold text-on-surface">You</span>
-</div>
-<!-- Bubble: Sarah (Selected) -->
-<div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer">
-<div class="relative">
-<img alt="Sarah" class="w-14 h-14 rounded-full object-cover border-2 border-primary p-0.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA33hRD1xyPRtI5vfkGQ9_bVTZyrDzNgdo29b4D9o9_m_xsRvgTkfArjVw-rJ4kQSTOzty2vC37tWZoTNqZ-mqSOmr7_EI-b0TenYrNBW8hUTURxbv2lduW1lHBv6Piri33IIIgn1yfOP2aRMKHXiorQMo0q81BoY0dzfiap7_lZR_yGCIpCt2qJrtmqVVNPo49RH00-8-sTldYcizc6gBsH_x8bI3GyudsescAhh90BkX8Hfpljo989t0kydSrkjZavY-homJuus1z"/>
-<div class="absolute -top-1 -right-1 bg-primary text-on-primary-fixed w-5 h-5 rounded-full flex items-center justify-center border-2 border-background">
-<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">check</span>
-</div>
-</div>
-<span class="text-[11px] font-bold text-on-surface">Sarah</span>
-</div>
-<!-- Bubble: Michael (Selected) -->
-<div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer">
-<div class="relative">
-<img alt="Michael" class="w-14 h-14 rounded-full object-cover border-2 border-primary p-0.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiyIdY5S7mMKy9X0rI1Uj1qiDrV4272yhkeKtZNENpwpmc0SeS7KA9cSf-jOyJulcvMj4hp7_mu9tZmReeDEQq9FxjpoygCteP46YIkZmX1lHzBWbNJq10yycW4nQWkeA2USF3ZTiKPehWlPnz5KKGe0wMIiJJTE76-kZ824mSbQiZYQmgLJm1nhEoGYB9b7pk8jtwhwVgwn2i_rRcmj9FPNFoMiNIXUZ4oT62NBZN6Fs_nysHy9piYs53OtDxBrGX1ZCPi0vaZMH-"/>
-<div class="absolute -top-1 -right-1 bg-primary text-on-primary-fixed w-5 h-5 rounded-full flex items-center justify-center border-2 border-background">
-<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">check</span>
-</div>
-</div>
-<span class="text-[11px] font-bold text-on-surface">Michael</span>
-</div>
-<!-- Bubble: Alex (Unselected) -->
-<div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer">
-<div class="relative">
-<img alt="Alex" class="w-14 h-14 rounded-full object-cover border-2 border-transparent grayscale opacity-40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-cjAA_ElEOx0X_QfCl0GUFuK7eHb4owsXt1YlkOMmxuCOZaEjHTx0ZAMG5JpyssvY2s-EH1l0FnxGhOXqqWZkI72p4RP7qMnqQNbeBZ84Fo8CJphDX7766Hzx18EDDvcHuX_QS8YvNn8RIfymc3LGbx6jXFCEWzVhNsBWmReZVOMK6VByt4ezOz1NJlF3jYinJ1Ej2CwIyhMZiAT9wyIumjw_O9muWnZ1XvtnwoZ3QYLLqwraXqwDTl6ZbZzwT64nfrQqhcQtiO-P"/>
-<div class="absolute -top-1 -right-1 bg-surface-container-highest text-outline-variant w-5 h-5 rounded-full flex items-center justify-center border-2 border-background">
-<span class="material-symbols-outlined text-[12px]">add</span>
-</div>
-</div>
-<span class="text-[11px] font-bold text-outline">Alex</span>
-</div>
-<!-- Bubble: Elena (Selected) -->
-<div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer">
-<div class="relative">
-<img alt="Elena" class="w-14 h-14 rounded-full object-cover border-2 border-primary p-0.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYBzL1svc69LjyArXCZaDWJVZCfVbq5ao08rU56fzKnc7hrnZv8QumY0qfY3LITdHXu0P9HIlvam-gnwLxLOHOtcHrhLLJQa4lzXhvSQYBaTtoKJmZZUTfVhLgxATh82Atqh9D1UVpI30CH0um5h4tFBpXsRlaHB8eisNv3TLzstZiDqBD2XCD7ufkozhubySjb9_pOlKiSizeXjfXvrNj1Sa2em98imvIoUnYviL0V5JLLd17IW3kEawdzwifaXrGfXyVHwwu-S_V"/>
-<div class="absolute -top-1 -right-1 bg-primary text-on-primary-fixed w-5 h-5 rounded-full flex items-center justify-center border-2 border-background">
-<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">check</span>
-</div>
-</div>
-<span class="text-[11px] font-bold text-on-surface">Elena</span>
-</div>
-</div>
-</section>
-<!-- Split Breakdown -->
-<section class="space-y-4">
-<div class="flex items-center justify-between">
-<h3 class="text-xs uppercase tracking-[0.2em] font-extrabold text-on-surface-variant">Share Breakdown</h3>
-<div class="flex bg-surface-container-low p-1 rounded-md">
-<button class="px-3 py-1 bg-primary-container text-on-primary-container rounded text-[10px] font-extrabold">EQUAL</button>
-<button class="px-3 py-1 text-on-surface-variant rounded text-[10px] font-extrabold">SET %</button>
-</div>
-</div>
-<div class="bg-surface-container-low/40 rounded-xl border border-white/5 divide-y divide-white/5">
-<!-- Row: You -->
-<div class="flex items-center justify-between p-4">
-<div class="flex items-center gap-3">
-<img alt="You" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA23y8oElWqrX8fDiXbNEqc6pJH7SFKy_mZqFnd5j6b9mEcC3nPN5G5ZVzpTYU0MgYVoRKC2kthCZZkBzNzS8RTQoGaFB_4GIATrhtICfyxGMdB6UwIKncSdjvs2wnuvP9POS3evmlz7Yuah1Lnea-DxA41rsn5_IdcoDVlw1L_taAEoshop023oDUuVU1h4CZ_fn9NOkADUG1zo0tmCsg3-JcL0HMYoGnJVZqvNtJLvFmxyyLvFVzEAHTUP2dhG3Ww76um3_eEvYrg"/>
-<span class="text-sm font-bold text-on-surface">You</span>
-</div>
-<span class="text-sm font-extrabold text-debt-red">$25.00</span>
-</div>
-<!-- Row: Sarah -->
-<div class="flex items-center justify-between p-4">
-<div class="flex items-center gap-3">
-<img alt="Sarah" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA33hRD1xyPRtI5vfkGQ9_bVTZyrDzNgdo29b4D9o9_m_xsRvgTkfArjVw-rJ4kQSTOzty2vC37tWZoTNqZ-mqSOmr7_EI-b0TenYrNBW8hUTURxbv2lduW1lHBv6Piri33IIIgn1yfOP2aRMKHXiorQMo0q81BoY0dzfiap7_lZR_yGCIpCt2qJrtmqVVNPo49RH00-8-sTldYcizc6gBsH_x8bI3GyudsescAhh90BkX8Hfpljo989t0kydSrkjZavY-homJuus1z"/>
-<span class="text-sm font-bold text-on-surface">Sarah</span>
-</div>
-<span class="text-sm font-extrabold text-debt-red">$25.00</span>
-</div>
-<!-- Row: Michael -->
-<div class="flex items-center justify-between p-4">
-<div class="flex items-center gap-3">
-<img alt="Michael" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiyIdY5S7mMKy9X0rI1Uj1qiDrV4272yhkeKtZNENpwpmc0SeS7KA9cSf-jOyJulcvMj4hp7_mu9tZmReeDEQq9FxjpoygCteP46YIkZmX1lHzBWbNJq10yycW4nQWkeA2USF3ZTiKPehWlPnz5KKGe0wMIiJJTE76-kZ824mSbQiZYQmgLJm1nhEoGYB9b7pk8jtwhwVgwn2i_rRcmj9FPNFoMiNIXUZ4oT62NBZN6Fs_nysHy9piYs53OtDxBrGX1ZCPi0vaZMH-"/>
-<span class="text-sm font-bold text-on-surface">Michael</span>
-</div>
-<span class="text-sm font-extrabold text-debt-red">$25.00</span>
-</div>
-<!-- Row: Elena -->
-<div class="flex items-center justify-between p-4">
-<div class="flex items-center gap-3">
-<img alt="Elena" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYBzL1svc69LjyArXCZaDWJVZCfVbq5ao08rU56fzKnc7hrnZv8QumY0qfY3LITdHXu0P9HIlvam-gnwLxLOHOtcHrhLLJQa4lzXhvSQYBaTtoKJmZZUTfVhLgxATh82Atqh9D1UVpI30CH0um5h4tFBpXsRlaHB8eisNv3TLzstZiDqBD2XCD7ufkozhubySjb9_pOlKiSizeXjfXvrNj1Sa2em98imvIoUnYviL0V5JLLd17IW3kEawdzwifaXrGfXyVHwwu-S_V"/>
-<span class="text-sm font-bold text-on-surface">Elena</span>
-</div>
-<span class="text-sm font-extrabold text-debt-red">$25.00</span>
-</div>
-</div>
-</section>
-</main>
-<!-- Fixed Action Button -->
-<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] p-4 bg-gradient-to-t from-background via-background/90 to-transparent">
-<button class="w-full py-4 rounded-lg bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-extrabold text-lg shadow-[0px_10px_30px_rgba(0,136,204,0.3)] active:scale-95 transition-all duration-300">
-            Add Expense
+  </head>
+  <body
+    class="bg-background text-on-background min-h-screen flex flex-col max-w-[480px] mx-auto overflow-x-hidden"
+  >
+    <!-- TopAppBar -->
+    <header
+      class="flex items-center justify-between px-4 py-3 w-full sticky top-0 z-50 bg-[#131315]/80 backdrop-blur-md bg-gradient-to-b from-[#131315]/5 to-transparent"
+    >
+      <div class="flex items-center gap-3">
+        <button class="active:scale-95 transition-transform duration-200 text-[#92CCFF]">
+          <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
         </button>
-</div>
-</body></html>
+        <h1 class="font-manrope text-lg font-semibold tracking-tight dark:text-[#F4F4F5]">
+          Add Expense
+        </h1>
+      </div>
+      <div class="flex items-center">
+        <button class="text-slate-400 dark:text-slate-400 hover:opacity-80 transition-opacity">
+          <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+        </button>
+      </div>
+    </header>
+    <main class="flex-1 px-4 pt-4 pb-32 space-y-6">
+      <!-- Amount Field (Compact) -->
+      <section class="flex flex-col items-center justify-center py-2">
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-light text-primary">$</span>
+          <input
+            class="bg-transparent border-none text-4xl font-extrabold text-center w-full max-w-[180px] focus:ring-0 placeholder:text-surface-container-highest tracking-tight"
+            placeholder="0.00"
+            type="number"
+            value="100.00"
+          />
+        </div>
+        <p class="text-on-surface-variant text-[10px] mt-1 font-bold uppercase tracking-widest">
+          Amount
+        </p>
+      </section>
+      <!-- Basic Details -->
+      <section class="space-y-4">
+        <div class="bg-surface-container-low rounded-lg p-1">
+          <div
+            class="bg-surface-container-highest rounded-lg px-4 py-3 border-b border-[#92CCFF]/15"
+          >
+            <input
+              class="bg-transparent border-none w-full p-0 text-on-surface font-semibold text-lg placeholder:text-on-surface-variant focus:ring-0"
+              placeholder="What was this for?"
+              type="text"
+              value="Dinner at Solis"
+            />
+          </div>
+          <div class="px-4 py-3">
+            <textarea
+              class="bg-transparent border-none w-full p-0 text-on-surface-variant text-sm placeholder:text-outline-variant focus:ring-0 resize-none"
+              placeholder="Add a description (optional)"
+              rows="1"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+      <!-- Media Attachment -->
+      <section>
+        <button
+          class="w-full flex items-center justify-center gap-3 py-3 bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors"
+        >
+          <span class="material-symbols-outlined text-xl" data-icon="add_a_photo">add_a_photo</span>
+          <span class="text-xs font-semibold">Add Attachment</span>
+        </button>
+      </section>
+      <!-- Payment Info -->
+      <section class="grid grid-cols-2 gap-3">
+        <div
+          class="bg-surface-container-low p-4 rounded-lg flex flex-col gap-2 cursor-pointer active:scale-95 transition-transform"
+        >
+          <span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold"
+            >Paid By</span
+          >
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full overflow-hidden bg-primary-container flex-shrink-0">
+              <img
+                alt="User Avatar"
+                class="w-full h-full object-cover"
+                data-alt="close-up portrait of a professional man with a friendly expression in a modern office environment"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzvUP87steRJ13LIcJbcEnzGa10nY1WmwwUnVY4s2PvmTek8OZndbVJgTwfUm-GznkUxET3sWZIZ76VP_HRVnBUoeTGTpnDeMmulfYIDg8IG-cMeyZ27emxx0vGKxDMpY2jaBBlSLcxTTluqex-z-oElShMYQb3gPEJYATqeR3D5u05Ty9ing8EJ0ZC4WEoBF10mcDBvar84M7pMu-GNuzWsUIKAuODlhHOAY7HMO7xlue_YBlLOh_lDlQ-mqNSiZG9X25GQAaMSbv"
+              />
+            </div>
+            <span class="text-sm font-semibold truncate">You</span>
+            <span class="material-symbols-outlined text-xs text-primary" data-icon="expand_more"
+              >expand_more</span
+            >
+          </div>
+        </div>
+        <div
+          class="bg-surface-container-low p-4 rounded-lg flex flex-col gap-2 cursor-pointer active:scale-95 transition-transform"
+        >
+          <span class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold"
+            >Date</span
+          >
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg" data-icon="calendar_today"
+              >calendar_today</span
+            >
+            <span class="text-sm font-semibold">Today</span>
+          </div>
+        </div>
+      </section>
+      <!-- Participant Bubbles -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs uppercase tracking-[0.2em] font-extrabold text-on-surface-variant">
+            Split With
+          </h3>
+          <div class="flex gap-4">
+            <button class="text-[10px] font-bold text-primary hover:opacity-70">SELECT ALL</button>
+          </div>
+        </div>
+        <div class="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
+          <!-- Bubble: You (Selected) -->
+          <div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer group">
+            <div class="relative">
+              <img
+                alt="You"
+                class="w-14 h-14 rounded-full object-cover border-2 border-primary p-0.5"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA23y8oElWqrX8fDiXbNEqc6pJH7SFKy_mZqFnd5j6b9mEcC3nPN5G5ZVzpTYU0MgYVoRKC2kthCZZkBzNzS8RTQoGaFB_4GIATrhtICfyxGMdB6UwIKncSdjvs2wnuvP9POS3evmlz7Yuah1Lnea-DxA41rsn5_IdcoDVlw1L_taAEoshop023oDUuVU1h4CZ_fn9NOkADUG1zo0tmCsg3-JcL0HMYoGnJVZqvNtJLvFmxyyLvFVzEAHTUP2dhG3Ww76um3_eEvYrg"
+              />
+              <div
+                class="absolute -top-1 -right-1 bg-primary text-on-primary-fixed w-5 h-5 rounded-full flex items-center justify-center border-2 border-background"
+              >
+                <span
+                  class="material-symbols-outlined text-[12px]"
+                  style="font-variation-settings: 'FILL' 1"
+                  >check</span
+                >
+              </div>
+            </div>
+            <span class="text-[11px] font-bold text-on-surface">You</span>
+          </div>
+          <!-- Bubble: Sarah (Selected) -->
+          <div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer">
+            <div class="relative">
+              <img
+                alt="Sarah"
+                class="w-14 h-14 rounded-full object-cover border-2 border-primary p-0.5"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA33hRD1xyPRtI5vfkGQ9_bVTZyrDzNgdo29b4D9o9_m_xsRvgTkfArjVw-rJ4kQSTOzty2vC37tWZoTNqZ-mqSOmr7_EI-b0TenYrNBW8hUTURxbv2lduW1lHBv6Piri33IIIgn1yfOP2aRMKHXiorQMo0q81BoY0dzfiap7_lZR_yGCIpCt2qJrtmqVVNPo49RH00-8-sTldYcizc6gBsH_x8bI3GyudsescAhh90BkX8Hfpljo989t0kydSrkjZavY-homJuus1z"
+              />
+              <div
+                class="absolute -top-1 -right-1 bg-primary text-on-primary-fixed w-5 h-5 rounded-full flex items-center justify-center border-2 border-background"
+              >
+                <span
+                  class="material-symbols-outlined text-[12px]"
+                  style="font-variation-settings: 'FILL' 1"
+                  >check</span
+                >
+              </div>
+            </div>
+            <span class="text-[11px] font-bold text-on-surface">Sarah</span>
+          </div>
+          <!-- Bubble: Michael (Selected) -->
+          <div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer">
+            <div class="relative">
+              <img
+                alt="Michael"
+                class="w-14 h-14 rounded-full object-cover border-2 border-primary p-0.5"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiyIdY5S7mMKy9X0rI1Uj1qiDrV4272yhkeKtZNENpwpmc0SeS7KA9cSf-jOyJulcvMj4hp7_mu9tZmReeDEQq9FxjpoygCteP46YIkZmX1lHzBWbNJq10yycW4nQWkeA2USF3ZTiKPehWlPnz5KKGe0wMIiJJTE76-kZ824mSbQiZYQmgLJm1nhEoGYB9b7pk8jtwhwVgwn2i_rRcmj9FPNFoMiNIXUZ4oT62NBZN6Fs_nysHy9piYs53OtDxBrGX1ZCPi0vaZMH-"
+              />
+              <div
+                class="absolute -top-1 -right-1 bg-primary text-on-primary-fixed w-5 h-5 rounded-full flex items-center justify-center border-2 border-background"
+              >
+                <span
+                  class="material-symbols-outlined text-[12px]"
+                  style="font-variation-settings: 'FILL' 1"
+                  >check</span
+                >
+              </div>
+            </div>
+            <span class="text-[11px] font-bold text-on-surface">Michael</span>
+          </div>
+          <!-- Bubble: Alex (Unselected) -->
+          <div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer">
+            <div class="relative">
+              <img
+                alt="Alex"
+                class="w-14 h-14 rounded-full object-cover border-2 border-transparent grayscale opacity-40"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-cjAA_ElEOx0X_QfCl0GUFuK7eHb4owsXt1YlkOMmxuCOZaEjHTx0ZAMG5JpyssvY2s-EH1l0FnxGhOXqqWZkI72p4RP7qMnqQNbeBZ84Fo8CJphDX7766Hzx18EDDvcHuX_QS8YvNn8RIfymc3LGbx6jXFCEWzVhNsBWmReZVOMK6VByt4ezOz1NJlF3jYinJ1Ej2CwIyhMZiAT9wyIumjw_O9muWnZ1XvtnwoZ3QYLLqwraXqwDTl6ZbZzwT64nfrQqhcQtiO-P"
+              />
+              <div
+                class="absolute -top-1 -right-1 bg-surface-container-highest text-outline-variant w-5 h-5 rounded-full flex items-center justify-center border-2 border-background"
+              >
+                <span class="material-symbols-outlined text-[12px]">add</span>
+              </div>
+            </div>
+            <span class="text-[11px] font-bold text-outline">Alex</span>
+          </div>
+          <!-- Bubble: Elena (Selected) -->
+          <div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer">
+            <div class="relative">
+              <img
+                alt="Elena"
+                class="w-14 h-14 rounded-full object-cover border-2 border-primary p-0.5"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYBzL1svc69LjyArXCZaDWJVZCfVbq5ao08rU56fzKnc7hrnZv8QumY0qfY3LITdHXu0P9HIlvam-gnwLxLOHOtcHrhLLJQa4lzXhvSQYBaTtoKJmZZUTfVhLgxATh82Atqh9D1UVpI30CH0um5h4tFBpXsRlaHB8eisNv3TLzstZiDqBD2XCD7ufkozhubySjb9_pOlKiSizeXjfXvrNj1Sa2em98imvIoUnYviL0V5JLLd17IW3kEawdzwifaXrGfXyVHwwu-S_V"
+              />
+              <div
+                class="absolute -top-1 -right-1 bg-primary text-on-primary-fixed w-5 h-5 rounded-full flex items-center justify-center border-2 border-background"
+              >
+                <span
+                  class="material-symbols-outlined text-[12px]"
+                  style="font-variation-settings: 'FILL' 1"
+                  >check</span
+                >
+              </div>
+            </div>
+            <span class="text-[11px] font-bold text-on-surface">Elena</span>
+          </div>
+        </div>
+      </section>
+      <!-- Split Breakdown -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs uppercase tracking-[0.2em] font-extrabold text-on-surface-variant">
+            Share Breakdown
+          </h3>
+          <div class="flex bg-surface-container-low p-1 rounded-md">
+            <button
+              class="px-3 py-1 bg-primary-container text-on-primary-container rounded text-[10px] font-extrabold"
+            >
+              EQUAL
+            </button>
+            <button class="px-3 py-1 text-on-surface-variant rounded text-[10px] font-extrabold">
+              SET %
+            </button>
+          </div>
+        </div>
+        <div
+          class="bg-surface-container-low/40 rounded-xl border border-white/5 divide-y divide-white/5"
+        >
+          <!-- Row: You -->
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <img
+                alt="You"
+                class="w-8 h-8 rounded-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA23y8oElWqrX8fDiXbNEqc6pJH7SFKy_mZqFnd5j6b9mEcC3nPN5G5ZVzpTYU0MgYVoRKC2kthCZZkBzNzS8RTQoGaFB_4GIATrhtICfyxGMdB6UwIKncSdjvs2wnuvP9POS3evmlz7Yuah1Lnea-DxA41rsn5_IdcoDVlw1L_taAEoshop023oDUuVU1h4CZ_fn9NOkADUG1zo0tmCsg3-JcL0HMYoGnJVZqvNtJLvFmxyyLvFVzEAHTUP2dhG3Ww76um3_eEvYrg"
+              />
+              <span class="text-sm font-bold text-on-surface">You</span>
+            </div>
+            <span class="text-sm font-extrabold text-debt-red">$25.00</span>
+          </div>
+          <!-- Row: Sarah -->
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <img
+                alt="Sarah"
+                class="w-8 h-8 rounded-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA33hRD1xyPRtI5vfkGQ9_bVTZyrDzNgdo29b4D9o9_m_xsRvgTkfArjVw-rJ4kQSTOzty2vC37tWZoTNqZ-mqSOmr7_EI-b0TenYrNBW8hUTURxbv2lduW1lHBv6Piri33IIIgn1yfOP2aRMKHXiorQMo0q81BoY0dzfiap7_lZR_yGCIpCt2qJrtmqVVNPo49RH00-8-sTldYcizc6gBsH_x8bI3GyudsescAhh90BkX8Hfpljo989t0kydSrkjZavY-homJuus1z"
+              />
+              <span class="text-sm font-bold text-on-surface">Sarah</span>
+            </div>
+            <span class="text-sm font-extrabold text-debt-red">$25.00</span>
+          </div>
+          <!-- Row: Michael -->
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <img
+                alt="Michael"
+                class="w-8 h-8 rounded-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiyIdY5S7mMKy9X0rI1Uj1qiDrV4272yhkeKtZNENpwpmc0SeS7KA9cSf-jOyJulcvMj4hp7_mu9tZmReeDEQq9FxjpoygCteP46YIkZmX1lHzBWbNJq10yycW4nQWkeA2USF3ZTiKPehWlPnz5KKGe0wMIiJJTE76-kZ824mSbQiZYQmgLJm1nhEoGYB9b7pk8jtwhwVgwn2i_rRcmj9FPNFoMiNIXUZ4oT62NBZN6Fs_nysHy9piYs53OtDxBrGX1ZCPi0vaZMH-"
+              />
+              <span class="text-sm font-bold text-on-surface">Michael</span>
+            </div>
+            <span class="text-sm font-extrabold text-debt-red">$25.00</span>
+          </div>
+          <!-- Row: Elena -->
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <img
+                alt="Elena"
+                class="w-8 h-8 rounded-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYBzL1svc69LjyArXCZaDWJVZCfVbq5ao08rU56fzKnc7hrnZv8QumY0qfY3LITdHXu0P9HIlvam-gnwLxLOHOtcHrhLLJQa4lzXhvSQYBaTtoKJmZZUTfVhLgxATh82Atqh9D1UVpI30CH0um5h4tFBpXsRlaHB8eisNv3TLzstZiDqBD2XCD7ufkozhubySjb9_pOlKiSizeXjfXvrNj1Sa2em98imvIoUnYviL0V5JLLd17IW3kEawdzwifaXrGfXyVHwwu-S_V"
+              />
+              <span class="text-sm font-bold text-on-surface">Elena</span>
+            </div>
+            <span class="text-sm font-extrabold text-debt-red">$25.00</span>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Fixed Action Button -->
+    <div
+      class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] p-4 bg-gradient-to-t from-background via-background/90 to-transparent"
+    >
+      <button
+        class="w-full py-4 rounded-lg bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-extrabold text-lg shadow-[0px_10px_30px_rgba(0,136,204,0.3)] active:scale-95 transition-all duration-300"
+      >
+        Add Expense
+      </button>
+    </div>
+  </body>
+</html>

@@ -1,186 +1,276 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Report Content - The Ethereal Ledger</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "on-error-container": "#ffdad6",
-                        "inverse-surface": "#e5e1e4",
-                        "on-background": "#e5e1e4",
-                        "on-tertiary-container": "#432100",
-                        "on-surface": "#e5e1e4",
-                        "error-container": "#93000a",
-                        "error": "#ffb4ab",
-                        "tertiary-fixed-dim": "#ffb77a",
-                        "on-secondary-fixed-variant": "#004b73",
-                        "surface-bright": "#39393b",
-                        "surface-tint": "#92ccff",
-                        "surface-container-lowest": "#0e0e10",
-                        "outline": "#89929b",
-                        "background": "#131315",
-                        "primary-container": "#2b98dd",
-                        "on-primary-container": "#002c47",
-                        "tertiary": "#ffb77a",
-                        "primary-fixed-dim": "#92ccff",
-                        "surface-container-high": "#2a2a2c",
-                        "primary-fixed": "#cce5ff",
-                        "primary": "#92ccff",
-                        "on-secondary-fixed": "#001d31",
-                        "on-secondary": "#003351",
-                        "on-tertiary": "#4c2700",
-                        "surface-container-low": "#1b1b1d",
-                        "on-primary": "#003351",
-                        "inverse-primary": "#006497",
-                        "on-tertiary-fixed": "#2e1500",
-                        "surface": "#131315",
-                        "on-secondary-container": "#8bc5f7",
-                        "on-tertiary-fixed-variant": "#6d3a00",
-                        "tertiary-fixed": "#ffdcc2",
-                        "secondary-container": "#00527e",
-                        "outline-variant": "#3f4850",
-                        "on-surface-variant": "#bfc7d2",
-                        "inverse-on-surface": "#303032",
-                        "secondary-fixed": "#cce5ff",
-                        "secondary": "#93ccff",
-                        "tertiary-container": "#d37b1e",
-                        "surface-variant": "#353437",
-                        "on-primary-fixed-variant": "#004b73",
-                        "on-primary-fixed": "#001d31",
-                        "surface-dim": "#131315",
-                        "surface-container-highest": "#353437",
-                        "surface-container": "#1f1f21",
-                        "secondary-fixed-dim": "#93ccff",
-                        "on-error": "#690005"
-                    },
-                    fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Manrope"],
-                        "label": ["Manrope"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Report Content - The Ethereal Ledger</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'on-error-container': '#ffdad6',
+              'inverse-surface': '#e5e1e4',
+              'on-background': '#e5e1e4',
+              'on-tertiary-container': '#432100',
+              'on-surface': '#e5e1e4',
+              'error-container': '#93000a',
+              error: '#ffb4ab',
+              'tertiary-fixed-dim': '#ffb77a',
+              'on-secondary-fixed-variant': '#004b73',
+              'surface-bright': '#39393b',
+              'surface-tint': '#92ccff',
+              'surface-container-lowest': '#0e0e10',
+              outline: '#89929b',
+              background: '#131315',
+              'primary-container': '#2b98dd',
+              'on-primary-container': '#002c47',
+              tertiary: '#ffb77a',
+              'primary-fixed-dim': '#92ccff',
+              'surface-container-high': '#2a2a2c',
+              'primary-fixed': '#cce5ff',
+              primary: '#92ccff',
+              'on-secondary-fixed': '#001d31',
+              'on-secondary': '#003351',
+              'on-tertiary': '#4c2700',
+              'surface-container-low': '#1b1b1d',
+              'on-primary': '#003351',
+              'inverse-primary': '#006497',
+              'on-tertiary-fixed': '#2e1500',
+              surface: '#131315',
+              'on-secondary-container': '#8bc5f7',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              'tertiary-fixed': '#ffdcc2',
+              'secondary-container': '#00527e',
+              'outline-variant': '#3f4850',
+              'on-surface-variant': '#bfc7d2',
+              'inverse-on-surface': '#303032',
+              'secondary-fixed': '#cce5ff',
+              secondary: '#93ccff',
+              'tertiary-container': '#d37b1e',
+              'surface-variant': '#353437',
+              'on-primary-fixed-variant': '#004b73',
+              'on-primary-fixed': '#001d31',
+              'surface-dim': '#131315',
+              'surface-container-highest': '#353437',
+              'surface-container': '#1f1f21',
+              'secondary-fixed-dim': '#93ccff',
+              'on-error': '#690005',
             },
-        }
+            fontFamily: {
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
+            },
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
+          },
+        },
+      };
     </script>
-<style>
-        body { font-family: 'Manrope', sans-serif; }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .glass-panel {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .diamond-gradient {
-            background: linear-gradient(135deg, #92CCFF 0%, #2B98DD 100%);
-        }
-        /* Custom radio styling to match Ethereal Ledger */
-        input[type="radio"]:checked {
-            background-color: #92CCFF;
-            border-color: #92CCFF;
-        }
-        body {
-            min-height: 100dvh;
-        }
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      .glass-panel {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .diamond-gradient {
+        background: linear-gradient(135deg, #92ccff 0%, #2b98dd 100%);
+      }
+      /* Custom radio styling to match Ethereal Ledger */
+      input[type='radio']:checked {
+        background-color: #92ccff;
+        border-color: #92ccff;
+      }
+      body {
+        min-height: 100dvh;
+      }
     </style>
-</head>
-<body class="bg-background text-on-surface flex flex-col items-center justify-center p-4">
-<!-- Top Navigation Anchor (Shared Component Mapping) -->
-<header class="fixed top-0 w-full z-50 flex items-center justify-between px-4 h-14 bg-[#F4F4F5]/80 dark:bg-[#131315]/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 shadow-[0px_10px_30px_rgba(0,136,204,0.08)] dark:shadow-none">
-<div class="flex items-center gap-3">
-<button class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[#92CCFF]/10 active:scale-95 duration-200">
-<span class="material-symbols-outlined text-[#0088CC] dark:text-[#92CCFF]">arrow_back</span>
-</button>
-<h1 class="text-on-surface font-bold tracking-tight text-lg">The Ethereal Ledger</h1>
-</div>
-<button class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[#92CCFF]/10 active:scale-95 duration-200">
-<span class="material-symbols-outlined text-[#0088CC] dark:text-[#92CCFF]">more_vert</span>
-</button>
-</header>
-<!-- Modal Backdrop -->
-<div class="fixed inset-0 bg-background/60 backdrop-blur-sm z-40"></div>
-<!-- Main Report Modal -->
-<div class="relative z-50 w-full max-w-[380px] glass-panel bg-surface-container-low/90 rounded-2xl overflow-hidden shadow-2xl border border-outline-variant/15 my-auto">
-<!-- Modal Header -->
-<div class="p-5 pb-3 flex justify-between items-start">
-<div class="space-y-0.5">
-<h2 class="text-xl font-extrabold tracking-tight text-on-surface">Report Content</h2>
-<p class="text-xs text-on-surface-variant font-medium">Help us understand what's wrong.</p>
-</div>
-<button class="p-1.5 rounded-full hover:bg-surface-container-highest transition-colors active:scale-90">
-<span class="material-symbols-outlined text-on-surface-variant text-xl">close</span>
-</button>
-</div>
-<div class="px-5 pb-6 space-y-5">
-<!-- Reason Selection Grid -->
-<div class="space-y-2.5">
-<p class="text-[10px] uppercase tracking-[0.12em] font-bold text-primary opacity-80">Reason for reporting</p>
-<div class="space-y-1">
-<label class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group">
-<span class="text-sm font-semibold">Inappropriate content</span>
-<input checked="" class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0" name="report_reason" type="radio"/>
-</label>
-<label class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group">
-<span class="text-sm font-semibold">Spam</span>
-<input class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0" name="report_reason" type="radio"/>
-</label>
-<label class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group">
-<span class="text-sm font-semibold">Contains personal information</span>
-<input class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0" name="report_reason" type="radio"/>
-</label>
-<label class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group">
-<span class="text-sm font-semibold">Copyright violation</span>
-<input class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0" name="report_reason" type="radio"/>
-</label>
-<label class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group">
-<span class="text-sm font-semibold">Other</span>
-<input class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0" name="report_reason" type="radio"/>
-</label>
-</div>
-</div>
-<!-- Additional Details -->
-<div class="space-y-2.5">
-<p class="text-[10px] uppercase tracking-[0.12em] font-bold text-primary opacity-80">Additional details (optional)</p>
-<textarea class="w-full min-h-[100px] bg-surface-container-highest border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 rounded-t-xl p-3.5 text-sm font-medium placeholder:text-on-surface-variant/40 transition-colors resize-none" placeholder="Provide more context here..."></textarea>
-</div>
-<!-- Action Area -->
-<div class="pt-2 space-y-4">
-<button class="w-full h-12 diamond-gradient rounded-xl text-on-primary font-extrabold tracking-wide text-sm shadow-lg shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                Submit Report
-                <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">send</span>
-</button>
-<div class="flex flex-col items-center gap-0.5">
-<p class="text-[9px] font-bold tracking-widest text-on-surface-variant/40 uppercase">System Identity</p>
-<p class="text-[11px] font-bold text-[#0088CC] dark:text-[#92CCFF] opacity-80">@splitogram_bot</p>
-</div>
-</div>
-</div>
-</div>
-<!-- Bottom Navigation (Shared Component Mapping) -->
-<nav class="fixed bottom-0 w-full z-50 h-16 bg-[#F4F4F5]/80 dark:bg-[#131315]/80 backdrop-blur-xl border-t border-slate-200/15 dark:border-slate-800/15 shadow-[0px_-10px_30px_rgba(0,136,204,0.05)] dark:shadow-[0px_-4px_20px_rgba(146,204,255,0.05)] flex justify-around items-center px-2 pb-safe rounded-t-xl">
-<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-[#0088CC] dark:hover:text-[#92CCFF] active:scale-90 transition-transform">
-<span class="material-symbols-outlined">group</span>
-<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Groups</span>
-</div>
-<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-[#0088CC] dark:hover:text-[#92CCFF] active:scale-90 transition-transform">
-<span class="material-symbols-outlined">receipt_long</span>
-<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Feed</span>
-</div>
-<div class="flex flex-col items-center justify-center text-[#0088CC] dark:text-[#92CCFF] bg-[#0088CC]/10 dark:bg-[#92CCFF]/10 rounded-2xl px-4 py-1 active:scale-90 transition-transform">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
-<span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Account</span>
-</div>
-</nav>
-<!-- Contextual Decorative Elements (The Ethereal Aura) -->
-<div class="fixed top-1/4 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
-<div class="fixed bottom-1/4 -right-20 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] pointer-events-none"></div>
-</body></html>
+  </head>
+  <body class="bg-background text-on-surface flex flex-col items-center justify-center p-4">
+    <!-- Top Navigation Anchor (Shared Component Mapping) -->
+    <header
+      class="fixed top-0 w-full z-50 flex items-center justify-between px-4 h-14 bg-[#F4F4F5]/80 dark:bg-[#131315]/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 shadow-[0px_10px_30px_rgba(0,136,204,0.08)] dark:shadow-none"
+    >
+      <div class="flex items-center gap-3">
+        <button
+          class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[#92CCFF]/10 active:scale-95 duration-200"
+        >
+          <span class="material-symbols-outlined text-[#0088CC] dark:text-[#92CCFF]"
+            >arrow_back</span
+          >
+        </button>
+        <h1 class="text-on-surface font-bold tracking-tight text-lg">The Ethereal Ledger</h1>
+      </div>
+      <button
+        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[#92CCFF]/10 active:scale-95 duration-200"
+      >
+        <span class="material-symbols-outlined text-[#0088CC] dark:text-[#92CCFF]">more_vert</span>
+      </button>
+    </header>
+    <!-- Modal Backdrop -->
+    <div class="fixed inset-0 bg-background/60 backdrop-blur-sm z-40"></div>
+    <!-- Main Report Modal -->
+    <div
+      class="relative z-50 w-full max-w-[380px] glass-panel bg-surface-container-low/90 rounded-2xl overflow-hidden shadow-2xl border border-outline-variant/15 my-auto"
+    >
+      <!-- Modal Header -->
+      <div class="p-5 pb-3 flex justify-between items-start">
+        <div class="space-y-0.5">
+          <h2 class="text-xl font-extrabold tracking-tight text-on-surface">Report Content</h2>
+          <p class="text-xs text-on-surface-variant font-medium">
+            Help us understand what's wrong.
+          </p>
+        </div>
+        <button
+          class="p-1.5 rounded-full hover:bg-surface-container-highest transition-colors active:scale-90"
+        >
+          <span class="material-symbols-outlined text-on-surface-variant text-xl">close</span>
+        </button>
+      </div>
+      <div class="px-5 pb-6 space-y-5">
+        <!-- Reason Selection Grid -->
+        <div class="space-y-2.5">
+          <p class="text-[10px] uppercase tracking-[0.12em] font-bold text-primary opacity-80">
+            Reason for reporting
+          </p>
+          <div class="space-y-1">
+            <label
+              class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group"
+            >
+              <span class="text-sm font-semibold">Inappropriate content</span>
+              <input
+                checked=""
+                class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0"
+                name="report_reason"
+                type="radio"
+              />
+            </label>
+            <label
+              class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group"
+            >
+              <span class="text-sm font-semibold">Spam</span>
+              <input
+                class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0"
+                name="report_reason"
+                type="radio"
+              />
+            </label>
+            <label
+              class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group"
+            >
+              <span class="text-sm font-semibold">Contains personal information</span>
+              <input
+                class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0"
+                name="report_reason"
+                type="radio"
+              />
+            </label>
+            <label
+              class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group"
+            >
+              <span class="text-sm font-semibold">Copyright violation</span>
+              <input
+                class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0"
+                name="report_reason"
+                type="radio"
+              />
+            </label>
+            <label
+              class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest border border-transparent hover:border-outline-variant/20 hover:bg-surface-container-highest transition-all cursor-pointer group"
+            >
+              <span class="text-sm font-semibold">Other</span>
+              <input
+                class="w-4.5 h-4.5 border-2 border-outline-variant bg-transparent checked:bg-primary transition-all rounded-full focus:ring-0"
+                name="report_reason"
+                type="radio"
+              />
+            </label>
+          </div>
+        </div>
+        <!-- Additional Details -->
+        <div class="space-y-2.5">
+          <p class="text-[10px] uppercase tracking-[0.12em] font-bold text-primary opacity-80">
+            Additional details (optional)
+          </p>
+          <textarea
+            class="w-full min-h-[100px] bg-surface-container-highest border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 rounded-t-xl p-3.5 text-sm font-medium placeholder:text-on-surface-variant/40 transition-colors resize-none"
+            placeholder="Provide more context here..."
+          ></textarea>
+        </div>
+        <!-- Action Area -->
+        <div class="pt-2 space-y-4">
+          <button
+            class="w-full h-12 diamond-gradient rounded-xl text-on-primary font-extrabold tracking-wide text-sm shadow-lg shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            Submit Report
+            <span
+              class="material-symbols-outlined text-lg"
+              style="font-variation-settings: 'FILL' 1"
+              >send</span
+            >
+          </button>
+          <div class="flex flex-col items-center gap-0.5">
+            <p class="text-[9px] font-bold tracking-widest text-on-surface-variant/40 uppercase">
+              System Identity
+            </p>
+            <p class="text-[11px] font-bold text-[#0088CC] dark:text-[#92CCFF] opacity-80">
+              @splitogram_bot
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom Navigation (Shared Component Mapping) -->
+    <nav
+      class="fixed bottom-0 w-full z-50 h-16 bg-[#F4F4F5]/80 dark:bg-[#131315]/80 backdrop-blur-xl border-t border-slate-200/15 dark:border-slate-800/15 shadow-[0px_-10px_30px_rgba(0,136,204,0.05)] dark:shadow-[0px_-4px_20px_rgba(146,204,255,0.05)] flex justify-around items-center px-2 pb-safe rounded-t-xl"
+    >
+      <div
+        class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-[#0088CC] dark:hover:text-[#92CCFF] active:scale-90 transition-transform"
+      >
+        <span class="material-symbols-outlined">group</span>
+        <span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Groups</span>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-[#0088CC] dark:hover:text-[#92CCFF] active:scale-90 transition-transform"
+      >
+        <span class="material-symbols-outlined">receipt_long</span>
+        <span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Feed</span>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center text-[#0088CC] dark:text-[#92CCFF] bg-[#0088CC]/10 dark:bg-[#92CCFF]/10 rounded-2xl px-4 py-1 active:scale-90 transition-transform"
+      >
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1"
+          >account_circle</span
+        >
+        <span class="font-['Manrope'] text-[11px] font-medium tracking-wide">Account</span>
+      </div>
+    </nav>
+    <!-- Contextual Decorative Elements (The Ethereal Aura) -->
+    <div
+      class="fixed top-1/4 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"
+    ></div>
+    <div
+      class="fixed bottom-1/4 -right-20 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] pointer-events-none"
+    ></div>
+  </body>
+</html>

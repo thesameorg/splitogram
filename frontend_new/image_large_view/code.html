@@ -1,149 +1,195 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              "primary-fixed": "#cce5ff",
-              "on-primary-fixed-variant": "#004b73",
-              "inverse-primary": "#006497",
-              "tertiary-container": "#d37b1e",
-              "secondary-container": "#00527e",
-              "tertiary": "#ffb77a",
-              "surface-container-lowest": "#0e0e10",
-              "on-tertiary-fixed": "#2e1500",
-              "error-container": "#93000a",
-              "surface-container-high": "#2a2a2c",
-              "surface": "#131315",
-              "outline": "#89929b",
-              "on-tertiary-fixed-variant": "#6d3a00",
-              "primary-fixed-dim": "#92ccff",
-              "on-secondary": "#003351",
-              "surface-dim": "#131315",
-              "on-secondary-fixed": "#001d31",
-              "tertiary-fixed-dim": "#ffb77a",
-              "on-surface": "#e5e1e4",
-              "surface-container-low": "#1b1b1d",
-              "surface-container-highest": "#353437",
-              "on-background": "#e5e1e4",
-              "on-tertiary": "#4c2700",
-              "outline-variant": "#3f4850",
-              "inverse-surface": "#e5e1e4",
-              "on-surface-variant": "#bfc7d2",
-              "background": "#131315",
-              "surface-tint": "#92ccff",
-              "primary": "#92ccff",
-              "inverse-on-surface": "#303032",
-              "surface-bright": "#39393b",
-              "secondary-fixed-dim": "#93ccff",
-              "error": "#ffb4ab",
-              "secondary-fixed": "#cce5ff",
-              "surface-container": "#1f1f21",
-              "secondary": "#93ccff",
-              "on-error": "#690005",
-              "tertiary-fixed": "#ffdcc2",
-              "on-secondary-fixed-variant": "#004b73",
-              "on-secondary-container": "#8bc5f7",
-              "on-primary": "#003351",
-              "on-error-container": "#ffdad6",
-              "on-primary-container": "#002c47",
-              "on-primary-fixed": "#001d31",
-              "surface-variant": "#353437",
-              "primary-container": "#2b98dd",
-              "on-tertiary-container": "#432100"
+              'primary-fixed': '#cce5ff',
+              'on-primary-fixed-variant': '#004b73',
+              'inverse-primary': '#006497',
+              'tertiary-container': '#d37b1e',
+              'secondary-container': '#00527e',
+              tertiary: '#ffb77a',
+              'surface-container-lowest': '#0e0e10',
+              'on-tertiary-fixed': '#2e1500',
+              'error-container': '#93000a',
+              'surface-container-high': '#2a2a2c',
+              surface: '#131315',
+              outline: '#89929b',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              'primary-fixed-dim': '#92ccff',
+              'on-secondary': '#003351',
+              'surface-dim': '#131315',
+              'on-secondary-fixed': '#001d31',
+              'tertiary-fixed-dim': '#ffb77a',
+              'on-surface': '#e5e1e4',
+              'surface-container-low': '#1b1b1d',
+              'surface-container-highest': '#353437',
+              'on-background': '#e5e1e4',
+              'on-tertiary': '#4c2700',
+              'outline-variant': '#3f4850',
+              'inverse-surface': '#e5e1e4',
+              'on-surface-variant': '#bfc7d2',
+              background: '#131315',
+              'surface-tint': '#92ccff',
+              primary: '#92ccff',
+              'inverse-on-surface': '#303032',
+              'surface-bright': '#39393b',
+              'secondary-fixed-dim': '#93ccff',
+              error: '#ffb4ab',
+              'secondary-fixed': '#cce5ff',
+              'surface-container': '#1f1f21',
+              secondary: '#93ccff',
+              'on-error': '#690005',
+              'tertiary-fixed': '#ffdcc2',
+              'on-secondary-fixed-variant': '#004b73',
+              'on-secondary-container': '#8bc5f7',
+              'on-primary': '#003351',
+              'on-error-container': '#ffdad6',
+              'on-primary-container': '#002c47',
+              'on-primary-fixed': '#001d31',
+              'surface-variant': '#353437',
+              'primary-container': '#2b98dd',
+              'on-tertiary-container': '#432100',
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Manrope"],
-              "label": ["Manrope"]
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
         },
-      }
+      };
     </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            line-height: 1;
-            text-transform: none;
-            letter-spacing: normal;
-            word-wrap: normal;
-            white-space: nowrap;
-            direction: ltr;
-        }
-        body {
-            font-family: 'Manrope', sans-serif;
-            background-color: #000; /* Pure black for image viewer focus */
-        }
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+        display: inline-block;
+        line-height: 1;
+        text-transform: none;
+        letter-spacing: normal;
+        word-wrap: normal;
+        white-space: nowrap;
+        direction: ltr;
+      }
+      body {
+        font-family: 'Manrope', sans-serif;
+        background-color: #000; /* Pure black for image viewer focus */
+      }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-</head>
-<body class="antialiased overflow-hidden">
-<!-- Top Navigation Bar (Shared Components Mapping) -->
-<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 w-full bg-transparent backdrop-blur-xl transition-opacity active:scale-95 duration-200">
-<div class="flex items-center gap-4">
-<button class="flex items-center justify-center w-10 h-10 rounded-full text-[#92CCFF] hover:opacity-80 transition-opacity active:scale-95">
-<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
-</button>
-<h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#92CCFF]">Receipt Details</h1>
-</div>
-<div class="flex items-center">
-<button class="flex items-center justify-center w-10 h-10 rounded-full text-[#92CCFF] hover:opacity-80 transition-opacity active:scale-95">
-<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
-</button>
-</div>
-</header>
-<!-- Main Content Canvas (Image View) -->
-<main class="relative h-screen w-full flex items-center justify-center bg-black">
-<!-- Subtle Glow behind image for depth (Ethereal Ledger Style) -->
-<div class="absolute inset-0 flex items-center justify-center opacity-20 blur-[120px]">
-<div class="w-[300px] h-[300px] bg-[#0088CC] rounded-full"></div>
-</div>
-<!-- High-Res Image Container -->
-<div class="relative z-10 w-full max-w-4xl px-4 md:px-0 flex flex-col items-center">
-<img alt="Detailed receipt image showing transaction details" class="w-full h-auto max-h-[618px] object-contain rounded-xl shadow-2xl" data-alt="Detailed receipt with transaction line items" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjahJ-1iJ0Ty17ek3mf_JEDqb_mcXfE4mBv5anW25vrkvDnAdFuglk9LLGD2GRtSYFrKp9ouCBXoTW0aqXcqd5uvvJsc54m63e_fU0woGCsX20laCYim4mpPUYtn_9xtfjZ6y3Vav5R4dthaxqMqxKfZUtdVrAc460Nxwefki1NzdiwphiuWz0pamgu6K3oB-oy7ed717tSLnYqLFh14WfLuXQC9EjZJGJCBaru1zXLA0QR8dJcIG6_ozagYimzHzEgJ_g_hrha2Ag"/>
-<!-- Contextual Metadata (Floating Glass Badge) -->
-<div class="mt-6 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
-<p class="text-[12px] font-semibold tracking-wider uppercase text-[#92CCFF] font-label">
-                    Split with Dinner Group • 14 Oct 2023
-                </p>
-</div>
-</div>
-</main>
-<!-- Bottom Action Bar (Contextual Custom Components) -->
-<footer class="fixed bottom-0 w-full z-50 bg-black/40 backdrop-blur-2xl px-6 pb-10 pt-6 rounded-t-2xl border-t border-white/5">
-<div class="max-w-md mx-auto grid grid-cols-2 gap-4">
-<!-- Download Button (Primary Gradient) -->
-<button class="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-[#2b98dd] to-[#0088CC] text-on-primary shadow-lg active:scale-95 transition-all duration-200 py-2.5 gap-1">
-<span class="material-symbols-outlined" data-icon="download" style="font-size: 20px;">download</span>
-<span class="text-[10px] font-bold tracking-widest uppercase font-label text-[9px]">Download</span>
-</button>
-<!-- Report Button (Glassmorphic Secondary) -->
-<button class="flex flex-col items-center justify-center rounded-xl bg-white/5 backdrop-blur-md text-[#92CCFF] border border-white/10 active:scale-95 transition-all duration-200 hover:bg-white/10 py-2.5 gap-1">
-<span class="material-symbols-outlined" data-icon="report" style="font-size: 20px;">report</span>
-<span class="text-[10px] font-bold tracking-widest uppercase font-label text-[9px]">Report</span>
-</button>
-</div>
-<!-- Safe Area Indicator / Subtle Pull-tab -->
-<div class="mt-6 flex justify-center">
-<div class="w-12 h-1 bg-white/20 rounded-full"></div>
-</div>
-</footer>
-<!-- Fullscreen Overlay Texture (Subtle Noise/Glow) -->
-<div class="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_rgba(0,0,0,0.4)_100%)]"></div>
-</body></html>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+  </head>
+  <body class="antialiased overflow-hidden">
+    <!-- Top Navigation Bar (Shared Components Mapping) -->
+    <header
+      class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 w-full bg-transparent backdrop-blur-xl transition-opacity active:scale-95 duration-200"
+    >
+      <div class="flex items-center gap-4">
+        <button
+          class="flex items-center justify-center w-10 h-10 rounded-full text-[#92CCFF] hover:opacity-80 transition-opacity active:scale-95"
+        >
+          <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+        </button>
+        <h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#92CCFF]">
+          Receipt Details
+        </h1>
+      </div>
+      <div class="flex items-center">
+        <button
+          class="flex items-center justify-center w-10 h-10 rounded-full text-[#92CCFF] hover:opacity-80 transition-opacity active:scale-95"
+        >
+          <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+        </button>
+      </div>
+    </header>
+    <!-- Main Content Canvas (Image View) -->
+    <main class="relative h-screen w-full flex items-center justify-center bg-black">
+      <!-- Subtle Glow behind image for depth (Ethereal Ledger Style) -->
+      <div class="absolute inset-0 flex items-center justify-center opacity-20 blur-[120px]">
+        <div class="w-[300px] h-[300px] bg-[#0088CC] rounded-full"></div>
+      </div>
+      <!-- High-Res Image Container -->
+      <div class="relative z-10 w-full max-w-4xl px-4 md:px-0 flex flex-col items-center">
+        <img
+          alt="Detailed receipt image showing transaction details"
+          class="w-full h-auto max-h-[618px] object-contain rounded-xl shadow-2xl"
+          data-alt="Detailed receipt with transaction line items"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjahJ-1iJ0Ty17ek3mf_JEDqb_mcXfE4mBv5anW25vrkvDnAdFuglk9LLGD2GRtSYFrKp9ouCBXoTW0aqXcqd5uvvJsc54m63e_fU0woGCsX20laCYim4mpPUYtn_9xtfjZ6y3Vav5R4dthaxqMqxKfZUtdVrAc460Nxwefki1NzdiwphiuWz0pamgu6K3oB-oy7ed717tSLnYqLFh14WfLuXQC9EjZJGJCBaru1zXLA0QR8dJcIG6_ozagYimzHzEgJ_g_hrha2Ag"
+        />
+        <!-- Contextual Metadata (Floating Glass Badge) -->
+        <div
+          class="mt-6 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10"
+        >
+          <p class="text-[12px] font-semibold tracking-wider uppercase text-[#92CCFF] font-label">
+            Split with Dinner Group • 14 Oct 2023
+          </p>
+        </div>
+      </div>
+    </main>
+    <!-- Bottom Action Bar (Contextual Custom Components) -->
+    <footer
+      class="fixed bottom-0 w-full z-50 bg-black/40 backdrop-blur-2xl px-6 pb-10 pt-6 rounded-t-2xl border-t border-white/5"
+    >
+      <div class="max-w-md mx-auto grid grid-cols-2 gap-4">
+        <!-- Download Button (Primary Gradient) -->
+        <button
+          class="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-[#2b98dd] to-[#0088CC] text-on-primary shadow-lg active:scale-95 transition-all duration-200 py-2.5 gap-1"
+        >
+          <span class="material-symbols-outlined" data-icon="download" style="font-size: 20px"
+            >download</span
+          >
+          <span class="text-[10px] font-bold tracking-widest uppercase font-label text-[9px]"
+            >Download</span
+          >
+        </button>
+        <!-- Report Button (Glassmorphic Secondary) -->
+        <button
+          class="flex flex-col items-center justify-center rounded-xl bg-white/5 backdrop-blur-md text-[#92CCFF] border border-white/10 active:scale-95 transition-all duration-200 hover:bg-white/10 py-2.5 gap-1"
+        >
+          <span class="material-symbols-outlined" data-icon="report" style="font-size: 20px"
+            >report</span
+          >
+          <span class="text-[10px] font-bold tracking-widest uppercase font-label text-[9px]"
+            >Report</span
+          >
+        </button>
+      </div>
+      <!-- Safe Area Indicator / Subtle Pull-tab -->
+      <div class="mt-6 flex justify-center">
+        <div class="w-12 h-1 bg-white/20 rounded-full"></div>
+      </div>
+    </footer>
+    <!-- Fullscreen Overlay Texture (Subtle Noise/Glow) -->
+    <div
+      class="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_rgba(0,0,0,0.4)_100%)]"
+    ></div>
+  </body>
+</html>

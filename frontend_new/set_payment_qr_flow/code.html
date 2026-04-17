@@ -1,84 +1,101 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Set Payment QR Code - The Ledger</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      name="viewport"
+    />
+    <title>Set Payment QR Code - The Ledger</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              "surface-variant": "#353437",
-              "secondary-container": "#00527e",
-              "surface": "#131315",
-              "on-primary-fixed": "#001d31",
-              "on-surface-variant": "#bfc7d2",
-              "on-error": "#690005",
-              "inverse-on-surface": "#303032",
-              "error": "#ffb4ab",
-              "tertiary": "#ffb77a",
-              "on-tertiary-fixed": "#2e1500",
-              "inverse-surface": "#e5e1e4",
-              "secondary": "#93ccff",
-              "outline-variant": "#3f4850",
-              "on-secondary-container": "#8bc5f7",
-              "on-primary": "#003351",
-              "tertiary-container": "#d37b1e",
-              "primary-fixed": "#cce5ff",
-              "on-secondary-fixed": "#001d31",
-              "secondary-fixed-dim": "#93ccff",
-              "secondary-fixed": "#cce5ff",
-              "primary": "#92ccff",
-              "on-tertiary": "#4c2700",
-              "on-error-container": "#ffdad6",
-              "tertiary-fixed": "#ffdcc2",
-              "surface-dim": "#131315",
-              "surface-container-highest": "#353437",
-              "on-primary-container": "#002c47",
-              "on-tertiary-fixed-variant": "#6d3a00",
-              "on-primary-fixed-variant": "#004b73",
-              "outline": "#89929b",
-              "on-background": "#e5e1e4",
-              "surface-bright": "#39393b",
-              "on-secondary": "#003351",
-              "primary-container": "#2b98dd",
-              "on-tertiary-container": "#432100",
-              "surface-container-lowest": "#0e0e10",
-              "surface-container-high": "#2a2a2c",
-              "surface-container": "#1f1f21",
-              "primary-fixed-dim": "#92ccff",
-              "error-container": "#93000a",
-              "on-secondary-fixed-variant": "#004b73",
-              "surface-tint": "#92ccff",
-              "background": "#131315",
-              "on-surface": "#e5e1e4",
-              "tertiary-fixed-dim": "#ffb77a",
-              "surface-container-low": "#1b1b1d",
-              "inverse-primary": "#006497"
+              'surface-variant': '#353437',
+              'secondary-container': '#00527e',
+              surface: '#131315',
+              'on-primary-fixed': '#001d31',
+              'on-surface-variant': '#bfc7d2',
+              'on-error': '#690005',
+              'inverse-on-surface': '#303032',
+              error: '#ffb4ab',
+              tertiary: '#ffb77a',
+              'on-tertiary-fixed': '#2e1500',
+              'inverse-surface': '#e5e1e4',
+              secondary: '#93ccff',
+              'outline-variant': '#3f4850',
+              'on-secondary-container': '#8bc5f7',
+              'on-primary': '#003351',
+              'tertiary-container': '#d37b1e',
+              'primary-fixed': '#cce5ff',
+              'on-secondary-fixed': '#001d31',
+              'secondary-fixed-dim': '#93ccff',
+              'secondary-fixed': '#cce5ff',
+              primary: '#92ccff',
+              'on-tertiary': '#4c2700',
+              'on-error-container': '#ffdad6',
+              'tertiary-fixed': '#ffdcc2',
+              'surface-dim': '#131315',
+              'surface-container-highest': '#353437',
+              'on-primary-container': '#002c47',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              'on-primary-fixed-variant': '#004b73',
+              outline: '#89929b',
+              'on-background': '#e5e1e4',
+              'surface-bright': '#39393b',
+              'on-secondary': '#003351',
+              'primary-container': '#2b98dd',
+              'on-tertiary-container': '#432100',
+              'surface-container-lowest': '#0e0e10',
+              'surface-container-high': '#2a2a2c',
+              'surface-container': '#1f1f21',
+              'primary-fixed-dim': '#92ccff',
+              'error-container': '#93000a',
+              'on-secondary-fixed-variant': '#004b73',
+              'surface-tint': '#92ccff',
+              background: '#131315',
+              'on-surface': '#e5e1e4',
+              'tertiary-fixed-dim': '#ffb77a',
+              'surface-container-low': '#1b1b1d',
+              'inverse-primary': '#006497',
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Manrope"],
-              "label": ["Manrope"]
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
         },
-      }
+      };
     </script>
-<style>
+    <style>
       body {
         font-family: 'Manrope', sans-serif;
         -webkit-tap-highlight-color: transparent;
       }
       .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
       }
       .glass-card {
         backdrop-filter: blur(20px);
@@ -88,85 +105,124 @@
         background: linear-gradient(135deg, #92ccff 0%, #2b98dd 100%);
       }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-background text-on-background min-h-screen flex flex-col">
-<!-- TopAppBar -->
-<header class="fixed top-0 w-full z-50 bg-white/70 dark:bg-[#131315]/70 backdrop-blur-xl border-b border-white/15 shadow-none flex items-center justify-between px-4 h-16">
-<div class="flex items-center gap-4">
-<button class="text-[#0088CC] dark:text-[#92CCFF] hover:opacity-80 transition-opacity active:scale-95 duration-200">
-<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
-</button>
-<h1 class="font-['Manrope'] font-bold tracking-tight text-slate-900 dark:text-slate-100 text-lg">The Ledger</h1>
-</div>
-<button class="text-[#0088CC] dark:text-[#92CCFF] hover:opacity-80 transition-opacity active:scale-95 duration-200">
-<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
-</button>
-</header>
-<!-- Main Content -->
-<main class="flex-1 mt-16 mb-24 px-6 pt-8 max-w-lg mx-auto w-full flex flex-col items-center">
-<!-- Header Text -->
-<div class="w-full mb-10 space-y-2">
-<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Payment QR</h2>
-<p class="text-on-surface-variant text-sm font-medium leading-relaxed">
-                Upload your unique payment QR code. Friends can scan this to settle split bills instantly.
-            </p>
-</div>
-<!-- Asymmetric Layout: QR Preview/Upload Zone -->
-<div class="w-full relative group">
-<!-- Decorative Glow Background -->
-<div class="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[2rem] blur-2xl opacity-50 group-hover:opacity-75 transition duration-1000"></div>
-<div class="relative glass-card border border-outline-variant/15 rounded-[2rem] p-8 w-full flex flex-col items-center justify-center min-h-[400px]">
-<!-- Current QR Preview State (Mockup) -->
-<div class="w-full flex flex-col items-center space-y-6">
-<div class="relative p-4 bg-white rounded-2xl shadow-[0_0_40px_rgba(146,204,255,0.15)]">
-<img alt="Payment QR Code preview" class="w-48 h-48 opacity-90" data-alt="A clean minimalist QR code centered on a crisp white square background with rounded corners and subtle soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc5BpQr6_wAkzz5nthzaORKTSdGiDHDUJoHTUlh0WaajPpzTz1Tq8wGRQeak9TkH8hqN8_UUItdrOc_Y7n-qsM6iAKIOr4wjex2-lZUlJ4Z6LQqWbj_tCxzo2OLDZbT32qPwIhWqOun08wd0p9lsnGYCYLjAF-d08lIjQAc-RVcXJuSF2C864pgRMcu-azlLVyMIJRfFD6LQBYmIpLQ6YAf7yb6wo6VRgzH2Cjq4RhIX1N6XIPaLvvzSglfIr40xZgK4F4Of4cS--w"/>
-<!-- Status Tag -->
-<div class="absolute -top-3 -right-3">
-<span class="flex items-center gap-1 bg-primary text-on-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
-<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                                Active
-                            </span>
-</div>
-</div>
-<div class="text-center">
-<p class="text-on-surface font-semibold text-lg">Current Payment Method</p>
-<p class="text-on-surface-variant text-xs mt-1 uppercase tracking-widest font-bold">Updated 2 days ago</p>
-</div>
-</div>
-<!-- Ghost Drop Zone (Overlay Style) -->
-<div class="mt-10 w-full border-2 border-dashed border-outline-variant/30 rounded-xl p-6 flex flex-col items-center justify-center hover:bg-surface-container-highest/30 transition-colors cursor-pointer">
-<span class="material-symbols-outlined text-primary text-3xl mb-2">cloud_upload</span>
-<span class="text-on-surface-variant text-sm font-medium">Drop new file or browse</span>
-</div>
-</div>
-</div>
-<!-- Actions Cluster -->
-<div class="w-full mt-10 space-y-4">
-<button class="w-full primary-gradient text-on-primary py-4 rounded-xl font-bold text-base shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-xl">qr_code_scanner</span>
-                Change QR Code
-            </button>
-<button class="w-full bg-surface-container-high/50 text-error py-4 rounded-xl font-semibold text-base hover:bg-surface-container-highest transition-colors active:scale-95 flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-xl">delete</span>
-                Remove QR Code
-            </button>
-</div>
-<!-- Privacy Note -->
-<div class="mt-8 flex items-start gap-3 px-2">
-<span class="material-symbols-outlined text-on-surface-variant text-lg">info</span>
-<p class="text-xs text-on-surface-variant leading-normal">
-                Your QR code is only shared with verified friends within your ledger groups. Data is encrypted and stored securely.
-            </p>
-</div>
-</main>
-<!-- BottomNavBar (Hidden for transactional screen per instructions) -->
-<!-- Navigation is suppressed for focused task screens -->
-<!-- Ambient Decor -->
-<div class="fixed top-0 right-0 -z-10 w-64 h-64 bg-primary/5 rounded-full blur-[100px]"></div>
-<div class="fixed bottom-0 left-0 -z-10 w-80 h-80 bg-secondary/5 rounded-full blur-[120px]"></div>
-</body></html>
+  <body class="bg-background text-on-background min-h-screen flex flex-col">
+    <!-- TopAppBar -->
+    <header
+      class="fixed top-0 w-full z-50 bg-white/70 dark:bg-[#131315]/70 backdrop-blur-xl border-b border-white/15 shadow-none flex items-center justify-between px-4 h-16"
+    >
+      <div class="flex items-center gap-4">
+        <button
+          class="text-[#0088CC] dark:text-[#92CCFF] hover:opacity-80 transition-opacity active:scale-95 duration-200"
+        >
+          <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+        </button>
+        <h1
+          class="font-['Manrope'] font-bold tracking-tight text-slate-900 dark:text-slate-100 text-lg"
+        >
+          The Ledger
+        </h1>
+      </div>
+      <button
+        class="text-[#0088CC] dark:text-[#92CCFF] hover:opacity-80 transition-opacity active:scale-95 duration-200"
+      >
+        <span class="material-symbols-outlined" data-icon="account_balance_wallet"
+          >account_balance_wallet</span
+        >
+      </button>
+    </header>
+    <!-- Main Content -->
+    <main class="flex-1 mt-16 mb-24 px-6 pt-8 max-w-lg mx-auto w-full flex flex-col items-center">
+      <!-- Header Text -->
+      <div class="w-full mb-10 space-y-2">
+        <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Payment QR</h2>
+        <p class="text-on-surface-variant text-sm font-medium leading-relaxed">
+          Upload your unique payment QR code. Friends can scan this to settle split bills instantly.
+        </p>
+      </div>
+      <!-- Asymmetric Layout: QR Preview/Upload Zone -->
+      <div class="w-full relative group">
+        <!-- Decorative Glow Background -->
+        <div
+          class="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[2rem] blur-2xl opacity-50 group-hover:opacity-75 transition duration-1000"
+        ></div>
+        <div
+          class="relative glass-card border border-outline-variant/15 rounded-[2rem] p-8 w-full flex flex-col items-center justify-center min-h-[400px]"
+        >
+          <!-- Current QR Preview State (Mockup) -->
+          <div class="w-full flex flex-col items-center space-y-6">
+            <div class="relative p-4 bg-white rounded-2xl shadow-[0_0_40px_rgba(146,204,255,0.15)]">
+              <img
+                alt="Payment QR Code preview"
+                class="w-48 h-48 opacity-90"
+                data-alt="A clean minimalist QR code centered on a crisp white square background with rounded corners and subtle soft shadows"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc5BpQr6_wAkzz5nthzaORKTSdGiDHDUJoHTUlh0WaajPpzTz1Tq8wGRQeak9TkH8hqN8_UUItdrOc_Y7n-qsM6iAKIOr4wjex2-lZUlJ4Z6LQqWbj_tCxzo2OLDZbT32qPwIhWqOun08wd0p9lsnGYCYLjAF-d08lIjQAc-RVcXJuSF2C864pgRMcu-azlLVyMIJRfFD6LQBYmIpLQ6YAf7yb6wo6VRgzH2Cjq4RhIX1N6XIPaLvvzSglfIr40xZgK4F4Of4cS--w"
+              />
+              <!-- Status Tag -->
+              <div class="absolute -top-3 -right-3">
+                <span
+                  class="flex items-center gap-1 bg-primary text-on-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg"
+                >
+                  <span
+                    class="material-symbols-outlined text-xs"
+                    style="font-variation-settings: 'FILL' 1"
+                    >check_circle</span
+                  >
+                  Active
+                </span>
+              </div>
+            </div>
+            <div class="text-center">
+              <p class="text-on-surface font-semibold text-lg">Current Payment Method</p>
+              <p class="text-on-surface-variant text-xs mt-1 uppercase tracking-widest font-bold">
+                Updated 2 days ago
+              </p>
+            </div>
+          </div>
+          <!-- Ghost Drop Zone (Overlay Style) -->
+          <div
+            class="mt-10 w-full border-2 border-dashed border-outline-variant/30 rounded-xl p-6 flex flex-col items-center justify-center hover:bg-surface-container-highest/30 transition-colors cursor-pointer"
+          >
+            <span class="material-symbols-outlined text-primary text-3xl mb-2">cloud_upload</span>
+            <span class="text-on-surface-variant text-sm font-medium">Drop new file or browse</span>
+          </div>
+        </div>
+      </div>
+      <!-- Actions Cluster -->
+      <div class="w-full mt-10 space-y-4">
+        <button
+          class="w-full primary-gradient text-on-primary py-4 rounded-xl font-bold text-base shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center gap-2"
+        >
+          <span class="material-symbols-outlined text-xl">qr_code_scanner</span>
+          Change QR Code
+        </button>
+        <button
+          class="w-full bg-surface-container-high/50 text-error py-4 rounded-xl font-semibold text-base hover:bg-surface-container-highest transition-colors active:scale-95 flex items-center justify-center gap-2"
+        >
+          <span class="material-symbols-outlined text-xl">delete</span>
+          Remove QR Code
+        </button>
+      </div>
+      <!-- Privacy Note -->
+      <div class="mt-8 flex items-start gap-3 px-2">
+        <span class="material-symbols-outlined text-on-surface-variant text-lg">info</span>
+        <p class="text-xs text-on-surface-variant leading-normal">
+          Your QR code is only shared with verified friends within your ledger groups. Data is
+          encrypted and stored securely.
+        </p>
+      </div>
+    </main>
+    <!-- BottomNavBar (Hidden for transactional screen per instructions) -->
+    <!-- Navigation is suppressed for focused task screens -->
+    <!-- Ambient Decor -->
+    <div class="fixed top-0 right-0 -z-10 w-64 h-64 bg-primary/5 rounded-full blur-[100px]"></div>
+    <div
+      class="fixed bottom-0 left-0 -z-10 w-80 h-80 bg-secondary/5 rounded-full blur-[120px]"
+    ></div>
+  </body>
+</html>

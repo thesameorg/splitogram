@@ -1,240 +1,342 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>The Ethereal Ledger - Groups</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "on-secondary-fixed-variant": "#004b73",
-                        "surface-tint": "#92ccff",
-                        "background": "#131315",
-                        "on-primary": "#003351",
-                        "surface-container-lowest": "#0e0e10",
-                        "surface-container-low": "#1b1b1d",
-                        "on-secondary": "#003351",
-                        "on-tertiary-fixed": "#2e1500",
-                        "on-primary-container": "#002c47",
-                        "on-surface-variant": "#bfc7d2",
-                        "on-primary-fixed-variant": "#004b73",
-                        "on-secondary-container": "#8bc5f7",
-                        "primary-fixed-dim": "#92ccff",
-                        "surface-bright": "#39393b",
-                        "secondary-fixed": "#cce5ff",
-                        "inverse-on-surface": "#303032",
-                        "primary-container": "#2b98dd",
-                        "tertiary-fixed": "#ffdcc2",
-                        "tertiary-fixed-dim": "#ffb77a",
-                        "primary-fixed": "#cce5ff",
-                        "surface-container": "#1f1f21",
-                        "surface": "#131315",
-                        "on-error": "#690005",
-                        "secondary-container": "#00527e",
-                        "inverse-primary": "#006497",
-                        "surface-dim": "#131315",
-                        "tertiary-container": "#d37b1e",
-                        "error": "#ffb4ab",
-                        "on-tertiary-fixed-variant": "#6d3a00",
-                        "secondary-fixed-dim": "#93ccff",
-                        "outline-variant": "#3f4850",
-                        "error-container": "#93000a",
-                        "surface-variant": "#353437",
-                        "outline": "#89929b",
-                        "on-error-container": "#ffdad6",
-                        "secondary": "#93ccff",
-                        "on-primary-fixed": "#001d31",
-                        "on-background": "#e5e1e4",
-                        "on-surface": "#e5e1e4",
-                        "tertiary": "#ffb77a",
-                        "primary": "#92ccff",
-                        "surface-container-highest": "#353437",
-                        "inverse-surface": "#e5e1e4",
-                        "on-tertiary-container": "#432100",
-                        "on-secondary-fixed": "#001d31",
-                        "surface-container-high": "#2a2a2c",
-                        "on-tertiary": "#4c2700"
-                    },
-                    fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Manrope"],
-                        "label": ["Manrope"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The Ethereal Ledger - Groups</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'on-secondary-fixed-variant': '#004b73',
+              'surface-tint': '#92ccff',
+              background: '#131315',
+              'on-primary': '#003351',
+              'surface-container-lowest': '#0e0e10',
+              'surface-container-low': '#1b1b1d',
+              'on-secondary': '#003351',
+              'on-tertiary-fixed': '#2e1500',
+              'on-primary-container': '#002c47',
+              'on-surface-variant': '#bfc7d2',
+              'on-primary-fixed-variant': '#004b73',
+              'on-secondary-container': '#8bc5f7',
+              'primary-fixed-dim': '#92ccff',
+              'surface-bright': '#39393b',
+              'secondary-fixed': '#cce5ff',
+              'inverse-on-surface': '#303032',
+              'primary-container': '#2b98dd',
+              'tertiary-fixed': '#ffdcc2',
+              'tertiary-fixed-dim': '#ffb77a',
+              'primary-fixed': '#cce5ff',
+              'surface-container': '#1f1f21',
+              surface: '#131315',
+              'on-error': '#690005',
+              'secondary-container': '#00527e',
+              'inverse-primary': '#006497',
+              'surface-dim': '#131315',
+              'tertiary-container': '#d37b1e',
+              error: '#ffb4ab',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              'secondary-fixed-dim': '#93ccff',
+              'outline-variant': '#3f4850',
+              'error-container': '#93000a',
+              'surface-variant': '#353437',
+              outline: '#89929b',
+              'on-error-container': '#ffdad6',
+              secondary: '#93ccff',
+              'on-primary-fixed': '#001d31',
+              'on-background': '#e5e1e4',
+              'on-surface': '#e5e1e4',
+              tertiary: '#ffb77a',
+              primary: '#92ccff',
+              'surface-container-highest': '#353437',
+              'inverse-surface': '#e5e1e4',
+              'on-tertiary-container': '#432100',
+              'on-secondary-fixed': '#001d31',
+              'surface-container-high': '#2a2a2c',
+              'on-tertiary': '#4c2700',
             },
-        }
+            fontFamily: {
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
+            },
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
+          },
+        },
+      };
     </script>
-<style>
-        body {
-            font-family: 'Manrope', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .glass-panel {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .diamond-gradient {
-            background: linear-gradient(135deg, #92CCFF 0%, #2B98DD 100%);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .glass-panel {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .diamond-gradient {
+        background: linear-gradient(135deg, #92ccff 0%, #2b98dd 100%);
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-[#F4F4F5] dark:bg-background text-on-surface min-h-screen flex justify-center">
-<!-- Mobile-First Container (Telegram Mini App feel) -->
-<div class="w-full max-w-[400px] bg-[#F4F4F5] dark:bg-background min-h-screen relative shadow-2xl overflow-x-hidden pb-32">
-<!-- TopAppBar -->
-<header class="fixed top-0 left-0 w-full h-14 flex items-center px-4 justify-between bg-white/80 dark:bg-[#131315]/80 backdrop-blur-xl z-50 border-b border-gray-200/15 dark:border-white/15 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-<div class="flex items-center gap-3">
-<button class="text-[#0088CC] dark:text-[#92CCFF] active:scale-95 transition-transform duration-200">
-<span class="material-symbols-outlined">arrow_back</span>
-</button>
-<h1 class="font-['Manrope'] font-bold text-[#0088CC] dark:text-[#92CCFF] text-lg tracking-tight">The Ethereal Ledger</h1>
-</div>
-<button class="text-gray-500 dark:text-gray-400 active:scale-95 transition-transform duration-200">
-<span class="material-symbols-outlined">more_vert</span>
-</button>
-</header>
-<!-- Main Content -->
-<main class="mt-20 px-4 space-y-6">
-<!-- Hero: Total Balance Card -->
-<section class="relative overflow-hidden p-6 rounded-xl bg-white dark:bg-surface-container shadow-[0_10px_30px_rgba(0,136,204,0.08)]">
-<div class="absolute -top-12 -right-12 w-32 h-32 diamond-gradient rounded-full blur-3xl opacity-20"></div>
-<div class="relative z-10 space-y-1">
-<p class="text-xs font-label uppercase tracking-[0.1em] text-on-surface-variant font-semibold">Net Balance</p>
-<div class="flex items-baseline gap-1">
-<span class="text-4xl font-headline font-extrabold text-[#0088CC] dark:text-[#92CCFF] tracking-tight">$1,248.50</span>
-<span class="text-on-surface-variant text-sm font-medium">USD</span>
-</div>
-<div class="pt-4 flex items-center gap-4">
-<div class="flex flex-col">
-<span class="text-[10px] uppercase font-bold text-on-surface-variant">You are owed</span>
-<span class="text-primary font-bold">$1,668.50</span>
-</div>
-<div class="w-[1px] h-8 bg-outline-variant/15"></div>
-<div class="flex flex-col">
-<span class="text-[10px] uppercase font-bold text-on-surface-variant">You owe</span>
-<span class="text-error font-bold">$420.00</span>
-</div>
-</div>
-</div>
-</section>
-<!-- Active Groups Section -->
-<section class="space-y-4">
-<div class="flex items-center justify-between">
-<h2 class="text-sm font-headline font-bold uppercase tracking-widest text-on-surface-variant px-1">Active Groups</h2>
-<span class="text-[10px] bg-secondary-container/30 text-secondary px-2 py-0.5 rounded-full font-bold">4 GROUPS</span>
-</div>
-<div class="space-y-3">
-<!-- Group Item: Dubai Getaway -->
-<div class="group flex items-center p-4 bg-white dark:bg-surface-container-high rounded-xl hover:bg-gray-50 dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-[0.98] transition-all">
-<div class="w-12 h-12 rounded-lg diamond-gradient flex items-center justify-center text-white shadow-lg">
-<span class="material-symbols-outlined">beach_access</span>
-</div>
-<div class="ml-4 flex-1">
-<h3 class="font-headline font-bold text-on-surface text-base">Dubai Getaway</h3>
-<p class="text-xs text-on-surface-variant">6 participants</p>
-</div>
-<div class="text-right">
-<p class="text-[10px] font-bold uppercase tracking-tighter text-error">YOU OWE</p>
-<p class="font-headline font-extrabold text-error">$420.00</p>
-</div>
-</div>
-<!-- Group Item: Crypto Brunch -->
-<div class="group flex items-center p-4 bg-white dark:bg-surface-container-high rounded-xl hover:bg-gray-50 dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-[0.98] transition-all">
-<div class="w-12 h-12 rounded-lg bg-tertiary-container flex items-center justify-center text-white shadow-lg">
-<span class="material-symbols-outlined">currency_bitcoin</span>
-</div>
-<div class="ml-4 flex-1">
-<h3 class="font-headline font-bold text-on-surface text-base">Crypto Brunch</h3>
-<p class="text-xs text-on-surface-variant">3 participants</p>
-</div>
-<div class="text-right">
-<p class="text-[10px] font-bold uppercase tracking-tighter text-primary">OWES YOU</p>
-<p class="font-headline font-extrabold text-primary">$85.50</p>
-</div>
-</div>
-<!-- Group Item: Monthly Rent -->
-<div class="group flex items-center p-4 bg-white dark:bg-surface-container-high rounded-xl hover:bg-gray-50 dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-[0.98] transition-all">
-<div class="w-12 h-12 rounded-lg bg-surface-variant flex items-center justify-center text-on-surface-variant shadow-lg">
-<span class="material-symbols-outlined">home_work</span>
-</div>
-<div class="ml-4 flex-1">
-<h3 class="font-headline font-bold text-on-surface text-base">Monthly Rent</h3>
-<p class="text-xs text-on-surface-variant">2 participants</p>
-</div>
-<div class="text-right">
-<p class="text-[10px] font-bold uppercase tracking-tighter text-primary">OWES YOU</p>
-<p class="font-headline font-extrabold text-primary">$1,500.00</p>
-</div>
-</div>
-<!-- Group Item: Ski Trip -->
-<div class="group flex items-center p-4 bg-white dark:bg-surface-container-high rounded-xl hover:bg-gray-50 dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-[0.98] transition-all">
-<div class="w-12 h-12 rounded-lg bg-secondary-container flex items-center justify-center text-white shadow-lg">
-<span class="material-symbols-outlined">downhill_skiing</span>
-</div>
-<div class="ml-4 flex-1">
-<h3 class="font-headline font-bold text-on-surface text-base">Ski Trip</h3>
-<p class="text-xs text-on-surface-variant">8 participants</p>
-</div>
-<div class="text-right">
-<p class="text-[10px] font-bold uppercase tracking-tighter text-primary">OWES YOU</p>
-<p class="font-headline font-extrabold text-primary">$83.00</p>
-</div>
-</div>
-</div>
-</section>
-<!-- Settled Toggle Button -->
-<section class="flex justify-center pt-4">
-<button class="px-6 py-3 rounded-full bg-surface-container-high dark:bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-widest active:scale-95 transition-transform flex items-center gap-2">
-                    Show 12 settled groups
-                    <span class="material-symbols-outlined text-sm">expand_more</span>
-</button>
-</section>
-</main>
-<!-- FAB: Add Group -->
-<button class="fixed bottom-20 right-6 w-14 h-14 diamond-gradient rounded-xl shadow-2xl flex items-center justify-center text-on-primary z-40 active:scale-90 transition-all duration-200 ease-out group overflow-hidden">
-<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">add</span>
-<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-</button>
-<!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 pb-safe px-6 bg-white/90 dark:bg-[#131315]/80 backdrop-blur-2xl border-t border-gray-200/15 dark:border-white/15 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
-<!-- Active Tab: Groups -->
-<a class="flex flex-col items-center justify-center text-[#0088CC] dark:text-[#92CCFF] transition-colors duration-300 active:scale-90" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
-<span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1">Groups</span>
-</a>
-<!-- Inactive Tab: Feed -->
-<a class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100 transition-all active:scale-90" href="#">
-<span class="material-symbols-outlined">receipt_long</span>
-<span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1">Feed</span>
-</a>
-<!-- Inactive Tab: Account -->
-<a class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100 transition-all active:scale-90" href="#">
-<span class="material-symbols-outlined">person</span>
-<span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1">Account</span>
-</a>
-</nav>
-</div>
-<!-- Background Decoration for Desktop View -->
-<div class="hidden lg:block fixed inset-0 -z-10 bg-[#F4F4F5] dark:bg-background">
-<div class="absolute top-0 left-0 w-full h-full opacity-30 dark:opacity-10 pointer-events-none">
-<div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary blur-[120px] rounded-full"></div>
-<div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-tertiary blur-[100px] rounded-full"></div>
-</div>
-</div>
-</body></html>
+  <body class="bg-[#F4F4F5] dark:bg-background text-on-surface min-h-screen flex justify-center">
+    <!-- Mobile-First Container (Telegram Mini App feel) -->
+    <div
+      class="w-full max-w-[400px] bg-[#F4F4F5] dark:bg-background min-h-screen relative shadow-2xl overflow-x-hidden pb-32"
+    >
+      <!-- TopAppBar -->
+      <header
+        class="fixed top-0 left-0 w-full h-14 flex items-center px-4 justify-between bg-white/80 dark:bg-[#131315]/80 backdrop-blur-xl z-50 border-b border-gray-200/15 dark:border-white/15 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+      >
+        <div class="flex items-center gap-3">
+          <button
+            class="text-[#0088CC] dark:text-[#92CCFF] active:scale-95 transition-transform duration-200"
+          >
+            <span class="material-symbols-outlined">arrow_back</span>
+          </button>
+          <h1
+            class="font-['Manrope'] font-bold text-[#0088CC] dark:text-[#92CCFF] text-lg tracking-tight"
+          >
+            The Ethereal Ledger
+          </h1>
+        </div>
+        <button
+          class="text-gray-500 dark:text-gray-400 active:scale-95 transition-transform duration-200"
+        >
+          <span class="material-symbols-outlined">more_vert</span>
+        </button>
+      </header>
+      <!-- Main Content -->
+      <main class="mt-20 px-4 space-y-6">
+        <!-- Hero: Total Balance Card -->
+        <section
+          class="relative overflow-hidden p-6 rounded-xl bg-white dark:bg-surface-container shadow-[0_10px_30px_rgba(0,136,204,0.08)]"
+        >
+          <div
+            class="absolute -top-12 -right-12 w-32 h-32 diamond-gradient rounded-full blur-3xl opacity-20"
+          ></div>
+          <div class="relative z-10 space-y-1">
+            <p
+              class="text-xs font-label uppercase tracking-[0.1em] text-on-surface-variant font-semibold"
+            >
+              Net Balance
+            </p>
+            <div class="flex items-baseline gap-1">
+              <span
+                class="text-4xl font-headline font-extrabold text-[#0088CC] dark:text-[#92CCFF] tracking-tight"
+                >$1,248.50</span
+              >
+              <span class="text-on-surface-variant text-sm font-medium">USD</span>
+            </div>
+            <div class="pt-4 flex items-center gap-4">
+              <div class="flex flex-col">
+                <span class="text-[10px] uppercase font-bold text-on-surface-variant"
+                  >You are owed</span
+                >
+                <span class="text-primary font-bold">$1,668.50</span>
+              </div>
+              <div class="w-[1px] h-8 bg-outline-variant/15"></div>
+              <div class="flex flex-col">
+                <span class="text-[10px] uppercase font-bold text-on-surface-variant">You owe</span>
+                <span class="text-error font-bold">$420.00</span>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- Active Groups Section -->
+        <section class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h2
+              class="text-sm font-headline font-bold uppercase tracking-widest text-on-surface-variant px-1"
+            >
+              Active Groups
+            </h2>
+            <span
+              class="text-[10px] bg-secondary-container/30 text-secondary px-2 py-0.5 rounded-full font-bold"
+              >4 GROUPS</span
+            >
+          </div>
+          <div class="space-y-3">
+            <!-- Group Item: Dubai Getaway -->
+            <div
+              class="group flex items-center p-4 bg-white dark:bg-surface-container-high rounded-xl hover:bg-gray-50 dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-[0.98] transition-all"
+            >
+              <div
+                class="w-12 h-12 rounded-lg diamond-gradient flex items-center justify-center text-white shadow-lg"
+              >
+                <span class="material-symbols-outlined">beach_access</span>
+              </div>
+              <div class="ml-4 flex-1">
+                <h3 class="font-headline font-bold text-on-surface text-base">Dubai Getaway</h3>
+                <p class="text-xs text-on-surface-variant">6 participants</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[10px] font-bold uppercase tracking-tighter text-error">YOU OWE</p>
+                <p class="font-headline font-extrabold text-error">$420.00</p>
+              </div>
+            </div>
+            <!-- Group Item: Crypto Brunch -->
+            <div
+              class="group flex items-center p-4 bg-white dark:bg-surface-container-high rounded-xl hover:bg-gray-50 dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-[0.98] transition-all"
+            >
+              <div
+                class="w-12 h-12 rounded-lg bg-tertiary-container flex items-center justify-center text-white shadow-lg"
+              >
+                <span class="material-symbols-outlined">currency_bitcoin</span>
+              </div>
+              <div class="ml-4 flex-1">
+                <h3 class="font-headline font-bold text-on-surface text-base">Crypto Brunch</h3>
+                <p class="text-xs text-on-surface-variant">3 participants</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[10px] font-bold uppercase tracking-tighter text-primary">
+                  OWES YOU
+                </p>
+                <p class="font-headline font-extrabold text-primary">$85.50</p>
+              </div>
+            </div>
+            <!-- Group Item: Monthly Rent -->
+            <div
+              class="group flex items-center p-4 bg-white dark:bg-surface-container-high rounded-xl hover:bg-gray-50 dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-[0.98] transition-all"
+            >
+              <div
+                class="w-12 h-12 rounded-lg bg-surface-variant flex items-center justify-center text-on-surface-variant shadow-lg"
+              >
+                <span class="material-symbols-outlined">home_work</span>
+              </div>
+              <div class="ml-4 flex-1">
+                <h3 class="font-headline font-bold text-on-surface text-base">Monthly Rent</h3>
+                <p class="text-xs text-on-surface-variant">2 participants</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[10px] font-bold uppercase tracking-tighter text-primary">
+                  OWES YOU
+                </p>
+                <p class="font-headline font-extrabold text-primary">$1,500.00</p>
+              </div>
+            </div>
+            <!-- Group Item: Ski Trip -->
+            <div
+              class="group flex items-center p-4 bg-white dark:bg-surface-container-high rounded-xl hover:bg-gray-50 dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:scale-[0.98] transition-all"
+            >
+              <div
+                class="w-12 h-12 rounded-lg bg-secondary-container flex items-center justify-center text-white shadow-lg"
+              >
+                <span class="material-symbols-outlined">downhill_skiing</span>
+              </div>
+              <div class="ml-4 flex-1">
+                <h3 class="font-headline font-bold text-on-surface text-base">Ski Trip</h3>
+                <p class="text-xs text-on-surface-variant">8 participants</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[10px] font-bold uppercase tracking-tighter text-primary">
+                  OWES YOU
+                </p>
+                <p class="font-headline font-extrabold text-primary">$83.00</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- Settled Toggle Button -->
+        <section class="flex justify-center pt-4">
+          <button
+            class="px-6 py-3 rounded-full bg-surface-container-high dark:bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-widest active:scale-95 transition-transform flex items-center gap-2"
+          >
+            Show 12 settled groups
+            <span class="material-symbols-outlined text-sm">expand_more</span>
+          </button>
+        </section>
+      </main>
+      <!-- FAB: Add Group -->
+      <button
+        class="fixed bottom-20 right-6 w-14 h-14 diamond-gradient rounded-xl shadow-2xl flex items-center justify-center text-on-primary z-40 active:scale-90 transition-all duration-200 ease-out group overflow-hidden"
+      >
+        <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1"
+          >add</span
+        >
+        <div
+          class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+        ></div>
+      </button>
+      <!-- BottomNavBar -->
+      <nav
+        class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 pb-safe px-6 bg-white/90 dark:bg-[#131315]/80 backdrop-blur-2xl border-t border-gray-200/15 dark:border-white/15 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none"
+      >
+        <!-- Active Tab: Groups -->
+        <a
+          class="flex flex-col items-center justify-center text-[#0088CC] dark:text-[#92CCFF] transition-colors duration-300 active:scale-90"
+          href="#"
+        >
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1"
+            >group</span
+          >
+          <span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1"
+            >Groups</span
+          >
+        </a>
+        <!-- Inactive Tab: Feed -->
+        <a
+          class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100 transition-all active:scale-90"
+          href="#"
+        >
+          <span class="material-symbols-outlined">receipt_long</span>
+          <span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1"
+            >Feed</span
+          >
+        </a>
+        <!-- Inactive Tab: Account -->
+        <a
+          class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100 transition-all active:scale-90"
+          href="#"
+        >
+          <span class="material-symbols-outlined">person</span>
+          <span class="font-['Manrope'] text-[10px] font-medium tracking-wide uppercase mt-1"
+            >Account</span
+          >
+        </a>
+      </nav>
+    </div>
+    <!-- Background Decoration for Desktop View -->
+    <div class="hidden lg:block fixed inset-0 -z-10 bg-[#F4F4F5] dark:bg-background">
+      <div
+        class="absolute top-0 left-0 w-full h-full opacity-30 dark:opacity-10 pointer-events-none"
+      >
+        <div
+          class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary blur-[120px] rounded-full"
+        ></div>
+        <div
+          class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-tertiary blur-[100px] rounded-full"
+        ></div>
+      </div>
+    </div>
+  </body>
+</html>

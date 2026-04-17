@@ -1,327 +1,491 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Notification Settings - The Ethereal Ledger</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "outline": "#89929b",
-                        "on-secondary": "#00344c",
-                        "secondary-fixed-dim": "#86cfff",
-                        "tertiary-container": "#009fb2",
-                        "surface-container-low": "#1b1b1d",
-                        "primary-fixed-dim": "#92ccff",
-                        "tertiary": "#00daf3",
-                        "secondary": "#86cfff",
-                        "outline-variant": "#3f4850",
-                        "on-secondary-fixed": "#001e2e",
-                        "on-tertiary-container": "#002f35",
-                        "surface-container-lowest": "#0e0e10",
-                        "secondary-container": "#129ad7",
-                        "surface-container-highest": "#353437",
-                        "on-surface": "#e4e2e4",
-                        "on-error-container": "#ffdad6",
-                        "surface-dim": "#131315",
-                        "inverse-surface": "#e4e2e4",
-                        "background": "#131315",
-                        "on-surface-variant": "#bfc7d2",
-                        "on-tertiary-fixed": "#001f24",
-                        "inverse-primary": "#006497",
-                        "surface-tint": "#92ccff",
-                        "on-error": "#690005",
-                        "tertiary-fixed": "#9cf0ff",
-                        "on-secondary-container": "#002d43",
-                        "surface-container-high": "#2a2a2c",
-                        "on-secondary-fixed-variant": "#004c6d",
-                        "surface-container": "#1f1f21",
-                        "surface": "#131315",
-                        "on-tertiary-fixed-variant": "#004f58",
-                        "error-container": "#93000a",
-                        "on-primary": "#003351",
-                        "surface-bright": "#39393b",
-                        "tertiary-fixed-dim": "#00daf3",
-                        "primary-fixed": "#cce5ff",
-                        "inverse-on-surface": "#303032",
-                        "on-primary-fixed-variant": "#004b73",
-                        "on-primary-fixed": "#001d31"
-                    },
-                    fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                },
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Notification Settings - The Ethereal Ledger</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              outline: '#89929b',
+              'on-secondary': '#00344c',
+              'secondary-fixed-dim': '#86cfff',
+              'tertiary-container': '#009fb2',
+              'surface-container-low': '#1b1b1d',
+              'primary-fixed-dim': '#92ccff',
+              tertiary: '#00daf3',
+              secondary: '#86cfff',
+              'outline-variant': '#3f4850',
+              'on-secondary-fixed': '#001e2e',
+              'on-tertiary-container': '#002f35',
+              'surface-container-lowest': '#0e0e10',
+              'secondary-container': '#129ad7',
+              'surface-container-highest': '#353437',
+              'on-surface': '#e4e2e4',
+              'on-error-container': '#ffdad6',
+              'surface-dim': '#131315',
+              'inverse-surface': '#e4e2e4',
+              background: '#131315',
+              'on-surface-variant': '#bfc7d2',
+              'on-tertiary-fixed': '#001f24',
+              'inverse-primary': '#006497',
+              'surface-tint': '#92ccff',
+              'on-error': '#690005',
+              'tertiary-fixed': '#9cf0ff',
+              'on-secondary-container': '#002d43',
+              'surface-container-high': '#2a2a2c',
+              'on-secondary-fixed-variant': '#004c6d',
+              'surface-container': '#1f1f21',
+              surface: '#131315',
+              'on-tertiary-fixed-variant': '#004f58',
+              'error-container': '#93000a',
+              'on-primary': '#003351',
+              'surface-bright': '#39393b',
+              'tertiary-fixed-dim': '#00daf3',
+              'primary-fixed': '#cce5ff',
+              'inverse-on-surface': '#303032',
+              'on-primary-fixed-variant': '#004b73',
+              'on-primary-fixed': '#001d31',
             },
-        }
+            fontFamily: {
+              headline: ['Manrope'],
+              body: ['Inter'],
+              label: ['Inter'],
+            },
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
+          },
+        },
+      };
     </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        /* Custom Toggle Style */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: transparent;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #92ccff;
-        }
-        .toggle-checkbox:checked + .toggle-label .toggle-dot {
-            transform: translateX(100%);
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      /* Custom Toggle Style */
+      .toggle-checkbox:checked {
+        right: 0;
+        border-color: transparent;
+      }
+      .toggle-checkbox:checked + .toggle-label {
+        background-color: #92ccff;
+      }
+      .toggle-checkbox:checked + .toggle-label .toggle-dot {
+        transform: translateX(100%);
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-</head>
-<body class="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen pb-32">
-<!-- TopAppBar -->
-<header class="bg-[#131315]/80 backdrop-blur-md fixed top-0 w-full z-50">
-<div class="flex items-center justify-between px-4 h-16 w-full">
-<div class="flex items-center gap-3">
-<button class="active:scale-95 transition-transform hover:bg-white/5 p-2 rounded-full">
-<span class="material-symbols-outlined text-[#92ccff]">arrow_back</span>
-</button>
-<h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#92ccff]">The Ethereal Ledger</h1>
-</div>
-<button class="active:scale-95 transition-transform hover:bg-white/5 p-2 rounded-full">
-<span class="material-symbols-outlined text-[#92ccff]">more_vert</span>
-</button>
-</div>
-</header>
-<main class="pt-20 px-4 max-w-2xl mx-auto">
-<!-- Page Title Section -->
-<div class="mb-8 mt-4">
-<h2 class="font-headline font-extrabold text-3xl text-on-surface tracking-tight">Notifications</h2>
-<p class="text-on-surface-variant body-md mt-1 opacity-70">Customize how you stay updated with your ledger.</p>
-</div>
-<!-- TRANSACTIONS Group -->
-<section class="mb-6">
-<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm border border-white/5">
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">notifications_off</span>
-<div class="flex flex-col">
-<span class="font-bold text-on-surface">Mute All Notifications</span>
-<span class="text-[11px] text-on-surface-variant opacity-60 uppercase tracking-wider">Silence all alerts instantly</span>
-</div>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-</label>
-</div>
-</div>
-</section><section class="mb-8">
-<div class="px-2 mb-3">
-<h3 class="text-primary font-bold text-xs uppercase tracking-[0.15em] opacity-80">Transactions</h3>
-</div>
-<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm">
-<!-- List Items -->
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">receipt_long</span>
-<span class="font-medium">New Expense Added</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">edit_note</span>
-<span class="font-medium">Expense Edited</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">delete_sweep</span>
-<span class="font-medium">Expense Deleted</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">paid</span>
-<span class="font-medium">Payment Settled</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">notification_important</span>
-<span class="font-medium">Debt Reminders</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-</div>
-</section>
-<!-- GROUPS Group -->
-<section class="mb-8">
-<div class="px-2 mb-3">
-<h3 class="text-primary font-bold text-xs uppercase tracking-[0.15em] opacity-80">Groups &amp; Social</h3>
-</div>
-<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm">
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">group_add</span>
-<span class="font-medium">New Group Invitation</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">comment</span>
-<span class="font-medium">New Comment Received</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">person_add</span>
-<span class="font-medium">Member Joined Group</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">hub</span>
-<span class="font-medium">Group Activity Digest</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">forum</span>
-<span class="font-medium">Mentioned in Group</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-</div>
-</section>
-<!-- MARKETING Group -->
-<section class="mb-8">
-<div class="px-2 mb-3">
-<h3 class="text-primary font-bold text-xs uppercase tracking-[0.15em] opacity-80">Announcements</h3>
-</div>
-<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm">
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">campaign</span>
-<span class="font-medium">Product Updates</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">local_offer</span>
-<span class="font-medium">New Features &amp; Tips</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">diamond</span>
-<span class="font-medium">TON Ecosystem News</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">mail</span>
-<span class="font-medium">Monthly Ledger Report</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-<div class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100">security</span>
-<span class="font-medium">Security Alerts</span>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" disabled="" type="checkbox"/>
-<div class="w-11 h-6 bg-surface-container-highest/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</div>
-</div>
-<p class="px-2 mt-3 text-[11px] text-on-surface-variant opacity-50 uppercase tracking-widest leading-relaxed">Security alerts cannot be disabled to ensure your ledger safety.</p>
-</section>
-</main>
-<!-- BottomNavBar -->
-<nav class="bg-[#131315]/80 backdrop-blur-md fixed bottom-0 w-full z-50 rounded-t-2xl shadow-[0_-4px_40px_rgba(0,136,204,0.06)]">
-<div class="flex justify-around items-center h-20 pb-safe px-6">
-<a class="flex flex-col items-center justify-center text-[#e4e2e4]/60 hover:text-[#92ccff] active:scale-90 transition-all duration-200" href="#">
-<span class="material-symbols-outlined mb-1">group</span>
-<span class="font-['Inter'] text-[11px] font-medium uppercase tracking-wider">Groups</span>
-</a>
-<a class="flex flex-col items-center justify-center text-[#e4e2e4]/60 hover:text-[#92ccff] active:scale-90 transition-all duration-200" href="#">
-<span class="material-symbols-outlined mb-1">receipt_long</span>
-<span class="font-['Inter'] text-[11px] font-medium uppercase tracking-wider">Feed</span>
-</a>
-<a class="flex flex-col items-center justify-center text-[#92ccff] bg-[#2a2a2c] rounded-xl px-4 py-1 active:scale-90 transition-all duration-200" href="#">
-<span class="material-symbols-outlined mb-1">person</span>
-<span class="font-['Inter'] text-[11px] font-medium uppercase tracking-wider">Account</span>
-</a>
-</div>
-</nav>
-</body></html>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+  </head>
+  <body class="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen pb-32">
+    <!-- TopAppBar -->
+    <header class="bg-[#131315]/80 backdrop-blur-md fixed top-0 w-full z-50">
+      <div class="flex items-center justify-between px-4 h-16 w-full">
+        <div class="flex items-center gap-3">
+          <button class="active:scale-95 transition-transform hover:bg-white/5 p-2 rounded-full">
+            <span class="material-symbols-outlined text-[#92ccff]">arrow_back</span>
+          </button>
+          <h1 class="font-['Manrope'] font-bold text-lg tracking-tight text-[#92ccff]">
+            The Ethereal Ledger
+          </h1>
+        </div>
+        <button class="active:scale-95 transition-transform hover:bg-white/5 p-2 rounded-full">
+          <span class="material-symbols-outlined text-[#92ccff]">more_vert</span>
+        </button>
+      </div>
+    </header>
+    <main class="pt-20 px-4 max-w-2xl mx-auto">
+      <!-- Page Title Section -->
+      <div class="mb-8 mt-4">
+        <h2 class="font-headline font-extrabold text-3xl text-on-surface tracking-tight">
+          Notifications
+        </h2>
+        <p class="text-on-surface-variant body-md mt-1 opacity-70">
+          Customize how you stay updated with your ledger.
+        </p>
+      </div>
+      <!-- TRANSACTIONS Group -->
+      <section class="mb-6">
+        <div
+          class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm border border-white/5"
+        >
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform"
+                >notifications_off</span
+              >
+              <div class="flex flex-col">
+                <span class="font-bold text-on-surface">Mute All Notifications</span>
+                <span
+                  class="text-[11px] text-on-surface-variant opacity-60 uppercase tracking-wider"
+                  >Silence all alerts instantly</span
+                >
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
+              ></div>
+            </label>
+          </div>
+        </div>
+      </section>
+      <section class="mb-8">
+        <div class="px-2 mb-3">
+          <h3 class="text-primary font-bold text-xs uppercase tracking-[0.15em] opacity-80">
+            Transactions
+          </h3>
+        </div>
+        <div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm">
+          <!-- List Items -->
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >receipt_long</span
+              >
+              <span class="font-medium">New Expense Added</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >edit_note</span
+              >
+              <span class="font-medium">Expense Edited</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >delete_sweep</span
+              >
+              <span class="font-medium">Expense Deleted</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >paid</span
+              >
+              <span class="font-medium">Payment Settled</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >notification_important</span
+              >
+              <span class="font-medium">Debt Reminders</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+        </div>
+      </section>
+      <!-- GROUPS Group -->
+      <section class="mb-8">
+        <div class="px-2 mb-3">
+          <h3 class="text-primary font-bold text-xs uppercase tracking-[0.15em] opacity-80">
+            Groups &amp; Social
+          </h3>
+        </div>
+        <div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm">
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >group_add</span
+              >
+              <span class="font-medium">New Group Invitation</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >comment</span
+              >
+              <span class="font-medium">New Comment Received</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >person_add</span
+              >
+              <span class="font-medium">Member Joined Group</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >hub</span
+              >
+              <span class="font-medium">Group Activity Digest</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >forum</span
+              >
+              <span class="font-medium">Mentioned in Group</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+        </div>
+      </section>
+      <!-- MARKETING Group -->
+      <section class="mb-8">
+        <div class="px-2 mb-3">
+          <h3 class="text-primary font-bold text-xs uppercase tracking-[0.15em] opacity-80">
+            Announcements
+          </h3>
+        </div>
+        <div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm">
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >campaign</span
+              >
+              <span class="font-medium">Product Updates</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >local_offer</span
+              >
+              <span class="font-medium">New Features &amp; Tips</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >diamond</span
+              >
+              <span class="font-medium">TON Ecosystem News</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >mail</span
+              >
+              <span class="font-medium">Monthly Ledger Report</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+          <div
+            class="flex items-center justify-between p-4 hover:bg-surface-container transition-colors group"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined text-primary opacity-80 group-hover:opacity-100"
+                >security</span
+              >
+              <span class="font-medium">Security Alerts</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input checked="" class="sr-only peer" disabled="" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-surface-container-highest/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"
+              ></div>
+            </label>
+          </div>
+        </div>
+        <p
+          class="px-2 mt-3 text-[11px] text-on-surface-variant opacity-50 uppercase tracking-widest leading-relaxed"
+        >
+          Security alerts cannot be disabled to ensure your ledger safety.
+        </p>
+      </section>
+    </main>
+    <!-- BottomNavBar -->
+    <nav
+      class="bg-[#131315]/80 backdrop-blur-md fixed bottom-0 w-full z-50 rounded-t-2xl shadow-[0_-4px_40px_rgba(0,136,204,0.06)]"
+    >
+      <div class="flex justify-around items-center h-20 pb-safe px-6">
+        <a
+          class="flex flex-col items-center justify-center text-[#e4e2e4]/60 hover:text-[#92ccff] active:scale-90 transition-all duration-200"
+          href="#"
+        >
+          <span class="material-symbols-outlined mb-1">group</span>
+          <span class="font-['Inter'] text-[11px] font-medium uppercase tracking-wider"
+            >Groups</span
+          >
+        </a>
+        <a
+          class="flex flex-col items-center justify-center text-[#e4e2e4]/60 hover:text-[#92ccff] active:scale-90 transition-all duration-200"
+          href="#"
+        >
+          <span class="material-symbols-outlined mb-1">receipt_long</span>
+          <span class="font-['Inter'] text-[11px] font-medium uppercase tracking-wider">Feed</span>
+        </a>
+        <a
+          class="flex flex-col items-center justify-center text-[#92ccff] bg-[#2a2a2c] rounded-xl px-4 py-1 active:scale-90 transition-all duration-200"
+          href="#"
+        >
+          <span class="material-symbols-outlined mb-1">person</span>
+          <span class="font-['Inter'] text-[11px] font-medium uppercase tracking-wider"
+            >Account</span
+          >
+        </a>
+      </div>
+    </nav>
+  </body>
+</html>

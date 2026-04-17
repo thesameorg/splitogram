@@ -1,164 +1,221 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>The Ethereal Ledger - Welcome</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The Ethereal Ledger - Welcome</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              "on-tertiary": "#4c2700",
-              "surface-container-high": "#2a2a2c",
-              "on-secondary-container": "#8bc5f7",
-              "tertiary-fixed": "#ffdcc2",
-              "inverse-surface": "#e5e1e4",
-              "tertiary-fixed-dim": "#ffb77a",
-              "surface-container-low": "#1b1b1d",
-              "primary-fixed-dim": "#92ccff",
-              "on-tertiary-fixed": "#2e1500",
-              "on-secondary-fixed-variant": "#004b73",
-              "surface-dim": "#131315",
-              "outline-variant": "#3f4850",
-              "surface-container-highest": "#353437",
-              "on-background": "#e5e1e4",
-              "surface-container": "#1f1f21",
-              "on-tertiary-container": "#432100",
-              "primary": "#92ccff",
-              "on-primary": "#003351",
-              "on-surface-variant": "#bfc7d2",
-              "surface-tint": "#92ccff",
-              "surface-container-lowest": "#0e0e10",
-              "on-primary-container": "#002c47",
-              "surface-bright": "#39393b",
-              "tertiary": "#ffb77a",
-              "outline": "#89929b",
-              "inverse-on-surface": "#303032",
-              "error-container": "#93000a",
-              "on-error": "#690005",
-              "secondary-fixed": "#cce5ff",
-              "background": "#131315",
-              "secondary-fixed-dim": "#93ccff",
-              "primary-container": "#2b98dd",
-              "on-surface": "#e5e1e4",
-              "error": "#ffb4ab",
-              "secondary": "#93ccff",
-              "primary-fixed": "#cce5ff",
-              "on-error-container": "#ffdad6",
-              "inverse-primary": "#006497",
-              "on-primary-fixed": "#001d31",
-              "on-secondary-fixed": "#001d31",
-              "tertiary-container": "#d37b1e",
-              "surface-variant": "#353437",
-              "on-tertiary-fixed-variant": "#6d3a00",
-              "secondary-container": "#00527e",
-              "on-secondary": "#003351",
-              "on-primary-fixed-variant": "#004b73",
-              "surface": "#131315"
+              'on-tertiary': '#4c2700',
+              'surface-container-high': '#2a2a2c',
+              'on-secondary-container': '#8bc5f7',
+              'tertiary-fixed': '#ffdcc2',
+              'inverse-surface': '#e5e1e4',
+              'tertiary-fixed-dim': '#ffb77a',
+              'surface-container-low': '#1b1b1d',
+              'primary-fixed-dim': '#92ccff',
+              'on-tertiary-fixed': '#2e1500',
+              'on-secondary-fixed-variant': '#004b73',
+              'surface-dim': '#131315',
+              'outline-variant': '#3f4850',
+              'surface-container-highest': '#353437',
+              'on-background': '#e5e1e4',
+              'surface-container': '#1f1f21',
+              'on-tertiary-container': '#432100',
+              primary: '#92ccff',
+              'on-primary': '#003351',
+              'on-surface-variant': '#bfc7d2',
+              'surface-tint': '#92ccff',
+              'surface-container-lowest': '#0e0e10',
+              'on-primary-container': '#002c47',
+              'surface-bright': '#39393b',
+              tertiary: '#ffb77a',
+              outline: '#89929b',
+              'inverse-on-surface': '#303032',
+              'error-container': '#93000a',
+              'on-error': '#690005',
+              'secondary-fixed': '#cce5ff',
+              background: '#131315',
+              'secondary-fixed-dim': '#93ccff',
+              'primary-container': '#2b98dd',
+              'on-surface': '#e5e1e4',
+              error: '#ffb4ab',
+              secondary: '#93ccff',
+              'primary-fixed': '#cce5ff',
+              'on-error-container': '#ffdad6',
+              'inverse-primary': '#006497',
+              'on-primary-fixed': '#001d31',
+              'on-secondary-fixed': '#001d31',
+              'tertiary-container': '#d37b1e',
+              'surface-variant': '#353437',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              'secondary-container': '#00527e',
+              'on-secondary': '#003351',
+              'on-primary-fixed-variant': '#004b73',
+              surface: '#131315',
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Manrope"],
-              "label": ["Manrope"]
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
         },
-      }
+      };
     </script>
-<style>
-        @keyframes subtle-pulse {
-            0%, 100% { opacity: 0.8; transform: scale(1); filter: blur(40px); }
-            50% { opacity: 1; transform: scale(1.1); filter: blur(60px); }
+    <style>
+      @keyframes subtle-pulse {
+        0%,
+        100% {
+          opacity: 0.8;
+          transform: scale(1);
+          filter: blur(40px);
         }
-        .bg-glow {
-            animation: subtle-pulse 8s ease-in-out infinite;
+        50% {
+          opacity: 1;
+          transform: scale(1.1);
+          filter: blur(60px);
         }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
+      }
+      .bg-glow {
+        animation: subtle-pulse 8s ease-in-out infinite;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 300,
+          'GRAD' 0,
+          'opsz' 48;
+      }
+      .spinner-ring {
+        border: 2px solid rgba(146, 204, 255, 0.1);
+        border-top: 2px solid #92ccff;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-        .spinner-ring {
-            border: 2px solid rgba(146, 204, 255, 0.1);
-            border-top: 2px solid #92ccff;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
+        100% {
+          transform: rotate(360deg);
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-surface text-on-surface font-body selection:bg-primary/30 antialiased overflow-hidden">
-<!-- Ambient Background Texture -->
-<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-<div class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/5 rounded-full bg-glow"></div>
-<div class="absolute top-[40%] -right-[15%] w-[60%] h-[60%] bg-secondary-container/10 rounded-full bg-glow" style="animation-delay: -2s;"></div>
-<div class="absolute bottom-[-10%] left-[20%] w-[40%] h-[40%] bg-primary-container/5 rounded-full bg-glow" style="animation-delay: -4s;"></div>
-</div>
-<!-- Main Splash Content -->
-<main class="relative z-10 flex flex-col items-center justify-between min-h-screen px-8 py-16">
-<!-- Top Spacer -->
-<div class="flex-1"></div>
-<!-- Logo & Brand Section -->
-<div class="flex flex-col items-center gap-12">
-<!-- Icon Container -->
-<div class="relative group">
-<!-- Glowing Halo -->
-<div class="absolute inset-0 bg-primary/20 blur-[48px] rounded-full scale-150 group-hover:scale-175 transition-transform duration-1000"></div>
-<!-- Main Logo -->
-<div class="relative w-32 h-32 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-surface-container-lowest rounded-[2.5rem] shadow-2xl shadow-primary/10 border border-white/5">
-<span class="material-symbols-outlined text-7xl text-primary" style="font-variation-settings: 'FILL' 1;">
-                        diamond
-                    </span>
-</div>
-</div>
-<!-- Typography -->
-<div class="text-center space-y-3">
-<h1 class="text-3xl font-extrabold tracking-[0.2em] text-on-surface uppercase font-headline">
-                    The Ethereal Ledger
-                </h1>
-<p class="text-on-surface-variant/60 font-medium tracking-[0.1em] text-sm">
-                    PRECISION • PRIVACY • PERFORMANCE
-                </p>
-</div>
-<!-- Loading Indicator -->
-<div class="flex flex-col items-center gap-4 pt-4">
-<div class="spinner-ring"></div>
-<span class="text-[10px] text-primary/40 uppercase tracking-[0.25em] font-bold">
-                    Synchronizing
-                </span>
-</div>
-</div>
-<!-- Bottom Footer Section -->
-<div class="flex-1 flex flex-col justify-end items-center">
-<div class="flex items-center gap-3 px-5 py-2.5 bg-white/5 backdrop-blur-md rounded-full border border-white/5">
-<span class="text-[10px] text-on-surface-variant/50 uppercase tracking-[0.15em] font-semibold">
-                    Powered by
-                </span>
-<div class="flex items-center gap-1.5">
-<!-- TON Visual Identifier (Simplified Diamond/Triangle) -->
-<span class="material-symbols-outlined text-primary text-base" style="font-variation-settings: 'FILL' 1;">
-                        change_history
-                    </span>
-<span class="text-xs font-bold text-on-surface tracking-wider">TON</span>
-</div>
-</div>
-</div>
-</main>
-<!-- Overlay Grain Texture -->
-<div class="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/p6.png')]" data-alt="Subtle noise texture for cinematic look"></div>
-</body></html>
+  <body
+    class="bg-surface text-on-surface font-body selection:bg-primary/30 antialiased overflow-hidden"
+  >
+    <!-- Ambient Background Texture -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+      <div
+        class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/5 rounded-full bg-glow"
+      ></div>
+      <div
+        class="absolute top-[40%] -right-[15%] w-[60%] h-[60%] bg-secondary-container/10 rounded-full bg-glow"
+        style="animation-delay: -2s"
+      ></div>
+      <div
+        class="absolute bottom-[-10%] left-[20%] w-[40%] h-[40%] bg-primary-container/5 rounded-full bg-glow"
+        style="animation-delay: -4s"
+      ></div>
+    </div>
+    <!-- Main Splash Content -->
+    <main class="relative z-10 flex flex-col items-center justify-between min-h-screen px-8 py-16">
+      <!-- Top Spacer -->
+      <div class="flex-1"></div>
+      <!-- Logo & Brand Section -->
+      <div class="flex flex-col items-center gap-12">
+        <!-- Icon Container -->
+        <div class="relative group">
+          <!-- Glowing Halo -->
+          <div
+            class="absolute inset-0 bg-primary/20 blur-[48px] rounded-full scale-150 group-hover:scale-175 transition-transform duration-1000"
+          ></div>
+          <!-- Main Logo -->
+          <div
+            class="relative w-32 h-32 flex items-center justify-center bg-gradient-to-br from-surface-container-high to-surface-container-lowest rounded-[2.5rem] shadow-2xl shadow-primary/10 border border-white/5"
+          >
+            <span
+              class="material-symbols-outlined text-7xl text-primary"
+              style="font-variation-settings: 'FILL' 1"
+            >
+              diamond
+            </span>
+          </div>
+        </div>
+        <!-- Typography -->
+        <div class="text-center space-y-3">
+          <h1
+            class="text-3xl font-extrabold tracking-[0.2em] text-on-surface uppercase font-headline"
+          >
+            The Ethereal Ledger
+          </h1>
+          <p class="text-on-surface-variant/60 font-medium tracking-[0.1em] text-sm">
+            PRECISION • PRIVACY • PERFORMANCE
+          </p>
+        </div>
+        <!-- Loading Indicator -->
+        <div class="flex flex-col items-center gap-4 pt-4">
+          <div class="spinner-ring"></div>
+          <span class="text-[10px] text-primary/40 uppercase tracking-[0.25em] font-bold">
+            Synchronizing
+          </span>
+        </div>
+      </div>
+      <!-- Bottom Footer Section -->
+      <div class="flex-1 flex flex-col justify-end items-center">
+        <div
+          class="flex items-center gap-3 px-5 py-2.5 bg-white/5 backdrop-blur-md rounded-full border border-white/5"
+        >
+          <span
+            class="text-[10px] text-on-surface-variant/50 uppercase tracking-[0.15em] font-semibold"
+          >
+            Powered by
+          </span>
+          <div class="flex items-center gap-1.5">
+            <!-- TON Visual Identifier (Simplified Diamond/Triangle) -->
+            <span
+              class="material-symbols-outlined text-primary text-base"
+              style="font-variation-settings: 'FILL' 1"
+            >
+              change_history
+            </span>
+            <span class="text-xs font-bold text-on-surface tracking-wider">TON</span>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Overlay Grain Texture -->
+    <div
+      class="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/p6.png')]"
+      data-alt="Subtle noise texture for cinematic look"
+    ></div>
+  </body>
+</html>

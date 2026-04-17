@@ -1,77 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>TON Settlement</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      name="viewport"
+    />
+    <title>TON Settlement</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              "on-primary-container": "#002c47",
-              "on-secondary-container": "#8bc5f7",
-              "secondary": "#93ccff",
-              "on-primary-fixed": "#001d31",
-              "primary": "#92ccff",
-              "outline-variant": "#3f4850",
-              "on-tertiary-fixed-variant": "#6d3a00",
-              "on-surface-variant": "#bfc7d2",
-              "on-secondary": "#003351",
-              "on-tertiary-fixed": "#2e1500",
-              "error-container": "#93000a",
-              "error": "#ffb4ab",
-              "surface-variant": "#353437",
-              "surface-dim": "#131315",
-              "tertiary-container": "#d37b1e",
-              "background": "#131315",
-              "surface-container-high": "#2a2a2c",
-              "tertiary-fixed-dim": "#ffb77a",
-              "primary-container": "#2b98dd",
-              "surface-tint": "#92ccff",
-              "surface-container": "#1f1f21",
-              "inverse-primary": "#006497",
-              "tertiary-fixed": "#ffdcc2",
-              "surface-bright": "#39393b",
-              "secondary-container": "#00527e",
-              "tertiary": "#ffb77a",
-              "surface-container-highest": "#353437",
-              "outline": "#89929b",
-              "secondary-fixed": "#cce5ff",
-              "on-tertiary": "#4c2700",
-              "surface": "#131315",
-              "on-error-container": "#ffdad6",
-              "on-surface": "#e5e1e4",
-              "on-error": "#690005",
-              "surface-container-lowest": "#0e0e10",
-              "on-primary-fixed-variant": "#004b73",
-              "on-tertiary-container": "#432100",
-              "on-background": "#e5e1e4",
-              "on-secondary-fixed": "#001d31",
-              "primary-fixed-dim": "#92ccff",
-              "inverse-surface": "#e5e1e4",
-              "on-primary": "#003351",
-              "surface-container-low": "#1b1b1d",
-              "inverse-on-surface": "#303032",
-              "primary-fixed": "#cce5ff",
-              "on-secondary-fixed-variant": "#004b73",
-              "secondary-fixed-dim": "#93ccff"
+              'on-primary-container': '#002c47',
+              'on-secondary-container': '#8bc5f7',
+              secondary: '#93ccff',
+              'on-primary-fixed': '#001d31',
+              primary: '#92ccff',
+              'outline-variant': '#3f4850',
+              'on-tertiary-fixed-variant': '#6d3a00',
+              'on-surface-variant': '#bfc7d2',
+              'on-secondary': '#003351',
+              'on-tertiary-fixed': '#2e1500',
+              'error-container': '#93000a',
+              error: '#ffb4ab',
+              'surface-variant': '#353437',
+              'surface-dim': '#131315',
+              'tertiary-container': '#d37b1e',
+              background: '#131315',
+              'surface-container-high': '#2a2a2c',
+              'tertiary-fixed-dim': '#ffb77a',
+              'primary-container': '#2b98dd',
+              'surface-tint': '#92ccff',
+              'surface-container': '#1f1f21',
+              'inverse-primary': '#006497',
+              'tertiary-fixed': '#ffdcc2',
+              'surface-bright': '#39393b',
+              'secondary-container': '#00527e',
+              tertiary: '#ffb77a',
+              'surface-container-highest': '#353437',
+              outline: '#89929b',
+              'secondary-fixed': '#cce5ff',
+              'on-tertiary': '#4c2700',
+              surface: '#131315',
+              'on-error-container': '#ffdad6',
+              'on-surface': '#e5e1e4',
+              'on-error': '#690005',
+              'surface-container-lowest': '#0e0e10',
+              'on-primary-fixed-variant': '#004b73',
+              'on-tertiary-container': '#432100',
+              'on-background': '#e5e1e4',
+              'on-secondary-fixed': '#001d31',
+              'primary-fixed-dim': '#92ccff',
+              'inverse-surface': '#e5e1e4',
+              'on-primary': '#003351',
+              'surface-container-low': '#1b1b1d',
+              'inverse-on-surface': '#303032',
+              'primary-fixed': '#cce5ff',
+              'on-secondary-fixed-variant': '#004b73',
+              'secondary-fixed-dim': '#93ccff',
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Manrope"],
-              "label": ["Manrope"]
+              headline: ['Manrope'],
+              body: ['Manrope'],
+              label: ['Manrope'],
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
           },
         },
-      }
+      };
     </script>
-<style>
+    <style>
       body {
         font-family: 'Manrope', sans-serif;
         background-color: #131315;
@@ -87,7 +97,11 @@
         background: linear-gradient(135deg, #92ccff 0%, #2b98dd 100%);
       }
       .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
       }
       details > summary::-webkit-details-marker {
         display: none;
@@ -97,109 +111,177 @@
         background: rgba(146, 204, 255, 0.05);
       }
     </style>
-</head>
-<body class="bg-surface text-on-surface flex flex-col min-h-screen">
-<!-- TopAppBar -->
-<header class="fixed top-0 left-0 w-full z-50 flex items-center px-4 h-16 bg-[#131315]/80 backdrop-blur-xl border-b border-slate-400/15 shadow-[0px_10px_30px_rgba(0,136,204,0.08)]">
-<button class="transition-all duration-200 active:scale-95 p-2 -ml-2 hover:bg-slate-800/50 rounded-full">
-<span class="material-symbols-outlined text-[#92CCFF]">close</span>
-</button>
-<h1 class="font-['Manrope'] font-semibold tracking-tight text-lg ml-2 text-slate-100">Settlement</h1>
-</header>
-<main class="flex-grow pt-24 pb-40 px-6">
-<!-- Recipient Hero -->
-<section class="flex flex-col items-center mb-10">
-<div class="relative mb-4">
-<div class="absolute -inset-1 primary-gradient rounded-full opacity-20 blur-md"></div>
-<img alt="Alex Rivers" class="w-20 h-20 rounded-full border-2 border-primary/20 object-cover relative z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp4RM9I1CMCIAX5tncEr2rH6Q-jI3ReiHZlC57wllq6io3AyKkQKT50qXqpOlOjK3XucT056qJHtMf11RCwpmnRfJE9A6HKw1wkN0DqPOR7-kRkL-XNjsmcEHEEoDHGU5_N2O-f3TUNKWhudWi3amtQREC9bk5APiNRXe8mQHcogwTYa-AD-Q5OdF8ZwM4ie_1E5aClxgIjB-rJ9M9P-URYjFWSCaZJu6ORP2C90bQnPLdJ2xGRart2zAZHzhHiKSmX-muQSIP7a_S"/>
-</div>
-<h2 class="text-on-surface font-headline text-xl font-bold tracking-tight">Alex Rivers</h2>
-<p class="text-on-surface-variant text-sm font-label tracking-wide mt-1">Settling shared debt</p>
-</section>
-<!-- Amount Input Section -->
-<section class="flex flex-col items-center justify-center mb-8">
-<div class="w-full max-w-xs group transition-all duration-300 rounded-2xl border-2 border-outline-variant/30 p-4 amount-input-focused bg-surface-container-low/30">
-<p class="text-[10px] text-center uppercase tracking-[0.2em] font-bold text-on-surface-variant mb-2">Amount to Settle (USDT)</p>
-<div class="flex items-baseline justify-center">
-<span class="text-2xl font-bold text-primary mr-1">₮</span>
-<input class="bg-transparent border-none text-center text-4xl font-extrabold tracking-tighter text-on-surface focus:ring-0 w-full p-0" placeholder="0.00" step="0.01" type="number" value="1420.00"/>
-</div>
-</div>
-<div class="mt-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/10">
-<span class="text-on-surface-variant text-[11px] uppercase tracking-widest font-bold">Total Debt:</span>
-<span class="text-primary font-bold text-sm">₮ 1,420.00</span>
-</div>
-</section>
-<!-- Balance Preview & Bento Layout -->
-<div class="grid grid-cols-1 gap-4">
-<!-- Balance Card -->
-<div class="glass-card rounded-xl p-5 border border-outline-variant/10 shadow-lg">
-<div class="flex justify-between items-center">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-<img alt="USDT" class="w-6 h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMBsQjRSSTeHfTRfY9HiCvp8YfUM5Rwh0Tv_I2U_ffYN9HxXNr0IkFXMpkqRUP2IzPdanoFkG88Djs1NWFJkMAnJ2TL2cmcjLg44RWug7VdSh6NY7o49ZLUcpjsexydGEiZYsFh--jOYiHPDADZEzdiEENVRTQii94q7ESlshdr97njdNZvpFB7MsxiojiRPDKFbY75IyHkjJiT40z0cU0VI_1jGCkK--v4I-fR-Ynkea97Y-3ktaj3Td19ZveC2tx0RVbskZ_HH7u"/>
-</div>
-<div>
-<p class="text-on-surface-variant text-xs font-medium uppercase tracking-wider mb-0.5">Your Balance</p>
-<p class="text-on-surface font-bold text-base">154.20 USDT</p>
-</div>
-</div>
-<div class="text-right">
-<p class="text-[10px] text-on-surface-variant font-label tracking-wider mb-1">NETWORK</p>
-<span class="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold">TON MAINNET</span>
-</div>
-</div>
-</div>
-<!-- Contextual Info / Asymmetric Grid Item -->
-<div class="grid grid-cols-2 gap-4">
-<div class="bg-surface-container-low rounded-xl p-4 flex flex-col justify-between h-28 border border-outline-variant/5">
-<span class="material-symbols-outlined text-primary/40 text-xl">speed</span>
-<div>
-<p class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest">Speed</p>
-<p class="text-on-surface text-sm font-semibold">Instant USDT Transfer</p>
-</div>
-</div>
-<div class="bg-surface-container-low rounded-xl p-4 flex flex-col justify-between h-28 border border-outline-variant/5">
-<span class="material-symbols-outlined text-primary/40 text-xl">verified_user</span>
-<div>
-<p class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest">Security</p>
-<p class="text-on-surface text-sm font-semibold">Ledger Smart Contract</p>
-</div>
-</div>
-</div>
-<!-- How it works Collapsible -->
-<details class="group bg-surface-container-lowest/50 rounded-xl border border-outline-variant/10 overflow-hidden">
-<summary class="flex items-center justify-between p-4 cursor-pointer list-none">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-xl">help_outline</span>
-<span class="text-sm font-bold text-on-surface">How it works</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant transition-transform group-open:rotate-180">expand_more</span>
-</summary>
-<div class="px-4 pb-4 text-sm text-on-surface-variant leading-relaxed">
-<div class="space-y-3 pt-2">
-<div class="flex gap-3">
-<span class="text-primary font-bold">1.</span>
-<p>Funds are transferred instantly via the TON network using USDT (Tether).</p>
-</div>
-<div class="flex gap-3">
-<span class="text-primary font-bold">2.</span>
-<p>The Ethereal Ledger automatically verifies the transaction and updates your shared balance with Alex.</p>
-</div>
-<div class="flex gap-3">
-<span class="text-primary font-bold">3.</span>
-<p>Both parties receive a cryptographically signed receipt of settlement.</p>
-</div>
-</div>
-</div>
-</details>
-</div>
-</main>
-<!-- Footer Action -->
-<div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-40">
-<button class="primary-gradient w-full h-16 rounded-xl flex items-center justify-center gap-3 shadow-[0px_10px_30px_rgba(0,136,204,0.3)] transition-transform duration-150 active:scale-95">
-<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>
-<span class="text-on-primary font-headline font-bold text-base tracking-tight">Confirm on TON Wallet</span>
-</button>
-</div>
-</body></html>
+  </head>
+  <body class="bg-surface text-on-surface flex flex-col min-h-screen">
+    <!-- TopAppBar -->
+    <header
+      class="fixed top-0 left-0 w-full z-50 flex items-center px-4 h-16 bg-[#131315]/80 backdrop-blur-xl border-b border-slate-400/15 shadow-[0px_10px_30px_rgba(0,136,204,0.08)]"
+    >
+      <button
+        class="transition-all duration-200 active:scale-95 p-2 -ml-2 hover:bg-slate-800/50 rounded-full"
+      >
+        <span class="material-symbols-outlined text-[#92CCFF]">close</span>
+      </button>
+      <h1 class="font-['Manrope'] font-semibold tracking-tight text-lg ml-2 text-slate-100">
+        Settlement
+      </h1>
+    </header>
+    <main class="flex-grow pt-24 pb-40 px-6">
+      <!-- Recipient Hero -->
+      <section class="flex flex-col items-center mb-10">
+        <div class="relative mb-4">
+          <div class="absolute -inset-1 primary-gradient rounded-full opacity-20 blur-md"></div>
+          <img
+            alt="Alex Rivers"
+            class="w-20 h-20 rounded-full border-2 border-primary/20 object-cover relative z-10"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp4RM9I1CMCIAX5tncEr2rH6Q-jI3ReiHZlC57wllq6io3AyKkQKT50qXqpOlOjK3XucT056qJHtMf11RCwpmnRfJE9A6HKw1wkN0DqPOR7-kRkL-XNjsmcEHEEoDHGU5_N2O-f3TUNKWhudWi3amtQREC9bk5APiNRXe8mQHcogwTYa-AD-Q5OdF8ZwM4ie_1E5aClxgIjB-rJ9M9P-URYjFWSCaZJu6ORP2C90bQnPLdJ2xGRart2zAZHzhHiKSmX-muQSIP7a_S"
+          />
+        </div>
+        <h2 class="text-on-surface font-headline text-xl font-bold tracking-tight">Alex Rivers</h2>
+        <p class="text-on-surface-variant text-sm font-label tracking-wide mt-1">
+          Settling shared debt
+        </p>
+      </section>
+      <!-- Amount Input Section -->
+      <section class="flex flex-col items-center justify-center mb-8">
+        <div
+          class="w-full max-w-xs group transition-all duration-300 rounded-2xl border-2 border-outline-variant/30 p-4 amount-input-focused bg-surface-container-low/30"
+        >
+          <p
+            class="text-[10px] text-center uppercase tracking-[0.2em] font-bold text-on-surface-variant mb-2"
+          >
+            Amount to Settle (USDT)
+          </p>
+          <div class="flex items-baseline justify-center">
+            <span class="text-2xl font-bold text-primary mr-1">₮</span>
+            <input
+              class="bg-transparent border-none text-center text-4xl font-extrabold tracking-tighter text-on-surface focus:ring-0 w-full p-0"
+              placeholder="0.00"
+              step="0.01"
+              type="number"
+              value="1420.00"
+            />
+          </div>
+        </div>
+        <div
+          class="mt-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/10"
+        >
+          <span class="text-on-surface-variant text-[11px] uppercase tracking-widest font-bold"
+            >Total Debt:</span
+          >
+          <span class="text-primary font-bold text-sm">₮ 1,420.00</span>
+        </div>
+      </section>
+      <!-- Balance Preview & Bento Layout -->
+      <div class="grid grid-cols-1 gap-4">
+        <!-- Balance Card -->
+        <div class="glass-card rounded-xl p-5 border border-outline-variant/10 shadow-lg">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <img
+                  alt="USDT"
+                  class="w-6 h-6"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMBsQjRSSTeHfTRfY9HiCvp8YfUM5Rwh0Tv_I2U_ffYN9HxXNr0IkFXMpkqRUP2IzPdanoFkG88Djs1NWFJkMAnJ2TL2cmcjLg44RWug7VdSh6NY7o49ZLUcpjsexydGEiZYsFh--jOYiHPDADZEzdiEENVRTQii94q7ESlshdr97njdNZvpFB7MsxiojiRPDKFbY75IyHkjJiT40z0cU0VI_1jGCkK--v4I-fR-Ynkea97Y-3ktaj3Td19ZveC2tx0RVbskZ_HH7u"
+                />
+              </div>
+              <div>
+                <p
+                  class="text-on-surface-variant text-xs font-medium uppercase tracking-wider mb-0.5"
+                >
+                  Your Balance
+                </p>
+                <p class="text-on-surface font-bold text-base">154.20 USDT</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] text-on-surface-variant font-label tracking-wider mb-1">
+                NETWORK
+              </p>
+              <span
+                class="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold"
+                >TON MAINNET</span
+              >
+            </div>
+          </div>
+        </div>
+        <!-- Contextual Info / Asymmetric Grid Item -->
+        <div class="grid grid-cols-2 gap-4">
+          <div
+            class="bg-surface-container-low rounded-xl p-4 flex flex-col justify-between h-28 border border-outline-variant/5"
+          >
+            <span class="material-symbols-outlined text-primary/40 text-xl">speed</span>
+            <div>
+              <p class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest">
+                Speed
+              </p>
+              <p class="text-on-surface text-sm font-semibold">Instant USDT Transfer</p>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-low rounded-xl p-4 flex flex-col justify-between h-28 border border-outline-variant/5"
+          >
+            <span class="material-symbols-outlined text-primary/40 text-xl">verified_user</span>
+            <div>
+              <p class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest">
+                Security
+              </p>
+              <p class="text-on-surface text-sm font-semibold">Ledger Smart Contract</p>
+            </div>
+          </div>
+        </div>
+        <!-- How it works Collapsible -->
+        <details
+          class="group bg-surface-container-lowest/50 rounded-xl border border-outline-variant/10 overflow-hidden"
+        >
+          <summary class="flex items-center justify-between p-4 cursor-pointer list-none">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary text-xl">help_outline</span>
+              <span class="text-sm font-bold text-on-surface">How it works</span>
+            </div>
+            <span
+              class="material-symbols-outlined text-on-surface-variant transition-transform group-open:rotate-180"
+              >expand_more</span
+            >
+          </summary>
+          <div class="px-4 pb-4 text-sm text-on-surface-variant leading-relaxed">
+            <div class="space-y-3 pt-2">
+              <div class="flex gap-3">
+                <span class="text-primary font-bold">1.</span>
+                <p>Funds are transferred instantly via the TON network using USDT (Tether).</p>
+              </div>
+              <div class="flex gap-3">
+                <span class="text-primary font-bold">2.</span>
+                <p>
+                  The Ethereal Ledger automatically verifies the transaction and updates your shared
+                  balance with Alex.
+                </p>
+              </div>
+              <div class="flex gap-3">
+                <span class="text-primary font-bold">3.</span>
+                <p>Both parties receive a cryptographically signed receipt of settlement.</p>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+    <!-- Footer Action -->
+    <div
+      class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-40"
+    >
+      <button
+        class="primary-gradient w-full h-16 rounded-xl flex items-center justify-center gap-3 shadow-[0px_10px_30px_rgba(0,136,204,0.3)] transition-transform duration-150 active:scale-95"
+      >
+        <span
+          class="material-symbols-outlined text-on-primary"
+          style="font-variation-settings: 'FILL' 1"
+          >bolt</span
+        >
+        <span class="text-on-primary font-headline font-bold text-base tracking-tight"
+          >Confirm on TON Wallet</span
+        >
+      </button>
+    </div>
+  </body>
+</html>
