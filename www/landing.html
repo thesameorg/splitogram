@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Splitogram — split the bill, settle on-chain</title>
+<style>
+  :root {
+    --paper: #eef1f5;
+    --paper-2: #e4e9ef;
+    --ink: #0d1622;
+    --ink-2: #263243;
+    --hint: #6a7686;
+    --line: #d3dae2;
+    --ton: #0098ea;
+    --ton-deep: #0a63c9;
+    --settled: #12a06a;
+    --settled-bg: #e2f3ea;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mono {
+    font-family: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  a { color: inherit; }
+
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--hint);
+  }
+
+  /* ---- top bar ---- */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: saturate(1.4) blur(10px);
+    background: rgba(238, 241, 245, 0.82);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar { display: flex; align-items: center; justify-content: space-between; height: 62px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.02em; }
+  .glyph {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: linear-gradient(135deg, var(--ton), var(--ton-deep));
+    position: relative; flex: none;
+  }
+  .glyph::after {
+    content: ""; position: absolute; left: 50%; top: 4px; bottom: 4px;
+    width: 2px; margin-left: -1px; background: rgba(255,255,255,0.9);
+    transform: rotate(18deg);
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 15px;
+    padding: 11px 20px; border-radius: 999px;
+    background: var(--ink); color: var(--paper);
+    text-decoration: none; border: none; cursor: pointer;
+    transition: transform 0.12s ease, background 0.18s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.ton { background: linear-gradient(135deg, var(--ton), var(--ton-deep)); }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+
+  /* ---- hero ---- */
+  .hero { padding: 74px 0 40px; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
+  h1 {
+    font-size: clamp(38px, 6vw, 62px);
+    line-height: 1.02; letter-spacing: -0.035em; font-weight: 800;
+    margin: 18px 0 20px; text-wrap: balance;
+  }
+  h1 .u { color: var(--ton-deep); position: relative; white-space: nowrap; }
+  .lede { font-size: 19px; color: var(--ink-2); max-width: 46ch; margin: 0 0 30px; }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .cta-note { font-size: 13px; color: var(--hint); }
+
+  /* ---- interactive split card ---- */
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: 0 1px 0 rgba(13,22,34,0.04), 0 24px 60px -30px rgba(13,22,34,0.4);
+    overflow: hidden;
+  }
+  .card-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px dashed var(--line);
+    background: linear-gradient(180deg, #fbfcfd, #fff);
+  }
+  .card-top .who { display: flex; align-items: center; gap: 10px; }
+  .emoji-badge {
+    width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+    background: var(--paper-2); font-size: 18px;
+  }
+  .card-body { padding: 22px 20px; }
+  .amount-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+  .amount-cur { font-size: 22px; color: var(--hint); font-weight: 600; }
+  .amount {
+    font-size: 46px; font-weight: 700; letter-spacing: -0.02em;
+    border: none; outline: none; width: 100%; background: transparent; color: var(--ink);
+    padding: 0;
+  }
+  .amount::-webkit-outer-spin-button, .amount::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .desc { color: var(--hint); font-size: 14px; margin-bottom: 20px; }
+
+  .people-ctl { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .stepper { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .stepper button {
+    width: 34px; height: 34px; border: none; background: #fff; color: var(--ink);
+    font-size: 19px; cursor: pointer; line-height: 1;
+  }
+  .stepper button:hover { background: var(--paper); }
+  .stepper .count { min-width: 30px; text-align: center; font-weight: 600; }
+
+  .splits { display: flex; flex-direction: column; gap: 8px; }
+  .split {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 12px; border-radius: 12px; background: var(--paper);
+    animation: pop 0.25s ease;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .split .p { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .av { width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 700; flex: none; }
+  .split .owe { font-size: 15px; font-weight: 600; }
+
+  .settle-block { margin-top: 18px; border-top: 1px dashed var(--line); padding-top: 16px; }
+  .settle-line { display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: var(--ink-2); margin-bottom: 6px; }
+  .settle-line .mono { color: var(--ink); }
+  .settle-btn { width: 100%; margin-top: 12px; justify-content: center; }
+  .receipt {
+    display: none; margin-top: 14px; padding: 12px 14px; border-radius: 12px;
+    background: var(--settled-bg); color: #0c6e49; font-size: 13px;
+    align-items: center; gap: 10px;
+  }
+  .receipt.show { display: flex; animation: pop 0.3s ease; }
+  .receipt a { color: var(--settled); font-weight: 600; text-decoration: none; }
+  .check { width: 22px; height: 22px; border-radius: 999px; background: var(--settled); color: #fff; display: grid; place-items: center; flex: none; font-size: 13px; }
+
+  /* ---- trust strip ---- */
+  .strip { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--paper-2); }
+  .strip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; padding: 26px 0; }
+  .stat .n { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+  .stat .l { font-size: 13px; color: var(--hint); }
+
+  /* ---- sections ---- */
+  section.block { padding: 84px 0; }
+  .head { max-width: 60ch; margin-bottom: 46px; }
+  .head h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.03em; font-weight: 800; margin: 12px 0 12px; text-wrap: balance; }
+  .head p { font-size: 18px; color: var(--ink-2); margin: 0; }
+
+  /* how it works — real 3-step sequence */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .step { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px; position: relative; }
+  .step .num {
+    font-family: ui-monospace, Menlo, monospace; font-size: 13px; font-weight: 700;
+    color: var(--ton-deep); letter-spacing: 0.1em;
+  }
+  .step h3 { font-size: 19px; margin: 14px 0 8px; letter-spacing: -0.01em; }
+  .step p { color: var(--hint); font-size: 14.5px; margin: 0; }
+  .step .rail { position: absolute; left: 0; top: 22px; bottom: 22px; width: 3px; border-radius: 3px; background: linear-gradient(var(--ton), var(--ton-deep)); }
+
+  /* features */
+  .feat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .cell { background: var(--paper); padding: 30px 26px; }
+  .cell .ico { font-size: 22px; margin-bottom: 14px; }
+  .cell h3 { font-size: 17px; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .cell p { color: var(--hint); font-size: 14px; margin: 0; }
+
+  /* on-chain section */
+  .chain { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  .chain-vis { background: var(--ink); border-radius: 20px; padding: 28px; color: #cdd6e2; }
+  .flowline { display: flex; flex-direction: column; gap: 0; }
+  .node { display: flex; align-items: center; gap: 14px; padding: 14px 0; }
+  .node .dot { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; font-size: 18px; flex: none; background: rgba(255,255,255,0.06); }
+  .node .dot.act { background: linear-gradient(135deg, var(--ton), var(--ton-deep)); }
+  .node .txt small { display: block; font-size: 12px; color: #7d8ba0; }
+  .node .txt b { font-weight: 600; color: #eef2f7; font-size: 15px; }
+  .connector { width: 40px; display: grid; place-items: center; }
+  .connector span { width: 2px; height: 20px; background: repeating-linear-gradient(180deg, #33435a 0 4px, transparent 4px 8px); }
+  .fee-tag { margin-top: 6px; font-size: 12px; color: #7d8ba0; }
+
+  .chain-copy h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.03em; font-weight: 800; margin: 12px 0 16px; text-wrap: balance; }
+  .chain-copy ul { list-style: none; padding: 0; margin: 20px 0 0; display: flex; flex-direction: column; gap: 14px; }
+  .chain-copy li { display: flex; gap: 12px; font-size: 15px; color: var(--ink-2); }
+  .chain-copy li b { color: var(--ink); }
+  .tick { color: var(--settled); font-weight: 800; flex: none; }
+
+  /* final cta */
+  .final { text-align: center; padding: 92px 0; }
+  .final h2 { font-size: clamp(30px, 5vw, 50px); letter-spacing: -0.035em; font-weight: 800; margin: 0 0 16px; text-wrap: balance; }
+  .final p { font-size: 18px; color: var(--ink-2); margin: 0 auto 28px; max-width: 48ch; }
+
+  footer { border-top: 1px solid var(--line); padding: 30px 0; }
+  .foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--hint); }
+  .foot a { text-decoration: none; }
+  .foot nav { display: flex; gap: 20px; }
+
+  @media (max-width: 860px) {
+    .hero-grid, .chain { grid-template-columns: 1fr; gap: 36px; }
+    .steps, .feat, .strip-grid { grid-template-columns: 1fr 1fr; }
+    .hero { padding: 44px 0 20px; }
+  }
+  @media (max-width: 560px) {
+    .steps, .feat, .strip-grid { grid-template-columns: 1fr; }
+    .bar .btn.ghost { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand"><span class="glyph"></span> Splitogram</div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <a class="btn ghost" href="#how">How it works</a>
+      <a class="btn ton" href="#">Open in Telegram</a>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Telegram Mini App · TON blockchain</span>
+      <h1>Split the bill. Settle <span class="u">on-chain</span>, inside the chat.</h1>
+      <p class="lede">Splitwise-style expense tracking that lives where your group already talks. When it's time to pay up, send USDT on TON — no app-switching, no IOUs that never clear.</p>
+      <div class="cta-row">
+        <a class="btn ton" href="#">Open in Telegram</a>
+        <a class="btn ghost" href="#how">See how it works</a>
+      </div>
+      <p class="cta-note" style="margin-top:14px;">Free to use · 1% fee only on USDT settlements (min 0.1, max 1.0 USDT)</p>
+    </div>
+
+    <div class="card" id="demo">
+      <div class="card-top">
+        <div class="who">
+          <span class="emoji-badge">🏔️</span>
+          <div>
+            <div style="font-weight:600; font-size:15px;">Tahoe trip</div>
+            <div style="font-size:12px; color:var(--hint);">4 members · USD</div>
+          </div>
+        </div>
+        <span class="eyebrow">live split</span>
+      </div>
+      <div class="card-body">
+        <div class="amount-row">
+          <span class="amount-cur">$</span>
+          <input class="amount mono" id="amt" type="text" inputmode="decimal" value="240.00" aria-label="Expense amount">
+        </div>
+        <div class="desc">Dinner at the lodge — paid by You</div>
+
+        <div class="people-ctl">
+          <span style="font-size:14px; color:var(--ink-2);">Split among</span>
+          <div class="stepper">
+            <button id="minus" aria-label="Remove person">–</button>
+            <span class="count mono" id="pcount">4</span>
+            <button id="plus" aria-label="Add person">+</button>
+          </div>
+        </div>
+
+        <div class="splits" id="splits"></div>
+
+        <div class="settle-block">
+          <div class="settle-line"><span>Your share</span> <span class="mono" id="share">$60.00</span></div>
+          <div class="settle-line"><span>Network fee (gas, refundable excess)</span> <span class="mono">~0.035 TON</span></div>
+          <button class="btn ton settle-btn" id="settle">Settle in USDT →</button>
+          <div class="receipt" id="receipt">
+            <span class="check">✓</span>
+            <div>Settled on-chain · <a href="#" id="txlink">view tx ↗</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="strip">
+  <div class="wrap strip-grid">
+    <div class="stat"><div class="n mono">150+</div><div class="l">currencies supported</div></div>
+    <div class="stat"><div class="n mono">11</div><div class="l">languages, auto-detected</div></div>
+    <div class="stat"><div class="n mono">~$0.04</div><div class="l">typical settlement gas</div></div>
+    <div class="stat"><div class="n">0 apps</div><div class="l">to install — it's in Telegram</div></div>
+  </div>
+</div>
+
+<section class="block" id="how">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">How it works</span>
+      <h2>Three steps from shared dinner to cleared debt.</h2>
+      <p>The order matters — track first, simplify automatically, then settle only what's actually owed.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="rail"></span>
+        <div class="num">STEP 01</div>
+        <h3>Log the expense</h3>
+        <p>Add what you paid, snap the receipt, pick who's in. Amounts stored in micro-units — no floating-point drift, ever.</p>
+      </div>
+      <div class="step"><span class="rail"></span>
+        <div class="num">STEP 02</div>
+        <h3>Balances simplify themselves</h3>
+        <p>The debt graph collapses to the fewest transfers. Four people, tangled IOUs, one clean number each.</p>
+      </div>
+      <div class="step"><span class="rail"></span>
+        <div class="num">STEP 03</div>
+        <h3>Settle — USDT or offline</h3>
+        <p>Pay with USDT on TON straight from the chat, or mark it settled in cash. Both parties get a notification.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feat">
+      <div class="cell"><div class="ico">🧮</div><h3>Every split mode</h3><p>Equal, percentage, or exact amounts. Include people who aren't on the app yet as placeholders.</p></div>
+      <div class="cell"><div class="ico">🧾</div><h3>Receipts &amp; comments</h3><p>Attach a photo, thread a chat under any expense. Nobody asks "what was this for?" a week later.</p></div>
+      <div class="cell"><div class="ico">🌍</div><h3>Speaks your language</h3><p>Auto-detected from Telegram across 11 languages, 150+ currencies. One currency locked per group.</p></div>
+      <div class="cell"><div class="ico">🔔</div><h3>Gentle nudges</h3><p>Send a reminder for an outstanding debt — with a 24-hour cooldown so it never turns into spam.</p></div>
+      <div class="cell"><div class="ico">📊</div><h3>Group stats</h3><p>Who spent what, your share over time, month by month. A donut chart, not a spreadsheet.</p></div>
+      <div class="cell"><div class="ico">🔗</div><h3>Real settlement</h3><p>USDT moves on TON through an audited contract. The tx hash is yours to verify on Tonviewer.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block strip" style="border-top:1px solid var(--line);">
+  <div class="wrap chain">
+    <div class="chain-vis" aria-hidden="true">
+      <span class="eyebrow" style="color:#7d8ba0;">On-chain settlement</span>
+      <div class="flowline" style="margin-top:18px;">
+        <div class="node"><div class="dot act">👛</div><div class="txt"><small>from</small><b>Your TON wallet</b></div></div>
+        <div class="connector"><span></span></div>
+        <div class="node"><div class="dot">📜</div><div class="txt"><small>Splitogram contract · takes 1%</small><b>60.00 USDT</b></div></div>
+        <div class="connector"><span></span></div>
+        <div class="node"><div class="dot act">✅</div><div class="txt"><small>to</small><b>Recipient · 59.40 USDT</b></div></div>
+      </div>
+      <div class="fee-tag mono">EQBVVp…hTDgq · settled_onchain · excess gas refunded</div>
+    </div>
+    <div class="chain-copy">
+      <span class="eyebrow">Why on-chain</span>
+      <h2>The IOU that actually clears.</h2>
+      <p style="color:var(--ink-2); font-size:17px; margin:0;">Shared spreadsheets track debts. They don't collect them. Splitogram closes the loop: the balance you see becomes a real USDT transfer, verified on TON.</p>
+      <ul>
+        <li><span class="tick">✓</span><span><b>Stablecoin, not volatility.</b> USDT means $60 owed is $60 paid.</span></li>
+        <li><span class="tick">✓</span><span><b>Gas estimated live</b> via trace emulation — you attach enough, get the excess back.</span></li>
+        <li><span class="tick">✓</span><span><b>Failed tx? Auto-rollback.</b> Bounced payments return the balance to open, no stuck states.</span></li>
+        <li><span class="tick">✓</span><span><b>Prefer cash?</b> Mark it settled offline. Crypto is an option, never a requirement.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="final">
+  <div class="wrap">
+    <span class="eyebrow">Ready when your group is</span>
+    <h2>Stop chasing your friends for $12.</h2>
+    <p>Add the bot, split the next bill, and let the balance settle itself. No new app on anyone's phone.</p>
+    <a class="btn ton" href="#" style="padding:14px 28px; font-size:16px;">Open Splitogram in Telegram</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <div class="brand" style="font-size:14px;"><span class="glyph" style="width:20px;height:20px;"></span> Splitogram</div>
+    <nav>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contract ↗</a>
+    </nav>
+    <div>Splitwise meets Telegram Wallet · on TON</div>
+  </div>
+</footer>
+
+<script>
+  const palette = ['#0a63c9', '#12a06a', '#e0813a', '#8a56d6', '#d64578', '#2aa7b8', '#5b6ad6', '#c0392b'];
+  const names = ['You', 'Mara', 'Devin', 'Priya', 'Leo', 'Sana', 'Tom', 'Ivy'];
+
+  const amtEl = document.getElementById('amt');
+  const splitsEl = document.getElementById('splits');
+  const shareEl = document.getElementById('share');
+  const pcountEl = document.getElementById('pcount');
+  const receipt = document.getElementById('receipt');
+  let people = 4;
+
+  function money(n) { return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  function render() {
+    const total = Math.max(0, parseFloat(amtEl.value.replace(/[^0-9.]/g, '')) || 0);
+    const each = total / people;
+    splitsEl.innerHTML = '';
+    for (let i = 0; i < people; i++) {
+      const row = document.createElement('div');
+      row.className = 'split';
+      row.innerHTML =
+        '<div class="p"><span class="av" style="background:' + palette[i % palette.length] + '">' +
+        names[i].charAt(0) + '</span>' + names[i] + (i === 0 ? ' · paid' : '') + '</div>' +
+        '<span class="owe mono">' + (i === 0 ? '+' + money(total - each) : '−' + money(each)) + '</span>';
+      splitsEl.appendChild(row);
+    }
+    shareEl.textContent = money(each);
+    receipt.classList.remove('show');
+  }
+
+  document.getElementById('plus').onclick = () => { if (people < 8) { people++; pcountEl.textContent = people; render(); } };
+  document.getElementById('minus').onclick = () => { if (people > 2) { people--; pcountEl.textContent = people; render(); } };
+  amtEl.addEventListener('input', render);
+  document.getElementById('settle').onclick = (e) => { e.preventDefault(); receipt.classList.add('show'); };
+  document.getElementById('txlink').onclick = (e) => e.preventDefault();
+
+  render();
+</script>
+</body>
+</html>
